@@ -1,4 +1,4 @@
-# WichtelApp 
+# Wichtly  
 
 # Geniale App fuer Wichteln 
 
