@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-
 class GiftGroupRepositoryImpl(
     private val giftGroupDao: GiftGroupDao,
     private val validator: GiftGroupValidator
@@ -27,14 +26,13 @@ class GiftGroupRepositoryImpl(
     }
 
     override suspend fun createGiftGroup(group: GiftGroup): GiftGroupResult {
-
         val existingGroups = loadAllGroups()
 
         val errors = validator.validate(group, existingGroups, requireFutureDate = true)
         if (errors.isNotEmpty()) {
             return GiftGroupResult.ValidationError(errors)
         }
-        giftGroupDao.upsertGroup(group.toEntity())
+        giftGroupDao.insertGroup(group.toEntity())
         return GiftGroupResult.Success(group)
     }
 
@@ -45,7 +43,7 @@ class GiftGroupRepositoryImpl(
             return GiftGroupResult.ValidationError(errors)
         }
 
-        giftGroupDao.upsertGroup(group.toEntity())
+        giftGroupDao.updateGroup(group.toEntity())
         return GiftGroupResult.Success(group)
     }
 
