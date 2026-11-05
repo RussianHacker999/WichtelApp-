@@ -3,13 +3,13 @@ package com.example.wichtly.domain.validation
 import com.example.wichtly.domain.model.GiftGroup
 import java.time.LocalDate
 
-
 sealed interface GiftGroupValidationError {
     object EmptyName : GiftGroupValidationError
     object NameTooLong : GiftGroupValidationError
     object DuplicateName : GiftGroupValidationError
     object InvalidBudget : GiftGroupValidationError
     object DateInPast : GiftGroupValidationError
+    object GroupNotFound : GiftGroupValidationError
 }
 
 sealed interface GiftGroupResult {
@@ -21,7 +21,7 @@ class GiftGroupValidator {
     fun validate(
         group: GiftGroup,
         existingGroups: List<GiftGroup>,
-        requireFutureDate: Boolean = false,
+        requireFutureDate: Boolean = true,
         currentDate: LocalDate = LocalDate.now()
     ): List<GiftGroupValidationError> {
         val errors = mutableListOf<GiftGroupValidationError>()
@@ -49,7 +49,7 @@ class GiftGroupValidator {
             errors.add(GiftGroupValidationError.InvalidBudget)
         }
 
-        // Rule: Create operation requires dates lying in the future
+        // Rule: Draw date must lie in the future
         if (requireFutureDate && !group.drawDay.isAfter(currentDate)) {
             errors.add(GiftGroupValidationError.DateInPast)
         }

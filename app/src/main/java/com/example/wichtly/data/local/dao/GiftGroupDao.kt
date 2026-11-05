@@ -17,11 +17,11 @@ interface GiftGroupDao {
     @Query("SELECT * FROM gift_groups WHERE id = :id")
     fun getGiftGroupById(id: String): Flow<GiftGroupEntity?>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertGroup(group: GiftGroupEntity)
 
     @Update
-    suspend fun updateGroup(group: GiftGroupEntity)
+    suspend fun updateGroup(group: GiftGroupEntity): Int
 
     @Query("DELETE FROM gift_groups WHERE id = :id")
     suspend fun deleteGroupById(id: String)

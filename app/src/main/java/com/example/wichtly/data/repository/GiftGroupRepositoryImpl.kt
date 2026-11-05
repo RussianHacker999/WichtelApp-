@@ -7,10 +7,12 @@ import com.example.wichtly.data.mapper.toEntity
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.validation.GiftGroupResult
+import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 class GiftGroupRepositoryImpl(
     private val giftGroupDao: GiftGroupDao,
@@ -26,26 +28,37 @@ class GiftGroupRepositoryImpl(
     }
 
     override suspend fun createGiftGroup(group: GiftGroup): GiftGroupResult {
+        val groupWithId = if (group.id.isBlank()) {
+            group.copy(id = UUID.randomUUID().toString())
+        } else {
+            group
+        }
         val existingGroups = loadAllGroups()
 
-        val errors = validator.validate(group, existingGroups, requireFutureDate = true)
+        val errors = validator.validate(groupWithId, existingGroups, requireFutureDate = true)
         if (errors.isNotEmpty()) {
             return GiftGroupResult.ValidationError(errors)
         }
-        giftGroupDao.insertGroup(group.toEntity())
-        return GiftGroupResult.Success(group)
+        giftGroupDao.insertGroup(groupWithId.toEntity())
+        return GiftGroupResult.Success(groupWithId)
     }
 
     override suspend fun updateGiftGroup(group: GiftGroup): GiftGroupResult {
         val existingGroups = loadAllGroups()
-        val errors = validator.validate(group, existingGroups, requireFutureDate = false)
+        val errors = validator.validate(group, existingGroups, requireFutureDate = true)
         if (errors.isNotEmpty()) {
             return GiftGroupResult.ValidationError(errors)
         }
 
-        giftGroupDao.updateGroup(group.toEntity())
+        val rowsUpdated = giftGroupDao.updateGroup(group.toEntity())
+        if (rowsUpdated == 0) {
+            return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+        }
         return GiftGroupResult.Success(group)
     }
+
+
+
 
     override suspend fun deleteGiftGroup(id: String) {
         giftGroupDao.deleteGroupById(id)
