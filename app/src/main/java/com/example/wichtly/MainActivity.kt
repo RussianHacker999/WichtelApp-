@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.ui.GroupsScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,12 +20,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WichtlyTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                /*Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
-                }
+                }*/
+                GroupsScreen()
             }
         }
     }

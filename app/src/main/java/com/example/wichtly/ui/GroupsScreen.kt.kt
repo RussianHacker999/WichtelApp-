@@ -1,0 +1,47 @@
+package com.example.wichtly.ui
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.theme.WichtlyTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+//um die UI-Elemente von Material 3 nutzen zu koennen
+@Composable
+//die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
+fun GroupsScreen(modifier: Modifier = Modifier){
+    Scaffold(
+        //Scaffold quasi Geruest fuer einen Screen
+        modifier = modifier,
+        topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
+    ) { innerPadding ->
+        Text(
+            "Hallo ich bin Melissa!",
+            modifier = Modifier.padding(innerPadding)
+        )
+    }
+}
+
+//Methode um den Screen als Vorschau anschauen zukoennen,
+//ohne den Emulator und die App laufen zu lassen
+//oeffen:   im Editor - da wo am die geoeffeneten Dateien wecheln kann
+//          Code | Spilt | Design -> Waehle Split aus
+@Preview(showBackground = true)
+@Composable
+private fun GroupsScreenPreview() {
+    WichtlyTheme() {
+        GroupsScreen()
+    }
+}
+
