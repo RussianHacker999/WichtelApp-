@@ -26,10 +26,27 @@ fun GroupsScreen(modifier: Modifier = Modifier){
         modifier = modifier,
         topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
     ) { innerPadding ->
-        Text(
+        /*Text(
             "Hallo ich bin Melissa!",
             modifier = Modifier.padding(innerPadding)
+        )*/
+        val names = listOf(
+            "Melissa",
+            "Paul",
+            "Tina",
+            "Gustav"
         )
+        LazyColumn(
+            modifier = Modifier.padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            //jede Spalte muss in ein item (bei einer LazyColum)
+            //ein Zeilen: item vs. mehere Zeilen: items
+            items (names){ aName ->
+                Text("Hallo ich bin $aName!")
+            }
+        }
     }
 }
 
