@@ -2,9 +2,11 @@ package com.example.wichtly.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -44,7 +46,16 @@ fun GroupsScreen(modifier: Modifier = Modifier){
             //jede Spalte muss in ein item (bei einer LazyColum)
             //ein Zeilen: item vs. mehere Zeilen: items
             items (names){ aName ->
-                Text("Hallo ich bin $aName!")
+                //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
+                Card(modifier = modifier.fillMaxWidth()) {
+                    //durch die Card wird z.B. die Graue Box eingefuegt
+                    Text(
+                        text = "Hallo ich bin $aName!",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
+                        //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
+                    )
+                }
             }
         }
     }
