@@ -133,6 +133,24 @@ for future date.\
 **Geaendert:**   Datein fuer GroupsViewModel und GroupsUISate eingefuegt
 **Commits:**     d3198e9
 
+### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
+**Prompt 1**: Wie kann ich diese Methode im ViewModel nutzen? Die Methode gibt Daten aus einer Datenbank zurück. Ich möchte diese Daten im ViewModel nutzen. Muss ich einen bei jedem Auslesen ein neues GiftGroupRepositoryImpl-Objekt erstellen? ​‌
+class GiftGroupRepositoryImpl(
+    private val giftGroupDao: GiftGroupDao,
+    private val validator: GiftGroupValidator
+) : GiftGroupRepository {
+        override fun getGiftGroups(): Flow<List<GiftGroup>> {
+        return giftGroupDao.getAllGiftGroups().map { it.toDomainModelList() }
+    }} 
+**Promt 2**: Bitte erklaere mir die typischen Verwendungen im ViewModel genauer
+**Promt 3**: Ich brauche erstmal ausschließliche den Namen der Gruppe. Ist es sinnvoll nur den Namen der Gruppe zuspeichert oder sollte man trotzem alles speichern? fun GiftGroupEntity.toDomainModel(): GiftGroup = GiftGroup(
+    id = id,
+    name = name,...)
+**Angenommen:**  GiftGroupRepository dem GroupsViewModel uebergeben, init
+**Geaendert:**  GroupsUiState speichert List<GiftGroup> statt List<string>
+**Commits:** c83b0f3
+
+
 
 
 
