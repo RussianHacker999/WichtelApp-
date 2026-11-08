@@ -43,7 +43,7 @@ fun GroupsScreen(modifier: Modifier = Modifier){
             //jede Spalte muss in ein item (bei einer LazyColum)
             //ein Zeilen: item vs. mehere Zeilen: items
             item(){
-                Button(onClick = { },
+                Button(onClick = { /*weiter Leitung an GroupsFrom*/ },
                     modifier = modifier.fillMaxWidth()
                 ) {
                     Text("+ Gruppe")
