@@ -126,5 +126,13 @@ for future date.\
 **Accepted** as is.\
 **Commits**: ac7b7d2
 
+### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
+**Prompt 1**: Wo liegt der Unterschied zwischen einem UIState und einem ViewModel? Ist es sinnvoll beides in eine Adroid App mit Composable habe?.\
+**Promt 2**: Es soll mehrere Einträge aus einer Datenbank gezogen werden, sodass die eine Liste an Namen auf den Screen geprinted wird. Ich weiß, dass man eine solche Liste im Composable als LazyColumn speichert. Ist das im UISate auch der Fall?.\
+**Angenommen:**  Datein und ihr Grundgeruest (mit einer (leeren) List für die Gruppen aus der Datenbank(wird spaeter verbunden))
+**Geaendert:**   Datein fuer GroupsViewModel und GroupsUISate eingefuegt
+**Commits:**     d3198e9
+
+
 
 
