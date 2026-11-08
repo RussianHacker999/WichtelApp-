@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,15 +29,11 @@ fun GroupsScreen(modifier: Modifier = Modifier){
         modifier = modifier,
         topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
     ) { innerPadding ->
-        /*Text(
-            "Hallo ich bin Melissa!",
-            modifier = Modifier.padding(innerPadding)
-        )*/
-        val names = listOf(
-            "Melissa",
-            "Paul",
-            "Tina",
-            "Gustav"
+        val groupNames = listOf(
+            "Abteilung IT",
+            "Familie",
+            "Buchclub",
+            "Volleyball"
         )
         LazyColumn(
             modifier = Modifier.padding(innerPadding),
@@ -45,12 +42,19 @@ fun GroupsScreen(modifier: Modifier = Modifier){
         ) {
             //jede Spalte muss in ein item (bei einer LazyColum)
             //ein Zeilen: item vs. mehere Zeilen: items
-            items (names){ aName ->
+            item(){
+                Button(onClick = { },
+                    modifier = modifier.fillMaxWidth()
+                ) {
+                    Text("+ Gruppe")
+                }
+            }
+            items (groupNames){ aName ->
                 //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
                 Card(modifier = modifier.fillMaxWidth()) {
                     //durch die Card wird z.B. die Graue Box eingefuegt
                     Text(
-                        text = "Hallo ich bin $aName!",
+                        text = "Gruppe $aName!",
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
                         //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
