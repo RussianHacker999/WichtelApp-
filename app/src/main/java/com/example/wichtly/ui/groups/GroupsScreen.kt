@@ -54,7 +54,7 @@ fun GroupsScreen(modifier: Modifier = Modifier){
                 Card(modifier = modifier.fillMaxWidth()) {
                     //durch die Card wird z.B. die Graue Box eingefuegt
                     Text(
-                        text = "Gruppe $aName!",
+                        text = "Gruppe $aName",
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
                         //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
