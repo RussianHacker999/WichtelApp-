@@ -210,3 +210,11 @@ Füge private @Preview-Funktionen in WichtlyTheme hinzu: Hinzufügen leer, Bearb
 Das Projekt muss weiterhin bauen. Fasse am Ende zusammen, was du angelegt hast.
 **Accepted**: Accepted created file "WishlistItemDialog.kt" with very few parameter changes.
 **Commits**: b913bd1
+
+**Prompt 4**:
+Lies zuerst AGENTS.md. Lege nur die neue Datei WishlistDeleteDialog.kt im Paket com.example.wichtly.ui.wishlist an. Ändere keine bestehenden Dateien. Kein ViewModel, kein Repository, keine Navigation, keine neuen Dependencies.
+
+Ein zustandsloser AlertDialog. Parameter: itemText: String, isSaving: Boolean, onConfirm: () -> Unit, onDismiss: () -> Unit. Er zeigt den Wunschtext und fragt, ob er gelöscht werden soll. Der Bestätigen-Button ist während isSaving 
+deaktiviert. Füge eine private @Preview-Funktion in WichtlyTheme hinzu, Fake-Daten nur dort. Kommentare auf Deutsch, die das Warum erklären. Das Projekt muss weiterhin bauen. Fasse am Ende zusammen, was du angelegt hast.
+**Accepted**: stateless ParticipantWishlistScreen; keeping in mind that actualy data will replace temporary test data
+**Commits**: 10db69d
