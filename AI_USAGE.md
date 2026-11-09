@@ -252,3 +252,10 @@ data class WishlistUiState(
 **Accepted**: Accepted val's listed above, after considerung Gemini's explanation.
 **Commits**: c52d021
 
+### 2026-11-09 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
+**Prompt 1**:Wie baut man eine Verbidung zwischen dem Screen und dem UiState? Wie benutze ich eine Objekt vom UiState im Screen?
+**Prompt 2**: Wie behandele ich jetzt die GroupsScreenPreview() Funktion. Welchen Input darf sie haben?
+**Angenommen:** Verbindungsidee zwischen UiState und Screen
+**Geaendert:** Namen der Wichtelgruppen aus dem UiState auf dem Screen anzeigen, statt hardgecoded Namen
+**Commits:** 6d26256
+
