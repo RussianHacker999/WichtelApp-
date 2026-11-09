@@ -146,6 +146,19 @@ fun ParticipantWishlistScreen(
                     onDismiss = onDismissEditor
                 )
             }
+
+            // Löschdialog nur, wenn pendingDeleteItemId gesetzt ist UND ein Item mit dieser ID existiert.
+            val pendingDeleteItem = state.pendingDeleteItemId?.let { pendingId ->
+                state.items.find { it.id == pendingId }
+            }
+            if (pendingDeleteItem != null) {
+                WishlistDeleteDialog(
+                    itemText = pendingDeleteItem.text,
+                    isSaving = state.isSaving,
+                    onConfirm = onConfirmDelete,
+                    onDismiss = onDismissDelete
+                )
+            }
         }
     }
 }
@@ -508,6 +521,40 @@ private fun ParticipantWishlistScreenWithEditorPreview() {
                 showEditor = true,
                 editingItemId = null,
                 editorText = "Neues Buch",
+                isSaving = false
+            ),
+            onBack = {},
+            onAddClick = {},
+            onEditClick = {},
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ParticipantWishlistScreenWithDeleteDialogPreview() {
+    val sampleItems = listOf(
+        TemporaryWishlistItem(
+            id = "1",
+            participantId = "p1",
+            text = "Kaffeemaschine (Espresso)",
+            sortOrder = 1
+        )
+    )
+
+    WichtlyTheme {
+        ParticipantWishlistScreen(
+            state = WishlistUiState(
+                isLoading = false,
+                participantName = "Alex",
+                items = sampleItems,
+                pendingDeleteItemId = "1",
                 isSaving = false
             ),
             onBack = {},
