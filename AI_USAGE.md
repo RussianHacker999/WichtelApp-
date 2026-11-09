@@ -152,9 +152,9 @@ class GiftGroupRepositoryImpl(
 
 ### 2026-11-08 (Diana, Folz), Claude.ai (kostenlos)
 
-**Prompt 1**:
-Lies AGENTS.md und den AP3.3-Vertrag. Plane einen ParticipantWishlistScreen, der nur participantId als Navigationsargument erhält. Der Screen lädt den Teilnehmer
-über ParticipantRepository.observeParticipantById(id) und die Einträge über WishlistRepository.observeWishlistItems(id). Zeige Teilnehmernamen als Überschrift und
+**Prompt 1**: 
+Lies AGENTS.md und den AP3.3-Vertrag. Plane einen ParticipantWishlistScreen, der nur participantId als Navigationsargument erhält. Der Screen lädt den Teilnehmer 
+über ParticipantRepository.observeParticipantById(id) und die Einträge über WishlistRepository.observeWishlistItems(id). Zeige Teilnehmernamen als Überschrift und 
 seine Wunschliste. Add/Edit/Delete eines Wunscheintrags. Keine Namen als Schlüssel und keine ParticipantInput/WishlistInput-Klasse. Definiere UiState, Route und Dialoge; noch keine Dateien ändern.
 **Accepted**: Zustände Loading/NotFound, Dialog-State im ViewModel, key = item.id.\
 **Commits**: ca5020f
@@ -168,6 +168,7 @@ Füge für jeden Zustand eine private @Preview in WichtlyTheme hinzu: Laden, Nic
 **Accepted**: WishlistUiState, TemporaryWishlistItem, ParticipantWishlistScreen mit fünf Previews.\
 **Commits**: ca5020f
 
+<<<<<<< HEAD
 ### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
 **Prompt 1**:Bitte erstelle einen Code mit mir Beispiel Gruppendaten. (Familie-, Uni- und Schule-Gruppe) (Ich möchte den Teil, nur forübergehen zum Testen nutzen, also sollte er so eingefügt werden, dass ich ihn leicht entfernen kann.
 AppDatabase:
@@ -219,5 +220,35 @@ fun GiftGroup.toEntity(): GiftGroupEntity = GiftGroupEntity(
 **Commits:** b3622c5
 
 
+=======
+### 2026-11-08 (Diana, Folz), Claude.ai (kostenlos)
+>>>>>>> 3551c8b (docs(Changes to WishlistUiState.kt): Added AI_Usage entries)
 
+**Prompt 1**:
+Lies zuerst AGENTS.md. Ändere nur WishlistUiState.kt im Paket com.example.wichtly.ui.wishlist. Ändere keine anderen Dateien. Kein ViewModel, kein Repository, keine Navigation, keine neuen Dependencies.
+
+Ergänze showEditor: Boolean = false, editingItemId: String? = null, editorText: String = “”, editorError: String? = null und pendingDeleteItemId: String? = null. Aktualisiere die KDoc. editingItemId 
+null bedeutet Hinzufügen-Modus, eine ID bedeutet Bearbeiten-Modus. errorMessage bleibt für Ladefehler, die den ganzen Screen ersetzen. Validierungs- und Speicherfehler beim Hinzufügen oder Bearbeiten gehören in editorError. Bestehende Felder und Standardwerte bleiben unverändert. Das Projekt muss weiterhin bauen. Fasse am Ende zusammen, was du geändert hast.
+**Accepted**: WishlistUiState variables and values: showEditor, editingItemId, editorText, editorError, pendingDeleteItemId
+**Changed**: Comments explaining certain features (for maintainability reasons)
+**Commits**: c52d021
+
+**Prompt 2**:
+Explain the following code:
+```kotlin
+data class WishlistUiState(
+    val isLoading: Boolean = true,
+    val participantName: String? = null,
+    val items: List<TemporaryWishlistItem> = emptyList(),
+    val errorMessage: String? = null,
+    val isSaving: Boolean = false,
+    val showEditor: Boolean = false,
+    val editingItemId: String? = null,
+    val editorText: String = "",
+    val editorError: String? = null,
+    val pendingDeleteItemId: String? = null
+)
+```
+**Accepted**: Accepted val's listed above, after considerung Gemini's explanation.
+**Commits**: c52d021
 
