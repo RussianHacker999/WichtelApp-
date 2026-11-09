@@ -198,3 +198,15 @@ data class WishlistUiState(
 **Accepted**: Accepted val's listed above, after considerung Gemini's explanation.
 **Commits**: c52d021
 
+**Prompt 3**:
+Lies zuerst AGENTS.md. Lege nur die neue Datei WishlistItemDialog.kt im Paket com.example.wichtly.ui.wishlist an. Ändere keine bestehenden Dateien. Kein ViewModel, kein Repository, keine Navigation, keine neuen Dependencies. 
+Ein Wunsch hat nur text, keine Titel, Beschreibungen, Links oder Kategorien.
+
+Ein zustandsloser AlertDialog für Hinzufügen und Bearbeiten. Parameter: isEditMode: Boolean, text: 
+String, errorMessage: String?, isSaving: Boolean, onTextChange: (String) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit. Ein einzeiliges OutlinedTextField mit der Fehlermeldung direkt darunter (isError und supportingText). 
+Der Speichern-Button ist während isSaving deaktiviert. Die Titel lauten “Wunsch hinzufügen” und “Wunsch bearbeiten”, die Buttons “Speichern” und “Abbrechen”.
+
+Füge private @Preview-Funktionen in WichtlyTheme hinzu: Hinzufügen leer, Bearbeiten mit vorbelegtem Text, mit Fehlermeldung und im Speichern-Zustand. Fake-Daten nur in den Previews. Kommentare auf Deutsch, die das Warum erklären. 
+Das Projekt muss weiterhin bauen. Fasse am Ende zusammen, was du angelegt hast.
+**Accepted**: Accepted created file "WishlistItemDialog.kt" with very few parameter changes.
+**Commits**: b913bd1
