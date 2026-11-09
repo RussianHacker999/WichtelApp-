@@ -5,6 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+
+//fuer sample Data
+import com.example.wichtly.domain.model.GiftGroup
+import java.time.LocalDate
+
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import kotlinx.coroutines.launch
 
@@ -30,7 +35,28 @@ class GroupsViewModel(
                     //Immer wenn neue Daten aus der Datenbank kommen, wird dieser Block ausgefuehrt
                     //(neue Liste an GiftGroup)
                     uiState = uiState.copy(
-                        groups = groups
+                        /*groups = groups*/
+                        //Aufgabe add Seample Data
+                        groups = listOf(
+                            GiftGroup(
+                                id = "1",
+                                name = "Arbeit",
+                                budgetCents = 1,
+                                drawDay = LocalDate.of(2026, 10, 15)
+                            ),
+                            GiftGroup(
+                                id = "2",
+                                name = "Uni",
+                                budgetCents = 20,
+                                drawDay = LocalDate.of(2026, 11, 4)
+                            ),
+                            GiftGroup(
+                                id = "3",
+                                name = "Familie",
+                                budgetCents = 60,
+                                drawDay = LocalDate.now()
+                            )
+                        )
                     )
                     //Aktuallisierung des UiStates
                     //UiStates uebernimmt alle alten Werte aus dem UiState,
