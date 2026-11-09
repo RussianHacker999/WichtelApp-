@@ -168,5 +168,56 @@ Füge für jeden Zustand eine private @Preview in WichtlyTheme hinzu: Laden, Nic
 **Accepted**: WishlistUiState, TemporaryWishlistItem, ParticipantWishlistScreen mit fünf Previews.\
 **Commits**: ca5020f
 
+### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
+**Prompt 1**:Bitte erstelle einen Code mit mir Beispiel Gruppendaten. (Familie-, Uni- und Schule-Gruppe) (Ich möchte den Teil, nur forübergehen zum Testen nutzen, also sollte er so eingefügt werden, dass ich ihn leicht entfernen kann.
+AppDatabase:
+package com.example.wichtly.data.local
+import android.content.Context
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.example.wichtly.data.local.dao.GiftGroupDao
+import com.example.wichtly.data.local.entity.GiftGroupEntity
+@Database(
+    entities = [GiftGroupEntity::class],
+    version = 1,
+    exportSchema = false
+)
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun giftGroupDao(): GiftGroupDao
+    companion object {
+        @Volatile
+        private var INSTANCE: AppDatabase? = null
+        fun getDatabase(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    "wichtly_database"
+                ).build()
+                INSTANCE = instance
+                instance
+            }
+        }
+    }
+}
+GiftGroupMapper:
+...
+fun GiftGroup.toEntity(): GiftGroupEntity = GiftGroupEntity(
+    id = id,
+    name = name,
+    budgetCents = budgetCents,
+    drawDay = drawDay,
+    drawType = drawType,
+    photoPath = photoPath
+)
+...
+**Angenommen:** Beispiel Daten von GiftGroups im GroupsViewModel erstellen
+**Geaendert:**  ViewModel zieht Infos ueber die vorhanden GiftGroups vom Beispieldatensatz und nicht aus der Datenbank
+**Commits:** b3622c5
+
+
 
 
