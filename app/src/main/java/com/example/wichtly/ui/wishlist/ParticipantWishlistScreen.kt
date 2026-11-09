@@ -47,6 +47,11 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param onAddClick Callback zum Hinzufügen eines neuen Wunsches.
  * @param onEditClick Callback zum Bearbeiten eines bestehenden Wunsches (erhält itemId).
  * @param onDeleteClick Callback zum Löschen eines Wunsches (erhält itemId).
+ * @param onEditorTextChange Callback bei Textänderungen im Editor-Dialog.
+ * @param onSaveClick Callback zum Speichern im Editor-Dialog.
+ * @param onDismissEditor Callback zum Abbrechen/Schließen des Editor-Dialogs.
+ * @param onConfirmDelete Callback zum Bestätigen der Löschung im Löschdialog.
+ * @param onDismissDelete Callback zum Abbrechen/Schließen des Löschdialogs.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +62,11 @@ fun ParticipantWishlistScreen(
     onAddClick: () -> Unit,
     onEditClick: (itemId: String) -> Unit,
     onDeleteClick: (itemId: String) -> Unit,
+    onEditorTextChange: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onDismissEditor: () -> Unit,
+    onConfirmDelete: () -> Unit,
+    onDismissDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Der übergebene modifier wird ausschließlich hier am Top-Level Scaffold angewendet.
@@ -337,11 +347,6 @@ private fun WishlistItemCard(
     }
 }
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
-
 @Preview(showBackground = true)
 @Composable
 private fun ParticipantWishlistScreenLoadingPreview() {
@@ -353,7 +358,12 @@ private fun ParticipantWishlistScreenLoadingPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -370,7 +380,12 @@ private fun ParticipantWishlistScreenNotFoundPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -388,7 +403,12 @@ private fun ParticipantWishlistScreenErrorPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -406,7 +426,12 @@ private fun ParticipantWishlistScreenEmptyPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -445,7 +470,12 @@ private fun ParticipantWishlistScreenWithItemsPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-            onDeleteClick = {}
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
