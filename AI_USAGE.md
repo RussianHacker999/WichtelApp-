@@ -168,61 +168,7 @@ Füge für jeden Zustand eine private @Preview in WichtlyTheme hinzu: Laden, Nic
 **Accepted**: WishlistUiState, TemporaryWishlistItem, ParticipantWishlistScreen mit fünf Previews.\
 **Commits**: ca5020f
 
-<<<<<<< HEAD
-### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
-**Prompt 1**:Bitte erstelle einen Code mit mir Beispiel Gruppendaten. (Familie-, Uni- und Schule-Gruppe) (Ich möchte den Teil, nur forübergehen zum Testen nutzen, also sollte er so eingefügt werden, dass ich ihn leicht entfernen kann.
-AppDatabase:
-package com.example.wichtly.data.local
-import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.example.wichtly.data.local.dao.GiftGroupDao
-import com.example.wichtly.data.local.entity.GiftGroupEntity
-@Database(
-    entities = [GiftGroupEntity::class],
-    version = 1,
-    exportSchema = false
-)
-@TypeConverters(Converters::class)
-abstract class AppDatabase : RoomDatabase() {
-    abstract fun giftGroupDao(): GiftGroupDao
-    companion object {
-        @Volatile
-        private var INSTANCE: AppDatabase? = null
-        fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "wichtly_database"
-                ).build()
-                INSTANCE = instance
-                instance
-            }
-        }
-    }
-}
-GiftGroupMapper:
-...
-fun GiftGroup.toEntity(): GiftGroupEntity = GiftGroupEntity(
-    id = id,
-    name = name,
-    budgetCents = budgetCents,
-    drawDay = drawDay,
-    drawType = drawType,
-    photoPath = photoPath
-)
-...
-**Angenommen:** Beispiel Daten von GiftGroups im GroupsViewModel erstellen
-**Geaendert:**  ViewModel zieht Infos ueber die vorhanden GiftGroups vom Beispieldatensatz und nicht aus der Datenbank
-**Commits:** b3622c5
-
-
-=======
-### 2026-11-09 (Diana, Folz), Claude.ai (kostenlos)
->>>>>>> 3551c8b (docs(Changes to WishlistUiState.kt): Added AI_Usage entries)
+### 2026-11-08 (Diana, Folz), Claude.ai (kostenlos)
 
 **Prompt 1**:
 Lies zuerst AGENTS.md. Ändere nur WishlistUiState.kt im Paket com.example.wichtly.ui.wishlist. Ändere keine anderen Dateien. Kein ViewModel, kein Repository, keine Navigation, keine neuen Dependencies.
@@ -252,10 +198,15 @@ data class WishlistUiState(
 **Accepted**: Accepted val's listed above, after considerung Gemini's explanation.
 **Commits**: c52d021
 
-### 2026-11-09 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
-**Prompt 1**:Wie baut man eine Verbidung zwischen dem Screen und dem UiState? Wie benutze ich eine Objekt vom UiState im Screen?
-**Prompt 2**: Wie behandele ich jetzt die GroupsScreenPreview() Funktion. Welchen Input darf sie haben?
-**Angenommen:** Verbindungsidee zwischen UiState und Screen
-**Geaendert:** Namen der Wichtelgruppen aus dem UiState auf dem Screen anzeigen, statt hardgecoded Namen
-**Commits:** 6d26256
+**Prompt 3**:
+Lies zuerst AGENTS.md. Lege nur die neue Datei WishlistItemDialog.kt im Paket com.example.wichtly.ui.wishlist an. Ändere keine bestehenden Dateien. Kein ViewModel, kein Repository, keine Navigation, keine neuen Dependencies. 
+Ein Wunsch hat nur text, keine Titel, Beschreibungen, Links oder Kategorien.
 
+Ein zustandsloser AlertDialog für Hinzufügen und Bearbeiten. Parameter: isEditMode: Boolean, text: 
+String, errorMessage: String?, isSaving: Boolean, onTextChange: (String) -> Unit, onSave: () -> Unit, onDismiss: () -> Unit. Ein einzeiliges OutlinedTextField mit der Fehlermeldung direkt darunter (isError und supportingText). 
+Der Speichern-Button ist während isSaving deaktiviert. Die Titel lauten “Wunsch hinzufügen” und “Wunsch bearbeiten”, die Buttons “Speichern” und “Abbrechen”.
+
+Füge private @Preview-Funktionen in WichtlyTheme hinzu: Hinzufügen leer, Bearbeiten mit vorbelegtem Text, mit Fehlermeldung und im Speichern-Zustand. Fake-Daten nur in den Previews. Kommentare auf Deutsch, die das Warum erklären. 
+Das Projekt muss weiterhin bauen. Fasse am Ende zusammen, was du angelegt hast.
+**Accepted**: Accepted created file "WishlistItemDialog.kt" with very few parameter changes.
+**Commits**: b913bd1
