@@ -40,20 +40,38 @@ class GroupsViewModel(
                         groups = listOf(
                             GiftGroup(
                                 id = "1",
-                                name = "Arbeit",
+                                name = "Familie",
+                                budgetCents = 60,
+                                drawDay = LocalDate.of(2025, 12,6)
+                            ),
+                            GiftGroup(
+                                id = "2",
+                                name = "Abteilung It",
                                 budgetCents = 1,
                                 drawDay = LocalDate.of(2026, 10, 15)
                             ),
                             GiftGroup(
-                                id = "2",
+                                id = "3",
                                 name = "Uni",
                                 budgetCents = 20,
                                 drawDay = LocalDate.of(2026, 11, 4)
                             ),
                             GiftGroup(
-                                id = "3",
+                                id = "4",
                                 name = "Familie",
                                 budgetCents = 60,
+                                drawDay = LocalDate.of(2026, 11, 6)
+                            ),
+                            GiftGroup(
+                                id = "5",
+                                name = "Buchclub",
+                                budgetCents = 20,
+                                drawDay = LocalDate.of(2026, 11, 8)
+                            ),
+                            GiftGroup(
+                                id = "6",
+                                name = "Volleyball",
+                                budgetCents = 15,
                                 drawDay = LocalDate.now()
                             )
                         )

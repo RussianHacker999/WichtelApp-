@@ -17,24 +17,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.ui.groups.GroupsUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 //um die UI-Elemente von Material 3 nutzen zu koennen
 @Composable
 //die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
-fun GroupsScreen(modifier: Modifier = Modifier){
+fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
     Scaffold(
         //Scaffold quasi Geruest fuer einen Screen
         modifier = modifier,
         topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
     ) { innerPadding ->
-        val groupNames = listOf(
-            "Abteilung IT",
-            "Familie",
-            "Buchclub",
-            "Volleyball"
-        )
         LazyColumn(
             modifier = Modifier.padding(innerPadding),
             contentPadding = PaddingValues(16.dp),
@@ -49,12 +46,12 @@ fun GroupsScreen(modifier: Modifier = Modifier){
                     Text("+ Gruppe")
                 }
             }
-            items (groupNames){ aName ->
+            items (uiState.groups){ group ->
                 //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
                 Card(modifier = modifier.fillMaxWidth()) {
                     //durch die Card wird z.B. die Graue Box eingefuegt
                     Text(
-                        text = "Gruppe $aName",
+                        text = "Gruppe ${group.name}",
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
                         //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
@@ -72,8 +69,48 @@ fun GroupsScreen(modifier: Modifier = Modifier){
 @Preview(showBackground = true)
 @Composable
 private fun GroupsScreenPreview() {
+    val testUiState = GroupsUiState(
+        groups = listOf(
+            GiftGroup(
+                id = "1",
+                name = "Familie",
+                budgetCents = 60,
+                drawDay = LocalDate.of(2025, 12,6)
+            ),
+            GiftGroup(
+                id = "2",
+                name = "Abteilung It",
+                budgetCents = 1,
+                drawDay = LocalDate.of(2026, 10, 15)
+            ),
+            GiftGroup(
+                id = "3",
+                name = "Uni",
+                budgetCents = 20,
+                drawDay = LocalDate.of(2026, 11, 4)
+            ),
+            GiftGroup(
+                id = "4",
+                name = "Familie",
+                budgetCents = 60,
+                drawDay = LocalDate.of(2026, 11, 6)
+            ),
+            GiftGroup(
+                id = "5",
+                name = "Buchclub",
+                budgetCents = 20,
+                drawDay = LocalDate.of(2026, 11, 8)
+            ),
+            GiftGroup(
+                id = "6",
+                name = "Volleyball",
+                budgetCents = 15,
+                drawDay = LocalDate.now()
+            )
+        )
+    )
     WichtlyTheme() {
-        GroupsScreen()
+        GroupsScreen(testUiState)
     }
 }
 
