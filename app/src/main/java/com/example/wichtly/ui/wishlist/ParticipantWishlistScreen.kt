@@ -134,6 +134,18 @@ fun ParticipantWishlistScreen(
                     }
                 }
             }
+
+            if (state.showEditor) {
+                WishlistItemDialog(
+                    isEditMode = state.editingItemId != null,
+                    text = state.editorText,
+                    errorMessage = state.editorError,
+                    isSaving = state.isSaving,
+                    onTextChange = onEditorTextChange,
+                    onSave = onSaveClick,
+                    onDismiss = onDismissEditor
+                )
+            }
         }
     }
 }
@@ -380,6 +392,7 @@ private fun ParticipantWishlistScreenNotFoundPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
+
             onDeleteClick = {},
             onEditorTextChange = {},
             onSaveClick = {},
@@ -466,6 +479,36 @@ private fun ParticipantWishlistScreenWithItemsPreview() {
                 isLoading = false,
                 participantName = "Alex",
                 items = sampleItems
+            ),
+            onBack = {},
+            onAddClick = {},
+            onEditClick = {},
+            onDeleteClick = {},
+            onEditorTextChange = {},
+            onSaveClick = {},
+            onDismissEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
+        )
+    }
+}
+
+/**
+ * Preview für den Screen mit geöffnetem Editor-Dialog im Hinzufügen-Modus.
+ * Warum: Überprüft die korrekte Überlagerung des WishlistItemDialog über den Bildschirm-Inhalt.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun ParticipantWishlistScreenWithEditorPreview() {
+    WichtlyTheme {
+        ParticipantWishlistScreen(
+            state = WishlistUiState(
+                isLoading = false,
+                participantName = "Alex",
+                showEditor = true,
+                editingItemId = null,
+                editorText = "Neues Buch",
+                isSaving = false
             ),
             onBack = {},
             onAddClick = {},
