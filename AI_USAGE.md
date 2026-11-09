@@ -236,3 +236,25 @@ Die bereits vorhandenen Funktionen und ihre Aufgaben sollen unverändert bleiben
 Passe alle bestehenden Previews so an, dass sie für die neuen Parameter jeweils eine leere Funktion `{}` übergeben. Dadurch sollen die Previews weiterhin ohne Fehler kompilieren.
 Ergänze außerdem KDoc-Kommentare für alle fünf neuen Parameter, die kurz erklären, wofür sie später gedacht sind. Das gesamte Projekt muss danach erfolgreich bauen. Fasse am Ende zusammen, welche Änderungen du vorgenommen hast.
 **Commits**: 4e77861
+
+**Prompt 6**:
+Lies dir zuerst die `AGENTS.md` durch. Ändere ausschließlich die Datei `ParticipantWishlistScreen.kt` im Paket `com.example.wichtly.ui.wishlist`.
+Verändere nichts am ViewModel, Repository oder an der Navigation. Füge auch keine neuen Dependencies hinzu. Der Screen soll weiterhin zustandslos bleiben und seine Informationen ausschließlich über den übergebenen Zustand und die Parameter erhalten.
+Zeige den `WishlistItemDialog` an, sobald `state.showEditor` den Wert `true` hat.
+Übergebe dem Dialog dabei folgende Werte:
+
+- `isEditMode`: Soll `true` sein, wenn `state.editingItemId != null` ist.
+- `text`: Verwende `state.editorText`.
+- `errorMessage`: Verwende `state.editorError`.
+- `isSaving`: Verwende `state.isSaving`.
+- `onTextChange`: Übergib die Funktion `onEditorTextChange`.
+- `onSave`: Übergib die Funktion `onSaveClick`.
+- `onDismiss`: Übergib die Funktion `onDismissEditor`.
+
+Der Dialog soll über dem normalen Screen-Inhalt angezeigt werden. Baue ihn deshalb nicht direkt in die `when`-Verzweigung für die verschiedenen Screen-Zustände (Laden, Fehler und Nicht gefunden) ein.
+Wichtig: Der Screen soll den Dialog nicht selbst öffnen oder entscheiden, wann er geöffnet wird. Er soll nur darauf reagieren, ob `state.showEditor` auf `true` steht.
+Füge außerdem eine private `@Preview`-Funktion innerhalb des `WichtlyTheme` hinzu. In dieser Preview soll der Screen mit einem bereits geöffneten Editor im Hinzufügen-Modus angezeigt werden. Verwende dafür Fake-Daten, die ausschließlich in dieser Preview angelegt werden.
+Schreibe alle Kommentare auf Deutsch. Das gesamte Projekt muss danach erfolgreich bauen. Fasse am Ende zusammen, welche Änderungen du vorgenommen hast.
+**Accepted**: UI-Screen Vorschläge als temporärer Erstversuch. 
+**Changed**: Minimale spontane UI-Design Änderungen (Schrift, Anzeige, etc.)
+**Commits**: ef1f96c
