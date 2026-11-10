@@ -54,7 +54,7 @@ fun applyDomainValidationErrors(
                 if (budgetErr == null) budgetErr = "Das Budget muss größer als 0 Euro sein."
             }
             is GiftGroupValidationError.DateInPast -> {
-                if (dateErr == null) dateErr = "Das Auslosungsdatum muss in der Zukunft liegen."
+                if (dateErr == null) dateErr = "Der Wichteltag muss in der Zukunft liegen."
             }
             is GiftGroupValidationError.GroupNotFound -> {
                 if (genErr == null) genErr = "Die angeforderte Wichtelgruppe wurde nicht gefunden."

@@ -43,14 +43,10 @@ fun parseBudgetToCents(input: String): Long? {
     }
 
     return try {
-        val bigDecimal = BigDecimal(normalized)
-        if (bigDecimal < BigDecimal.ZERO) return null
-
-        // Exakte Multiplikation mit 100 zur Umrechnung von Euro in Cent
-        bigDecimal.multiply(BigDecimal(100))
-            .setScale(0, RoundingMode.UNNECESSARY)
+        BigDecimal(normalized)
+            .multiply(BigDecimal(100))
             .longValueExact()
-    } catch (_: Exception) {
+    } catch (_: ArithmeticException) {
         null
     }
 }

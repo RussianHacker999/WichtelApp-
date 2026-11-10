@@ -52,7 +52,7 @@ class GroupFormErrorsTest {
 
         assertNull(updatedState.nameError)
         assertEquals("Das Budget muss größer als 0 Euro sein.", updatedState.budgetError)
-        assertEquals("Das Auslosungsdatum muss in der Zukunft liegen.", updatedState.drawDayError)
+        assertEquals("Der Wichteltag muss in der Zukunft liegen.", updatedState.drawDayError)
         assertEquals("Die angeforderte Wichtelgruppe wurde nicht gefunden.", updatedState.generalError)
     }
 
@@ -63,5 +63,30 @@ class GroupFormErrorsTest {
 
         // Formatfehler für Budget muss ein Beispiel wie 25,50 beinhalten
         assertTrue(INVALID_BUDGET_FORMAT_ERROR.contains("25,50"))
+    }
+
+    @Test
+    fun applyDomainValidationErrors_mapsDuplicateName() {
+        val updated = applyDomainValidationErrors(
+            initialState,
+            listOf(GiftGroupValidationError.DuplicateName)
+        )
+        assertEquals("Eine Wichtelgruppe mit diesem Namen existiert bereits.", updated.nameError)
+    }
+
+    @Test
+    fun applyDomainValidationErrors_emptyList_clearsPreviousErrors() {
+        val withErrors = initialState.copy(
+            nameError = "alt",
+            budgetError = "alt",
+            drawDayError = "alt",
+            generalError = "alt"
+        )
+        val updated = applyDomainValidationErrors(withErrors, emptyList())
+
+        assertNull(updated.nameError)
+        assertNull(updated.budgetError)
+        assertNull(updated.drawDayError)
+        assertNull(updated.generalError)
     }
 }
