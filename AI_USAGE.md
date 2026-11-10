@@ -290,5 +290,5 @@ Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nenne
 **Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt 
 **Changed**: Tests um Fehlermeldungen abzutasten: Vermeidung von doppelten Fehlertexten pro Feld bei mehreren Fehlern.
 Korrekte Zuordnung der Fehlerklassen zu den jeweiligen Feldern.
-**Checked**: 4 Tests grün
+**Checked**: 4 Tests grün + 2 Tests grün 
 **Commits**: ca5d2602
