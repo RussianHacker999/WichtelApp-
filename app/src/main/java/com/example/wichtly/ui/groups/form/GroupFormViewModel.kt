@@ -130,6 +130,15 @@ class GroupFormViewModel(
     }
 
     /**
+     * Setzt isSaved zurück, nachdem die Route das Signal verarbeitet hat.
+     * Warum: isSaved lebt im ViewModel und überlebt die Rotation. Ohne Zurücksetzen
+     * würde die Route nach einer Drehung onSaved ein zweites Mal auslösen.
+     */
+    fun onSavedHandled() {
+        _uiState.update { it.copy(isSaved = false) }
+    }
+
+    /**
      * Setzt den ausgewählten Wichtel-Typ.
      */
     fun onDrawTypeChange(newDrawType: DrawType) {
@@ -154,40 +163,32 @@ class GroupFormViewModel(
      * 5. Verarbeiten von Success (isSaved = true), ValidationError (Fehlerübersetzung) und Exceptions.
      */
     fun onSaveClick() {
-        // Synchroner Doppel-Submit-Schutz vor Coroutine-Start
-        if (_uiState.value.isSaving) return
-
         val currentState = _uiState.value
 
-        // Formatprüfungen
+        // Doppel-Submit-Schutz, synchron vor dem Start der Coroutine
+        if (currentState.isSaving) return
+
+        // Bearbeiten ohne geladene Gruppe (Ladefehler): nicht speichern, Grund nennen
+        if (groupId != null && originalGroup == null) {
+            _uiState.update {
+                it.copy(generalError = "Die Wichtelgruppe konnte nicht geladen werden. Speichern ist nicht möglich.")
+            }
+            return
+        }
+
+        // Formatprüfung vor dem Repository-Aufruf
         val parsedBudgetCents = parseBudgetToCents(currentState.budget)
         val parsedDate = parseDate(currentState.drawDay)
-
-        var hasFormatError = false
-        var budgetErr = currentState.budgetError
-        var dateErr = currentState.drawDayError
-
-        if (parsedBudgetCents == null) {
-            budgetErr = INVALID_BUDGET_FORMAT_ERROR
-            hasFormatError = true
-        }
-
-        if (parsedDate == null) {
-            dateErr = INVALID_DATE_FORMAT_ERROR
-            hasFormatError = true
-        }
-
-        if (hasFormatError) {
+        if (parsedBudgetCents == null || parsedDate == null) {
             _uiState.update {
                 it.copy(
-                    budgetError = budgetErr,
-                    drawDayError = dateErr
+                    budgetError = if (parsedBudgetCents == null) INVALID_BUDGET_FORMAT_ERROR else null,
+                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null
                 )
             }
             return
         }
 
-        // Formatierung ist gültig -> Speichern im Repository ausführen
         _uiState.update {
             it.copy(
                 isSaving = true,
@@ -198,33 +199,37 @@ class GroupFormViewModel(
             )
         }
 
+        val original = originalGroup
+
         viewModelScope.launch {
             try {
-                val groupToSave = if (groupId == null) {
-                    // Erstellen: Leere ID (Repository erzeugt UUID), photoPath ist null. Name getrimmt.
+                val groupToSave = if (original == null) {
+                    // Erstellen: leere ID, das Repository erzeugt die UUID
                     GiftGroup(
                         id = "",
                         name = currentState.name.trim(),
-                        budgetCents = parsedBudgetCents!!,
-                        drawDay = parsedDate!!,
+                        budgetCents = parsedBudgetCents,
+                        drawDay = parsedDate,
                         drawType = currentState.drawType,
                         photoPath = null
                     )
                 } else {
-                    // Bearbeiten: copy() der geladenen Gruppe, damit photoPath und id erhalten bleiben.
-                    originalGroup!!.copy(
+                    // Bearbeiten: id und photoPath bleiben durch copy() erhalten
+                    original.copy(
                         name = currentState.name.trim(),
-                        budgetCents = parsedBudgetCents!!,
-                        drawDay = parsedDate!!,
+                        budgetCents = parsedBudgetCents,
+                        drawDay = parsedDate,
                         drawType = currentState.drawType
                     )
                 }
 
-                val result = if (groupId == null) {
+                val result = if (original == null) {
                     repository.createGiftGroup(groupToSave)
                 } else {
                     repository.updateGiftGroup(groupToSave)
                 }
+
+                // ... ab hier bleibt dein when (result) und das catch unverändert
 
                 when (result) {
                     is GiftGroupResult.Success -> {
