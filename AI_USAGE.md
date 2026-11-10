@@ -276,7 +276,7 @@ grüner Tests zu ändern. parseBudgetToCents darf bei keiner Eingabe eine Except
 nach trim nur Ziffern, optional ein Komma oder Punkt mit einer oder zwei Nachkommastellen, sonst null. Kommentiere auf Deutsch, warum. Das Projekt muss bauen. Fasse zusammen, was du geändert hast.
 **Accepted**: GroupFormInput.kt (Parsing mit BigDecimal und striktem Datum, nicht nur die Standart-Grenzen/Werte)
 **Changed**: Tests um Grenzfälle erweitert, weil Gemini nur Normalfälle getestet hatte (Überlauf, 1e3, Schaltjahr, einstellige Tage)
-Checked: 12 Tests grün
+**Checked**: 12 Tests grün
 **Commits**: 46263aea
 
 **Prompt 2**:
@@ -288,4 +288,7 @@ und DuplicateName gehören zu nameError, InvalidBudget zu budgetError, DateInPas
 die Klassen aus dem Projekt, erfinde keine. Füge einen JUnit-Test hinzu. Das Projekt muss bauen. Fasse zusammen.
 Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nennen, die für ein nicht lesbares Budget ein Beispiel wie 25,50. Diese Formatfehler entstehen im ViewModel vor dem Aufruf des Repositorys, lege dafür Texte als Konstanten an.
 **Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt 
+**Changed**: Tests um Fehlermeldungen abzutasten: Vermeidung von doppelten Fehlertexten pro Feld bei mehreren Fehlern.
+Korrekte Zuordnung der Fehlerklassen zu den jeweiligen Feldern.
+**Checked**: 4 Tests grün
 **Commits**: ca5d2602
