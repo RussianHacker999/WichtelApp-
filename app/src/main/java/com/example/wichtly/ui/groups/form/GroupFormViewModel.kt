@@ -229,8 +229,6 @@ class GroupFormViewModel(
                     repository.updateGiftGroup(groupToSave)
                 }
 
-                // ... ab hier bleibt dein when (result) und das catch unverändert
-
                 when (result) {
                     is GiftGroupResult.Success -> {
                         _uiState.update {
