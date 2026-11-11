@@ -290,5 +290,15 @@ Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nenne
 **Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt 
 **Changed**: Tests um Fehlermeldungen abzutasten: Vermeidung von doppelten Fehlertexten pro Feld bei mehreren Fehlern.
 Korrekte Zuordnung der Fehlerklassen zu den jeweiligen Feldern.
-**Checked**: 4 Tests grün + 2 Tests grün 
-**Commits**: ca5d2602
+**Checked**: 4 Tests grün + 2 Testsgrün (nachträglich 2 Test nachgetragen; insgesamt 6 Tests grün) 
+**Commits**: ca5d2602, 58dbd7b0
+
+**Prompt 3**:
+Lies zuerst AGENTS.md. Lege im Paket com.example.wichtly.ui.groups.form die Dateien GroupFormViewModel.kt und GroupFormViewModelFactory.kt an. Ändere keine bestehenden Dateien. Kein Compose, keine neuen Dependencies. Nutze GroupFormUiState, GroupFormErrors.kt, GroupFormInput.kt, GiftGroupRepository, GiftGroupResult und GiftGroupValidationError genau wie im Projekt vorhanden, erfinde keine Klassen oder Felder.
+GroupFormViewModel(groupId: String?, repository: GiftGroupRepository): groupId null bedeutet Erstellen, sonst Bearbeiten. Der State liegt in einem MutableStateFlow und wird als StateFlow bereitgestellt.
+Laden: Bei groupId ungleich null setzt init isLoading und lädt die Gruppe genau einmal mit repository.getGiftGroupById(id).first(), nicht dauerhaft beobachten. Ist das Ergebnis null, wird notFound gesetzt. Sonst werden die Felder mit formatCentsForInput und formatDateForInput gefüllt, und die geladene Gruppe wird in einer privaten Variable gemerkt. Ein Fehler beim Laden setzt generalError mit einem deutschen Text. Im Erstellen-Modus entfällt das Laden.
+Eingaben: onNameChange, onBudgetChange, onDrawDayChange, onDrawTypeChange. Jede setzt den Wert und löscht den Fehler des betroffenen Feldes.
+onSaveClick: Läuft schon ein Speichervorgang, passiert nichts, diese Prüfung geschieht synchron vor dem Start der Coroutine. Zuerst Formatprüfung mit parseBudgetToCents und parseDate. Bei null wird der jeweilige Feldfehler mit den bereits vorhandenen Konstanten INVALID_BUDGET_FORMAT_ERROR bzw. INVALID_DATE_FORMAT_ERROR aus GroupFormErrors.kt gesetzt, lege keine neuen Texte an. ValidationError wird mit der vorhandenen Funktion applyDomainValidationErrors(state, errors) in den State übertragen., und das Repository wird nicht aufgerufen. Dann wird isSaving gesetzt und eine GiftGroup gebaut: Beim Erstellen mit leerer id (das Repository erzeugt die UUID) und photoPath null, beim Bearbeiten als copy() der geladenen Gruppe mit den neuen Werten, damit photoPath und id erhalten bleiben. Der Name wird mit trim() übergeben. Aufruf createGiftGroup bzw. updateGiftGroup. Success setzt isSaved und isSaving false. ValidationError wird mit der Übersetzungsfunktion aus GroupFormErrors.kt in die Feldfehler übertragen, isSaving wird false, die Eingaben bleiben erhalten. Andere Exceptions: CancellationException wird erneut geworfen, alles andere setzt generalError mit deutschem Text und isSaving false. Keine stillen catch-Blöcke.
+GroupFormViewModelFactory(groupId: String?, repository: GiftGroupRepository) implementiert ViewModelProvider.Factory und erzeugt das ViewModel. Kommentare auf Deutsch, die das Warum erklären. Das Projekt muss bauen. Fasse am Ende zusammen, was du angelegt hast.
+**Accepted**: GroupFormViewModel.kt, GroupFormViewModelFactory.kt, GroupFormViewModelTest.kt
+**Checked**: 
