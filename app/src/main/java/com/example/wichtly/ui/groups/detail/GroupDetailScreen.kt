@@ -58,6 +58,11 @@ import java.time.LocalDate
  * @param onAddParticipantClick Callback zum Hinzufügen eines neuen Teilnehmers.
  * @param onEditParticipantClick Callback zum Bearbeiten eines Teilnehmers (erhält participantId).
  * @param onDeleteParticipantClick Callback zum Löschen eines Teilnehmers (erhält participantId).
+ * @param onParticipantNameChange Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog.
+ * @param onSaveParticipant Callback zum Speichern eines Teilnehmers.
+ * @param onDismissParticipantEditor Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs.
+ * @param onConfirmDelete Callback zum Bestätigen der Teilnehmer-Löschung.
+ * @param onDismissDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -70,6 +75,11 @@ fun GroupDetailScreen(
     onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
     onDeleteParticipantClick: (participantId: String) -> Unit,
+    onParticipantNameChange: (String) -> Unit,
+    onSaveParticipant: () -> Unit,
+    onDismissParticipantEditor: () -> Unit,
+    onConfirmDelete: () -> Unit,
+    onDismissDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Der übergebene modifier wird ausschließlich hier am Top-Level Scaffold angewendet.
@@ -133,6 +143,35 @@ fun GroupDetailScreen(
                         )
                     }
                 }
+            }
+
+            // Dialoge liegen als Overlay über dem Inhalt (außerhalb der when-Verzweigung).
+            // 1. Participant Editor Dialog (Hinzufügen / Bearbeiten)
+            if (state.showParticipantEditor) {
+                ParticipantEditorDialog(
+                    isEditMode = state.editingParticipantId != null,
+                    name = state.participantNameInput,
+                    errorMessage = state.participantNameError,
+                    isSaving = state.isSaving,
+                    onNameChange = onParticipantNameChange,
+                    onSave = onSaveParticipant,
+                    onDismiss = onDismissParticipantEditor
+                )
+            }
+
+            // 2. Participant Delete Dialog
+            // Zeige den Löschdialog nur, wenn pendingDeleteParticipantId gesetzt ist UND ein Teilnehmer mit dieser ID existiert.
+            val pendingDeleteParticipant = state.pendingDeleteParticipantId?.let { pendingId ->
+                state.participants.find { it.id == pendingId }
+            }
+            if (pendingDeleteParticipant != null) {
+                ParticipantDeleteDialog(
+                    participantName = pendingDeleteParticipant.name,
+                    errorMessage = state.participantDeleteError,
+                    isSaving = state.isSaving,
+                    onConfirm = onConfirmDelete,
+                    onDismiss = onDismissDelete
+                )
             }
         }
     }
@@ -481,7 +520,12 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -513,7 +557,12 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -535,7 +584,12 @@ private fun GroupDetailScreenLoadingPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -558,7 +612,12 @@ private fun GroupDetailScreenNotFoundPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -581,7 +640,12 @@ private fun GroupDetailScreenErrorPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
@@ -622,7 +686,95 @@ private fun GroupDetailScreenContentManyParticipantsPreview() {
             onOpenWishlist = {},
             onAddParticipantClick = {},
             onEditParticipantClick = {},
-            onDeleteParticipantClick = {}
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
+        )
+    }
+}
+
+/**
+ * Preview 7: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
+ * Warum: Überprüft die korrekte Überlagerung des ParticipantEditorDialogs über den Screen-Inhalt.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun GroupDetailScreenWithParticipantEditorPreview() {
+    val sampleGroup = GiftGroup(
+        id = "g1",
+        name = "Büro Wichteln 2026",
+        budgetCents = 2500L,
+        drawDay = LocalDate.of(2026, 12, 24),
+        drawType = DrawType.NORMAL
+    )
+
+    WichtlyTheme {
+        GroupDetailScreen(
+            state = GroupDetailUiState(
+                isLoading = false,
+                group = sampleGroup,
+                showParticipantEditor = true,
+                participantNameInput = "Alex",
+                editingParticipantId = null,
+                isSaving = false
+            ),
+            onBack = {},
+            onEditGroupClick = {},
+            onOpenWishlist = {},
+            onAddParticipantClick = {},
+            onEditParticipantClick = {},
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
+        )
+    }
+}
+
+/**
+ * Preview 8: Screen mit geöffnetem Teilnehmer-Löschdialog.
+ * Warum: Überprüft die korrekte Überlagerung des ParticipantDeleteDialogs über den Screen-Inhalt.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
+    val sampleGroup = GiftGroup(
+        id = "g1",
+        name = "Büro Wichteln 2026",
+        budgetCents = 2500L,
+        drawDay = LocalDate.of(2026, 12, 24),
+        drawType = DrawType.NORMAL
+    )
+
+    val sampleParticipants = listOf(
+        Participant(id = "p1", groupId = "g1", name = "Alex")
+    )
+
+    WichtlyTheme {
+        GroupDetailScreen(
+            state = GroupDetailUiState(
+                isLoading = false,
+                group = sampleGroup,
+                participants = sampleParticipants,
+                pendingDeleteParticipantId = "p1",
+                isSaving = false
+            ),
+            onBack = {},
+            onEditGroupClick = {},
+            onOpenWishlist = {},
+            onAddParticipantClick = {},
+            onEditParticipantClick = {},
+            onDeleteParticipantClick = {},
+            onParticipantNameChange = {},
+            onSaveParticipant = {},
+            onDismissParticipantEditor = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
         )
     }
 }
