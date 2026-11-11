@@ -17,6 +17,7 @@ import com.example.wichtly.domain.model.Participant
  * @property editingParticipantId Steuert den Modus des Teilnehmer-Editors: null = Hinzufügen-Modus (neuer Teilnehmer), String (ID) = Bearbeiten-Modus für diesen Teilnehmer.
  * @property participantNameInput Aktueller Textinhalt im Eingabefeld des Teilnehmer-Dialogs.
  * @property participantNameError Spezifische Validierungs- oder Formatfehlermeldung für das Namensfeld, die direkt im Teilnehmer-Dialog angezeigt wird (und nicht den Screen ersetzt).
+ * @property participantDeleteError Fehlermeldung, die im Lösch-Dialog angezeigt wird.
  * @property pendingDeleteParticipantId ID des Teilnehmers, für den der Lösch-Bestätigungsdialog angezeigt wird (null = kein Löschdialog aktiv).
  */
 data class GroupDetailUiState(
@@ -30,5 +31,6 @@ data class GroupDetailUiState(
     val editingParticipantId: String? = null,
     val participantNameInput: String = "",
     val participantNameError: String? = null,
+    val participantDeleteError: String? = null,
     val pendingDeleteParticipantId: String? = null
 )
