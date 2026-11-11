@@ -11,23 +11,34 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,14 +53,16 @@ import java.time.LocalDate
 /**
  * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
  *
- * Architektur-Hinweise (AP3.3 & AGENTS.md):
+ * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md & HTML-Mockup 03):
  * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
  * - Sämtliche Zustände werden über [GroupDetailUiState] übergeben.
  * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - Der Parameter [modifier] wird streng NUR am äußersten Element ([Scaffold]) angewendet.
- * - Textbuttons werden anstelle externer Icons verwendet, um Zusatz-Dependencies zu vermeiden.
- * - Verwendet keinesfalls `!!` für Nullability-Handling.
- * - Sämtliche Inhalte (Stammdaten-Karte und Teilnehmer) befinden sich in genau einer zentralen [LazyColumn].
+ * - Visuelles Design orientiert sich exakt an Konzept Screen 03 aus dem HTML-Mockup:
+ *   - Oberer Hero-Bereich mit Eyebrow, Gruppennamen & Untertitel.
+ *   - 3 Statistik-Karten für Teilnehmer, Budget und Durchläufe.
+ *   - Stammdaten-Karte der Wichtelgruppe.
+ *   - Teilnehmerliste mit Avataren (Initialen) und Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten/Löschen.
+ *   - Auslosungs- & Historie-Abschnitt.
  *
  * @param state Der aktuelle UI-Zustand des Bildschirms.
  * @param onBack Callback für die Zurück-Navigation.
@@ -82,18 +95,55 @@ fun GroupDetailScreen(
     onDismissDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Der übergebene modifier wird ausschließlich hier am Top-Level Scaffold angewendet.
+    var groupMenuExpanded by remember { mutableStateOf(false) }
+
+    // Der übergebene modifier wird ausschließlich am Top-Level Scaffold angewendet.
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
-                    val titleText = state.group?.name ?: "Gruppendetails"
-                    Text(text = titleText)
+                    Column {
+                        val titleText = state.group?.name ?: "Gruppendetails"
+                        Text(
+                            text = titleText,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Gruppenbereich",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 navigationIcon = {
                     TextButton(onClick = onBack) {
                         Text("Zurück")
+                    }
+                },
+                actions = {
+                    if (state.group != null) {
+                        Box {
+                            IconButton(onClick = { groupMenuExpanded = true }) {
+                                Text(
+                                    text = "⋮",
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = groupMenuExpanded,
+                                onDismissRequest = { groupMenuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Gruppe bearbeiten") },
+                                    onClick = {
+                                        groupMenuExpanded = false
+                                        onEditGroupClick()
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             )
@@ -129,7 +179,6 @@ fun GroupDetailScreen(
                 else -> {
                     val group = state.group
                     if (group == null) {
-                        // Sichere Handhabung ohne !!: Wenn group null ist, wird die Nicht-gefunden-Ansicht gezeigt.
                         GroupDetailNotFoundState(onBack = onBack)
                     } else {
                         GroupDetailContentState(
@@ -145,8 +194,7 @@ fun GroupDetailScreen(
                 }
             }
 
-            // Dialoge liegen als Overlay über dem Inhalt (außerhalb der when-Verzweigung).
-            // 1. Participant Editor Dialog (Hinzufügen / Bearbeiten)
+            // Dialoge als Overlay über dem Inhalt
             if (state.showParticipantEditor) {
                 ParticipantEditorDialog(
                     isEditMode = state.editingParticipantId != null,
@@ -159,8 +207,6 @@ fun GroupDetailScreen(
                 )
             }
 
-            // 2. Participant Delete Dialog
-            // Zeige den Löschdialog nur, wenn pendingDeleteParticipantId gesetzt ist UND ein Teilnehmer mit dieser ID existiert.
             val pendingDeleteParticipant = state.pendingDeleteParticipantId?.let { pendingId ->
                 state.participants.find { it.id == pendingId }
             }
@@ -230,7 +276,7 @@ private fun GroupDetailNotFoundState(
 }
 
 /**
- * UI-Darstellung im Fehlerfall (z. B. Netzwerk- oder Datenbankfehler).
+ * UI-Darstellung im Fehlerfall.
  */
 @Composable
 private fun GroupDetailErrorState(
@@ -264,10 +310,7 @@ private fun GroupDetailErrorState(
 }
 
 /**
- * UI-Darstellung für den Inhalt der Gruppen-Detailansicht.
- *
- * WICHTIG: Der gesamte Inhalt (Stammdaten-Karte, Teilnehmer-Kopf und Teilnehmerliste)
- * liegt in genau EINER zentralen LazyColumn, sodass der komplette Screen gemeinsam scrollt.
+ * UI-Darstellung für den Inhalt der Gruppen-Detailansicht (gemäß Konzept 03 des HTML-Mockups).
  */
 @Composable
 private fun GroupDetailContentState(
@@ -284,7 +327,107 @@ private fun GroupDetailContentState(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 1. Karte mit den Stammdaten der Gruppe
+        // 1. Eyebrow & Hero Title
+        item(key = "group-hero-header") {
+            Column {
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = group.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+
+            }
+        }
+
+        // 2. Stats Grid (3 Stat-Karten: Teilnehmer, Budget, Durchläufe)
+        item(key = "group-stats-row") {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Stat 1: Teilnehmer
+                Card(
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${participants.size}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Teilnehmer",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Stat 2: Budget
+                Card(
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "${formatCentsForInput(group.budgetCents)} €",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                        Text(
+                            text = "Budget",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Stat 3: Durchläufe
+                Card(
+                    modifier = Modifier.weight(1f),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "0",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Durchläufe",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        // 3. Stammdaten-Karte der Gruppe
         item(key = "group-card") {
             GroupDataCard(
                 group = group,
@@ -292,15 +435,14 @@ private fun GroupDetailContentState(
             )
         }
 
-        // 2. Kopfbereich des Teilnehmer-Abschnitts
+        // 4. Kopfbereich des Teilnehmer-Abschnitts
         item(key = "participants-header") {
             ParticipantsHeader(
-                participantCount = participants.size,
-                onAddParticipantClick = onAddParticipantClick
+                participantCount = participants.size
             )
         }
 
-        // 3. Hinweis bei leerer Liste ODER die einzelnen Teilnehmerkarten
+        // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
         if (participants.isEmpty()) {
             item(key = "participants-empty") {
                 EmptyParticipantsHint(
@@ -312,16 +454,31 @@ private fun GroupDetailContentState(
                 items = participants,
                 key = { participant -> participant.id }
             ) { participant ->
-                // Modifier.padding(bottom = (-8).dp) verringert den Abstand zwischen den
-                // Teilnehmerkarten von 16.dp (gemäß spacedBy) auf 8.dp.
                 ParticipantCard(
                     participant = participant,
                     onOpenWishlist = { onOpenWishlist(participant.id) },
                     onEditParticipantClick = { onEditParticipantClick(participant.id) },
-                    onDeleteParticipantClick = { onDeleteParticipantClick(participant.id) },
-                    modifier = Modifier.padding(bottom = (-8).dp)
+                    onDeleteParticipantClick = { onDeleteParticipantClick(participant.id) }
                 )
             }
+        }
+
+        // 6. Button: Teilnehmer hinzufügen
+        item(key = "add-participant-button") {
+            Button(
+                onClick = onAddParticipantClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("＋ Teilnehmer hinzufügen")
+            }
+        }
+
+        // 7. Auslosung & Historie Abschnitt
+        item(key = "draw-section") {
+            DrawAndHistorySection(
+                group = group,
+                participantCount = participants.size
+            )
         }
     }
 }
@@ -343,45 +500,37 @@ private fun GroupDataCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                text = group.name,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Gruppenstammdaten",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                OutlinedButton(onClick = onEditGroupClick) {
+                    Text("Gruppe bearbeiten")
+                }
+            }
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Budget: ${formatCentsForInput(group.budgetCents)} €",
+                text = "Wichteltag: ${formatDateForInput(group.drawDay)} · Wichtelart: ${group.drawType.displayName}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Text(
-                text = "Wichteltag: ${formatDateForInput(group.drawDay)}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "Wichtelart: ${group.drawType.displayName}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedButton(
-                onClick = onEditGroupClick,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text("Gruppe bearbeiten")
-            }
         }
     }
 }
 
 /**
- * Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl und Hinzufügen-Button.
+ * Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
  */
 @Composable
 private fun ParticipantsHeader(
-    participantCount: Int,
-    onAddParticipantClick: () -> Unit
+    participantCount: Int
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -389,12 +538,15 @@ private fun ParticipantsHeader(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Teilnehmer ($participantCount)",
-            style = MaterialTheme.typography.titleMedium
+            text = "Teilnehmer",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
         )
-        Button(onClick = onAddParticipantClick) {
-            Text("Teilnehmer hinzufügen")
-        }
+        Text(
+            text = "$participantCount ${if (participantCount == 1) "Teilnehmer" else "Teilnehmer"}",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -405,27 +557,49 @@ private fun ParticipantsHeader(
 private fun EmptyParticipantsHint(
     onAddParticipantClick: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "Diese Gruppe hat noch keine Teilnehmer.",
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = onAddParticipantClick) {
-            Text("Teilnehmer hinzufügen")
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "♧",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Diese Gruppe hat noch keine Teilnehmer.",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen. Doppelte Namen sind erlaubt.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(onClick = onAddParticipantClick) {
+                Text("Teilnehmer hinzufügen")
+            }
         }
     }
 }
 
 /**
  * Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
+ * Zeigt einen Avatar mit den Namensinitialen sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
  */
 @Composable
 private fun ParticipantCard(
@@ -435,24 +609,48 @@ private fun ParticipantCard(
     onDeleteParticipantClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Klickbarer Namensbereich inklusive Unterzeile "Wunschliste öffnen" in Primärfarbe
+            // Avatar mit Initialen
+            Surface(
+                modifier = Modifier.size(40.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primaryContainer
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        text = getInitials(participant.name),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Klickbarer Bereich für Wunschliste
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
                     .clickable(onClick = onOpenWishlist)
             ) {
                 Text(
                     text = participant.name,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(2.dp))
@@ -462,23 +660,187 @@ private fun ParticipantCard(
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                TextButton(onClick = onEditParticipantClick) {
-                    Text("Bearbeiten")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                TextButton(onClick = onDeleteParticipantClick) {
+
+            // Drei-Punkte-Aktionsmenü (⋮)
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
                     Text(
-                        text = "Löschen",
-                        color = MaterialTheme.colorScheme.error
+                        text = "⋮",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Teilnehmer bearbeiten") },
+                        onClick = {
+                            menuExpanded = false
+                            onEditParticipantClick()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Teilnehmer löschen",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onDeleteParticipantClick()
+                        }
                     )
                 }
             }
         }
+    }
+}
+
+/**
+ * Bereich für "Auslosung & Historie" im Gruppen-Detailbereich.
+ */
+@Composable
+private fun DrawAndHistorySection(
+    group: GiftGroup,
+    participantCount: Int
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Auslosung & Historie",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        // Neue Auslosung Karte
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Neue Auslosung",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    val statusText = when {
+                        participantCount < 2 -> "Teilnehmer fehlen"
+                        group.drawType == DrawType.NORMAL -> "Vorbereitung möglich"
+                        else -> "Regeln offen"
+                    }
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    ) {
+                        Text(
+                            text = statusText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Die Vorbereitung prüft Teilnehmerliste, Wichtelart und Snapshot-Basis. Erst nach Bestätigung wird ein neuer Durchlauf angelegt.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { /* Auslosung vorbereiten */ },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Auslosung durchführen →")
+                }
+            }
+        }
+
+        // Auslosungshistorie Karte
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.tertiaryContainer
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = "↺",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Auslosungshistorie",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = "Noch keine gespeicherten Durchläufe",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                OutlinedButton(onClick = { /* Historie */ }) {
+                    Text("Ansehen")
+                }
+            }
+        }
+
+        // Hinweisfeld
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
+        ) {
+            Text(
+                text = "Historische Ergebnisse bleiben unveränderte Snapshots. Teilnehmernamen und Wünsche werden in der Historie nicht aus den aktuellen Datensätzen rekonstruiert.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
+    }
+}
+
+/**
+ * Extrahiert bis zu 2 Namensinitialen für die Avatar-Darstellung.
+ */
+private fun getInitials(name: String): String {
+    val parts = name.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
+    return when {
+        parts.isEmpty() -> "?"
+        parts.size == 1 -> parts[0].take(1).uppercase()
+        else -> (parts[0].take(1) + parts[1].take(1)).uppercase()
     }
 }
 
@@ -488,8 +850,7 @@ private fun ParticipantCard(
 // -----------------------------------------------------------------------------
 
 /**
- * Preview 1: Inhalt mit 3 Teilnehmern (inkl. 2 mit identischem Namen "Alex" aber unterschiedlichen IDs).
- * Warum: Überprüft die korrekte Liste mit gemischten Namen und stellt sicher, dass die UUID als Key Konflikte vermeidet.
+ * Preview 1: Inhalt mit 3 Teilnehmern (inkl. Initialen und 3-Punkte-Menü).
  */
 @Preview(showBackground = true)
 @Composable
@@ -504,7 +865,7 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
 
     val sampleParticipants = listOf(
         Participant(id = "p1", groupId = "g1", name = "Alex"),
-        Participant(id = "p2", groupId = "g1", name = "Alex"), // Identischer Name, andere ID
+        Participant(id = "p2", groupId = "g1", name = "Alex Smith"),
         Participant(id = "p3", groupId = "g1", name = "Maria")
     )
 
@@ -532,7 +893,6 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
 
 /**
  * Preview 2: Inhalt mit leerer Teilnehmerliste.
- * Warum: Überprüft, dass die Stammdaten-Karte oben erhalten bleibt und darunter der Hinweis zur leeren Liste erscheint.
  */
 @Preview(showBackground = true)
 @Composable
@@ -569,7 +929,6 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
 
 /**
  * Preview 3: Ladezustand.
- * Warum: Überprüft den Ladeindikator beim Holen der Gruppendaten.
  */
 @Preview(showBackground = true)
 @Composable
@@ -596,7 +955,6 @@ private fun GroupDetailScreenLoadingPreview() {
 
 /**
  * Preview 4: Gruppe nicht gefunden.
- * Warum: Überprüft die Fehlermeldung, wenn die Wichtelgruppe nicht mehr existiert.
  */
 @Preview(showBackground = true)
 @Composable
@@ -624,7 +982,6 @@ private fun GroupDetailScreenNotFoundPreview() {
 
 /**
  * Preview 5: Ladefehler auf Screen-Ebene.
- * Warum: Überprüft die Darstellung von Fehlermeldungen (z. B. Datenbankfehler).
  */
 @Preview(showBackground = true)
 @Composable
@@ -652,8 +1009,6 @@ private fun GroupDetailScreenErrorPreview() {
 
 /**
  * Preview 6: Inhalt mit 12 Teilnehmern.
- * Warum: Demonstriert, dass der gesamte Screen (Stammdaten-Karte, Header und lange Teilnehmerliste)
- * in genau einer LazyColumn gemeinsam scrollt.
  */
 @Preview(showBackground = true)
 @Composable
@@ -698,7 +1053,6 @@ private fun GroupDetailScreenContentManyParticipantsPreview() {
 
 /**
  * Preview 7: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
- * Warum: Überprüft die korrekte Überlagerung des ParticipantEditorDialogs über den Screen-Inhalt.
  */
 @Preview(showBackground = true)
 @Composable
@@ -738,7 +1092,6 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
 
 /**
  * Preview 8: Screen mit geöffnetem Teilnehmer-Löschdialog.
- * Warum: Überprüft die korrekte Überlagerung des ParticipantDeleteDialogs über den Screen-Inhalt.
  */
 @Preview(showBackground = true)
 @Composable

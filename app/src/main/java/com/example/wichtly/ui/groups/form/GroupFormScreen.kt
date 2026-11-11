@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,12 +41,15 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 /**
  * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
  *
- * Architektur-Hinweise (AP3.3 & AGENTS.md):
+ * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md & HTML-Mockup 02):
  * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
  * - Sämtliche Zustände werden über [GroupFormUiState] übergeben.
  * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - Der Parameter [modifier] wird streng NUR am äußersten Element ([Scaffold]) angewendet.
- * - Textbuttons werden anstelle externer Icons verwendet, um Zusatz-Dependencies zu vermeiden.
+ * - Visuelles Design orientiert sich exakt an Konzept Screen 02 aus dem HTML-Mockup:
+ *   - Hero-Bereich mit Eyebrow, Haupttitel und beschreibendem Untertitel.
+ *   - Formularfelder mit detaillierten Hinweistexten (supportingText).
+ *   - RadioButtons für Wichtelart mit Erklärungen.
+ *   - Abbrechen- und Speichern-Buttons nebeneinander in einer Button-Row.
  *
  * @param state Der aktuelle UI-Zustand des Formulars.
  * @param onNameChange Callback bei Änderung des Gruppennamens.
@@ -65,15 +70,26 @@ fun GroupFormScreen(
     onDrawTypeChange: (DrawType) -> Unit,
     onSaveClick: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
-    // Der übergebene modifier wird ausschließlich hier am Top-Level Scaffold angewendet.
+    // Der übergebene modifier wird ausschließlich am Top-Level Scaffold angewendet.
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = if (state.isEditMode) "Gruppe bearbeiten" else "Gruppe erstellen")
+                    Column {
+                        Text(
+                            text = if (state.isEditMode) "Gruppe bearbeiten" else "Gruppe erstellen",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = if (state.isEditMode) "Gruppenstammdaten ändern" else "Neue Gruppe anlegen",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 },
                 navigationIcon = {
                     TextButton(onClick = onBack) {
@@ -107,7 +123,8 @@ fun GroupFormScreen(
                         onBudgetChange = onBudgetChange,
                         onDrawDayChange = onDrawDayChange,
                         onDrawTypeChange = onDrawTypeChange,
-                        onSaveClick = onSaveClick
+                        onSaveClick = onSaveClick,
+                        onBack = onBack
                     )
                 }
             }
@@ -178,7 +195,8 @@ private fun GroupFormContentState(
     onBudgetChange: (String) -> Unit,
     onDrawDayChange: (String) -> Unit,
     onDrawTypeChange: (DrawType) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    onBack: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -190,17 +208,43 @@ private fun GroupFormContentState(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Hero-Header gemäß HTML-Mockup 02
+        Column {
+            Text(
+                text = if (state.isEditMode) "GRUPPENSTAMMDATEN" else "NEUE WICHTELGRUPPE",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = if (state.isEditMode) "Gruppe aktualisieren." else "Deine Runde beginnt.",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Name, Budget, Wichteltag und Wichtelart kannst du später in dieser Gruppe erneut bearbeiten.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
         // 1. Gruppennamen-Eingabe
         OutlinedTextField(
             value = state.name,
             onValueChange = onNameChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Gruppenname") },
+            label = { Text("Gruppenname *") },
             singleLine = true,
             enabled = !state.isSaving,
             isError = state.nameError != null,
-            supportingText = state.nameError?.let { error ->
-                { Text(text = error) }
+            supportingText = {
+                Text(
+                    text = state.nameError
+                        ?: "Der Name muss nicht eindeutig sein. Die Gruppe wird intern über ihre ID identifiziert."
+                )
             }
         )
 
@@ -209,13 +253,15 @@ private fun GroupFormContentState(
             value = state.budget,
             onValueChange = onBudgetChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Budget in Euro") },
+            label = { Text("Geschenkbudget (€) *") },
             singleLine = true,
             enabled = !state.isSaving,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             isError = state.budgetError != null,
-            supportingText = state.budgetError?.let { error ->
-                { Text(text = error) }
+            supportingText = {
+                Text(
+                    text = state.budgetError ?: "Gemeinsames Richtbudget pro Geschenk."
+                )
             }
         )
 
@@ -224,12 +270,14 @@ private fun GroupFormContentState(
             value = state.drawDay,
             onValueChange = onDrawDayChange,
             modifier = Modifier.fillMaxWidth(),
-            label = { Text("Wichteltag (TT.MM.JJJJ)") },
+            label = { Text("Wichteltag *") },
             singleLine = true,
             enabled = !state.isSaving,
             isError = state.drawDayError != null,
-            supportingText = state.drawDayError?.let { error ->
-                { Text(text = error) }
+            supportingText = {
+                Text(
+                    text = state.drawDayError ?: "Datum im Format TT.MM.JJJJ (z. B. 24.12.2026)."
+                )
             }
         )
 
@@ -239,8 +287,9 @@ private fun GroupFormContentState(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Art des Wichtelns",
+                text = "Wichtelart *",
                 style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
@@ -255,12 +304,12 @@ private fun GroupFormContentState(
                             role = Role.RadioButton,
                             onClick = { onDrawTypeChange(type) }
                         )
-                        .padding(vertical = 8.dp),
+                        .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
                         selected = isSelected,
-                        onClick = null, // wird über das übergeordnete Row-selectable gehandhabt
+                        onClick = null,
                         enabled = !state.isSaving
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -275,14 +324,20 @@ private fun GroupFormContentState(
                     )
                 }
             }
+
+            Text(
+                text = "Die Oberfläche zeigt die gewählte Art. Die JUNK-Regeln werden nicht vorweggenommen; Auslosungen bleiben bis zur fachlichen Festlegung gesperrt.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 5. Allgemeiner Fehlertext (sichtbar direkt über dem Speichern-Button)
-        if (state.generalError != null) {
+        // 5. Allgemeiner Fehlertext
+        state.generalError?.let { errorText ->
             Text(
-                text = state.generalError,
+                text = errorText,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.fillMaxWidth(),
@@ -290,13 +345,29 @@ private fun GroupFormContentState(
             )
         }
 
-        // 6. Speichern-Button (während isSaving deaktiviert)
-        Button(
-            onClick = onSaveClick,
-            enabled = !state.isSaving,
-            modifier = Modifier.fillMaxWidth()
+        // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(text = if (state.isSaving) "Wird gespeichert..." else "Speichern")
+            OutlinedButton(
+                onClick = onBack,
+                enabled = !state.isSaving,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Abbrechen")
+            }
+            Button(
+                onClick = onSaveClick,
+                enabled = !state.isSaving,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = if (state.isSaving) "Wird gespeichert..."
+                    else if (state.isEditMode) "Änderungen speichern"
+                    else "Gruppe erstellen"
+                )
+            }
         }
     }
 }
@@ -308,7 +379,6 @@ private fun GroupFormContentState(
 
 /**
  * Preview 1: Erstellen-Modus mit leeren Feldern.
- * Warum: Überprüft den initialen Zustand beim Erstellen einer neuen Gruppe.
  */
 @Preview(showBackground = true)
 @Composable
@@ -331,7 +401,6 @@ private fun GroupFormScreenCreateEmptyPreview() {
 
 /**
  * Preview 2: Bearbeiten-Modus mit gefüllten Formularfeldern.
- * Warum: Überprüft die korrekte Titelanzeige ("Gruppe bearbeiten") und die Vorbelegung der Felder.
  */
 @Preview(showBackground = true)
 @Composable
@@ -358,7 +427,6 @@ private fun GroupFormScreenEditFilledPreview() {
 
 /**
  * Preview 3: Formular mit aktiven Feldfehlern und allgemeinem Fehlertext.
- * Warum: Überprüft die visuelle Hervorhebung der Feldfehler (supportingText, isError) und des generalError.
  */
 @Preview(showBackground = true)
 @Composable
@@ -388,7 +456,6 @@ private fun GroupFormScreenWithErrorsPreview() {
 
 /**
  * Preview 4: Formular während des laufenden Speichervorgangs (isSaving = true).
- * Warum: Überprüft das Deaktivieren aller Eingabefelder, Radiobuttons und des Speichern-Buttons.
  */
 @Preview(showBackground = true)
 @Composable
@@ -416,7 +483,6 @@ private fun GroupFormScreenSavingPreview() {
 
 /**
  * Preview 5: Ladezustand im Bearbeiten-Modus.
- * Warum: Überprüft den Ladeindikator beim Holen der Gruppendaten.
  */
 @Preview(showBackground = true)
 @Composable
@@ -439,7 +505,6 @@ private fun GroupFormScreenLoadingPreview() {
 
 /**
  * Preview 6: Gruppe nicht gefunden (notFound = true).
- * Warum: Überprüft die Fehleransicht, wenn die Wichtelgruppe im Bearbeiten-Modus nicht existiert.
  */
 @Preview(showBackground = true)
 @Composable
