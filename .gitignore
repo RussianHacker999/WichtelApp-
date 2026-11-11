@@ -13,3 +13,9 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+#VIKO BRANCH
+.idea/.name
+.idea/deviceManager.xml
+VikoNotes.md
+repomix-output.md
