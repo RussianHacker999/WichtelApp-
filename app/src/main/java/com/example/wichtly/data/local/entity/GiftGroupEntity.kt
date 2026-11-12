@@ -12,6 +12,6 @@ data class GiftGroupEntity(
     val name: String,
     val budgetCents: Long,
     val drawDay: LocalDate,
-    val drawType: DrawType = DrawType.NORMAL,
-    val photoPath: String? = null
+    val drawType: DrawType,
+    val photoPath: String?
 )

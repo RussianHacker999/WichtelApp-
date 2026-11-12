@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ParticipantDao {
 
-    @Query("SELECT * FROM participants WHERE groupId = :groupId ORDER BY name ASC")
+    @Query("SELECT * FROM participants WHERE groupId = :groupId ORDER BY name COLLATE NOCASE ASC")
     fun getParticipantsByGroupId(groupId: String): Flow<List<ParticipantEntity>>
 
     @Query("SELECT * FROM participants WHERE id = :id")

@@ -16,7 +16,7 @@ interface AppContainer {
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
     private val database: AppDatabase by lazy {
-        AppDatabase.getDatabase(context)
+        AppDatabase.create(context)
     }
     private val giftGroupValidator: GiftGroupValidator by lazy {
         GiftGroupValidator()
