@@ -243,9 +243,8 @@ class GroupDetailViewModel(
         viewModelScope.launch {
             try {
                 val result = if (existingParticipant == null) {
-                    // Erstellen-Modus: Neue UUID wird im Repository erzeugt
+                    // Erstellen-Modus: Domain-Modell erzeugt die UUID über den Standard-Parameter
                     val newParticipant = Participant(
-                        id = "",
                         groupId = groupId,
                         name = trimmedName,
                         photoPath = null

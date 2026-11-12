@@ -204,9 +204,8 @@ class GroupFormViewModel(
         viewModelScope.launch {
             try {
                 val groupToSave = if (original == null) {
-                    // Erstellen: leere ID, das Repository erzeugt die UUID
+                    // Erstellen: Domain-Modell erzeugt die UUID über den Standard-Parameter
                     GiftGroup(
-                        id = "",
                         name = currentState.name.trim(),
                         budgetCents = parsedBudgetCents,
                         drawDay = parsedDate,

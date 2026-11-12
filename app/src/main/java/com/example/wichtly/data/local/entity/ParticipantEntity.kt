@@ -2,7 +2,6 @@ package com.example.wichtly.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -21,5 +20,5 @@ data class ParticipantEntity(
     val id: String,
     val groupId: String,
     val name: String,
-    val photoPath: String? = null
+    val photoPath: String?
 )

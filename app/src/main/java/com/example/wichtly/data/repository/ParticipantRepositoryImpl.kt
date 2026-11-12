@@ -12,7 +12,6 @@ import com.example.wichtly.domain.validation.ParticipantValidator
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.util.UUID
 
 class ParticipantRepositoryImpl(
     private val participantDao: ParticipantDao,
@@ -28,42 +27,40 @@ class ParticipantRepositoryImpl(
     }
 
     override suspend fun createParticipant(participant: Participant): ParticipantResult {
-        val participantWithId = if (participant.id.isBlank()) {
-            participant.copy(id = UUID.randomUUID().toString())
-        } else {
-            participant
-        }
-        val existingParticipants = participantDao.getParticipantsByGroupId(participantWithId.groupId)
+        val sanitizedParticipant = participant.copy(name = participant.name.trim())
+        val existingParticipants = participantDao.getParticipantsByGroupId(sanitizedParticipant.groupId)
             .first()
             .toDomainModelList()
 
-        val errors = validator.validate(participantWithId, existingParticipants)
+        val errors = validator.validate(sanitizedParticipant, existingParticipants)
         if (errors.isNotEmpty()) {
             return ParticipantResult.ValidationError(errors)
         }
-        participantDao.insertParticipant(participantWithId.toEntity())
-        return ParticipantResult.Success(participantWithId)
+        participantDao.insertParticipant(sanitizedParticipant.toEntity())
+        return ParticipantResult.Success(sanitizedParticipant)
     }
 
     override suspend fun updateParticipant(participant: Participant): ParticipantResult {
-        val existingParticipants = participantDao.getParticipantsByGroupId(participant.groupId)
+        val sanitizedParticipant = participant.copy(name = participant.name.trim())
+        val existingParticipants = participantDao.getParticipantsByGroupId(sanitizedParticipant.groupId)
             .first()
             .toDomainModelList()
-        val errors = validator.validate(participant, existingParticipants)
+
+        val exists = existingParticipants.any { it.id == sanitizedParticipant.id }
+        if (!exists) {
+            return ParticipantResult.ValidationError(listOf(ParticipantValidationError.ParticipantNotFound))
+        }
+
+        val errors = validator.validate(sanitizedParticipant, existingParticipants)
         if (errors.isNotEmpty()) {
             return ParticipantResult.ValidationError(errors)
         }
 
-        val rowsUpdated = participantDao.updateParticipant(participant.toEntity())
-        if (rowsUpdated == 0) {
-            return ParticipantResult.ValidationError(listOf(ParticipantValidationError.ParticipantNotFound))
-        }
-        return ParticipantResult.Success(participant)
+        participantDao.updateParticipant(sanitizedParticipant.toEntity())
+        return ParticipantResult.Success(sanitizedParticipant)
     }
 
     override suspend fun deleteParticipant(id: String) {
         participantDao.deleteParticipantById(id)
     }
-
-
 }

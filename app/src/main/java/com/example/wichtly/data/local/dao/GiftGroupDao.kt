@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface GiftGroupDao {
 
-    @Query("SELECT * FROM gift_groups ORDER BY drawDay ASC")
+    @Query("SELECT * FROM gift_groups ORDER BY drawDay ASC, name COLLATE NOCASE ASC")
     fun getAllGiftGroups(): Flow<List<GiftGroupEntity>>
 
     @Query("SELECT * FROM gift_groups WHERE id = :id")
