@@ -6,18 +6,23 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.wichtly.data.local.dao.GiftGroupDao
+import com.example.wichtly.data.local.dao.ParticipantDao
 import com.example.wichtly.data.local.entity.GiftGroupEntity
-
+import com.example.wichtly.data.local.entity.ParticipantEntity
 
 @Database(
-    entities = [GiftGroupEntity::class],
-    version = 1,
-    exportSchema = false
+    entities = [
+        GiftGroupEntity::class,
+        ParticipantEntity::class,
+    ],
+    version = 2,
+    exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun giftGroupDao(): GiftGroupDao
+    abstract fun participantDao(): ParticipantDao
 
     companion object {
         @Volatile
@@ -29,7 +34,9 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "wichtly_database"
-                ).build()
+                )
+                    .fallbackToDestructiveMigration(dropAllTables = true)
+                    .build()
                 INSTANCE = instance
                 instance
             }
