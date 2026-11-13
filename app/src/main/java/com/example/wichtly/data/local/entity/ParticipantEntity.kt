@@ -2,6 +2,7 @@ package com.example.wichtly.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -11,9 +12,10 @@ import androidx.room.PrimaryKey
             entity = GiftGroupEntity::class,
             parentColumns = ["id"],
             childColumns = ["groupId"],
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
+    indices = [Index(value = ["groupId"])],
 )
 data class ParticipantEntity(
     @PrimaryKey
