@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.domain.model.WishListItem
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
@@ -67,7 +68,7 @@ fun ParticipantWishlistScreen(
     onDismissEditor: () -> Unit,
     onConfirmDelete: () -> Unit,
     onDismissDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     // Der übergebene modifier wird ausschließlich hier am Top-Level Scaffold angewendet.
     Scaffold(
@@ -288,7 +289,7 @@ private fun WishlistEmptyState(
  */
 @Composable
 private fun WishlistContentState(
-    items: List<TemporaryWishlistItem>,
+    items: List<WishListItem>,
     onAddClick: () -> Unit,
     onEditClick: (itemId: String) -> Unit,
     onDeleteClick: (itemId: String) -> Unit
@@ -334,7 +335,7 @@ private fun WishlistContentState(
  */
 @Composable
 private fun WishlistItemCard(
-    item: TemporaryWishlistItem,
+    item: WishListItem,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit
 ) {
@@ -405,7 +406,6 @@ private fun ParticipantWishlistScreenNotFoundPreview() {
             onBack = {},
             onAddClick = {},
             onEditClick = {},
-
             onDeleteClick = {},
             onEditorTextChange = {},
             onSaveClick = {},
@@ -466,19 +466,19 @@ private fun ParticipantWishlistScreenEmptyPreview() {
 @Composable
 private fun ParticipantWishlistScreenWithItemsPreview() {
     val sampleItems = listOf(
-        TemporaryWishlistItem(
+        WishListItem(
             id = "1",
             participantId = "p1",
             text = "Kaffeemaschine (Espresso)",
             sortOrder = 1
         ),
-        TemporaryWishlistItem(
+        WishListItem(
             id = "2",
             participantId = "p1",
             text = "Buch: Clean Architecture von Robert C. Martin",
             sortOrder = 2
         ),
-        TemporaryWishlistItem(
+        WishListItem(
             id = "3",
             participantId = "p1",
             text = "Wollsocken in Blau (Größe 42)",
@@ -540,7 +540,7 @@ private fun ParticipantWishlistScreenWithEditorPreview() {
 @Composable
 private fun ParticipantWishlistScreenWithDeleteDialogPreview() {
     val sampleItems = listOf(
-        TemporaryWishlistItem(
+        WishListItem(
             id = "1",
             participantId = "p1",
             text = "Kaffeemaschine (Espresso)",

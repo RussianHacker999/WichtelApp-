@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.wishlist
 
+import com.example.wichtly.domain.model.WishListItem
+
 /**
  * UI State für den ParticipantWishlistScreen.
  *
@@ -34,12 +36,12 @@ package com.example.wichtly.ui.wishlist
 data class WishlistUiState(
     val isLoading: Boolean = true,
     val participantName: String? = null,
-    val items: List<TemporaryWishlistItem> = emptyList(),
+    val items: List<WishListItem> = emptyList(),
     val errorMessage: String? = null,
     val isSaving: Boolean = false,
     val showEditor: Boolean = false,
     val editingItemId: String? = null,
     val editorText: String = "",
     val editorError: String? = null,
-    val pendingDeleteItemId: String? = null
+    val pendingDeleteItemId: String? = null,
 )
