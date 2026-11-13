@@ -6,7 +6,7 @@ import com.example.wichtly.domain.model.WishListItem
  * UI State für den ParticipantWishlistScreen.
  *
  * Erklärung der Zustände:
- * - `isLoading == true`: Der Bildschirm laedt aktuell noch die Daten des Teilnehmers.
+ * - `isLoading == true`: Der Bildschirm lädt aktuell noch die Daten des Teilnehmers.
  * - `isLoading == false` und `participantName == null`: Bedeutet "Teilnehmer nicht gefunden"
  *   (der Teilnehmer existiert nicht in der Datenbank oder wurde gelöscht).
  * - `items`: Eine leere Liste (`items.isEmpty()`) ist ein VOLLSTÄNDIG GÜLTIGER ZUSTAND
@@ -21,6 +21,7 @@ import com.example.wichtly.domain.model.WishListItem
  * - `editorError`: Enthält Validierungs- und Speicherfehler beim Hinzufügen oder Bearbeiten eines Wunsches,
  *   die direkt im Editor-Dialog angezeigt werden (und nicht den gesamten Screen ersetzen).
  * - `pendingDeleteItemId`: Eindeutige ID des Wunsches, für den die Löschen-Bestätigung angefordert wurde (null = kein Löschdialog aktiv).
+ * - `deleteError`: Optionale Fehlermeldung, die direkt im Löschdialog angezeigt wird, falls das Löschen eines Wunsches fehlschlägt.
  *
  * @property isLoading Zeigt an, ob die Erstdaten geladen werden.
  * @property participantName Name des Teilnehmers für die Überschrift (null, falls nicht vorhanden/gefunden).
@@ -32,6 +33,7 @@ import com.example.wichtly.domain.model.WishListItem
  * @property editorText Der aktuell im Editor eingegebene Wunschtext.
  * @property editorError Validierungs- oder Speicherfehler im Editor-Dialog.
  * @property pendingDeleteItemId ID des zur Löschung vorgemerkten Wunsches für den Bestätigungsdialog.
+ * @property deleteError Optionale Fehlermeldung zur Anzeige direkt im Lösch-Bestätigungsdialog.
  */
 data class WishlistUiState(
     val isLoading: Boolean = true,
@@ -44,4 +46,5 @@ data class WishlistUiState(
     val editorText: String = "",
     val editorError: String? = null,
     val pendingDeleteItemId: String? = null,
+    val deleteError: String? = null,
 )

@@ -155,6 +155,7 @@ fun ParticipantWishlistScreen(
             if (pendingDeleteItem != null) {
                 WishlistDeleteDialog(
                     itemText = pendingDeleteItem.text,
+                    errorMessage = state.deleteError,
                     isSaving = state.isSaving,
                     onConfirm = onConfirmDelete,
                     onDismiss = onDismissDelete
