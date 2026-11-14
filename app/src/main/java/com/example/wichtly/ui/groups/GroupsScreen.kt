@@ -1,8 +1,10 @@
 package com.example.wichtly.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,8 +17,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.ui.groups.GroupsUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -32,31 +36,64 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
         modifier = modifier,
         topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            //jede Spalte muss in ein item (bei einer LazyColum)
-            //ein Zeilen: item vs. mehere Zeilen: items
-            item(){
-                Button(onClick = { /*weiter Leitung an GroupsFrom*/ },
-                    modifier = modifier.fillMaxWidth()
-                ) {
-                    Text("+ Gruppe")
+        Column() {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .weight(1f),
+                    //(weight(1f):die LazyColum nimmt den gesamten Platz ein der zur Verfugung steht
+                    //draengt den Losen Button nach ganz unten
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+
+            ) {
+                //jede Spalte muss in ein item (bei einer LazyColum)
+                //ein Zeilen: item vs. mehere Zeilen: items
+                item() {
+                    Button(
+                        onClick = { /*weiter Leitung an GroupsFrom*/ },
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text= "Gruppe hinzufügen",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold)
+                    }
+                }
+                items(uiState.groups) { group ->
+                    //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
+                    Card(modifier = modifier.fillMaxWidth()) {
+                        //durch die Card wird z.B. die Graue Box eingefuegt
+                        Text(
+                            text = "Gruppe ${group.name}",
+                            style = MaterialTheme.typography.labelLarge,
+                            modifier = Modifier.padding(
+                                start = 8.dp,
+                                top = 8.dp,
+                                end = 8.dp,
+                                bottom = 8.dp
+                            )
+                            //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
+                        )
+                    }
                 }
             }
-            items (uiState.groups){ group ->
-                //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
-                Card(modifier = modifier.fillMaxWidth()) {
-                    //durch die Card wird z.B. die Graue Box eingefuegt
-                    Text(
-                        text = "Gruppe ${group.name}",
-                        style = MaterialTheme.typography.labelLarge,
-                        modifier = Modifier.padding(start = 8.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
-                        //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
-                    )
-                }
+            Button(
+                onClick = { /*weiter Leitung an GroupsFrom*/ },
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(72.dp)
+                    .padding(horizontal = 16.dp)
+
+
+            ) {
+                Text(
+                    text = "Losen",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
