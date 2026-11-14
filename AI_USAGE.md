@@ -273,3 +273,9 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Angenommen:** modifier vom Losen-Button; .weight(1f) fuer die LazyColum
 **Geaendert:**  modigier vom Gruppe-Hinzufuegen-Button
 **Commits:**    ce61af3
+
+### 2026-11-14 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
+**Prompt 1**:Ich möchte eine Carde erstellen, wo links ein Name steht und rechts 3 Button sind. Auf dem Button ganz rechts soll eine Stift (zeichen für Bearbeitung) abgebildet sein.\
+**Promt 2**: Wie fuege ich die Imports fuer die Icons hinzu?
+**Geaendert:**  Aufbau der Cards der LazyList fur die Gruppen & Bearbeiten-IconButton 
+**Commits:**    47ae2d8
