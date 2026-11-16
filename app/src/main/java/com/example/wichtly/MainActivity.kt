@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.navigation.AppNavHost
 import com.example.wichtly.ui.theme.WichtlyTheme
 import com.example.wichtly.ui.GroupsScreen
 import com.example.wichtly.ui.groups.GroupsUiState
@@ -23,6 +24,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WichtlyTheme {
+                // NEU: Navigation startet mit der Gruppenliste
+                AppNavHost()
+                /* ALT - ersetzt durch AppNavHost (Navigation)
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
@@ -69,7 +73,7 @@ class MainActivity : ComponentActivity() {
                         )
                     )
                 )
-                GroupsScreen(testUiState)
+                GroupsScreen(testUiState) */
             }
         }
     }
