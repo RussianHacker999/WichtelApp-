@@ -47,10 +47,14 @@ import java.time.LocalDate
  * - GEHEIMHALTUNG: Der Name der beschenkten Person darf in der Liste an keiner Stelle auftauchen,
  *   weder im sichtbaren Text noch in Accessibility-/Semantics-Eigenschaften!
  * - Jede Karte zeigt NUR den Namen der schenkenden Person und den Platzhalter "→ ••••".
+ * - Dialoge liegen als Overlay über dem Screen-Inhalt außerhalb der Zustandsverzweigung.
  *
  * @param state Der aktuelle UI-Zustand des Auslosungs-Details.
  * @param onBack Callback für die Zurück-Navigation.
  * @param onGiverClick Callback zum Auswählen einer schenkenden Person (erhält giverId).
+ * @param onConfirmReveal Callback nach Bestätigung der Sicherheitsabfrage ("Anzeigen").
+ * @param onDismissConfirm Callback zum Schließen/Abbrechen der Sicherheitsabfrage.
+ * @param onDismissResult Callback zum Schließen des Ergebnis-Popups.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +63,9 @@ fun DrawDetailScreen(
     state: DrawDetailUiState,
     onBack: () -> Unit,
     onGiverClick: (giverId: String) -> Unit,
+    onConfirmReveal: () -> Unit,
+    onDismissConfirm: () -> Unit,
+    onDismissResult: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -85,7 +92,7 @@ fun DrawDetailScreen(
                     TextButton(onClick = onBack) {
                         Text("Zurück")
                     }
-                }
+                },
             )
         }
     ) { paddingValues ->
@@ -122,6 +129,31 @@ fun DrawDetailScreen(
                         onGiverClick = onGiverClick
                     )
                 }
+            }
+
+            // Dialog-Overlays außerhalb der Zustandsverzweigung
+
+            // 1. Sicherheitsabfrage ("Personen-Check") vor der Enthüllung
+            val pendingConfirmAssignment = state.confirmGiverId?.let { confirmId ->
+                state.draw?.assignments?.find { it.giverId == confirmId }
+            }
+            if (pendingConfirmAssignment != null) {
+                DrawRevealConfirmDialog(
+                    giverName = pendingConfirmAssignment.giverName,
+                    onConfirm = onConfirmReveal,
+                    onDismiss = onDismissConfirm
+                )
+            }
+
+            // 2. Ergebnis-Popup ("Du beschenkst...")
+            val pendingRevealedAssignment = state.revealedGiverId?.let { revealedId ->
+                state.draw?.assignments?.find { it.giverId == revealedId }
+            }
+            if (pendingRevealedAssignment != null) {
+                DrawResultDialog(
+                    assignment = pendingRevealedAssignment,
+                    onDismiss = onDismissResult
+                )
             }
         }
     }
@@ -368,8 +400,139 @@ private fun DrawDetailContentState(
 @Preview(showBackground = true)
 @Composable
 private fun DrawDetailScreenWithAssignmentsPreview() {
+    val sampleDraw = createSampleDraw()
+
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = false,
+                draw = sampleDraw
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Preview 2: Auslosungs-Detailansicht mit geöffneter Sicherheitsabfrage ("Personen-Check").
+ */
+@Preview(showBackground = true)
+@Composable
+private fun DrawDetailScreenWithConfirmDialogPreview() {
+    val sampleDraw = createSampleDraw()
+
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = false,
+                draw = sampleDraw,
+                confirmGiverId = "p_1"
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Preview 3: Auslosungs-Detailansicht mit geöffnetem Ergebnis-Popup ("Du beschenkst...").
+ */
+@Preview(showBackground = true)
+@Composable
+private fun DrawDetailScreenWithResultDialogPreview() {
+    val sampleDraw = createSampleDraw()
+
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = false,
+                draw = sampleDraw,
+                revealedGiverId = "p_1"
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Preview 4: Ladezustand der Auslosungsdetails.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun DrawDetailScreenLoadingPreview() {
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = true
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Preview 5: Fehlerzustand beim Laden der Auslosungsdetails.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun DrawDetailScreenErrorPreview() {
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = false,
+                errorMessage = "Fehler beim Laden des Auslosungs-Snapshots."
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Preview 6: Auslosung nicht gefunden.
+ */
+@Preview(showBackground = true)
+@Composable
+private fun DrawDetailScreenNotFoundPreview() {
+    WichtlyTheme {
+        DrawDetailScreen(
+            state = DrawDetailUiState(
+                isLoading = false,
+                notFound = true
+            ),
+            onBack = {},
+            onGiverClick = {},
+            onConfirmReveal = {},
+            onDismissConfirm = {},
+            onDismissResult = {}
+        )
+    }
+}
+
+/**
+ * Erzeugt Beispieldaten für die Previews.
+ */
+private fun createSampleDraw(): TemporaryDraw {
     val names = listOf("Mara", "Jonas", "Leonie", "Sam", "Maria", "Emil")
-    val sampleDraw = TemporaryDraw(
+    return TemporaryDraw(
         id = "d-preview-1",
         groupId = "g1",
         groupName = "Familien-Wichteln",
@@ -382,72 +545,8 @@ private fun DrawDetailScreenWithAssignmentsPreview() {
                 giverName = name,
                 receiverId = "p_${receiverIndex + 1}",
                 receiverName = names[receiverIndex],
-                wishes = listOf("Wunsch 1", "Wunsch 2")
+                wishes = listOf("Ein gutes Notizbuch", "Tee aus einer kleinen Manufaktur")
             )
         }
     )
-
-    WichtlyTheme {
-        DrawDetailScreen(
-            state = DrawDetailUiState(
-                isLoading = false,
-                draw = sampleDraw
-            ),
-            onBack = {},
-            onGiverClick = {}
-        )
-    }
-}
-
-/**
- * Preview 2: Ladezustand der Auslosungsdetails.
- */
-@Preview(showBackground = true)
-@Composable
-private fun DrawDetailScreenLoadingPreview() {
-    WichtlyTheme {
-        DrawDetailScreen(
-            state = DrawDetailUiState(
-                isLoading = true
-            ),
-            onBack = {},
-            onGiverClick = {}
-        )
-    }
-}
-
-/**
- * Preview 3: Fehlerzustand beim Laden der Auslosungsdetails.
- */
-@Preview(showBackground = true)
-@Composable
-private fun DrawDetailScreenErrorPreview() {
-    WichtlyTheme {
-        DrawDetailScreen(
-            state = DrawDetailUiState(
-                isLoading = false,
-                errorMessage = "Fehler beim Laden des Auslosungs-Snapshots."
-            ),
-            onBack = {},
-            onGiverClick = {}
-        )
-    }
-}
-
-/**
- * Preview 4: Auslosung nicht gefunden.
- */
-@Preview(showBackground = true)
-@Composable
-private fun DrawDetailScreenNotFoundPreview() {
-    WichtlyTheme {
-        DrawDetailScreen(
-            state = DrawDetailUiState(
-                isLoading = false,
-                notFound = true
-            ),
-            onBack = {},
-            onGiverClick = {}
-        )
-    }
 }
