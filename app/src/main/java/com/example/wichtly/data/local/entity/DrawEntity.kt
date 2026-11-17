@@ -1,0 +1,28 @@
+package com.example.wichtly.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.example.wichtly.domain.model.DrawType
+import java.time.Instant
+
+@Entity(
+    tableName = "draws",
+    foreignKeys = [
+        ForeignKey(
+            entity = GiftGroupEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["groupId"],
+            onDelete = ForeignKey.CASCADE,
+        ),
+    ],
+    indices = [Index(value = ["groupId"])],
+)
+data class DrawEntity(
+    @PrimaryKey
+    val id: String,
+    val groupId: String,
+    val drawnAt: Instant,
+    val drawType: DrawType,
+)
