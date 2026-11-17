@@ -2,9 +2,11 @@ package com.example.wichtly.di
 
 import android.content.Context
 import com.example.wichtly.data.local.AppDatabase
+import com.example.wichtly.data.repository.DrawRepositoryImpl
 import com.example.wichtly.data.repository.GiftGroupRepositoryImpl
 import com.example.wichtly.data.repository.ParticipantRepositoryImpl
 import com.example.wichtly.data.repository.WishListRepositoryImpl
+import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.WishListRepository
@@ -16,6 +18,7 @@ interface AppContainer {
     val giftGroupRepository: GiftGroupRepository
     val participantRepository: ParticipantRepository
     val wishListRepository: WishListRepository
+    val drawRepository: DrawRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -47,6 +50,14 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         WishListRepositoryImpl(
             wishListItemDao = database.wishListItemDao(),
             validator = wishListValidator,
+        )
+    }
+    override val drawRepository: DrawRepository by lazy {
+        DrawRepositoryImpl(
+            drawDao = database.drawDao(),
+            giftGroupDao = database.giftGroupDao(),
+            participantDao = database.participantDao(),
+            wishListItemDao = database.wishListItemDao(),
         )
     }
 }
