@@ -26,7 +26,7 @@
 - **Domain Layer:**
     - Handles business logic. 
 
-## 3. Current Feature Number 3: Draws and Draw Snapshots/History
+## 3. Feature Number 3: Draws and Draw Snapshots/History
 ### 3.1 Conducting the Draw
 The organizer can:
 - perform a random assignment of participants
@@ -55,5 +55,16 @@ A snapshot model is intended for this purpose.
 Historical participant names and wishlist entries must be captured at the time of the draw.
 Current participant data and historical draw data must be cleanly separated from one another.
 
+
+## 4. Feature Number 4: CameraX integration for GiftGroup and Participant
+Implement core CameraX photo capture functionality for saving group and participant
+images as relative file paths in internal storage, ensuring robust runtime permission handling and
+graceful fallbacks.
+### Core Technical Requirements
+**Library:** CameraX 
+**Storage Strategy:** Save captured image files strictly to private internal app storage; 
+store **only the relative file path** in Room. 
+**Permission Handling:** Request `Manifest.permission.CAMERA` dynamically.
+If denied, the app must handle it gracefully without crashing
 
 
