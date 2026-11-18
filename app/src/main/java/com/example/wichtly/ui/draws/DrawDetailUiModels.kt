@@ -18,13 +18,13 @@ import java.time.LocalDate
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.
  */
-data class TemporaryDraw(
+data class DrawDetailUiModel(
     val id: String,
     val groupId: String,
     val groupName: String,
     val createdAt: LocalDate,
     val drawType: DrawType,
-    val assignments: List<TemporaryDrawAssignment>,
+    val assignments: List<DrawAssignmentUiModel>,
 )
 
 /**
@@ -41,7 +41,7 @@ data class TemporaryDraw(
  * @property receiverName Name der beschenkten Person.
  * @property wishes Liste der Wunschtexte der beschenkten Person zum Zeitpunkt der Auslosung (Snapshot).
  */
-data class TemporaryDrawAssignment(
+data class DrawAssignmentUiModel(
     val giverId: String,
     val giverName: String,
     val receiverId: String,
