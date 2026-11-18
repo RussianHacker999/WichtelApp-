@@ -1,6 +1,9 @@
 package com.example.wichtly.ui.components.photo
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -30,9 +33,9 @@ import java.io.File
  * Zustandsloser UI-Baustein zur Vorschau-Darstellung eines Bildes aus einer Datei.
  *
  * Warum zustandslos?
- * Dekodiert die übergebene Datei ([file]) asynchron im Hintergrund (Dispatchers.IO) mit Downsampling (inSampleSize),
- * um Speicherdruck und Abstürze zu vermeiden. Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist,
- * wird ein eleganter Platzhalter ("＋") gerendert.
+ * Dekodiert die übergebene Datei ([file]) asynchron im Hintergrund (Dispatchers.IO) mit Downsampling (inSampleSize)
+ * und korrigiert die Bildausrichtung anhand der EXIF-Metadaten.
+ * Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist, wird ein eleganter Platzhalter ("＋") gerendert.
  *
  * @param file Die anzuzeigende Bilddatei (null = Platzhalter).
  * @param modifier Optionaler Layout-Modifier.
@@ -44,7 +47,7 @@ fun PhotoThumbnail(
 ) {
     val bitmapState = produceState<ImageBitmap?>(initialValue = null, key1 = file) {
         value = withContext(Dispatchers.IO) {
-            if (file == null || !file.exists()) {
+            if (file == null || (!file.exists())) {
                 null
             } else {
                 try {
@@ -63,8 +66,15 @@ fun PhotoThumbnail(
 
                     // 3. Bild speicherschonend dekodieren
                     val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
-                    val bitmap = BitmapFactory.decodeFile(file.absolutePath, decodeOptions)
-                    bitmap?.asImageBitmap()
+                    val decodedBitmap = BitmapFactory.decodeFile(file.absolutePath, decodeOptions)
+
+                    if (decodedBitmap == null) {
+                        null
+                    } else {
+                        // 4. EXIF-Ausrichtung korrigieren
+                        val rotatedBitmap = rotateBitmapIfNeeded(decodedBitmap, file.absolutePath)
+                        rotatedBitmap.asImageBitmap()
+                    }
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
                     Log.e("PhotoThumbnail", "Fehler beim Dekodieren des Fotos: ${file.absolutePath}", e)
@@ -98,6 +108,50 @@ fun PhotoThumbnail(
                 )
             }
         }
+    }
+}
+
+/**
+ * Liest die EXIF-Ausrichtung der Datei und dreht das [Bitmap] bei Bedarf speicherschonend.
+ * Altes Zwischen-Bitmap wird recycelt, falls ein neues roteriertes Bitmap erzeugt wurde.
+ */
+private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
+    return try {
+        val exifInterface = ExifInterface(filePath)
+        val orientation = exifInterface.getAttributeInt(
+            ExifInterface.TAG_ORIENTATION,
+            ExifInterface.ORIENTATION_NORMAL,
+        )
+
+        val rotationDegrees = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> 0f
+        }
+
+        if (rotationDegrees == 0f) {
+            bitmap
+        } else {
+            val matrix = Matrix().apply { postRotate(rotationDegrees) }
+            val rotatedBitmap = Bitmap.createBitmap(
+                bitmap,
+                0,
+                0,
+                bitmap.width,
+                bitmap.height,
+                matrix,
+                true
+            )
+            if (rotatedBitmap != bitmap) {
+                bitmap.recycle()
+            }
+            rotatedBitmap
+        }
+    } catch (e: Exception) {
+        if (e is CancellationException) throw e
+        Log.e("PhotoThumbnail", "Fehler beim Lesen der EXIF-Daten: $filePath", e)
+        bitmap
     }
 }
 

@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -62,13 +61,6 @@ fun PhotoCaptureFlow(
 
     // Interner Schritt-Zustand (rotationsfest via rememberSaveable)
     var currentStep by rememberSaveable { mutableStateOf(PhotoFlowStep.SOURCE_SELECTION) }
-
-    // Reset auf Schritt 1 beim erneuten Öffnen
-    LaunchedEffect(isOpen) {
-        if (isOpen) {
-            currentStep = PhotoFlowStep.SOURCE_SELECTION
-        }
-    }
 
     // System-Berechtigungs-Launcher für CAMERA
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -126,7 +118,7 @@ fun PhotoCaptureFlow(
                 onDismissRequest = onClose,
                 properties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    decorFitsSystemWindows = false
+                    decorFitsSystemWindows = false,
                 )
             ) {
                 CameraCaptureScreen(

@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
@@ -109,10 +111,11 @@ fun CameraCaptureScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Abbrechen-Button oben links
+        // Abbrechen-Button oben links (mit statusBarsPadding)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .statusBarsPadding()
                 .padding(16.dp)
                 .align(Alignment.TopStart),
             verticalAlignment = Alignment.CenterVertically
@@ -125,7 +128,7 @@ fun CameraCaptureScreen(
             }
         }
 
-        // Runder Auslöser-Button unten zentriert
+        // Runder Auslöser-Button unten zentriert (mit navigationBarsPadding)
         FloatingActionButton(
             onClick = {
                 val capture = imageCapture ?: return@FloatingActionButton
@@ -158,6 +161,7 @@ fun CameraCaptureScreen(
             },
             modifier = Modifier
                 .size(72.dp)
+                .navigationBarsPadding()
                 .padding(bottom = 16.dp)
                 .align(Alignment.BottomCenter),
             shape = CircleShape,
@@ -166,7 +170,7 @@ fun CameraCaptureScreen(
             Box(
                 modifier = Modifier
                     .size(56.dp)
-                    .background(Color.White, CircleShape)
+                    .background(Color.White, CircleShape),
             )
         }
     }
