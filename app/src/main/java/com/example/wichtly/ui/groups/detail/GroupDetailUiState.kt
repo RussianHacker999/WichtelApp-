@@ -20,11 +20,12 @@ import java.io.File
  * @property participantNameError Spezifische Validierungs- oder Formatfehlermeldung für das Namensfeld, die direkt im Teilnehmer-Dialog angezeigt wird (und nicht den Screen ersetzt).
  * @property participantDeleteError Fehlermeldung, die im Lösch-Dialog angezeigt wird.
  * @property pendingDeleteParticipantId ID des Teilnehmers, für den der Lösch-Bestätigungsdialog angezeigt wird (null = kein Löschdialog aktiv).
- * @property participantPhotoPath Relativer Pfad des aktuellen Teilnehmerfotos (null = kein Foto).
+ * @property participantPhotoPath Relativer Pfad des aktuellen Teilnehmerfotos im Editor (null = kein Foto).
  * @property participantPhotoFile Aufgelöste Bilddatei zur Vorschau-Anzeige im Teilnehmer-Editor.
  * @property isPhotoFlowOpen Steuert das Öffnen/Schließen des Foto-Aufnahme-Workflows für Teilnehmer.
  * @property cameraDenied Zeigt an, ob der Kamerazugriff für Teilnehmerfotos abgelehnt wurde.
  * @property photoError Fehlermeldung speziell für Fehler beim Speichern/Aufnehmen des Teilnehmerfotos.
+ * @property participantPhotoFiles Map von Teilnehmer-IDs auf deren aufgelöste Bilddateien (nur für Teilnehmer mit vorhandener Bilddatei).
  */
 data class GroupDetailUiState(
     val isLoading: Boolean = true,
@@ -44,4 +45,5 @@ data class GroupDetailUiState(
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
     val photoError: String? = null,
+    val participantPhotoFiles: Map<String, File> = emptyMap(),
 )

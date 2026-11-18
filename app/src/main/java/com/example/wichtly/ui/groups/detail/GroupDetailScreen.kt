@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.ui.components.photo.PhotoThumbnail
 import com.example.wichtly.ui.groups.form.formatCentsForInput
 import com.example.wichtly.ui.groups.form.formatDateForInput
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -69,7 +70,7 @@ import java.time.LocalDate
  * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl für Teilnehmer.
  * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
- * @param onPhotoRemove Callback zum Entfernen des Teilnehmerfotos.
+ * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
  * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
  * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
  * @param modifier Äußerer Modifier für den Screen.
@@ -92,7 +93,7 @@ fun GroupDetailScreen(
     onPhotoSelectClick: () -> Unit,
     onPhotoFlowClose: () -> Unit,
     onPhotoCaptured: (File) -> Unit,
-    onPhotoRemove: () -> Unit,
+    onRemovePhoto: () -> Unit,
     onCameraDenied: () -> Unit,
     onOpenAppSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -186,6 +187,7 @@ fun GroupDetailScreen(
                         GroupDetailContentState(
                             group = group,
                             participants = state.participants,
+                            participantPhotoFiles = state.participantPhotoFiles,
                             onEditGroupClick = onEditGroupClick,
                             onOpenWishlist = onOpenWishlist,
                             onAddParticipantClick = onAddParticipantClick,
@@ -214,7 +216,7 @@ fun GroupDetailScreen(
                     onPhotoSelectClick = onPhotoSelectClick,
                     onPhotoFlowClose = onPhotoFlowClose,
                     onPhotoCaptured = onPhotoCaptured,
-                    onRemovePhoto = onPhotoRemove,
+                    onRemovePhoto = onRemovePhoto,
                     onCameraDenied = onCameraDenied,
                     onOpenAppSettings = onOpenAppSettings,
                 )
@@ -329,6 +331,7 @@ private fun GroupDetailErrorState(
 private fun GroupDetailContentState(
     group: GiftGroup,
     participants: List<Participant>,
+    participantPhotoFiles: Map<String, File>,
     onEditGroupClick: () -> Unit,
     onOpenWishlist: (participantId: String) -> Unit,
     onAddParticipantClick: () -> Unit,
@@ -469,6 +472,7 @@ private fun GroupDetailContentState(
             ) { participant ->
                 ParticipantCard(
                     participant = participant,
+                    photoFile = participantPhotoFiles[participant.id],
                     onOpenWishlist = { onOpenWishlist(participant.id) },
                     onEditParticipantClick = { onEditParticipantClick(participant.id) },
                     onDeleteParticipantClick = { onDeleteParticipantClick(participant.id) }
@@ -612,11 +616,13 @@ private fun EmptyParticipantsHint(
 
 /**
  * Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
- * Zeigt einen Avatar mit den Namensinitialen sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
+ * Zeigt entweder das Teilnehmerfoto (über [PhotoThumbnail]) oder einen Avatar mit den Namensinitialen,
+ * sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
  */
 @Composable
 private fun ParticipantCard(
     participant: Participant,
+    photoFile: File?,
     onOpenWishlist: () -> Unit,
     onEditParticipantClick: () -> Unit,
     onDeleteParticipantClick: () -> Unit,
@@ -636,19 +642,27 @@ private fun ParticipantCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Avatar mit Initialen
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.primaryContainer
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = getInitials(participant.name),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+            // Avatar mit Foto oder Initialen
+            if (photoFile != null) {
+                PhotoThumbnail(
+                    file = photoFile,
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+            } else {
+                Surface(
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = getInitials(participant.name),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
             }
 
@@ -886,7 +900,8 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
             state = GroupDetailUiState(
                 isLoading = false,
                 group = sampleGroup,
-                participants = sampleParticipants
+                participants = sampleParticipants,
+                participantPhotoFiles = emptyMap()
             ),
             onBack = {},
             onEditGroupClick = {},
@@ -902,7 +917,7 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -928,7 +943,8 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
             state = GroupDetailUiState(
                 isLoading = false,
                 group = sampleGroup,
-                participants = emptyList()
+                participants = emptyList(),
+                participantPhotoFiles = emptyMap()
             ),
             onBack = {},
             onEditGroupClick = {},
@@ -944,7 +960,7 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -976,7 +992,7 @@ private fun GroupDetailScreenLoadingPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -1009,7 +1025,7 @@ private fun GroupDetailScreenNotFoundPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -1042,7 +1058,7 @@ private fun GroupDetailScreenErrorPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -1076,7 +1092,8 @@ private fun GroupDetailScreenContentManyParticipantsPreview() {
             state = GroupDetailUiState(
                 isLoading = false,
                 group = sampleGroup,
-                participants = twelveParticipants
+                participants = twelveParticipants,
+                participantPhotoFiles = emptyMap()
             ),
             onBack = {},
             onEditGroupClick = {},
@@ -1092,7 +1109,7 @@ private fun GroupDetailScreenContentManyParticipantsPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -1121,7 +1138,8 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
                 showParticipantEditor = true,
                 participantNameInput = "Alex",
                 editingParticipantId = null,
-                isSaving = false
+                isSaving = false,
+                participantPhotoFiles = emptyMap()
             ),
             onBack = {},
             onEditGroupClick = {},
@@ -1137,7 +1155,7 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )
@@ -1169,7 +1187,8 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
                 group = sampleGroup,
                 participants = sampleParticipants,
                 pendingDeleteParticipantId = "p1",
-                isSaving = false
+                isSaving = false,
+                participantPhotoFiles = emptyMap()
             ),
             onBack = {},
             onEditGroupClick = {},
@@ -1185,53 +1204,7 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
             onPhotoSelectClick = {},
             onPhotoFlowClose = {},
             onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
-        )
-    }
-}
-
-/**
- * Preview 9: Screen mit Teilnehmer-Editor und Fotostand.
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupDetailScreenWithParticipantEditorAndPhotoPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Büro Wichteln 2026",
-        budgetCents = 2500L,
-        drawDay = LocalDate.of(2026, 12, 24),
-        drawType = DrawType.NORMAL
-    )
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                showParticipantEditor = true,
-                participantNameInput = "Alex",
-                participantPhotoPath = "photos/participants/participant_1.jpg",
-                participantPhotoFile = null,
-                isSaving = false
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
+            onRemovePhoto = {},
             onCameraDenied = {},
             onOpenAppSettings = {}
         )

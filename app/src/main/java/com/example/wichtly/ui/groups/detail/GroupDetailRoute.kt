@@ -81,7 +81,7 @@ fun GroupDetailRoute(
         onPhotoSelectClick = viewModel::onPhotoSelectClick,
         onPhotoFlowClose = viewModel::onPhotoFlowClose,
         onPhotoCaptured = viewModel::onPhotoCaptured,
-        onPhotoRemove = viewModel::onPhotoRemove,
+        onRemovePhoto = viewModel::onPhotoRemove,
         onCameraDenied = viewModel::onCameraDenied,
         onOpenAppSettings = onOpenAppSettings,
         modifier = modifier,

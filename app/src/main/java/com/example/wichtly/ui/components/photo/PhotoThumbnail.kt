@@ -18,6 +18,7 @@ import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -39,11 +40,13 @@ import java.io.File
  *
  * @param file Die anzuzeigende Bilddatei (null = Platzhalter).
  * @param modifier Optionaler Layout-Modifier.
+ * @param shape Die Form des Rahmens (Standard ist [CircleShape]).
  */
 @Composable
 fun PhotoThumbnail(
     file: File?,
     modifier: Modifier = Modifier,
+    shape: Shape = CircleShape,
 ) {
     val bitmapState = produceState<ImageBitmap?>(initialValue = null, key1 = file) {
         value = withContext(Dispatchers.IO) {
@@ -88,7 +91,7 @@ fun PhotoThumbnail(
 
     Surface(
         modifier = modifier,
-        shape = CircleShape,
+        shape = shape,
         color = MaterialTheme.colorScheme.primaryContainer,
     ) {
         if (imageBitmap != null) {

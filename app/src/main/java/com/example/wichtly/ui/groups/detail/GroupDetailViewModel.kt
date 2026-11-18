@@ -92,6 +92,16 @@ class GroupDetailViewModel(
 
         val resolvedPhotoFile = photoRepository.getFileForRelativePath(localState.participantPhotoPath)
 
+        val photoFilesMap = participants.mapNotNull { participant ->
+            val path = participant.photoPath
+            if (path != null) {
+                val file = photoRepository.getFileForRelativePath(path)
+                if (file != null && file.exists()) {
+                    participant.id to file
+                } else null
+            } else null
+        }.toMap()
+
         GroupDetailUiState(
             isLoading = false,
             group = group,
@@ -110,6 +120,7 @@ class GroupDetailViewModel(
             isPhotoFlowOpen = if (!isEditingParticipantPresent) false else localState.isPhotoFlowOpen,
             cameraDenied = if (!isEditingParticipantPresent) false else localState.cameraDenied,
             photoError = if (!isEditingParticipantPresent) null else localState.photoError,
+            participantPhotoFiles = photoFilesMap,
         )
     }.stateIn(
         scope = viewModelScope,
