@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.groups.form
 
 import com.example.wichtly.domain.model.DrawType
-import java.io.File
 
 /**
  * UI State für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -20,10 +19,6 @@ import java.io.File
  * @property generalError Allgemeine Fehlermeldung auf Formular-Ebene (z. B. "Gruppe nicht gefunden").
  * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
  * @property isSaved true, wenn der Speichervorgang erfolgreich abgeschlossen wurde (Signal für Navigation).
- * @property photoPath Aktuell angezeigter relativer Foto-Pfad in der App (null = kein Foto).
- * @property photoFile Aufgelöste Bilddatei zur Vorschau-Anzeige im Formular.
- * @property isPhotoFlowOpen Steuert das Öffnen/Schließen des Foto-Aufnahme-Workflows ([PhotoCaptureFlow]).
- * @property cameraDenied Zeigt an, ob der Kamerazugriff abgelehnt wurde (steuert [CameraPermissionDeniedHint]).
  */
 data class GroupFormUiState(
     val isLoading: Boolean = false,
@@ -38,9 +33,5 @@ data class GroupFormUiState(
     val drawDayError: String? = null,
     val generalError: String? = null,
     val isSaving: Boolean = false,
-    val isSaved: Boolean = false,
-    val photoPath: String? = null,
-    val photoFile: File? = null,
-    val isPhotoFlowOpen: Boolean = false,
-    val cameraDenied: Boolean = false,
+    val isSaved: Boolean = false
 )

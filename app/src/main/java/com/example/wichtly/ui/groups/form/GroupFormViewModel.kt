@@ -1,52 +1,41 @@
 package com.example.wichtly.ui.groups.form
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
-import com.example.wichtly.domain.model.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
-import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.validation.GiftGroupResult
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  * ViewModel für das Formular zum Erstellen und Bearbeiten einer Wichtelgruppe.
  *
  * Warum MVVM & Clean Architecture?
  * Das ViewModel verwaltet den UI-Zustand ([GroupFormUiState]) entkoppelt von der UI.
- * Es verarbeitet Benutzereingaben, führt UI-Formatprüfungen durch und ruft das [GiftGroupRepository] sowie [PhotoRepository] auf.
+ * Es verarbeitet Benutzereingaben, führt UI-Formatprüfungen durch und ruft das [GiftGroupRepository] auf.
  *
  * @param groupId ID der zu bearbeitenden Gruppe (null = Erstellen-Modus, sonst Bearbeiten-Modus).
  * @param repository Das Repository für Datenhaltung und Domain-Validierung.
- * @param photoRepository Das Repository für Foto-Verwaltung und -Speicherung.
  */
 class GroupFormViewModel(
     private val groupId: String?,
-    private val repository: GiftGroupRepository,
-    private val photoRepository: PhotoRepository,
+    private val repository: GiftGroupRepository
 ) : ViewModel() {
 
-    // Gemerkte Instanz der geladenen Gruppe im Bearbeiten-Modus, um id bei copy() beizubehalten
+    // Gemerkte Instanz der geladenen Gruppe im Bearbeiten-Modus, um id und photoPath bei copy() beizubehalten
     private var originalGroup: GiftGroup? = null
-
-    // Pfad, der aktuell in der Datenbank gespeichert ist (Erstellen: null; Bearbeiten: loadedGroup.photoPath)
-    private var committedPhotoPath: String? = null
 
     private val _uiState = MutableStateFlow(
         GroupFormUiState(
             isEditMode = groupId != null,
-            isLoading = groupId != null,
+            isLoading = groupId != null
         )
     )
     val uiState: StateFlow<GroupFormUiState> = _uiState.asStateFlow()
@@ -71,14 +60,11 @@ class GroupFormViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            notFound = true,
+                            notFound = true
                         )
                     }
                 } else {
                     originalGroup = loadedGroup
-                    committedPhotoPath = loadedGroup.photoPath
-                    val resolvedFile = photoRepository.getFileForRelativePath(loadedGroup.photoPath)
-
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -86,20 +72,17 @@ class GroupFormViewModel(
                             name = loadedGroup.name,
                             budget = formatCentsForInput(loadedGroup.budgetCents),
                             drawDay = formatDateForInput(loadedGroup.drawDay),
-                            drawType = loadedGroup.drawType,
-                            photoPath = loadedGroup.photoPath,
-                            photoFile = resolvedFile,
+                            drawType = loadedGroup.drawType
                         )
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Laden der Wichtelgruppe", e)
+            } catch (_: Exception) {
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        generalError = "Fehler beim Laden der Wichtelgruppe.",
+                        generalError = "Fehler beim Laden der Wichtelgruppe."
                     )
                 }
             }
@@ -107,7 +90,7 @@ class GroupFormViewModel(
     }
 
     // =========================================================================
-    // EINGABE- & FOTO-CALLBACKS
+    // EINGABE-CALLBACKS
     // =========================================================================
 
     /**
@@ -117,7 +100,7 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 name = newName,
-                nameError = null,
+                nameError = null
             )
         }
     }
@@ -129,7 +112,7 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 budget = newBudget,
-                budgetError = null,
+                budgetError = null
             )
         }
     }
@@ -141,13 +124,15 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 drawDay = newDrawDay,
-                drawDayError = null,
+                drawDayError = null
             )
         }
     }
 
     /**
      * Setzt isSaved zurück, nachdem die Route das Signal verarbeitet hat.
+     * Warum: isSaved lebt im ViewModel und überlebt die Rotation. Ohne Zurücksetzen
+     * würde die Route nach einer Drehung onSaved ein zweites Mal auslösen.
      */
     fun onSavedHandled() {
         _uiState.update { it.copy(isSaved = false) }
@@ -162,143 +147,6 @@ class GroupFormViewModel(
         }
     }
 
-    /**
-     * Öffnet den Foto-Aufnahme-Workflow, sofern kein Speichervorgang läuft.
-     */
-    fun onPhotoSelectClick() {
-        if (_uiState.value.isSaving) return
-        _uiState.update {
-            it.copy(
-                isPhotoFlowOpen = true,
-                cameraDenied = false,
-            )
-        }
-    }
-
-    /**
-     * Schließt den Foto-Aufnahme-Workflow.
-     */
-    fun onPhotoFlowClose() {
-        _uiState.update {
-            it.copy(isPhotoFlowOpen = false)
-        }
-    }
-
-    /**
-     * Markiert, dass der Kamerazugriff abgelehnt wurde.
-     */
-    fun onCameraDenied() {
-        _uiState.update {
-            it.copy(cameraDenied = true)
-        }
-    }
-
-    /**
-     * Verarbeitet ein neu aufgenommenes Foto: speichert es im [PhotoRepository],
-     * verwirft ein eventuell zuvor temporär aufgenommenes ungespeichertes Foto
-     * und aktualisiert den State.
-     */
-    fun onPhotoCaptured(tempFile: File) {
-        viewModelScope.launch {
-            try {
-                val previousPath = _uiState.value.photoPath
-                val relativePath = photoRepository.savePhoto(tempFile, PhotoOwnerType.GROUPS)
-
-                // War vorher ein NICHT committetes Foto im State, dieses löschen
-                if (previousPath != committedPhotoPath && previousPath != null) {
-                    try {
-                        photoRepository.deletePhoto(previousPath)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e("GroupFormViewModel", "Fehler beim Löschen des vorherigen ungespeicherten Fotos", e)
-                    }
-                }
-
-                val resolvedFile = photoRepository.getFileForRelativePath(relativePath)
-                _uiState.update {
-                    it.copy(
-                        photoPath = relativePath,
-                        photoFile = resolvedFile,
-                    )
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Speichern des Fotos", e)
-                _uiState.update {
-                    it.copy(generalError = "Foto konnte nicht gespeichert werden.")
-                }
-            } finally {
-                try {
-                    if (tempFile.exists()) {
-                        tempFile.delete()
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e("GroupFormViewModel", "Fehler beim Löschen der temporären Fotodatei", e)
-                }
-            }
-        }
-    }
-
-    /**
-     * Entfernt das Foto. Ist es nicht committet, wird es sofort gelöscht.
-     * Ist es das committete Gruppenfoto, wird es erst beim Speichern gelöscht.
-     */
-    fun onPhotoRemove() {
-        val currentPath = _uiState.value.photoPath
-        if (currentPath != committedPhotoPath && currentPath != null) {
-            viewModelScope.launch {
-                withContext(NonCancellable) {
-                    try {
-                        photoRepository.deletePhoto(currentPath)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e("GroupFormViewModel", "Fehler beim Löschen des ungespeicherten Fotos", e)
-                    }
-                }
-            }
-        }
-        _uiState.update {
-            it.copy(
-                photoPath = null,
-                photoFile = null,
-            )
-        }
-    }
-
-    /**
-     * Verwirft nicht gespeicherte Foto-Änderungen (z. B. beim Abbrechen oder Zurückkehren)
-     * und setzt den Zustand auf [committedPhotoPath] zurück.
-     */
-    fun onDiscardPhotoChanges() {
-        val currentPath = _uiState.value.photoPath
-        val oldCommitted = committedPhotoPath
-        if (currentPath != oldCommitted && currentPath != null) {
-            viewModelScope.launch {
-                withContext(NonCancellable) {
-                    try {
-                        photoRepository.deletePhoto(currentPath)
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e("GroupFormViewModel", "Fehler beim Verwerfen der Foto-Änderungen", e)
-                    }
-                }
-            }
-        }
-        val resolvedCommittedFile = photoRepository.getFileForRelativePath(oldCommitted)
-        _uiState.update {
-            it.copy(
-                photoPath = oldCommitted,
-                photoFile = resolvedCommittedFile,
-            )
-        }
-    }
-
     // =========================================================================
     // SPEICHERN
     // =========================================================================
@@ -308,10 +156,11 @@ class GroupFormViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz vor dem Starten der Coroutine.
-     * 2. Formatprüfung von Budget und Datum vor dem Repository-Aufruf.
-     * 3. Erstellen der [GiftGroup] inklusive [photoPath].
+     * 2. Formatprüfung von Budget und Datum vor dem Repository-Aufruf. Bei Fehlern werden
+     *    die Konstanten [INVALID_BUDGET_FORMAT_ERROR] bzw. [INVALID_DATE_FORMAT_ERROR] gesetzt und abgebrochen.
+     * 3. Erstellen der [GiftGroup] (Neu: leere ID, photoPath null; Bearbeiten: copy() der geladenen Gruppe).
      * 4. Aufruf von createGiftGroup bzw. updateGiftGroup im Repository.
-     * 5. Bei Erfolg: alten committeten Pfad ggf. endgültig löschen und [committedPhotoPath] aktualisieren.
+     * 5. Verarbeiten von Success (isSaved = true), ValidationError (Fehlerübersetzung) und Exceptions.
      */
     fun onSaveClick() {
         val currentState = _uiState.value
@@ -334,7 +183,7 @@ class GroupFormViewModel(
             _uiState.update {
                 it.copy(
                     budgetError = if (parsedBudgetCents == null) INVALID_BUDGET_FORMAT_ERROR else null,
-                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null,
+                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null
                 )
             }
             return
@@ -346,7 +195,7 @@ class GroupFormViewModel(
                 nameError = null,
                 budgetError = null,
                 drawDayError = null,
-                generalError = null,
+                generalError = null
             )
         }
 
@@ -355,20 +204,21 @@ class GroupFormViewModel(
         viewModelScope.launch {
             try {
                 val groupToSave = if (original == null) {
+                    // Erstellen: Domain-Modell erzeugt die UUID über den Standard-Parameter
                     GiftGroup(
                         name = currentState.name.trim(),
                         budgetCents = parsedBudgetCents,
                         drawDay = parsedDate,
                         drawType = currentState.drawType,
-                        photoPath = currentState.photoPath,
+                        photoPath = null
                     )
                 } else {
+                    // Bearbeiten: id und photoPath bleiben durch copy() erhalten
                     original.copy(
                         name = currentState.name.trim(),
                         budgetCents = parsedBudgetCents,
                         drawDay = parsedDate,
-                        drawType = currentState.drawType,
-                        photoPath = currentState.photoPath,
+                        drawType = currentState.drawType
                     )
                 }
 
@@ -380,28 +230,10 @@ class GroupFormViewModel(
 
                 when (result) {
                     is GiftGroupResult.Success -> {
-                        val oldCommitted = committedPhotoPath
-                        val newPath = currentState.photoPath
-
-                        // Wenn sich das committete Foto geändert hat, alten Pfad endgültig löschen
-                        if (oldCommitted != null && oldCommitted != newPath) {
-                            withContext(NonCancellable) {
-                                try {
-                                    photoRepository.deletePhoto(oldCommitted)
-                                } catch (e: CancellationException) {
-                                    throw e
-                                } catch (e: Exception) {
-                                    Log.e("GroupFormViewModel", "Fehler beim Löschen des alten Gruppenfotos", e)
-                                }
-                            }
-                        }
-
-                        committedPhotoPath = newPath
-
                         _uiState.update {
                             it.copy(
                                 isSaving = false,
-                                isSaved = true,
+                                isSaved = true
                             )
                         }
                     }
@@ -413,12 +245,11 @@ class GroupFormViewModel(
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Speichern der Wichtelgruppe", e)
+            } catch (_: Exception) {
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        generalError = "Fehler beim Speichern der Wichtelgruppe.",
+                        generalError = "Fehler beim Speichern der Wichtelgruppe."
                     )
                 }
             }

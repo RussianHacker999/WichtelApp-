@@ -36,12 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wichtly.domain.model.DrawType
-import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
-import com.example.wichtly.ui.components.photo.PhotoArea
-import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
-import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.theme.WichtlyTheme
-import java.io.File
 
 /**
  * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -63,12 +58,6 @@ import java.io.File
  * @param onDrawTypeChange Callback bei Änderung des Wichtel-Typs.
  * @param onSaveClick Callback zum Auslösen des Speichervorgangs.
  * @param onBack Callback für die Zurück-Navigation.
- * @param onPhotoSelectClick Callback zum Öffnen der Foto-Auswahl.
- * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
- * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
- * @param onPhotoRemove Callback zum Entfernen des Fotos.
- * @param onCameraDenied Callback, wenn die Kamera-Berechtigung abgelehnt wurde.
- * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,12 +70,6 @@ fun GroupFormScreen(
     onDrawTypeChange: (DrawType) -> Unit,
     onSaveClick: () -> Unit,
     onBack: () -> Unit,
-    onPhotoSelectClick: () -> Unit,
-    onPhotoFlowClose: () -> Unit,
-    onPhotoCaptured: (File) -> Unit,
-    onPhotoRemove: () -> Unit,
-    onCameraDenied: () -> Unit,
-    onOpenAppSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Der übergebene modifier wird ausschließlich am Top-Level Scaffold angewendet.
@@ -141,13 +124,7 @@ fun GroupFormScreen(
                         onDrawDayChange = onDrawDayChange,
                         onDrawTypeChange = onDrawTypeChange,
                         onSaveClick = onSaveClick,
-                        onBack = onBack,
-                        onPhotoSelectClick = onPhotoSelectClick,
-                        onPhotoFlowClose = onPhotoFlowClose,
-                        onPhotoCaptured = onPhotoCaptured,
-                        onPhotoRemove = onPhotoRemove,
-                        onCameraDenied = onCameraDenied,
-                        onOpenAppSettings = onOpenAppSettings,
+                        onBack = onBack
                     )
                 }
             }
@@ -219,213 +196,179 @@ private fun GroupFormContentState(
     onDrawDayChange: (String) -> Unit,
     onDrawTypeChange: (DrawType) -> Unit,
     onSaveClick: () -> Unit,
-    onBack: () -> Unit,
-    onPhotoSelectClick: () -> Unit,
-    onPhotoFlowClose: () -> Unit,
-    onPhotoCaptured: (File) -> Unit,
-    onPhotoRemove: () -> Unit,
-    onCameraDenied: () -> Unit,
-    onOpenAppSettings: () -> Unit,
+    onBack: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .imePadding()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Hero-Header gemäß HTML-Mockup 02
-            Column {
-                Text(
-                    text = if (state.isEditMode) "GRUPPENSTAMMDATEN" else "NEUE WICHTELGRUPPE",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = if (state.isEditMode) "Gruppe aktualisieren." else "Deine Runde beginnt.",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Name, Budget, Wichteltag und Wichtelart kannst du später in dieser Gruppe erneut bearbeiten.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            // 1. Gruppennamen-Eingabe
-            OutlinedTextField(
-                value = state.name,
-                onValueChange = onNameChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Gruppenname *") },
-                singleLine = true,
-                enabled = !state.isSaving,
-                isError = state.nameError != null,
-                supportingText = {
-                    Text(
-                        text = state.nameError
-                            ?: "Der Name muss nicht eindeutig sein. Die Gruppe wird intern über ihre ID identifiziert."
-                    )
-                }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(scrollState)
+            .imePadding()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Hero-Header gemäß HTML-Mockup 02
+        Column {
+            Text(
+                text = if (state.isEditMode) "GRUPPENSTAMMDATEN" else "NEUE WICHTELGRUPPE",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
             )
-
-            // 2. Budget-Eingabe in Euro (Dezimaltastatur)
-            OutlinedTextField(
-                value = state.budget,
-                onValueChange = onBudgetChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Geschenkbudget (€) *") },
-                singleLine = true,
-                enabled = !state.isSaving,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                isError = state.budgetError != null,
-                supportingText = {
-                    Text(
-                        text = state.budgetError ?: "Gemeinsames Richtbudget pro Geschenk."
-                    )
-                }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = if (state.isEditMode) "Gruppe aktualisieren." else "Deine Runde beginnt.",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
-
-            // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
-            OutlinedTextField(
-                value = state.drawDay,
-                onValueChange = onDrawDayChange,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("Wichteltag *") },
-                singleLine = true,
-                enabled = !state.isSaving,
-                isError = state.drawDayError != null,
-                supportingText = {
-                    Text(
-                        text = state.drawDayError ?: "Datum im Format TT.MM.JJJJ (z. B. 24.12.2026)."
-                    )
-                }
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Name, Budget, Wichteltag und Wichtelart kannst du später in dieser Gruppe erneut bearbeiten.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-
-            // 4. Auswahl der Wichtel-Art (RadioButtons)
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = "Wichtelart *",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                DrawType.entries.forEach { type ->
-                    val isSelected = state.drawType == type
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = isSelected,
-                                enabled = !state.isSaving,
-                                role = Role.RadioButton,
-                                onClick = { onDrawTypeChange(type) }
-                            )
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = null,
-                            enabled = !state.isSaving
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = type.displayName,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (state.isSaving) {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                            } else {
-                                MaterialTheme.colorScheme.onSurface
-                            }
-                        )
-                    }
-                }
-
-                Text(
-                    text = "Die Oberfläche zeigt die gewählte Art. Die JUNK-Regeln werden nicht vorweggenommen; Auslosungen bleiben bis zur fachlichen Festlegung gesperrt.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // PhotoPickerField nach Wichtelart und vor allgemeinem Fehlertext
-            PhotoPickerField(
-                area = PhotoArea.GROUP,
-                hasPhoto = state.photoPath != null,
-                photoFile = state.photoFile,
-                onSelectClick = onPhotoSelectClick
-            )
-
-            if (state.cameraDenied) {
-                Spacer(modifier = Modifier.height(8.dp))
-                CameraPermissionDeniedHint(
-                    onOpenSettings = onOpenAppSettings
-                )
-            }
-
-            // 5. Allgemeiner Fehlertext
-            state.generalError?.let { errorText ->
-                Text(
-                    text = errorText,
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Start
-                )
-            }
-
-            // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onBack,
-                    enabled = !state.isSaving,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Abbrechen")
-                }
-                Button(
-                    onClick = onSaveClick,
-                    enabled = !state.isSaving,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = if (state.isSaving) "Wird gespeichert..."
-                        else if (state.isEditMode) "Änderungen speichern"
-                        else "Gruppe erstellen"
-                    )
-                }
-            }
         }
 
-        // PhotoCaptureFlow außerhalb der scrollenden Column
-        PhotoCaptureFlow(
-            area = PhotoArea.GROUP,
-            hasPhoto = state.photoPath != null,
-            isOpen = state.isPhotoFlowOpen,
-            onClose = onPhotoFlowClose,
-            onPhotoCaptured = onPhotoCaptured,
-            onRemovePhoto = onPhotoRemove,
-            onCameraDenied = onCameraDenied
+        // 1. Gruppennamen-Eingabe
+        OutlinedTextField(
+            value = state.name,
+            onValueChange = onNameChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Gruppenname *") },
+            singleLine = true,
+            enabled = !state.isSaving,
+            isError = state.nameError != null,
+            supportingText = {
+                Text(
+                    text = state.nameError
+                        ?: "Der Name muss nicht eindeutig sein. Die Gruppe wird intern über ihre ID identifiziert."
+                )
+            }
         )
+
+        // 2. Budget-Eingabe in Euro (Dezimaltastatur)
+        OutlinedTextField(
+            value = state.budget,
+            onValueChange = onBudgetChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Geschenkbudget (€) *") },
+            singleLine = true,
+            enabled = !state.isSaving,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            isError = state.budgetError != null,
+            supportingText = {
+                Text(
+                    text = state.budgetError ?: "Gemeinsames Richtbudget pro Geschenk."
+                )
+            }
+        )
+
+        // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
+        OutlinedTextField(
+            value = state.drawDay,
+            onValueChange = onDrawDayChange,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Wichteltag *") },
+            singleLine = true,
+            enabled = !state.isSaving,
+            isError = state.drawDayError != null,
+            supportingText = {
+                Text(
+                    text = state.drawDayError ?: "Datum im Format TT.MM.JJJJ (z. B. 24.12.2026)."
+                )
+            }
+        )
+
+        // 4. Auswahl der Wichtel-Art (RadioButtons)
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Wichtelart *",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            DrawType.entries.forEach { type ->
+                val isSelected = state.drawType == type
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = isSelected,
+                            enabled = !state.isSaving,
+                            role = Role.RadioButton,
+                            onClick = { onDrawTypeChange(type) }
+                        )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = isSelected,
+                        onClick = null,
+                        enabled = !state.isSaving
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = type.displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (state.isSaving) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    )
+                }
+            }
+
+            Text(
+                text = "Die Oberfläche zeigt die gewählte Art. Die JUNK-Regeln werden nicht vorweggenommen; Auslosungen bleiben bis zur fachlichen Festlegung gesperrt.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 5. Allgemeiner Fehlertext
+        state.generalError?.let { errorText ->
+            Text(
+                text = errorText,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Start
+            )
+        }
+
+        // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            OutlinedButton(
+                onClick = onBack,
+                enabled = !state.isSaving,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Abbrechen")
+            }
+            Button(
+                onClick = onSaveClick,
+                enabled = !state.isSaving,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = if (state.isSaving) "Wird gespeichert..."
+                    else if (state.isEditMode) "Änderungen speichern"
+                    else "Gruppe erstellen"
+                )
+            }
+        }
     }
 }
 
@@ -451,13 +394,7 @@ private fun GroupFormScreenCreateEmptyPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
@@ -483,13 +420,7 @@ private fun GroupFormScreenEditFilledPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
@@ -518,13 +449,7 @@ private fun GroupFormScreenWithErrorsPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
@@ -551,13 +476,7 @@ private fun GroupFormScreenSavingPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
@@ -579,13 +498,7 @@ private fun GroupFormScreenLoadingPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
@@ -608,47 +521,7 @@ private fun GroupFormScreenNotFoundPreview() {
             onDrawDayChange = {},
             onDrawTypeChange = {},
             onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
-        )
-    }
-}
-
-/**
- * Preview 7: Formular mit gesetztem Gruppenfoto.
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupFormScreenWithPhotoPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(
-                isEditMode = true,
-                isLoading = false,
-                name = "Weihnachts-Wichteln",
-                budget = "30,00",
-                drawDay = "24.12.2026",
-                drawType = DrawType.NORMAL,
-                photoPath = "photos/groups/group_123.jpg",
-                photoFile = null
-            ),
-            onNameChange = {},
-            onBudgetChange = {},
-            onDrawDayChange = {},
-            onDrawTypeChange = {},
-            onSaveClick = {},
-            onBack = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onPhotoRemove = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {}
+            onBack = {}
         )
     }
 }
