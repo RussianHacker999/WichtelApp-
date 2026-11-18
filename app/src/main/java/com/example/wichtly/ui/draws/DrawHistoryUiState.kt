@@ -1,5 +1,23 @@
 package com.example.wichtly.ui.draws
 
+import com.example.wichtly.domain.model.DrawType
+import java.time.LocalDate
+
+/**
+ * UI-Modell für einen einzelnen Karteneintrag in der Auslosungshistorie.
+ *
+ * @property id Eindeutige ID des Auslosungsdurchlaufs.
+ * @property drawnAt Datum der Auslosung.
+ * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
+ * @property assignmentCount Anzahl der Personen/Zuordnungen in diesem Durchlauf.
+ */
+data class DrawHistoryItemUiModel(
+    val id: String,
+    val drawnAt: LocalDate,
+    val drawType: DrawType,
+    val assignmentCount: Int,
+)
+
 /**
  * UI State für die Auslosungshistorie einer Wichtelgruppe (DrawHistoryScreen).
  *
@@ -20,6 +38,6 @@ data class DrawHistoryUiState(
     val isLoading: Boolean = true,
     val groupName: String? = null,
     val groupNotFound: Boolean = false,
-    val draws: List<DrawDetailUiModel> = emptyList(),
+    val draws: List<DrawHistoryItemUiModel> = emptyList(),
     val errorMessage: String? = null,
 )

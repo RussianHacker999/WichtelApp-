@@ -80,7 +80,7 @@ fun DrawHistoryScreen(
                             Text(
                                 text = name,
                                 style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -336,9 +336,9 @@ private fun DrawHistoryContentState(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Auslosung vom ${formatDateForInput(draw.createdAt)}",
+                                text = "Auslosung vom ${formatDateForInput(draw.drawnAt)}",
                                 style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
                             )
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
@@ -354,7 +354,7 @@ private fun DrawHistoryContentState(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "${draw.assignments.size} Teilnehmer · ${draw.drawType.displayName}",
+                            text = "${draw.assignmentCount} Teilnehmer · ${draw.drawType.displayName}",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -413,53 +413,23 @@ private fun formatDrawsCount(count: Int): String {
 @Composable
 private fun DrawHistoryScreenWithThreeDrawsPreview() {
     val sampleDraws = listOf(
-        DrawDetailUiModel(
+        DrawHistoryItemUiModel(
             id = "d3",
-            groupId = "g1",
-            groupName = "Familie Wichteln",
-            createdAt = LocalDate.of(2026, 12, 24),
+            drawnAt = LocalDate.of(2026, 12, 24),
             drawType = DrawType.NORMAL,
-            assignments = (1..6).map { index ->
-                DrawAssignmentUiModel(
-                    giverId = "p_$index",
-                    giverName = "Schenker $index",
-                    receiverId = "p_${index + 1}",
-                    receiverName = "Empfänger $index",
-                    wishes = listOf("Wunsch A", "Wunsch B")
-                )
-            }
+            assignmentCount = 6
         ),
-        DrawDetailUiModel(
+        DrawHistoryItemUiModel(
             id = "d2",
-            groupId = "g1",
-            groupName = "Familie Wichteln",
-            createdAt = LocalDate.of(2025, 12, 24),
+            drawnAt = LocalDate.of(2025, 12, 24),
             drawType = DrawType.NORMAL,
-            assignments = (1..6).map { index ->
-                DrawAssignmentUiModel(
-                    giverId = "p_$index",
-                    giverName = "Schenker $index",
-                    receiverId = "p_${index + 1}",
-                    receiverName = "Empfänger $index",
-                    wishes = listOf("Wunsch A")
-                )
-            }
+            assignmentCount = 6
         ),
-        DrawDetailUiModel(
+        DrawHistoryItemUiModel(
             id = "d1",
-            groupId = "g1",
-            groupName = "Familie Wichteln",
-            createdAt = LocalDate.of(2024, 12, 24),
+            drawnAt = LocalDate.of(2024, 12, 24),
             drawType = DrawType.NORMAL,
-            assignments = (1..4).map { index ->
-                DrawAssignmentUiModel(
-                    giverId = "p_$index",
-                    giverName = "Schenker $index",
-                    receiverId = "p_${index + 1}",
-                    receiverName = "Empfänger $index",
-                    wishes = emptyList()
-                )
-            }
+            assignmentCount = 4
         )
     )
 
@@ -483,21 +453,11 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 @Composable
 private fun DrawHistoryScreenWithSingleDrawPreview() {
     val sampleDraws = listOf(
-        DrawDetailUiModel(
+        DrawHistoryItemUiModel(
             id = "d1",
-            groupId = "g1",
-            groupName = "Büro Wichteln 2026",
-            createdAt = LocalDate.of(2026, 12, 20),
+            drawnAt = LocalDate.of(2026, 12, 20),
             drawType = DrawType.NORMAL,
-            assignments = (1..5).map { index ->
-                DrawAssignmentUiModel(
-                    giverId = "p_$index",
-                    giverName = "Kollege $index",
-                    receiverId = "p_${index + 1}",
-                    receiverName = "Kollege ${index + 1}",
-                    wishes = listOf("Kaffee", "Notizbuch")
-                )
-            }
+            assignmentCount = 5
         )
     )
 
