@@ -16,7 +16,7 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
  */
 class GroupFormViewModelFactory(
     private val groupId: String?,
-    private val repository: GiftGroupRepository
+    private val repository: GiftGroupRepository,
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
