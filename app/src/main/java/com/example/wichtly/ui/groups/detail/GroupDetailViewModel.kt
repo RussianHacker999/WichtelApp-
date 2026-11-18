@@ -268,9 +268,16 @@ class GroupDetailViewModel(
         }
     }
 
+    /**
+     * Markiert, dass der Kamerazugriff abgelehnt wurde.
+     * Der Foto-Flow soll sich bei Ablehnung selbst schließen, unabhängig von der UI.
+     */
     fun onCameraDenied() {
         _localState.update {
-            it.copy(cameraDenied = true)
+            it.copy(
+                cameraDenied = true,
+                isPhotoFlowOpen = false,
+            )
         }
     }
 

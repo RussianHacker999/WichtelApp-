@@ -2,10 +2,13 @@ package com.example.wichtly.ui.groups.detail
 
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.repository.ParticipantRepository
+import com.example.wichtly.domain.validation.ParticipantResult
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,6 +19,24 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import java.time.LocalDate
+
+/**
+ * Ein in-Memory Gated Participant Repository Wrapper für Tests zur Simulation von Sperren/Warten.
+ */
+class GatedParticipantRepository(
+    private val delegate: FakeParticipantRepository,
+    val gate: CompletableDeferred<Unit>,
+) : ParticipantRepository by delegate {
+    override suspend fun createParticipant(participant: Participant): ParticipantResult {
+        gate.await()
+        return delegate.createParticipant(participant)
+    }
+
+    override suspend fun updateParticipant(participant: Participant): ParticipantResult {
+        gate.await()
+        return delegate.updateParticipant(participant)
+    }
+}
 
 /**
  * Unit-Tests für die Foto-Logik von Teilnehmern in [GroupDetailViewModel].
@@ -472,7 +493,9 @@ class GroupDetailViewModelPhotoTest {
     @Test
     fun photoSelectWhileSaving_isIgnored() = runTest {
         val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
-        val participantRepo = FakeParticipantRepository()
+        val gate = CompletableDeferred<Unit>()
+        val fakeParticipantRepo = FakeParticipantRepository()
+        val participantRepo = GatedParticipantRepository(fakeParticipantRepo, gate)
         val photoRepo = FakePhotoRepository()
 
         val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo)
@@ -484,22 +507,29 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         viewModel.onParticipantNameChange("Test")
-        viewModel.onSaveParticipant()
+        viewModel.onSaveParticipant() // hängt am Gate -> isSaving bleibt true
 
-        // Während isSaving ist onPhotoSelectClick blockiert
+        val stateDuringSave = viewModel.uiState.value
+        assertEquals(true, stateDuringSave.isSaving)
+
         viewModel.onPhotoSelectClick()
-
         val state = viewModel.uiState.value
         assertEquals(false, state.isPhotoFlowOpen)
+
+        // Gate öffnen, damit die Coroutine beendet werden kann
+        gate.complete(Unit)
+        testScheduler.advanceUntilIdle()
     }
 
     /**
-     * Test 17: participantPhotoFile und participantPhotoFiles liefern korrekte Datei-Auflösungen.
+     * Test 17: participantPhotoFile und participantPhotoFiles liefern korrekte Datei-Auflösungen über echte Temp-Dateien.
      */
     @Test
     fun photoFileResolved() = runTest {
-        val path1 = "photos/participants/p1.jpg"
-        val path2 = "photos/participants/p2.jpg"
+        val tempFile1 = File.createTempFile("p1_", ".jpg").apply { deleteOnExit() }
+        val path1 = tempFile1.absolutePath
+        val path2 = "photos/participants/non_existent.jpg"
+
         val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
         val participantRepo = FakeParticipantRepository().apply {
             setParticipants(
@@ -510,7 +540,7 @@ class GroupDetailViewModelPhotoTest {
             )
         }
         val photoRepo = FakePhotoRepository().apply {
-            setExistingPaths(setOf(path1)) // path2 existiert nicht in existingPaths
+            setExistingPaths(setOf(path1, path2))
         }
 
         val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo)
@@ -519,9 +549,9 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        // p1 hat eine existierende Datei -> in participantPhotoFiles
+        // p1 hat eine existierende temporäre Datei -> in participantPhotoFiles
         assertNotNull(state.participantPhotoFiles["p1"])
-        // p2 hat photoPath, aber Datei existiert nicht in existingPaths -> nicht in participantPhotoFiles
+        // p2 hat path2, aber Datei existiert auf der Platte nicht -> nicht in participantPhotoFiles
         assertTrue(!state.participantPhotoFiles.containsKey("p2"))
     }
 }
