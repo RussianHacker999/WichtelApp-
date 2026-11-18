@@ -279,3 +279,34 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Promt 2**: Wie fuege ich die Imports fuer die Icons hinzu?
 **Geaendert:**  Aufbau der Cards der LazyList fur die Gruppen & Bearbeiten-IconButton 
 **Commits:**    47ae2d8
+
+### 2026-11-16 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "Lies AGENTS.md. Ich bin Person A und für die Navigation zuständig (MainActivity, AppNavHost, AppContainer). Erkläre mir, welche Screens im Projekt schon eine fertige Route-Funktion mit Callbacks haben und zwischen welchen Screens ich Navigation einbauen kann."\
+**Accepted**: Nichts, die KI hatte keinen Zugriff auf den Projektordner.\
+**Changed**: -\
+**Commits**: -
+
+**Prompt 2**: "Welche Dependency brauche ich für Navigation in Jetpack Compose?"\
+**Accepted**: Dependency navigation-compose.\
+**Changed**: Version auf die von der IDE vorgeschlagene angepasst.\
+**Commits**: 0194ad8
+
+**Prompt 3**: "Ich möchte in navigation/AppNavHost.kt ein object Routes anlegen. Über Routen sollen nur IDs übergeben werden. Erkläre mir, wie ich Routen mit Platzhalter (z. B. groupId) definiere und warum Hilfsfunktionen wie groupDetail(id) sinnvoll sind."\
+**Accepted**: Aufbau von object Routes mit ARG-Konstanten, Routen-Mustern mit Platzhaltern und Hilfsfunktionen.\
+**Changed**: Routen-Namen selbst gewählt, getrennte Routen für Gruppe anlegen und Gruppe bearbeiten.\
+**Commits**: 0194ad8
+
+**Prompt 4**: "Ich habe in AppNavHost.kt ein object Routes mit Adressen. Wie ordne ich diese Adressen den Screens GroupFormRoute, GroupDetailRoute und ParticipantWishlistRoute zu? Erkläre mir dabei, was NavHost, composable(), navArgument und popBackStack() machen."\
+**Accepted**: Aufbau der composable-Blöcke mit navArgument und Auslesen der IDs über backStackEntry.arguments.\
+**Changed**: Callbacks an die echten Signaturen unserer Route-Funktionen angepasst.\
+**Commits**: 0194ad8
+
+**Prompt 5**: "Ich habe AppNavHost fertig. Was muss ich in MainActivity ändern, damit die App mit dem AppNavHost startet?"\
+**Accepted**: Aufruf von AppNavHost in setContent innerhalb unseres Themes.\
+**Changed**: -\
+**Commits**: 0194ad8
+
+**Prompt 6**: "Hier ist mein AppNavHost [...]. Prüfe, ob etwas fehlt oder falsch ist, und erkläre Fehler. Schreibe den Code nicht komplett neu."\
+**Accepted**: Hinweise aus dem Review als Prüfliste (fehlende Callbacks in GroupsScreen, Import von GroupsScreen, Zugriff auf AppContainer, Signaturen der Callbacks).\
+**Changed**: Noch nichts geändert, Anpassungen folgen in einem späteren Commit.\
+**Commits**: 0194ad8
