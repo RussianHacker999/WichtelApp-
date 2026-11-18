@@ -251,7 +251,7 @@ private fun DrawDetailErrorState(
  */
 @Composable
 private fun DrawDetailContentState(
-    draw: TemporaryDraw,
+    draw: DrawDetailUiModel,
     onGiverClick: (giverId: String) -> Unit
 ) {
     LazyColumn(
@@ -284,24 +284,7 @@ private fun DrawDetailContentState(
             }
         }
 
-        // (2) Snapshot Hinweisfeld
-        item(key = "draw-detail-snapshot-hint") {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-            ) {
-                Text(
-                    text = "Diese Ansicht nutzt ausschließlich den beim Auslosen gespeicherten Snapshot. Änderungen an der heutigen Gruppe, Namen oder Wunschlisten haben keinen Einfluss.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-        }
-
-        // (3) Abschnittszeile
+        // (2) Abschnittszeile
         item(key = "draw-detail-section-header") {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -321,7 +304,7 @@ private fun DrawDetailContentState(
             }
         }
 
-        // (4) Karten pro Zuordnung (NUR Schenker-Name & "→ ••••", NIEMALS Beschenkten-Name!)
+        // (3) Karten pro Zuordnung (NUR Schenker-Name & "→ ••••", NIEMALS Beschenkten-Name!)
         items(
             items = draw.assignments,
             key = { assignment -> assignment.giverId }
@@ -370,7 +353,7 @@ private fun DrawDetailContentState(
             }
         }
 
-        // (5) Hinweisfeld am Ende
+        // (4) Hinweisfeld am Ende
         item(key = "draw-detail-bottom-hint") {
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -530,9 +513,9 @@ private fun DrawDetailScreenNotFoundPreview() {
 /**
  * Erzeugt Beispieldaten für die Previews.
  */
-private fun createSampleDraw(): TemporaryDraw {
+private fun createSampleDraw(): DrawDetailUiModel {
     val names = listOf("Mara", "Jonas", "Leonie", "Sam", "Maria", "Emil")
-    return TemporaryDraw(
+    return DrawDetailUiModel(
         id = "d-preview-1",
         groupId = "g1",
         groupName = "Familien-Wichteln",
@@ -540,7 +523,7 @@ private fun createSampleDraw(): TemporaryDraw {
         drawType = DrawType.NORMAL,
         assignments = names.mapIndexed { index, name ->
             val receiverIndex = (index + 1) % names.size
-            TemporaryDrawAssignment(
+            DrawAssignmentUiModel(
                 giverId = "p_${index + 1}",
                 giverName = name,
                 receiverId = "p_${receiverIndex + 1}",

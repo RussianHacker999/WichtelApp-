@@ -20,6 +20,6 @@ data class DrawHistoryUiState(
     val isLoading: Boolean = true,
     val groupName: String? = null,
     val groupNotFound: Boolean = false,
-    val draws: List<TemporaryDraw> = emptyList(),
+    val draws: List<DrawDetailUiModel> = emptyList(),
     val errorMessage: String? = null,
 )

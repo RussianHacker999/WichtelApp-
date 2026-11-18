@@ -413,14 +413,14 @@ private fun formatDrawsCount(count: Int): String {
 @Composable
 private fun DrawHistoryScreenWithThreeDrawsPreview() {
     val sampleDraws = listOf(
-        TemporaryDraw(
+        DrawDetailUiModel(
             id = "d3",
             groupId = "g1",
             groupName = "Familie Wichteln",
             createdAt = LocalDate.of(2026, 12, 24),
             drawType = DrawType.NORMAL,
             assignments = (1..6).map { index ->
-                TemporaryDrawAssignment(
+                DrawAssignmentUiModel(
                     giverId = "p_$index",
                     giverName = "Schenker $index",
                     receiverId = "p_${index + 1}",
@@ -429,14 +429,14 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
                 )
             }
         ),
-        TemporaryDraw(
+        DrawDetailUiModel(
             id = "d2",
             groupId = "g1",
             groupName = "Familie Wichteln",
             createdAt = LocalDate.of(2025, 12, 24),
             drawType = DrawType.NORMAL,
             assignments = (1..6).map { index ->
-                TemporaryDrawAssignment(
+                DrawAssignmentUiModel(
                     giverId = "p_$index",
                     giverName = "Schenker $index",
                     receiverId = "p_${index + 1}",
@@ -445,14 +445,14 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
                 )
             }
         ),
-        TemporaryDraw(
+        DrawDetailUiModel(
             id = "d1",
             groupId = "g1",
             groupName = "Familie Wichteln",
             createdAt = LocalDate.of(2024, 12, 24),
             drawType = DrawType.NORMAL,
             assignments = (1..4).map { index ->
-                TemporaryDrawAssignment(
+                DrawAssignmentUiModel(
                     giverId = "p_$index",
                     giverName = "Schenker $index",
                     receiverId = "p_${index + 1}",
@@ -483,14 +483,14 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 @Composable
 private fun DrawHistoryScreenWithSingleDrawPreview() {
     val sampleDraws = listOf(
-        TemporaryDraw(
+        DrawDetailUiModel(
             id = "d1",
             groupId = "g1",
             groupName = "Büro Wichteln 2026",
             createdAt = LocalDate.of(2026, 12, 20),
             drawType = DrawType.NORMAL,
             assignments = (1..5).map { index ->
-                TemporaryDrawAssignment(
+                DrawAssignmentUiModel(
                     giverId = "p_$index",
                     giverName = "Kollege $index",
                     receiverId = "p_${index + 1}",

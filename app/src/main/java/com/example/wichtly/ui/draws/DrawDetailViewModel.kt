@@ -74,7 +74,7 @@ class DrawDetailViewModel(
             notFound = isNotFound,
             errorMessage = localState.loadError,
             confirmGiverId = validConfirmGiverId,
-            revealedGiverId = validRevealedGiverId
+            revealedGiverId = validRevealedGiverId,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -159,11 +159,11 @@ class DrawDetailViewModel(
     // =========================================================================
 
     /**
-     * Mappt ein [DrawDetail] aus dem Domain-Layer in das UI-Modell [TemporaryDraw].
+     * Mappt ein [DrawDetail] aus dem Domain-Layer in das UI-Modell [DrawDetailUiModel].
      * Sortiert Zuordnungen nach giverName (ohne Groß-/Kleinschreibung), dann nach giverId.
      * Sortiert Wünsche nach sortOrder und extrahiert den reinen Text.
      */
-    private fun mapDomainToUiModel(domainDraw: DrawDetail): TemporaryDraw {
+    private fun mapDomainToUiModel(domainDraw: DrawDetail): DrawDetailUiModel {
         val sortedAssignments = domainDraw.assignments
             .sortedWith(
                 compareBy<DrawAssignment, String>(String.CASE_INSENSITIVE_ORDER) { it.giverName }
@@ -174,7 +174,7 @@ class DrawDetailViewModel(
                     .sortedBy { it.sortOrder }
                     .map { it.text }
 
-                TemporaryDrawAssignment(
+                DrawAssignmentUiModel(
                     giverId = assignment.giverId,
                     giverName = assignment.giverName,
                     receiverId = assignment.receiverId,
@@ -183,7 +183,7 @@ class DrawDetailViewModel(
                 )
             }
 
-        return TemporaryDraw(
+        return DrawDetailUiModel(
             id = domainDraw.id,
             groupId = domainDraw.groupId,
             groupName = "Wichtelgruppe",

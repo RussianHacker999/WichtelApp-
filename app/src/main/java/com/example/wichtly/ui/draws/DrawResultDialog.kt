@@ -32,7 +32,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  */
 @Composable
 fun DrawResultDialog(
-    assignment: TemporaryDrawAssignment,
+    assignment: DrawAssignmentUiModel,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -98,7 +98,7 @@ fun DrawResultDialog(
                 Text(text = "Schließen")
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -112,7 +112,7 @@ fun DrawResultDialog(
 @Preview
 @Composable
 private fun DrawResultDialogWithWishesPreview() {
-    val sampleAssignment = TemporaryDrawAssignment(
+    val sampleAssignment = DrawAssignmentUiModel(
         giverId = "p1",
         giverName = "Diana",
         receiverId = "p2",
@@ -138,7 +138,7 @@ private fun DrawResultDialogWithWishesPreview() {
 @Preview
 @Composable
 private fun DrawResultDialogEmptyWishesPreview() {
-    val sampleAssignment = TemporaryDrawAssignment(
+    val sampleAssignment = DrawAssignmentUiModel(
         giverId = "p1",
         giverName = "Diana",
         receiverId = "p2",
@@ -160,7 +160,7 @@ private fun DrawResultDialogEmptyWishesPreview() {
 @Preview
 @Composable
 private fun DrawResultDialogLongWishTextPreview() {
-    val sampleAssignment = TemporaryDrawAssignment(
+    val sampleAssignment = DrawAssignmentUiModel(
         giverId = "p1",
         giverName = "Diana",
         receiverId = "p2",

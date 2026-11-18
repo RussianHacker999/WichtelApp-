@@ -24,7 +24,7 @@ package com.example.wichtly.ui.draws
  */
 data class DrawDetailUiState(
     val isLoading: Boolean = true,
-    val draw: TemporaryDraw? = null,
+    val draw: DrawDetailUiModel? = null,
     val notFound: Boolean = false,
     val errorMessage: String? = null,
     val confirmGiverId: String? = null,
