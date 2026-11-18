@@ -2,13 +2,16 @@ package com.example.wichtly.di
 
 import android.content.Context
 import com.example.wichtly.data.local.AppDatabase
+import com.example.wichtly.data.local.storage.LocalPhotoStorageManager
 import com.example.wichtly.data.repository.DrawRepositoryImpl
 import com.example.wichtly.data.repository.GiftGroupRepositoryImpl
 import com.example.wichtly.data.repository.ParticipantRepositoryImpl
+import com.example.wichtly.data.repository.PhotoRepositoryImpl
 import com.example.wichtly.data.repository.WishListRepositoryImpl
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
+import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.WishListRepository
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.ParticipantValidator
@@ -19,11 +22,15 @@ interface AppContainer {
     val participantRepository: ParticipantRepository
     val wishListRepository: WishListRepository
     val drawRepository: DrawRepository
+    val photoRepository: PhotoRepository
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
     private val database: AppDatabase by lazy {
         AppDatabase.create(context)
+    }
+    private val photoStorageManager: LocalPhotoStorageManager by lazy {
+        LocalPhotoStorageManager(context)
     }
     private val giftGroupValidator: GiftGroupValidator by lazy {
         GiftGroupValidator()
@@ -58,6 +65,11 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
             giftGroupDao = database.giftGroupDao(),
             participantDao = database.participantDao(),
             wishListItemDao = database.wishListItemDao(),
+        )
+    }
+    override val photoRepository: PhotoRepository by lazy {
+        PhotoRepositoryImpl(
+            storageManager = photoStorageManager,
         )
     }
 }
