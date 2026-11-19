@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.components.photo
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,13 +9,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,18 +22,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.theme.WichtlyTheme
+import java.io.File
 
 /**
  * Zustandsloser UI-Baustein zur Darstellung des Foto-Auswahlfeldes in Formularen oder Dialogen.
  *
  * Warum zustandslos?
- * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]) und Interaktions-Callbacks ([onSelectClick])
- * vollständig von der übergeordneten Ebene. Es findet hier noch kein Bildladen statt.
+ * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]), die optionale Datei ([photoFile])
+ * und Interaktions-Callbacks ([onSelectClick]) vollständig von der übergeordneten Ebene.
  *
  * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]) für projektspezifische Texte.
  * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist.
  * @param onSelectClick Callback beim Klick auf den "Auswählen"- bzw. "Ändern"-Button.
  * @param modifier Optionaler Layout-Modifier.
+ * @param photoFile Optionale Bilddatei zur Anzeige im [PhotoThumbnail].
  */
 @Composable
 fun PhotoPickerField(
@@ -44,6 +43,7 @@ fun PhotoPickerField(
     hasPhoto: Boolean,
     onSelectClick: () -> Unit,
     modifier: Modifier = Modifier,
+    photoFile: File? = null,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -69,21 +69,11 @@ fun PhotoPickerField(
                     .padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Runder Avatar-/Icon-Platzhalter
-                Surface(
+                // Runder Foto-Thumbnail oder Platzhalter
+                PhotoThumbnail(
+                    file = photoFile,
                     modifier = Modifier.size(40.dp),
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = if (hasPhoto) "✓" else "＋",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                    }
-                }
+                )
 
                 Spacer(modifier = Modifier.width(12.dp))
 

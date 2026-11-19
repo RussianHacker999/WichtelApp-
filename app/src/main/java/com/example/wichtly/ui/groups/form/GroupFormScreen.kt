@@ -508,7 +508,7 @@ private fun GroupFormScreenLoadingPreview() {
  */
 @Preview(showBackground = true)
 @Composable
-private fun GroupFormScreenNotFoundPreview() {
+private fun GroupFormScreenNotFoundNotFoundPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(
