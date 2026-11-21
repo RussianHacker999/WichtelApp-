@@ -44,8 +44,10 @@ import java.time.LocalDate
 fun GroupsScreen(
     uiState: GroupsUiState,
     modifier: Modifier = Modifier,
+    // Callbacks/Event-Handler (Funktionen die von aussen in das Composable reingereicht werden)
     onAddGroupClick: () -> Unit,
     onGroupClick: (groupId: String) -> Unit,
+    onDetailsClick: (groupId: String) -> Unit,
     onEditGroupClick: (groupId: String) -> Unit,
     onPrepareDrawClick: (groupId: String) -> Unit,
 ) {
@@ -87,11 +89,15 @@ fun GroupsScreen(
                     //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
                     Card(
                         modifier = modifier.fillMaxWidth(),
+                        // Hinterfrundfarbe fuer die Karten bestimmen
+                        onClick = {onGroupClick(group.id)},
                         colors = CardDefaults.cardColors(
+                            // ausgewaehlte Card ist bekommt einen Blauen Hintergrung, die anderen Karten einen hell grauen
                             containerColor = if (uiState.selectedGroupId == group.id) {
+                                // Material 3 bietet verschiedene Frabrschemata an (Vorteil: automatische anpassung an hell und dunkelModus)
                                 MaterialTheme.colorScheme.primaryContainer
                             } else {
-                                MaterialTheme.colorScheme.surface
+                                MaterialTheme.colorScheme.surfaceContainer
                             }
                         )
                     ) {
@@ -116,10 +122,12 @@ fun GroupsScreen(
                                     end = 8.dp,
                                     bottom = 8.dp
                                     )
+                                    .weight(1f)
+                                    //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
                                 //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
                             )
                             Button(
-                                onClick = { onGroupClick(group.id) },
+                                onClick = { onDetailsClick(group.id) },
                                 modifier = modifier
                                     .padding(horizontal = 8.dp)
                             ) {
@@ -218,6 +226,7 @@ private fun GroupsScreenPreview() {
             testUiState,
             onAddGroupClick = {},
             onGroupClick = {},
+            onDetailsClick = {},
             onEditGroupClick = {},
             onPrepareDrawClick = {},
         )

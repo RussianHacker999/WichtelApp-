@@ -21,15 +21,13 @@ fun GroupsRoute(
     val factory = remember(repository) { GroupsViewModelFactory(repository) }
     val viewModel: GroupsViewModel = viewModel(factory = factory)
 
+    // erstellt einen GroupsSceen
+    // gibt seine Parameter methoden als Parameter in den GroupSceen
     GroupsScreen(
         uiState = viewModel.uiState,
         onAddGroupClick = onAddGroup,
-        onGroupClick = { groupId ->
-            // Die Karte bleibt weiterhin als Detail-Navigation nutzbar.
-            // Gleichzeitig wird sie für den späteren "Losen"-Klick gespeichert.
-            viewModel.selectGroup(groupId)
-            onOpenGroup(groupId)
-        },
+        onGroupClick = { groupId -> viewModel.selectGroup(groupId) },
+        onDetailsClick = {groupId -> onOpenGroup(groupId)},
         onEditGroupClick = onEditGroup,
         onPrepareDrawClick = { groupId ->
             onPrepareDraw(groupId)
