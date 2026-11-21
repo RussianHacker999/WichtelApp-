@@ -310,3 +310,8 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Accepted**: Hinweise aus dem Review als Prüfliste (fehlende Callbacks in GroupsScreen, Import von GroupsScreen, Zugriff auf AppContainer, Signaturen der Callbacks).\
 **Changed**: Noch nichts geändert, Anpassungen folgen in einem späteren Commit.\
 **Commits**: 0194ad8
+
+### 2026-11-21 (Melissa, Meyer), GitHup Copilot Education
+**Prompt 1**: Bitte passe den Code an: GroupScreen soll die Daten aus dem Repository verwenden und nicht, wie bisher, die hard reingecodeten Daten. Bitte mache leichter verständliche Änderungen und viele Kommentare. Ich, als Anfängerin, möchte die Änderungen nachvollziehen können..\
+**Geaendert:**   Quelle der GiftGroups & Kommentare
+**Commits:**     ab5e756..3f8a537
