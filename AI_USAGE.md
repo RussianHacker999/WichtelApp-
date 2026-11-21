@@ -315,3 +315,8 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Prompt 1**: Bitte passe den Code an: GroupScreen soll die Daten aus dem Repository verwenden und nicht, wie bisher, die hard reingecodeten Daten. Bitte mache leichter verständliche Änderungen und viele Kommentare. Ich, als Anfängerin, möchte die Änderungen nachvollziehen können..\
 **Geaendert:**   Quelle der GiftGroups & Kommentare
 **Commits:**     ab5e756..3f8a537
+
+ ### 2026-11-21 (Melissa, Meyer), Copilot (kostenlos)
+**Prompt 1**:Was muss ich in den Code einfügen, sodass sich die Card in einem Scrollbaren Bereich befinden? Beispielsitualtion: Die Card-Elemente nehmen mehr Platz ein als die Seite groß ist. Dann soll man durch scrollen die unteren Elemente erreichen können. Die Button sollen aber ihre Positon beibehalten. + Anhang (aktuelle Datei: GroupsScreen)..\
+**Geaendert**:          Column Modifier
+**Commits**:            4984ef2
