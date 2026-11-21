@@ -268,6 +268,160 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Accepted**: UI-Screen Vorschläge als temporärer Erstversuch im delete Wishlist item Kontext.
 **Commits**: 10930b2
 
+
+
+
+### 2026-11-10 (Diana, Folz), Claude.ai (pro)
+
+**Prompt 1**:
+Lies zuerst AGENTS.md. Ändere nur GroupFormInput.kt im Paket com.example.wichtly.ui.groups.form, nicht die Testdatei. Die Tests in GroupFormInputTest.kt sind die Vorgabe. Mach alle Tests grün, ohne das Verhalten bereits
+grüner Tests zu ändern. parseBudgetToCents darf bei keiner Eingabe eine Exception werfen, auch nicht bei Überlauf von Long. Rechne weiter mit BigDecimal, nicht mit Double. Prüfe das Eingabeformat zuerst, bevor du umwandelst:
+nach trim nur Ziffern, optional ein Komma oder Punkt mit einer oder zwei Nachkommastellen, sonst null. Kommentiere auf Deutsch, warum. Das Projekt muss bauen. Fasse zusammen, was du geändert hast.
+**Accepted**: GroupFormInput.kt (Parsing mit BigDecimal und striktem Datum, nicht nur die Standart-Grenzen/Werte)
+**Changed**: Tests um Grenzfälle erweitert, weil Gemini nur Normalfälle getestet hatte (Überlauf, 1e3, Schaltjahr, einstellige Tage)
+Checked: 12 Tests grün
+**Commits**: 46263aea
+
+**Prompt 2**:
+Lies zuerst AGENTS.md. Lege im Paket com.example.wichtly.ui.groups.form die Dateien GroupFormUiState.kt und GroupFormErrors.kt an. Ändere keine bestehenden Dateien. Kein ViewModel, kein Compose-Screen, keine neuen Dependencies.
+GroupFormUiState: data class mit isLoading: Boolean, isEditMode: Boolean, notFound: Boolean, name: String, budget: String, drawDay: String, drawType: DrawType, nameError: String?, budgetError: String?, drawDayError: String?,
+generalError: String?, isSaving: Boolean, isSaved: Boolean. Sinnvolle Standardwerte. Kommentiere, was jedes Feld bedeutet. Das Foto kommt nicht vor.
+GroupFormErrors.kt: Eine Funktion, die eine List<GiftGroupValidationError> aus domain/validation in die Felder des States übersetzt, mit deutschen, nutzerfreundlichen Texten: EmptyName, NameTooLong
+und DuplicateName gehören zu nameError, InvalidBudget zu budgetError, DateInPast zu drawDayError, GroupNotFound zu generalError. Zwei Fehler auf demselben Feld ergeben einen Text, nicht zwei. Nimm
+die Klassen aus dem Projekt, erfinde keine. Füge einen JUnit-Test hinzu. Das Projekt muss bauen. Fasse zusammen.
+Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nennen, die für ein nicht lesbares Budget ein Beispiel wie 25,50. Diese Formatfehler entstehen im ViewModel vor dem Aufruf des Repositorys, lege dafür Texte als Konstanten an.
+**Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt
+**Commits**: ca5d2602
+
+### 2026-11-10 (Viktoria)
+
+**Prompt 1**:
+Read AGENTS.md. Read our domain model GiftGroup. Propose a domain model for Participant (as in)
+secret santa participant of a GiftGroup. Justify it.
+**Accepted**: id, groupId, name, photoPath for now.
+**Rejected**: wishlist, assignedRecipientId (for now).
+Decision was to have WishList as a multi-item entity itself.
+**Commits**:
+
+**Prompt 2**:
+Suggest a Repository interface for the Participant model suitable
+for CRUD operations, including listing.
+nicht alles akzeptiert..; siehe erst prompt 3
+akzeptiert: participantvalidator analog zu giftgroup validator
+
+**Prompt 3**:
+Two questions: 1) do still need deleteParticipantsByGroupId
+even if we have CASCADE deletion for groups,2)
+why did you not add add groupId to the signature of createParticipant?
+Antwort war: deletion bei cascade nicht nötig, deletebygroup entfernt;
+groupId war mein Fehler
+-->deletebygroupId entfernt
+
+**Prompt 4**:
+Now do execute these steps (domain model, repository)
+for the WishList entity itself. Each WishList
+is linked to a participant and contains one or several
+WishListItem objects.
+(zurückgestellt... muss noch überprüft werden stand vom
+promptgen 11 10)
+
+--> erkläre warum wir sowohl wishlistitem als auch
+wishlist brauchen??
+reichtwishlist item wirklich nicht aus?
+
+### 2026-11-12 (Viktoria)
+**Prompt 1**:
+Implement a Participant Room entity.
+id/pk String, groupId String, name String, photopath like in GiftGroupEntity.
+groupdId as foreignkey towards GiftGroupEntity.id in gift_groups,
+onDelete=CASCADE.
+**Accepted**: ParticipantEntity, Participant Mapper classes.
+For now, accept fallback to destructive Migration in AppDatabase.
+**Commits**:
+
+**Prompt 2**:
+Implement ParticipantDao with following functions:
+getParticipantsByGroupId(groupId: String): Flow<List<ParticipantEntity>>
+fun getParticipantById(id: String): Flow<ParticipantEntity?>
+suspend fun insertParticipant(participant: ParticipantEntity)
+suspend fun updateParticipant(participant: ParticipantEntity): Int
+suspend fun deleteParticipantById(id: String)
+-->dao klass passt so
+
+
+**Prompt 3**:
+Now implement ParticipantRepository according to the interface,
+in analogy to GiftGroupRepositoryImpl
+-> hinweis hat auch ParticipantValidator
+gemacht, was eigtl. ok ist. Akz.
+->loadParticipantsByGroup war gar nicht im Interface, erstmal weg!
+-->darum ersetzung:
+val existingParticipants = loadParticipantsByGroup(participantWithId.groupId)
+val existingParticipants = participantDao.getParticipantsByGroupId(participantWithId.groupId).first().toDomainModelList()
+-->sonst wurde VORLÄUFIG akzeptiert damit Diana mit was arbeiten kann;
+aber nur als vorläufige Vers.
+
+
+-->!! WICHTIG MUSS geprüft werden!!
+
+**Prompt 4**:
+Please make AppContainer sole owner and manager of AppDatabase.
+Remove the Singleton pattern from AppDatabase.
+-->nicht akzeptiert; create method impl bleibt in AppDatabase. 
+->follow up prompt: No, please do leave the create method impl itself in the AppDatabase.
+->accepted 
+
+**Prompt 5**:
+Please move UUID creation from the repository layer to the domain classes.
+-->all acct; including changes do viewmodel i did not take into account 
+
+
+**Prompt 6**:
+Check all places where the name param is being trimmed.
+Evaluate if it makes sense to also trim it in the RepositoryImpl classes or not.
+--> all accept 
+
+**Prompt 7**: 
+Replace (repositoryimpl classes) the UPDATE NOtFound Error handling with pure existence 
+check 
+["Evaluate whether changing update error handling in GiftGroupRepositoryImpl and ParticipantRepositoryImpl
+from checking rowsUpdated == 0 (post-Room @Update) to an explicit existence check
+(existingItems.any { it.id == item.id }) beforehand is safe and appropriate for our offline-only app scope."]
+--> umgesetzt; passt
+
+### 2026-11-13 (Viktoria)
+
+**Prompt 1**:
+Change the WishListItem domain class so that it has the signature of TemporaryWishlistPlaceholders.kt.
+Also add interface WishListRepository with: observerWishlistItems; createWishListItem, updateWishListItem,
+deleteWishListItem
+--> all accepting 
+
+**Prompt 2**:
+Implement a WishListValidator class
+in analogy to existing validator classes.
+-->all acc 
+
+**Prompt 3**:
+Implement WishListItemEntity als Table wishlist_items with id:String PK, participantId String FK 
+(ParticipantEntity id, ondelete cascade, index).
+Also implement WishListItemdao with observerbyparticipantid sorted by sortOrder;
+insert, update; delete. 
+-->passt 
+
+**Prompt 4**:
+Add getWishListItemById to Wishlist dao and repository.
+Implement WishListRepository according to the interface. 
+Add validation and trimming in analogy to existing repository classes.
+
+
+COMMIT MSG:
+feat(wishlist): implement database entity/dao, domain+mapper, repository layer, 
+validator, add to AppDatabase/AppContainer
+
+
+
+
 ### 2026-11-14 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
 **Prompt 1**: Der Button mit der Aufschirft "Losen" soll auf dem Screen immer ganz unten angezeigt werden. Zudem soll Button soll höhe und die die Aufschrieft groeßer und dick sein. (Plus einer Datei mit dem aktuellem Code der Klasse GroupsScreen.\
 **Angenommen:** modifier vom Losen-Button; .weight(1f) fuer die LazyColum
