@@ -32,11 +32,14 @@ import com.example.wichtly.ui.groups.GroupsUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
+// hier wurden die Schachteln onAddGroupClick, onGroupClick(groupId), onEditGroupClick(groupId) eingefügt
+// die später in AppNavHost verdrahtet und dann jeweils zu "Formular neu", "Gruppendetail" und "Formular bearbeiten" geführt werden
+
 @OptIn(ExperimentalMaterial3Api::class)
 //um die UI-Elemente von Material 3 nutzen zu koennen
 @Composable
 //die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
-fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
+fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGroupClick:() -> Unit, onGroupClick :(groupId:String) -> Unit, onEditGroupClick: (groupId:String) -> Unit) {
     Scaffold(
         //Scaffold quasi Geruest fuer einen Screen
         modifier = modifier,
@@ -57,7 +60,7 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
                 //ein Zeilen: item vs. mehere Zeilen: items
                 item() {
                     Button(
-                        onClick = { /*weiter Leitung an GroupsFrom*/ },
+                        onClick = onAddGroupClick,
                         modifier = modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp)
@@ -70,7 +73,7 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
                 }
                 items(uiState.groups) { group ->
                     //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
-                    Card(modifier = modifier.fillMaxWidth()) {
+                    Card(modifier = modifier.fillMaxWidth(),onClick = { onGroupClick(group.id)}) {
                         //durch die Card wird z.B. die Graue Box eingefuegt
                         Row(
                             modifier = Modifier
@@ -95,7 +98,7 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier){
                                 //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
                             )
                             IconButton(
-                                onClick = { /*weiter Leitung an GroupsFrom*/ },
+                                onClick = {onEditGroupClick(group.id)},
                                 modifier = modifier
                                     .padding(horizontal = 8.dp)
                             ) {
@@ -175,7 +178,7 @@ private fun GroupsScreenPreview() {
         )
     )
     WichtlyTheme() {
-        GroupsScreen(testUiState)
+        GroupsScreen(testUiState, onAddGroupClick = {}, onGroupClick = {}, onEditGroupClick = {})
     }
 }
 
