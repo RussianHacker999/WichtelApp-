@@ -17,7 +17,6 @@ import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
 object Routes {
     const val ARG_GROUP_ID = "groupId"
     const val ARG_PARTICIPANT_ID = "participantId"
-
     const val GROUPS = "groups"
     const val GROUP_CREATE = "group-form"
     const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}"
@@ -42,8 +41,12 @@ fun AppNavHost(
         // 1) Gruppenliste
         composable(Routes.GROUPS) {
             // TODO: Sobald Person C GroupsScreen um Callbacks erweitert hat, hier verdrahten
-            GroupsScreen(uiState = GroupsUiState())
-        }
+            GroupsScreen(
+                uiState = GroupsUiState(),
+                onAddGroupClick = { navController.navigate(Routes.GROUP_CREATE) },
+                onGroupClick = { groupId -> navController.navigate(Routes.groupDetail(groupId)) },
+                onEditGroupClick = { groupId -> navController.navigate(Routes.groupEdit(groupId)) },
+            )        }
 
         // 2) Formular: neue Gruppe
         composable(Routes.GROUP_CREATE) {
