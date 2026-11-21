@@ -15,6 +15,7 @@ import com.example.wichtly.ui.groups.form.GroupFormRoute
 import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
 import com.example.wichtly.ui.draws.DrawDetailRoute
 import com.example.wichtly.ui.draws.DrawHistoryRoute
+import com.example.wichtly.ui.groups.preparation.PreparationRoute
 
 
 
@@ -29,6 +30,7 @@ object Routes {
     const val WISHLIST = "wishlist/{$ARG_PARTICIPANT_ID}"
     const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"
     const val DRAW_HISTORY = "draw-history/{$ARG_GROUP_ID}"
+    const val PREPARATION = "preparation/{$ARG_GROUP_ID}"
 
 
 
@@ -38,6 +40,7 @@ object Routes {
 
     fun drawDetail(drawId: String) = "draw-detail/$drawId"
     fun drawHistory(groupId: String) = "draw-history/$groupId"
+    fun preparation(groupId: String) = "preparation/$groupId"
 }
 
 @Composable
@@ -56,6 +59,7 @@ fun AppNavHost(
                 onAddGroup = { navController.navigate(Routes.GROUP_CREATE) },
                 onOpenGroup = { groupId -> navController.navigate(Routes.groupDetail(groupId)) },
                 onEditGroup = { groupId -> navController.navigate(Routes.groupEdit(groupId)) },
+                onPrepareDraw = { groupId -> navController.navigate(Routes.preparation(groupId)) },
             )
         }
 
@@ -139,6 +143,19 @@ fun AppNavHost(
                 groupId = groupId,
                 onBack = { navController.popBackStack() },
                 onOpenDraw = { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
+            )
+        }
+
+        // 8) Vorbereitung zum Losen
+        composable(
+            route = Routes.PREPARATION,
+            arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            PreparationRoute(
+                groupId = groupId,
+                onBack = { navController.popBackStack() },
+                onDrawStarted = { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
             )
         }
     }

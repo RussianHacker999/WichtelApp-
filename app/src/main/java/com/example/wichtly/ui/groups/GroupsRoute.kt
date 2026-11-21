@@ -13,6 +13,7 @@ fun GroupsRoute(
     onAddGroup: () -> Unit,
     onOpenGroup: (groupId: String) -> Unit,
     onEditGroup: (groupId: String) -> Unit,
+    onPrepareDraw: (groupId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -20,11 +21,22 @@ fun GroupsRoute(
     val factory = remember(repository) { GroupsViewModelFactory(repository) }
     val viewModel: GroupsViewModel = viewModel(factory = factory)
 
+    // erstellt einen GroupsSceen
+    // gibt seine Parameter Methoden als Parameter in den GroupSceen
     GroupsScreen(
         uiState = viewModel.uiState,
+        // oeffenet Gruppe hinzufuegen Screen
         onAddGroupClick = onAddGroup,
-        onGroupClick = onOpenGroup,
+        // makiert die ausgewhlte Gruppe
+        onGroupClick = { groupId -> viewModel.selectGroup(groupId) },
+        // oeffnet die Detailansicht der ausgewaehlten Gruppe
+        onDetailsClick = {groupId -> onOpenGroup(groupId)},
+        // oeffnet die Bearbeitungsansicht der ausgewaehlter Gruppe
         onEditGroupClick = onEditGroup,
+        // oeffent die Prepartion--Losung-Ansicht der makierten Seite
+        onPrepareDrawClick = { groupId ->
+            onPrepareDraw(groupId)
+        },
         modifier = modifier,
     )
 }
