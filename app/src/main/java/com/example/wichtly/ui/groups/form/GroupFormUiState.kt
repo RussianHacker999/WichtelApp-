@@ -33,5 +33,5 @@ data class GroupFormUiState(
     val drawDayError: String? = null,
     val generalError: String? = null,
     val isSaving: Boolean = false,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
 )

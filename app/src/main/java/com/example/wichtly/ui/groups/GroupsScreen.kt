@@ -115,14 +115,16 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGro
                 onClick = { /*weiter Leitung an GroupsFrom*/ },
                 modifier = modifier
                     .fillMaxWidth()
-                    .height(72.dp)
-                    .padding(horizontal = 16.dp)
-
-
+                    .height(96.dp)
+                    .padding(
+                        start = 16.dp,
+                        top = 12.dp,
+                        end = 16.dp,
+                        bottom = 16.dp)
             ) {
                 Text(
                     text = "Losen",
-                    fontSize = 24.sp,
+                    fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
                 )
             }

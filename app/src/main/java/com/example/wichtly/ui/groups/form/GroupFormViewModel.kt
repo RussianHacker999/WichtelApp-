@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.form
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.DrawType
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
  */
 class GroupFormViewModel(
     private val groupId: String?,
-    private val repository: GiftGroupRepository
+    private val repository: GiftGroupRepository,
 ) : ViewModel() {
 
     // Gemerkte Instanz der geladenen Gruppe im Bearbeiten-Modus, um id und photoPath bei copy() beizubehalten
@@ -35,7 +36,7 @@ class GroupFormViewModel(
     private val _uiState = MutableStateFlow(
         GroupFormUiState(
             isEditMode = groupId != null,
-            isLoading = groupId != null
+            isLoading = groupId != null,
         )
     )
     val uiState: StateFlow<GroupFormUiState> = _uiState.asStateFlow()
@@ -60,7 +61,7 @@ class GroupFormViewModel(
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            notFound = true
+                            notFound = true,
                         )
                     }
                 } else {
@@ -72,17 +73,18 @@ class GroupFormViewModel(
                             name = loadedGroup.name,
                             budget = formatCentsForInput(loadedGroup.budgetCents),
                             drawDay = formatDateForInput(loadedGroup.drawDay),
-                            drawType = loadedGroup.drawType
+                            drawType = loadedGroup.drawType,
                         )
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("GroupFormViewModel", "Fehler beim Laden der Wichtelgruppe", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        generalError = "Fehler beim Laden der Wichtelgruppe."
+                        generalError = "Fehler beim Laden der Wichtelgruppe.",
                     )
                 }
             }
@@ -100,7 +102,7 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 name = newName,
-                nameError = null
+                nameError = null,
             )
         }
     }
@@ -112,7 +114,7 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 budget = newBudget,
-                budgetError = null
+                budgetError = null,
             )
         }
     }
@@ -124,7 +126,7 @@ class GroupFormViewModel(
         _uiState.update {
             it.copy(
                 drawDay = newDrawDay,
-                drawDayError = null
+                drawDayError = null,
             )
         }
     }
@@ -183,7 +185,7 @@ class GroupFormViewModel(
             _uiState.update {
                 it.copy(
                     budgetError = if (parsedBudgetCents == null) INVALID_BUDGET_FORMAT_ERROR else null,
-                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null
+                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null,
                 )
             }
             return
@@ -195,7 +197,7 @@ class GroupFormViewModel(
                 nameError = null,
                 budgetError = null,
                 drawDayError = null,
-                generalError = null
+                generalError = null,
             )
         }
 
@@ -210,7 +212,7 @@ class GroupFormViewModel(
                         budgetCents = parsedBudgetCents,
                         drawDay = parsedDate,
                         drawType = currentState.drawType,
-                        photoPath = null
+                        photoPath = null,
                     )
                 } else {
                     // Bearbeiten: id und photoPath bleiben durch copy() erhalten
@@ -218,7 +220,7 @@ class GroupFormViewModel(
                         name = currentState.name.trim(),
                         budgetCents = parsedBudgetCents,
                         drawDay = parsedDate,
-                        drawType = currentState.drawType
+                        drawType = currentState.drawType,
                     )
                 }
 
@@ -233,7 +235,7 @@ class GroupFormViewModel(
                         _uiState.update {
                             it.copy(
                                 isSaving = false,
-                                isSaved = true
+                                isSaved = true,
                             )
                         }
                     }
@@ -245,11 +247,12 @@ class GroupFormViewModel(
                 }
             } catch (e: CancellationException) {
                 throw e
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.e("GroupFormViewModel", "Fehler beim Speichern der Wichtelgruppe", e)
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        generalError = "Fehler beim Speichern der Wichtelgruppe."
+                        generalError = "Fehler beim Speichern der Wichtelgruppe.",
                     )
                 }
             }
