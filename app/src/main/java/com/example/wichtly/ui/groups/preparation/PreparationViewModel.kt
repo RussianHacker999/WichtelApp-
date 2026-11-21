@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 /**
  * Verbindet die ausgewählte Gruppe mit ihren Repository-Daten.
  *
- * Die IDs werden beim Auslosungsklick aus dem Gruppenbildschirm übergeben.
+ * Die IDs werden beim Auslosungsklick aus dem Gruppenbildschirm uebergeben.
  */
 class PreparationViewModel(
     private val groupId: String,

@@ -29,21 +29,21 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.groups.form.formatCentsForInput
 import com.example.wichtly.ui.groups.form.formatDateForInput
 
-/**
- * Zustandsloser Screen zur Kontrolle vor dem Start der Auslosung.
- */
+/** Screen zur Kontrolle vor dem Start der Auslosung */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreparationScreen(
     state: PreparationUiState,
+    // Methode, fuer button "zruek"
     onBack: () -> Unit,
+    // Methode fuer Button "jetzt losen"
     onStartDraw: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(title = { Text("Vorbereitung zum Losen") })
+            TopAppBar(title = { Text("Check vor dem Losen") })
         },
     ) { paddingValues ->
         Column(
@@ -60,13 +60,14 @@ fun PreparationScreen(
             ) {
                 item {
                     Text(
-                        text = "Bitte überprüfe, ob die Daten der Gruppe korrekt sind, bevor die Auslosung beginnt: Name der Gruppe, Anzahl der Teilnehmer, Übergabedatum, Budget, Art des Wichtelns.",
+                        text = "Bitte überprüfe, ob die Daten der Gruppe korrekt sind, bevor du die Auslosung startest",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
 
                 item {
                     if (state.isLoading) {
+                        // Zeigt einen Ladekreis (von Material 3)
                         CircularProgressIndicator()
                     } else if (state.errorMessage != null) {
                         Text(
@@ -84,12 +85,8 @@ fun PreparationScreen(
                             Card(modifier = Modifier.fillMaxWidth()) {
                                 Column(modifier = Modifier.padding(16.dp)) {
                                     Text(
-                                        text = "Name der Gruppe",
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                    Text(
-                                        text = group.name,
-                                        style = MaterialTheme.typography.titleMedium,
+                                        text = "Name der Gruppe ${group.name}",
+                                        style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
                                     )
 
@@ -116,18 +113,24 @@ fun PreparationScreen(
                                 }
                             }
                         }
+                        else{
+                            Text(
+                                text = "Die ausgewählte Gruppe ist null.",
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
                     }
                 }
 
                 item {
                     Text(
-                        text = "Teilnehmer",
+                        text = "Teilnehmer:",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                     )
                 }
 
-                // Diese Liste wird aus dem ParticipantRepository gebaut.
+                // Die Liste wird aus dem ParticipantRepository gebaut.
                 items(state.participants) { participant ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),

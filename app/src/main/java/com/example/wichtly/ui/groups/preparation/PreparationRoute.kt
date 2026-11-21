@@ -20,8 +20,12 @@ fun PreparationRoute(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    // leifert den aktuellen Andorid-Content
+    // Zugiff auf viele Android Funktionen
     val container = (context.applicationContext as WichtlyApplication).container
+    // ermoeglicht schlussendlich den Zugriff auf das Repositoty mit den Daten ueber diese App und einen Container
 
+    // erstelltn eine Faktory fuer Preparation
     val factory = remember(
         groupId,
         container.giftGroupRepository,
@@ -35,11 +39,14 @@ fun PreparationRoute(
             drawRepository = container.drawRepository,
         )
     }
-
+    // Faktory erstellt eine ViewModel
     val viewModel: PreparationViewModel =
         viewModel(key = groupId, factory = factory)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    // holte den UiSate aus dem ViewModel
+    // durch das by wird direkt die value-Eigenschaft verwednet
 
+    // erstellt einen PreparationScreen
     PreparationScreen(
         state = state,
         onBack = onBack,
