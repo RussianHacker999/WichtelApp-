@@ -38,15 +38,8 @@ class GroupsViewModel(
         }
     }
 
-    /**
-     * Speichert die Auswahl einer Gruppenkarte für den späteren "Losen"-Klick.
-     */
+    // Speichert die ausgewhlte Gruppenkarte (fuer den spaeteren "Losen"-Klick)
     fun selectGroup(groupId: String) {
         uiState = uiState.copy(selectedGroupId = groupId)
-    }
-
-    fun createGroup(name: String) {
-        // Gruppe anlegen
-        //weiterleitung an GroupsFrom
     }
 }
