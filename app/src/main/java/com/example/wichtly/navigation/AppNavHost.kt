@@ -14,6 +14,9 @@ import com.example.wichtly.ui.groups.detail.GroupDetailRoute
 import com.example.wichtly.ui.groups.form.GroupFormRoute
 import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
 import com.example.wichtly.ui.draws.DrawDetailRoute
+import com.example.wichtly.ui.draws.DrawHistoryRoute
+
+
 
 object Routes {
     const val ARG_GROUP_ID = "groupId"
@@ -24,12 +27,17 @@ object Routes {
     const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}"
     const val GROUP_DETAIL = "group-detail/{$ARG_GROUP_ID}"
     const val WISHLIST = "wishlist/{$ARG_PARTICIPANT_ID}"
+    const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"
+    const val DRAW_HISTORY = "draw-history/{$ARG_GROUP_ID}"
 
-    const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"      // neu
+
 
     fun groupEdit(groupId: String) = "group-form/$groupId"
     fun groupDetail(groupId: String) = "group-detail/$groupId"
     fun wishlist(participantId: String) = "wishlist/$participantId"
+
+    fun drawDetail(drawId: String) = "draw-detail/$drawId"
+    fun drawHistory(groupId: String) = "draw-history/$groupId"
 }
 
 @Composable
@@ -108,7 +116,6 @@ fun AppNavHost(
             )
         }
 
-
         // 6) DrawDetail
         composable(
             route = Routes.DRAW_DETAIL,
@@ -120,6 +127,19 @@ fun AppNavHost(
                 onBack = { navController.popBackStack() },
 
                 )
+        }
+
+        // 7) DrawHistory
+        composable(
+            route = Routes.DRAW_HISTORY,
+            arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            DrawHistoryRoute(
+                groupId = groupId,
+                onBack = { navController.popBackStack() },
+                onOpenDraw = { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
+            )
         }
     }
 }
