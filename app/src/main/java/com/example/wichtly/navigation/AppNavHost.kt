@@ -8,8 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.wichtly.ui.GroupsScreen
-import com.example.wichtly.ui.groups.GroupsUiState
+import com.example.wichtly.ui.groups.GroupsRoute
 import com.example.wichtly.ui.groups.detail.GroupDetailRoute
 import com.example.wichtly.ui.groups.form.GroupFormRoute
 import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
@@ -40,13 +39,12 @@ fun AppNavHost(
     ) {
         // 1) Gruppenliste
         composable(Routes.GROUPS) {
-            // TODO: Sobald Person C GroupsScreen um Callbacks erweitert hat, hier verdrahten
-            GroupsScreen(
-                uiState = GroupsUiState(),
-                onAddGroupClick = { navController.navigate(Routes.GROUP_CREATE) },
-                onGroupClick = { groupId -> navController.navigate(Routes.groupDetail(groupId)) },
-                onEditGroupClick = { groupId -> navController.navigate(Routes.groupEdit(groupId)) },
-            )        }
+            GroupsRoute(
+                onAddGroup = { navController.navigate(Routes.GROUP_CREATE) },
+                onOpenGroup = { groupId -> navController.navigate(Routes.groupDetail(groupId)) },
+                onEditGroup = { groupId -> navController.navigate(Routes.groupEdit(groupId)) },
+            )
+        }
 
         // 2) Formular: neue Gruppe
         composable(Routes.GROUP_CREATE) {
