@@ -37,7 +37,7 @@ import com.example.wichtly.ui.groups.form.formatDateForInput
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
-/**
+/** HISTORY-DETAIL !!!!!!!!
  * Zustandsloser Composable-Screen für die Ergebnisansicht eines gespeicherten Auslosungs-Durchlaufs.
  *
  * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md & HTML-Mockup 07):

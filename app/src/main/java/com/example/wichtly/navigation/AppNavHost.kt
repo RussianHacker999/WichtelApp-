@@ -8,19 +8,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.ui.groups.GroupsRoute
 import com.example.wichtly.ui.groups.detail.GroupDetailRoute
 import com.example.wichtly.ui.groups.form.GroupFormRoute
 import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
+import com.example.wichtly.ui.draws.DrawDetailRoute
 
 object Routes {
     const val ARG_GROUP_ID = "groupId"
+    const val ARG_DRAW_ID = "drawId"
     const val ARG_PARTICIPANT_ID = "participantId"
     const val GROUPS = "groups"
     const val GROUP_CREATE = "group-form"
     const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}"
     const val GROUP_DETAIL = "group-detail/{$ARG_GROUP_ID}"
     const val WISHLIST = "wishlist/{$ARG_PARTICIPANT_ID}"
+
+    const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"      // neu
 
     fun groupEdit(groupId: String) = "group-form/$groupId"
     fun groupDetail(groupId: String) = "group-detail/$groupId"
@@ -78,20 +83,43 @@ fun AppNavHost(
                 groupId = groupId,
                 onBack = { navController.popBackStack() },
                 onEditGroup = { id -> navController.navigate(Routes.groupEdit(id)) },
-                onOpenWishlist = { participantId -> navController.navigate(Routes.wishlist(participantId)) },
+                onOpenWishlist = { participantId ->
+                    navController.navigate(
+                        Routes.wishlist(
+                            participantId
+                        )
+                    )
+                },
             )
         }
 
         // 5) Wunschliste
         composable(
             route = Routes.WISHLIST,
-            arguments = listOf(navArgument(Routes.ARG_PARTICIPANT_ID) { type = NavType.StringType }),
+            arguments = listOf(navArgument(Routes.ARG_PARTICIPANT_ID) {
+                type = NavType.StringType
+            }),
         ) { backStackEntry ->
-            val participantId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_PARTICIPANT_ID))
+            val participantId =
+                requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_PARTICIPANT_ID))
             ParticipantWishlistRoute(
                 participantId = participantId,
                 onBack = { navController.popBackStack() },
             )
+        }
+
+
+        // 6) DrawDetail
+        composable(
+            route = Routes.DRAW_DETAIL,
+            arguments = listOf(navArgument(Routes.ARG_DRAW_ID) { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val drawId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_DRAW_ID))
+            DrawDetailRoute(
+                drawId = drawId,
+                onBack = { navController.popBackStack() },
+
+                )
         }
     }
 }
