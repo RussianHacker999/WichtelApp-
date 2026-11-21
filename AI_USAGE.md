@@ -470,6 +470,22 @@ validator, add to AppDatabase/AppContainer
 **Geaendert:**   Quelle der GiftGroups & Kommentare
 **Commits:**     ab5e756..3f8a537
 
+### 2026-11-21 (Melissa, Meyer), GitHup Copilot Education
+**Prompt 1**:Bitte füge einen Screen namens PreparationScreen (mit ViewModel, UiState, Route und ViewModelFactory) hinzu.
+Auf diesen Screen soll gewechselt werden, wenn man im GroupsScreen eine Card ausgewählt hat und anschließend auf „Losen“ klickt.
+Der Screen dient zur Kontrolle, ob das Auslosen für die Gruppe der ausgewählten Card gestartet werden darf oder nicht.
+Es soll geprüft werden, ob die Gruppe aus der ausgewählten Card korrekt in der Datenbank gespeichert wurde und mindestens drei Teilnehmer hat.
+Unten soll es zwei Buttons geben:
+Zurück-Button (zurück zum GroupsScreen)
+Jetzt losen-Button (grün; nur sichtbar, wenn das Losen erlaubt ist)
+Titel der Seite:„Vorbereitung zum Losen“
+Einleitungstext:
+„Bitte überprüfe, ob die Daten der Gruppe korrekt sind, bevor die Auslosung beginnt: Name der Gruppe, Anzahl der Teilnehmer, Übergabedatum, Budget, Art des Wichtelns.“
+Bitte ziehe die Daten der ausgewählten Gruppe aus dem Repository.
+Danach soll eine LazyColumn zum Scrollen kommen, in der die Namen aller Teilnehmer angezeigt werden. Bitte lade auch diese Daten aus dem Repository.
+Schreibe den Code leicht verständlich und kommentiere ihn auf Deutsch.
+**Angenommen:**            ganzen Vorschlag (in spaeteren Commits angepasst und nachkommientiert
+**Commits:**               50ee8b3
  ### 2026-11-21 (Melissa, Meyer), Copilot (kostenlos)
 **Prompt 1**:Was muss ich in den Code einfügen, sodass sich die Card in einem Scrollbaren Bereich befinden? Beispielsitualtion: Die Card-Elemente nehmen mehr Platz ein als die Seite groß ist. Dann soll man durch scrollen die unteren Elemente erreichen können. Die Button sollen aber ihre Positon beibehalten. + Anhang (aktuelle Datei: GroupsScreen)..\
 **Geaendert**:          Column Modifier
