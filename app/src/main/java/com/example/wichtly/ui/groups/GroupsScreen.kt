@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -40,7 +41,14 @@ import java.time.LocalDate
 //um die UI-Elemente von Material 3 nutzen zu koennen
 @Composable
 //die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
-fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGroupClick:() -> Unit, onGroupClick :(groupId:String) -> Unit, onEditGroupClick: (groupId:String) -> Unit) {
+fun GroupsScreen(
+    uiState: GroupsUiState,
+    modifier: Modifier = Modifier,
+    onAddGroupClick: () -> Unit,
+    onGroupClick: (groupId: String) -> Unit,
+    onEditGroupClick: (groupId: String) -> Unit,
+    onPrepareDrawClick: (groupId: String) -> Unit,
+) {
     Scaffold(
         //Scaffold quasi Geruest fuer einen Screen
         modifier = modifier,
@@ -77,7 +85,16 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGro
                 }
                 items(uiState.groups) { group ->
                     //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
-                    Card(modifier = modifier.fillMaxWidth(),onClick = { onGroupClick(group.id)}) {
+                    Card(
+                        modifier = modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (uiState.selectedGroupId == group.id) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surface
+                            }
+                        )
+                    ) {
                         //durch die Card wird z.B. die Graue Box eingefuegt
                         Row(
                             modifier = Modifier
@@ -101,6 +118,13 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGro
                                     )
                                 //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
                             )
+                            Button(
+                                onClick = { onGroupClick(group.id) },
+                                modifier = modifier
+                                    .padding(horizontal = 8.dp)
+                            ) {
+                                Text("Details")
+                            }
                             IconButton(
                                 onClick = {onEditGroupClick(group.id)},
                                 modifier = modifier
@@ -116,7 +140,13 @@ fun GroupsScreen(uiState: GroupsUiState, modifier: Modifier = Modifier, onAddGro
                 }
             }
             Button(
-                onClick = { /*weiter Leitung an GroupsFrom*/ },
+                // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
+                enabled = uiState.selectedGroupId != null,
+                onClick = {
+                    uiState.selectedGroupId?.let { selectedId ->
+                        onPrepareDrawClick(selectedId)
+                    }
+                },
                 modifier = modifier
                     .fillMaxWidth()
                     .height(96.dp)
@@ -184,7 +214,12 @@ private fun GroupsScreenPreview() {
         )
     )
     WichtlyTheme() {
-        GroupsScreen(testUiState, onAddGroupClick = {}, onGroupClick = {}, onEditGroupClick = {})
+        GroupsScreen(
+            testUiState,
+            onAddGroupClick = {},
+            onGroupClick = {},
+            onEditGroupClick = {},
+            onPrepareDrawClick = {},
+        )
     }
 }
-

@@ -13,6 +13,7 @@ fun GroupsRoute(
     onAddGroup: () -> Unit,
     onOpenGroup: (groupId: String) -> Unit,
     onEditGroup: (groupId: String) -> Unit,
+    onPrepareDraw: (groupId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -23,8 +24,16 @@ fun GroupsRoute(
     GroupsScreen(
         uiState = viewModel.uiState,
         onAddGroupClick = onAddGroup,
-        onGroupClick = onOpenGroup,
+        onGroupClick = { groupId ->
+            // Die Karte bleibt weiterhin als Detail-Navigation nutzbar.
+            // Gleichzeitig wird sie für den späteren "Losen"-Klick gespeichert.
+            viewModel.selectGroup(groupId)
+            onOpenGroup(groupId)
+        },
         onEditGroupClick = onEditGroup,
+        onPrepareDrawClick = { groupId ->
+            onPrepareDraw(groupId)
+        },
         modifier = modifier,
     )
 }
