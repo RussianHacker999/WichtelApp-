@@ -550,3 +550,42 @@ private val errorState = MutableStateFlow<String?>(null) Wozu sist das im ViewMo
 } Welchen Wert nimmt result an, wenn die Ausloung nicht erfolgreich war?.\
 **Angenommen**: mit dem neuen Wissen kommentiert  
 **Commits:**   eb999fb 
+
+// ein Prompt von Melissa fehlt noch 
+
+### 2026-11-22 (Melissa, Meyer), GitHup Copilot Education
+**Prompt 1**Bitte passe den Code an:
+Es soll im GruouenScreen das Feature eingebaut werden fuer jede Gruppe ein Gruppenbild mit der Gerätekamera aufzunehmen, persistent zu speichern und angezeigt zu werden.
+Die Stelle, wo das Bild eingefuegt werden soll, ist durch einen Kommentar markiert.
+Bevor man ein Bild aufnehmen kann sollen Abfragen erscheinen: Willst du wirklich ein Foto aufnehmen? Und eine Abfrage, die den Kamerazugriff erlaubt (immer, nur dieses Mal oder gar nicht).
+Versuche den Code und das Design aus des von dem Teilnehmerfoto wiederzuverwerten..\
+**Angenommen**:    Aenderungen im GroupsBereich
+**Commits:**       eaad749 
+
+### 2026-11-22 (Melissa, Meyer), Copilot (kostenlos)
+**Prompt 1**: val activePhotoGroupId = uiState.photoFlowGroupId
+if (activePhotoGroupId != null) {
+    val activeGroup = uiState.groups.firstOrNull { it.id == activePhotoGroupId }
+    if (activeGroup != null) {
+        PhotoCaptureFlow(
+            area = PhotoArea.GROUP,
+            hasPhoto = activeGroup.photoPath != null,
+            isOpen = true,
+            onClose = onPhotoFlowClose,
+            onPhotoCaptured = { file ->
+                onPhotoCaptured(activePhotoGroupId, file)
+            },
+            onRemovePhoto = { onRemovePhoto(activePhotoGroupId) },
+            onCameraDenied = { onCameraDenied(activePhotoGroupId) },
+        )
+    }
+}
+
+uiState.cameraDeniedGroupId?.let {
+    CameraPermissionDeniedHint(
+        onOpenSettings = {},
+        modifier = Modifier.padding(horizontal = 16.dp),
+    )
+} was wird hier getan? .\
+**Angenommen**:            Kommentare  
+**Commits:**               eaad749 
