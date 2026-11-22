@@ -8,10 +8,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +36,11 @@ import androidx.compose.ui.unit.sp
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.ui.groups.GroupsUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
+import com.example.wichtly.ui.components.photo.PhotoArea
+import com.example.wichtly.ui.components.photo.PhotoThumbnail
+import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
+import java.io.File
 import java.time.LocalDate
 
 // hier wurden die Schachteln onAddGroupClick, onGroupClick(groupId), onEditGroupClick(groupId) eingefügt
@@ -50,6 +59,11 @@ fun GroupsScreen(
     onDetailsClick: (groupId: String) -> Unit,
     onEditGroupClick: (groupId: String) -> Unit,
     onPrepareDrawClick: (groupId: String) -> Unit,
+    onPhotoClick: (groupId: String) -> Unit,
+    onPhotoFlowClose: () -> Unit,
+    onPhotoCaptured: (groupId: String, File) -> Unit,
+    onRemovePhoto: (groupId: String) -> Unit,
+    onCameraDenied: (groupId: String) -> Unit,
 ) {
     Scaffold(
         //Scaffold quasi Geruest fuer einen Screen
@@ -111,8 +125,37 @@ fun GroupsScreen(
                             verticalAlignment = Alignment.CenterVertically
                             //Text mittig
                         ) {
+                            // holte den Phad des Gruppenbildes aus dem UiSate
+                            val photoFile = uiState.photoFiles[group.id]
+                            IconButton(
+                                // Click ruft dien CallBack onPhotoClick auf
+                                // (oeffent ein Fenster, wo man ausesehlen kann, ob man ein Bild mit der Kamera aufnehmen will, das vorhandene Bild loeschen will oder zurueck zum GroupScreen gehen will
+                                onClick = { onPhotoClick(group.id) },
+                                modifier = Modifier.size(56.dp),
+                            ) {
+                                // wenn ein Pfad zum zum Gruppenbild dieser Gruppe hinterlegt ist,
+                                // dann zeige das Bild an
+                                if (photoFile != null) {
+                                    // PhotoThumbnail ist ein Verkleinertes Bild des original Bildes
+                                    // Ecken sind abgeschnitten
+                                    PhotoThumbnail(
+                                        // Pfad zum Foto
+                                        file = photoFile,
+                                        // Groesse des Fotos
+                                        modifier = Modifier.size(44.dp),
+                                        // Staerke des abgeschittenden Ecken (je hoeher die size, desto runder)
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                // Wenn kein Fototpfad hinterlegt wurde, wird ein Kamera-Icon angezeigt
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.PhotoCamera,
+                                        contentDescription = "Gruppenfoto aufnehmen"
+                                    )
+                                }
+                            }
                             Text(
-                                text = "Gruppe ${group.name}",
+                                text = "${group.name}",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontSize = 16.sp,
                                 modifier = Modifier
@@ -126,17 +169,21 @@ fun GroupsScreen(
                                     //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
                                 //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
                             )
-                            Button(
+                            IconButton(
                                 onClick = { onDetailsClick(group.id) },
                                 modifier = modifier
-                                    .padding(horizontal = 8.dp)
+                                    .padding(horizontal = 4.dp)
+                                    //horiontal = absand nach links und nach rechts
                             ) {
-                                Text("Details")
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Gruppendetails"
+                                )
                             }
                             IconButton(
                                 onClick = {onEditGroupClick(group.id)},
                                 modifier = modifier
-                                    .padding(horizontal = 8.dp)
+                                    .padding(horizontal = 4.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
@@ -168,6 +215,35 @@ fun GroupsScreen(
                     text = "Losen",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold
+                )
+            }
+
+            // holt sich die Id des Fotos der Gruppe aus dem UiSate
+            val activePhotoGroupId = uiState.photoFlowGroupId
+            if (activePhotoGroupId != null) {
+                val activeGroup = uiState.groups.firstOrNull { it.id == activePhotoGroupId }
+                if (activeGroup != null) {
+                    // oeffnet ein Composable das sich ueber den GroupSceen legt
+                    // Abfrage, ob ein Foto aufgenommen werden soll, ein vorhandenes Foto geloescht werden soll oder das Comosable wieder geschlossen werden soll
+                    PhotoCaptureFlow(
+                        area = PhotoArea.GROUP,
+                        hasPhoto = (activeGroup.photoPath != null),
+                        isOpen = true,
+                        onClose = onPhotoFlowClose,
+                        onPhotoCaptured = { file ->
+                            onPhotoCaptured(activePhotoGroupId, file)
+                        },
+                        onRemovePhoto = { onRemovePhoto(activePhotoGroupId) },
+                        onCameraDenied = { onCameraDenied(activePhotoGroupId) },
+                    )
+                }
+            }
+
+            // oeffent Composable, wenn der Kamera Zugriff verweigert wurde
+            if (uiState.cameraDeniedGroupId != null) {
+                CameraPermissionDeniedHint(
+                    onOpenSettings = {},
+                    modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
         }
@@ -229,6 +305,11 @@ private fun GroupsScreenPreview() {
             onDetailsClick = {},
             onEditGroupClick = {},
             onPrepareDrawClick = {},
+            onPhotoClick = {},
+            onPhotoFlowClose = {},
+            onPhotoCaptured = { _, _ -> },
+            onRemovePhoto = {},
+            onCameraDenied = {},
         )
     }
 }

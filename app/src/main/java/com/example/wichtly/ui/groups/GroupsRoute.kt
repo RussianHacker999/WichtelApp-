@@ -18,7 +18,8 @@ fun GroupsRoute(
 ) {
     val context = LocalContext.current
     val repository = (context.applicationContext as WichtlyApplication).container.giftGroupRepository
-    val factory = remember(repository) { GroupsViewModelFactory(repository) }
+    val photoRepository = (context.applicationContext as WichtlyApplication).container.photoRepository
+    val factory = remember(repository, photoRepository) { GroupsViewModelFactory(repository, photoRepository) }
     val viewModel: GroupsViewModel = viewModel(factory = factory)
 
     // erstellt einen GroupsSceen
@@ -37,6 +38,11 @@ fun GroupsRoute(
         onPrepareDrawClick = { groupId ->
             onPrepareDraw(groupId)
         },
+        onPhotoClick = viewModel::openPhotoFlow,
+        onPhotoFlowClose = viewModel::closePhotoFlow,
+        onPhotoCaptured = viewModel::onPhotoCaptured,
+        onRemovePhoto = viewModel::removePhoto,
+        onCameraDenied = viewModel::onCameraDenied,
         modifier = modifier,
     )
 }
