@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -112,7 +113,7 @@ fun GroupsScreen(
                             //Text mittig
                         ) {
                             Text(
-                                text = "Gruppe ${group.name}",
+                                text = "${group.name}",
                                 style = MaterialTheme.typography.labelLarge,
                                 fontSize = 16.sp,
                                 modifier = Modifier
@@ -126,17 +127,21 @@ fun GroupsScreen(
                                     //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
                                 //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
                             )
-                            Button(
+                            IconButton(
                                 onClick = { onDetailsClick(group.id) },
                                 modifier = modifier
-                                    .padding(horizontal = 8.dp)
+                                    .padding(horizontal = 4.dp)
+                                    //horiontal = absand nach links und nach rechts
                             ) {
-                                Text("Details")
+                                Icon(
+                                    imageVector = Icons.Default.Person,
+                                    contentDescription = "Gruppendetails"
+                                )
                             }
                             IconButton(
                                 onClick = {onEditGroupClick(group.id)},
                                 modifier = modifier
-                                    .padding(horizontal = 8.dp)
+                                    .padding(horizontal = 4.dp)
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
