@@ -490,3 +490,63 @@ Schreibe den Code leicht verständlich und kommentiere ihn auf Deutsch.
 **Prompt 1**:Was muss ich in den Code einfügen, sodass sich die Card in einem Scrollbaren Bereich befinden? Beispielsitualtion: Die Card-Elemente nehmen mehr Platz ein als die Seite groß ist. Dann soll man durch scrollen die unteren Elemente erreichen können. Die Button sollen aber ihre Positon beibehalten. + Anhang (aktuelle Datei: GroupsScreen)..\
 **Geaendert**:          Column Modifier
 **Commits**:            4984ef2
+
+ ### 2026-11-22 (Melissa, Meyer), Copilot (kostenlos)
+**Prompt 1**:val uiState: StateFlow<PreparationUiState> = combine(
+    //
+    giftGroupRepository.getGiftGroupById(groupId)
+        // Fehlerbehandung
+        .catch { error ->
+            if (error is CancellationException) throw error
+            Log.e("PreparationViewModel", "Gruppe konnte nicht geladen werden", error)
+            errorState.update { "Die Gruppendaten konnten nicht geladen werden." }
+            // emit() sendet einen Wert (hier null) an alle die den Flow beobachten.
+            emit(null)
+        },
+    participantRepository.getParticipantsByGroupId(groupId)
+        .catch { error ->
+            if (error is CancellationException) throw error
+            Log.e("PreparationViewModel", "Teilnehmer konnten nicht geladen werden", error)
+            errorState.update { "Die Teilnehmerliste konnte nicht geladen werden." }
+            emit(emptyList())
+        },
+    startingState,
+    errorState,
+) { group, participants, isStarting, errorMessage ->
+    // Wenn kein Fehler aufgetreten ist und die Gruppe null bleibt,
+    // wurde keine Gruppe mit dieser ID in der Datenbank gefunden.
+    val notFound = group == null && errorMessage == null
+    PreparationUiState(
+        isLoading = false,
+        group = group,
+        participants = participants,
+        notFound = notFound,
+        errorMessage = errorMessage,
+        isStarting = isStarting,
+        // Mindestens drei Teilnehmer sind laut Aufgabenstellung erforderlich.
+        canStartDraw = group != null && participants.size >= 3,
+    )
+}.stateIn(
+    scope = viewModelScope,
+    started = SharingStarted.WhileSubscribed(5_000),
+    initialValue = PreparationUiState(),
+) bitte zerlege mir die Funktion ein bischen mehr und erkläre mir was getan wird. Kann ich das auch einfacher schrieben?
+**Prompt 2**: Kann ich auch val notFound = (group == null && errorMessage == null) schreiben? Erkläre mir genauer, warum ich von Flow in StateFlow umwandelen sollte.
+**Prompt 3:**: Erklaere mir nun nocht die Parameter von .stateIn()
+**Prompt 4**: private val startingState = MutableStateFlow(false)
+private val errorState = MutableStateFlow<String?>(null) Wozu sist das im ViewModel da?
+**Prompt 5**:try {
+    // traegt dem Repository auf, dass es die Auslosunf durchfueheren soll
+    when (val result = drawRepository.performDraw(groupId)) {
+        // Wenn die Auslosung erfolgreich durch gefuehrt wurde, 
+        // wird in result die Id der Auslosung gespeichert
+        is DrawResult.Success -> onSuccess(result.draw.id)
+        // Wenn die Auslosung nicht erfolgreich durchgefuehrt wurde,
+        // dann wird im ViewModel eine error-Meldung gespeichert 
+        is DrawResult.ValidationError -> {
+            errorState.update { "Die Auslosung konnte nicht gestartet werden." }
+        }
+    }
+} Welchen Wert nimmt result an, wenn die Ausloung nicht erfolgreich war?.\
+**Angenommen**: mit dem neuen Wissen kommentiert  
+**Commits:**   eb999fb 
