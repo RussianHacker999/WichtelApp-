@@ -11,9 +11,9 @@ import com.example.wichtly.WichtlyApplication
 
 @Composable
 fun DrawHistoryRoute(
-    groupId: String,                              // umbenannt
+    groupId: String,
     onBack: () -> Unit,
-    onOpenDraw: (drawId: String) -> Unit,         // neu
+    onOpenDraw: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Repositories aus dem AppContainer holen

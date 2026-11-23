@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.ui.groups.GroupsRoute
 import com.example.wichtly.ui.groups.detail.GroupDetailRoute
 import com.example.wichtly.ui.groups.form.GroupFormRoute
@@ -102,8 +101,8 @@ fun AppNavHost(
                         )
                     )
                 },
-                onPrepareDraw = { /* TODO(A): zur Auslosungs-Vorbereitung navigieren */ },
-                onOpenHistory = { /* TODO(A): zur Historie der Gruppe navigieren */ },
+                onPrepareDraw = { id -> navController.navigate(Routes.preparation(id))}, //Auslosungs-Vorbereitung navigieren
+                onOpenHistory = { id -> navController.navigate(Routes.drawHistory(id)) }, //zur Historie der Gruppe navigieren
             )
         }
 

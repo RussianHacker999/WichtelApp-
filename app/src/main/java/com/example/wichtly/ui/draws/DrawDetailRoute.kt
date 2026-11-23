@@ -8,6 +8,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.WichtlyApplication
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+
+
 
 @Composable
 fun DrawDetailRoute(
@@ -29,6 +33,9 @@ fun DrawDetailRoute(
 
     // Zustand aus dem StateFlow einsammeln
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
+        viewModel.onAppStopped()
+    }
 
     // Screen aufrufen: Navigation von außen, Aktionen aus dem ViewModel
     DrawDetailScreen(
