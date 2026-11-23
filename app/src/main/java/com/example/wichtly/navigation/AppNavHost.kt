@@ -102,6 +102,8 @@ fun AppNavHost(
                         )
                     )
                 },
+                onPrepareDraw = { /* TODO(A): zur Auslosungs-Vorbereitung navigieren */ },
+                onOpenHistory = { /* TODO(A): zur Historie der Gruppe navigieren */ },
             )
         }
 

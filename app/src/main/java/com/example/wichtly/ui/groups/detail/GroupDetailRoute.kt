@@ -22,6 +22,8 @@ import kotlinx.coroutines.CancellationException
  * @param onBack Callback für die Zurück-Navigation zur Gruppenübersicht.
  * @param onEditGroup Callback zum Navigieren zum Formular für die Gruppenbearbeitung (erhält groupId).
  * @param onOpenWishlist Callback zum Navigieren zur Wunschliste eines Teilnehmers (erhält participantId).
+ * @param onPrepareDraw Callback zum Öffnen der Auslosungs-Vorbereitung für diese Gruppe (erhält groupId).
+ * @param onOpenHistory Callback zum Öffnen der Auslosungshistorie für diese Gruppe (erhält groupId).
  * @param modifier Äußerer Modifier für das Top-Level-Element.
  */
 @Composable
@@ -30,6 +32,8 @@ fun GroupDetailRoute(
     onBack: () -> Unit,
     onEditGroup: (groupId: String) -> Unit,
     onOpenWishlist: (participantId: String) -> Unit,
+    onPrepareDraw: (groupId: String) -> Unit,
+    onOpenHistory: (groupId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -84,6 +88,8 @@ fun GroupDetailRoute(
         onRemovePhoto = viewModel::onPhotoRemove,
         onCameraDenied = viewModel::onCameraDenied,
         onOpenAppSettings = onOpenAppSettings,
+        onPrepareDraw = { onPrepareDraw(groupId) },
+        onOpenHistory = { onOpenHistory(groupId) },
         modifier = modifier,
     )
 }

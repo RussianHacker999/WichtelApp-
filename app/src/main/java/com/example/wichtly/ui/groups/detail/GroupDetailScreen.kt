@@ -73,6 +73,8 @@ import java.time.LocalDate
  * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
  * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
  * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
+ * @param onPrepareDraw Auslosungs-Vorbereitung für diese Gruppe öffnen.
+ * @param onOpenHistory Historie dieser Gruppe öffnen.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -96,6 +98,8 @@ fun GroupDetailScreen(
     onRemovePhoto: () -> Unit,
     onCameraDenied: () -> Unit,
     onOpenAppSettings: () -> Unit,
+    onPrepareDraw: () -> Unit,
+    onOpenHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var groupMenuExpanded by remember { mutableStateOf(false) }
@@ -192,7 +196,9 @@ fun GroupDetailScreen(
                             onOpenWishlist = onOpenWishlist,
                             onAddParticipantClick = onAddParticipantClick,
                             onEditParticipantClick = onEditParticipantClick,
-                            onDeleteParticipantClick = onDeleteParticipantClick
+                            onDeleteParticipantClick = onDeleteParticipantClick,
+                            onPrepareDraw = onPrepareDraw,
+                            onOpenHistory = onOpenHistory,
                         )
                     }
                 }
@@ -326,6 +332,9 @@ private fun GroupDetailErrorState(
 
 /**
  * UI-Darstellung für den Inhalt der Gruppen-Detailansicht (gemäß Konzept 03 des HTML-Mockups).
+ *
+ * @param onPrepareDraw Auslosungs-Vorbereitung öffnen.
+ * @param onOpenHistory Historie öffnen.
  */
 @Composable
 private fun GroupDetailContentState(
@@ -336,7 +345,9 @@ private fun GroupDetailContentState(
     onOpenWishlist: (participantId: String) -> Unit,
     onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
-    onDeleteParticipantClick: (participantId: String) -> Unit
+    onDeleteParticipantClick: (participantId: String) -> Unit,
+    onPrepareDraw: () -> Unit,
+    onOpenHistory: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -494,7 +505,9 @@ private fun GroupDetailContentState(
         item(key = "draw-section") {
             DrawAndHistorySection(
                 group = group,
-                participantCount = participants.size
+                participantCount = participants.size,
+                onPrepareDraw = onPrepareDraw,
+                onOpenHistory = onOpenHistory,
             )
         }
     }
@@ -728,11 +741,16 @@ private fun ParticipantCard(
 
 /**
  * Bereich für "Auslosung & Historie" im Gruppen-Detailbereich.
+ *
+ * @param onPrepareDraw Auslosung vorbereiten.
+ * @param onOpenHistory Historie ansehen.
  */
 @Composable
 private fun DrawAndHistorySection(
     group: GiftGroup,
-    participantCount: Int
+    participantCount: Int,
+    onPrepareDraw: () -> Unit,
+    onOpenHistory: () -> Unit,
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -788,7 +806,7 @@ private fun DrawAndHistorySection(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Button(
-                    onClick = { /* Auslosung vorbereiten */ },
+                    onClick = onPrepareDraw,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Auslosung durchführen →")
@@ -836,7 +854,7 @@ private fun DrawAndHistorySection(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-                OutlinedButton(onClick = { /* Historie */ }) {
+                OutlinedButton(onClick = onOpenHistory) {
                     Text("Ansehen")
                 }
             }
@@ -919,7 +937,9 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -962,7 +982,9 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -994,7 +1016,9 @@ private fun GroupDetailScreenLoadingPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -1027,7 +1051,9 @@ private fun GroupDetailScreenNotFoundPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -1060,7 +1086,9 @@ private fun GroupDetailScreenErrorPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -1111,7 +1139,9 @@ private fun GroupDetailScreenContentManyParticipantsPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -1157,7 +1187,9 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
@@ -1206,7 +1238,9 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
             onPhotoCaptured = {},
             onRemovePhoto = {},
             onCameraDenied = {},
-            onOpenAppSettings = {}
+            onOpenAppSettings = {},
+            onPrepareDraw = {},
+            onOpenHistory = {}
         )
     }
 }
