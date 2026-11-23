@@ -23,6 +23,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -97,6 +98,25 @@ fun GroupsScreen(
                             text= "Gruppe hinzufügen",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold)
+                    }
+                }
+                item {
+                    if (uiState.isLoading) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            // Zeigt einen Ladekreis (von Material 3)
+                            CircularProgressIndicator()
+                        }
+                    } else if (uiState.errorMessage != null) {
+                        Text(
+                            text = uiState.errorMessage,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                        )
                     }
                 }
                 items(uiState.groups) { group ->

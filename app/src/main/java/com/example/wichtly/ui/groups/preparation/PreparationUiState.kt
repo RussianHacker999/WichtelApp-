@@ -8,9 +8,12 @@ import com.example.wichtly.domain.model.Participant
  *
  * [canStartDraw] ist nur true, wenn die Gruppe in der Datenbank gefunden wurde
  * und mindestens drei Teilnehmer vorhanden sind.
+ *
+ * @param notFound ob die GiftGruoup in der Datenbank gefunden wurde
+ * @param isStarting ob gerade verscuht wird eine Losung durchzufueheren
+ * @param canStartDraw ob die Bedingungen erfuellt sind die Losung zu starten (Gruppe wurde in DB gefunden & min 3 Teilnehmer)
  */
 data class PreparationUiState(
-    val isLoading: Boolean = true,
     val group: GiftGroup? = null,
     val participants: List<Participant> = emptyList(),
     val notFound: Boolean = false,

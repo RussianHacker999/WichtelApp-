@@ -11,6 +11,8 @@ import java.io.File
  * @param photoFlowGroupId ID der Gruppe, für die der Foto-Aufnahme-Workflow aktuell geöffnet ist (null, wenn kein Workflow geöffnet ist).
  * @param cameraDeniedGroupId ID der Gruppe, für die die Kamera-Berechtigung abgelehnt wurde (null, wenn keine Ablehnung vorliegt).
  * @param selectedGroupId ID der zuletzt ausgewählten Gruppe (null, wenn keine Gruppe ausgewählt ist).
+ * @param isLoading Gibt an, ob der Screen gerade lädt.
+ * @param errorMessage Fehlermeldung, die angezeigt wird (null, wenn keine Fehlermeldung vorliegt).
  */
 data class GroupsUiState(
     val groups: List<GiftGroup> = emptyList(),
@@ -22,6 +24,6 @@ data class GroupsUiState(
     // So kann der "Losen"-Button an den richtigen Prepartion-Losung-Ansicht wechseln.
     val selectedGroupId: String? = null,
 
-    /*val isLoading: Boolean = false,
-    val errorMessage: String? = null */
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null
 )
