@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Groups
 import androidx.compose.material.icons.filled.Redeem
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.components.LoadingState
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.ui.components.BottomActionBar
@@ -69,7 +71,7 @@ import java.time.format.DateTimeFormatter
  * Vorbereitung. Details und Bearbeiten liegen im ⋮-Menü der Karte. Das Gruppenfoto wird nur
  * noch im Formular gesetzt und hier als Kartenbild gezeigt.
  *
- * @param uiState Gruppen, Fotos und die ausgewählte Gruppe.
+ * @param uiState Gruppen, Fotos, die ausgewählte Gruppe sowie Lade- und Fehlerzustand.
  * @param onAddGroupClick Öffnet das Formular für eine neue Gruppe.
  * @param onGroupClick Markiert eine Gruppe für "Losen".
  * @param onDetailsClick Öffnet die Gruppendetails.
@@ -116,7 +118,25 @@ fun GroupsScreen(
             item {
                 PageHeader(title = "Alle Gruppen", subtitle = "Gruppe antippen, dann wird gelost.")
             }
-            if (uiState.groups.isEmpty()) {
+            if (uiState.isLoading) {
+                item {
+                    LoadingState(
+                        text = "Einen Moment, wird ausgepackt …",
+                        modifier = Modifier.fillMaxWidth().height(240.dp),
+                    )
+                }
+            } else if (uiState.errorMessage != null) {
+                item {
+                    MessageState(
+                        title = "Fehler beim Laden",
+                        text = uiState.errorMessage,
+                        icon = Icons.Outlined.ErrorOutline,
+                        isError = true,
+                        fillMaxSize = false,
+                        modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
+                    )
+                }
+            } else if (uiState.groups.isEmpty()) {
                 item {
                     MessageState(
                         title = "Noch ganz schön leer hier",

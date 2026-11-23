@@ -57,7 +57,9 @@ fun PreparationScreen(
     modifier: Modifier = Modifier,
 ) {
     val group = state.group
-    val showContent = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
+    // Solange weder Gruppe noch Fehler noch "nicht gefunden" vorliegen, wird noch geladen.
+    val isLoading = group == null && state.errorMessage == null && !state.notFound
+    val showContent = state.errorMessage == null && !state.notFound && group != null
     WichtlyScaffold(
         modifier = modifier,
         topBar = { WichtlyTopBar(title = "Vorbereitung", onBack = onBack) },
@@ -79,7 +81,7 @@ fun PreparationScreen(
         },
     ) { innerPadding ->
         when {
-            state.isLoading -> LoadingState(text = "Einen Moment, wird ausgepackt …")
+            isLoading -> LoadingState(text = "Einen Moment, wird ausgepackt …")
             state.errorMessage != null -> MessageState(
                 title = "Fehler beim Laden",
                 text = state.errorMessage,
@@ -166,7 +168,7 @@ private val previewParticipants = listOf("Mara", "Jonas", "Leonie", "Emil").mapI
 private fun PreparationScreenReadyPreview() {
     WichtlyTheme {
         PreparationScreen(
-            state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants, canStartDraw = true),
+            state = PreparationUiState(group = previewGroup, participants = previewParticipants, canStartDraw = true),
             onBack = {}, onStartDraw = {},
         )
     }
@@ -177,7 +179,7 @@ private fun PreparationScreenReadyPreview() {
 private fun PreparationScreenTooFewPreview() {
     WichtlyTheme {
         PreparationScreen(
-            state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants.take(2), canStartDraw = false),
+            state = PreparationUiState(group = previewGroup, participants = previewParticipants.take(2), canStartDraw = false),
             onBack = {}, onStartDraw = {},
         )
     }
@@ -187,7 +189,7 @@ private fun PreparationScreenTooFewPreview() {
 @Composable
 private fun PreparationScreenLoadingPreview() {
     WichtlyTheme {
-        PreparationScreen(state = PreparationUiState(isLoading = true), onBack = {}, onStartDraw = {})
+        PreparationScreen(state = PreparationUiState(), onBack = {}, onStartDraw = {})
     }
 }
 
@@ -195,6 +197,6 @@ private fun PreparationScreenLoadingPreview() {
 @Composable
 private fun PreparationScreenNotFoundPreview() {
     WichtlyTheme {
-        PreparationScreen(state = PreparationUiState(isLoading = false, notFound = true), onBack = {}, onStartDraw = {})
+        PreparationScreen(state = PreparationUiState(notFound = true), onBack = {}, onStartDraw = {})
     }
 }
