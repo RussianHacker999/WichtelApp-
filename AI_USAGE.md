@@ -551,8 +551,6 @@ private val errorState = MutableStateFlow<String?>(null) Wozu sist das im ViewMo
 **Angenommen**: mit dem neuen Wissen kommentiert  
 **Commits:**   eb999fb 
 
-// ein Prompt von Melissa fehlt noch 
-
 ### 2026-11-22 (Melissa, Meyer), GitHup Copilot Education
 **Prompt 1**Bitte passe den Code an:
 Es soll im GruouenScreen das Feature eingebaut werden fuer jede Gruppe ein Gruppenbild mit der Gerätekamera aufzunehmen, persistent zu speichern und angezeigt zu werden.
@@ -589,3 +587,20 @@ uiState.cameraDeniedGroupId?.let {
 } was wird hier getan? .\
 **Angenommen**:            Kommentare  
 **Commits:**               eaad749 
+
+### 2026-11-23 (Melissa, Meyer), GitHup Copilot Education
+**Prompt 1**:Ist der Parameter isLoading generel in Prepartion notwenig? im ViewModel wird er ausschielich auf false gesetzt.
+**Prompt 2**: Ist es viel Aufwand die isLoading umzusetzen?
+**Prompt 3**: Okay, dann nehme ich isLoafding in Prepatation raus. Macht eine isLoaeding thethode beim GroupsSceen Sinn. da schon eher, da mehr Daten geladen werden oder?
+**Prompt 4**: Wie setze ich das in GroupsSceen um? Stetze ich per Parameter isLoading vom UiState auf true und am Ende des intit auf false?
+**Prompt 5**: Bitte binde die Fehlerbehandlung im Code korrekt ein und intregriere isLoading.\
+**Geaendert**:      Preperation: loeschen von isLoading
+**Angenommen**:     Groups: Einbindung von isLoading und ErrorMessage
+**Commits:**        94961c9
+
+### 2026-11-23 (Melissa, Meyer), Copilot (kostenlos)
+**Prompt 1**: was macht dieser Code: photoFiles = groups.associate { group ->
+    group.id to (group.photoPath?.let { photoRepository.getFileForRelativePath(it) } ?: File(""))
+}.filterValues { it.exists() }, .\
+**Geaendert**:      Komentare
+**Commits:**        94961c9
