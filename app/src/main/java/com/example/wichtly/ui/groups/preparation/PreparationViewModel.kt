@@ -72,7 +72,6 @@ class PreparationViewModel(
         // die eben ermittelten Daten werden in einen PreparationUiState zusammengefasst
         // so muss die Ui nur den UiState und nicht die einzelen Objekte beobachten
         PreparationUiState(
-            isLoading = false,
             group = group,
             participants = participants,
             notFound = notFound,

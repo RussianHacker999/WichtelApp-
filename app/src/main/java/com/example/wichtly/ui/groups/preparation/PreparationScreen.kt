@@ -66,10 +66,7 @@ fun PreparationScreen(
                 }
 
                 item {
-                    if (state.isLoading) {
-                        // Zeigt einen Ladekreis (von Material 3)
-                        CircularProgressIndicator()
-                    } else if (state.errorMessage != null) {
+                    if (state.errorMessage != null) {
                         Text(
                             text = state.errorMessage,
                             color = MaterialTheme.colorScheme.error,
