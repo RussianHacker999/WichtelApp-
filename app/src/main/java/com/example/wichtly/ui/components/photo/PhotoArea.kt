@@ -5,7 +5,10 @@ package com.example.wichtly.ui.components.photo
  *
  * Warum als Enum?
  * Erlaubt eine saubere Wiederverwendung derselben zustandslosen UI-Bausteine ([PhotoPickerField], [PhotoSourceDialog])
- * für sowohl Gruppen- als auch Teilnehmerfotos, indem projektspezifische Texte zentral zugeordnet werden.
+ * für sowohl Gruppen- als auch Teilnehmerfotos.
+ *
+ * Hinweis: Seit dem Redesign sehen Fotofeld ("Foto") und Auswahldialog ("Foto hinzufügen") für Gruppe und
+ * Teilnehmer gleich aus. Die folgenden Texte werden deshalb aktuell nirgends angezeigt.
  *
  * @property fieldTitle Überschrift des Eingabebereichs im Formular oder Dialog.
  * @property emptyTitle Titel für den leeren Zustand (noch kein Foto vorhanden).

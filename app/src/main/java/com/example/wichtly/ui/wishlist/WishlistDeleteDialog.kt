@@ -13,14 +13,13 @@ import com.example.wichtly.ui.components.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Bestätigungsdialog zum Löschen eines Wunsches (#21).
- * Gleich aufgebaut wie das Löschen eines Teilnehmers.
+ * Zustandsloser (stateless) Dialog zur Bestätigung des Löschens eines Wunschzettel-Eintrags.
  *
- * @param itemText Text des zu löschenden Wunsches.
- * @param errorMessage Fehler beim Löschen (null = kein Fehler).
- * @param isSaving Deaktiviert die Buttons während des Löschens.
- * @param onConfirm Löschen bestätigen.
- * @param onDismiss Abbrechen oder Schließen.
+ * @param itemText Der Text des zu löschenden Wunsches zur Anzeige in der Bestätigungsmeldung.
+ * @param errorMessage Optionale Fehlermeldung, die direkt im Löschdialog angezeigt wird, falls das Löschen fehlschlägt.
+ * @param isSaving Deaktiviert die Buttons während des laufenden Löschvorgangs.
+ * @param onConfirm Callback beim Bestätigen der Löschung.
+ * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -35,11 +34,14 @@ fun WishlistDeleteDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
+        // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
         title = "Wunsch löschen",
+        // Warum expliziter Wunschtext in der Meldung: Beugt versehentlichem Löschen falscher Einträge vor.
         text = "Möchtest du den Wunsch „$itemText“ wirklich löschen?",
         confirmLabel = "Löschen",
         onConfirm = onConfirm,
         destructive = true,
+        // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
         confirmEnabled = !isSaving,
         confirmLoading = isSaving,
         dismissEnabled = !isSaving,
@@ -57,7 +59,9 @@ fun WishlistDeleteDialog(
     }
 }
 
-/** Preview 1: Normaler Löschdialog. */
+/**
+ * Preview 1: Standard-Löschdialog mit einem Beispiel-Wunschtext.
+ */
 @Preview
 @Composable
 private fun WishlistDeleteDialogPreview() {
@@ -66,7 +70,10 @@ private fun WishlistDeleteDialogPreview() {
     }
 }
 
-/** Preview 2: Während des Löschens. */
+/**
+ * Preview 2: Löschdialog während des aktiven Löschvorgangs (isSaving = true).
+ * Warum: Überprüft das Deaktivieren der Interaktions-Buttons bei laufendem Ladevorgang.
+ */
 @Preview
 @Composable
 private fun WishlistDeleteDialogSavingPreview() {
@@ -75,7 +82,10 @@ private fun WishlistDeleteDialogSavingPreview() {
     }
 }
 
-/** Preview 3: Mit Fehlermeldung. */
+/**
+ * Preview 3: Löschdialog mit sichtbarer Fehlermeldung.
+ * Warum: Überprüft die visuelle Hervorhebung von Fehlertexten im Löschdialog.
+ */
 @Preview
 @Composable
 private fun WishlistDeleteDialogWithErrorPreview() {

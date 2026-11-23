@@ -47,10 +47,7 @@ private fun serif(size: Int, lineHeight: Int, letterSpacing: Float = 0f) = TextS
     shadow = TitleShadow,
 )
 
-/**
- * The full type scale. Weights are part of the styles, so screens should not add
- * `fontWeight = FontWeight.Bold` on top.
- */
+// Die komplette Material-Typografie der App: Young Serif für Titel, Instrument Sans für alle anderen Texte.
 val Typography = Typography(
     displayLarge = serif(52, 58, -0.5f),
     displayMedium = serif(44, 50, -0.25f),
@@ -67,4 +64,21 @@ val Typography = Typography(
     labelLarge = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 20.sp, letterSpacing = 0.2.sp),
     labelMedium = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
     labelSmall = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Bold, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 1.4.sp),
+    /* Vorlage aus Android Studio, wird nicht mehr verwendet: so sahen die Standard-Stile mit der Systemschrift
+       aus. Oben ist bereits jeder Stil der Skala gesetzt.
+    titleLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    labelSmall = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 11.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.5.sp
+    )
+    */
 )

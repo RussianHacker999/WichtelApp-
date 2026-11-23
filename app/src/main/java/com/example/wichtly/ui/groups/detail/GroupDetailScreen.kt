@@ -52,11 +52,29 @@ import java.io.File
 import java.time.LocalDate
 
 /**
- * Zustandsloser Screen der Gruppendetails (#3).
+ * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
  *
- * Seitenkopf mit Wichteltag und Wichtelart, zwei Kennzahlen (Teilnehmer, Budget), die Teilnehmerliste
- * (Aktionen im ⋮-Menü jeder Karte) und der Bereich "Auslosung & Historie". Unten sitzen
- * "Teilnehmer hinzufügen" und "Losen". "Gruppe bearbeiten" liegt im ⋮-Menü der Top-Leiste.
+ * @param state Der aktuelle UI-Zustand des Bildschirms.
+ * @param onBack Callback für die Zurück-Navigation.
+ * @param onEditGroupClick Callback zum Bearbeiten der Stammdaten der Gruppe.
+ * @param onOpenWishlist Callback zum Öffnen der Wunschliste eines Teilnehmers.
+ * @param onAddParticipantClick Callback zum Hinzufügen eines neuen Teilnehmers.
+ * @param onEditParticipantClick Callback zum Bearbeiten eines Teilnehmers (erhält participantId).
+ * @param onDeleteParticipantClick Callback zum Löschen eines Teilnehmers (erhält participantId).
+ * @param onParticipantNameChange Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog.
+ * @param onSaveParticipant Callback zum Speichern eines Teilnehmers.
+ * @param onDismissParticipantEditor Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs.
+ * @param onConfirmDelete Callback zum Bestätigen der Teilnehmer-Löschung.
+ * @param onDismissDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
+ * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl für Teilnehmer.
+ * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
+ * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
+ * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
+ * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
+ * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
+ * @param onPrepareDraw Auslosungs-Vorbereitung für diese Gruppe öffnen.
+ * @param onOpenHistory Historie dieser Gruppe öffnen.
+ * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun GroupDetailScreen(
@@ -84,6 +102,7 @@ fun GroupDetailScreen(
 ) {
     val group = state.group
     val ready = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
+    // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
     WichtlyScaffold(
         modifier = modifier,
         topBar = {
@@ -100,6 +119,7 @@ fun GroupDetailScreen(
         bottomBar = {
             if (ready) {
                 BottomActionBar {
+                    // 6. Button: Teilnehmer hinzufügen (fest in der Aktionsleiste unten, neben "Losen")
                     SecondaryButton(
                         text = "Teilnehmer",
                         onClick = onAddParticipantClick,
@@ -117,7 +137,11 @@ fun GroupDetailScreen(
         },
     ) { innerPadding ->
         when {
+            // 1. ZUSTAND: Laden
+            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
             state.isLoading -> LoadingState(text = "Gruppendetails werden geladen...")
+            // 2. ZUSTAND: Fehler aufgetreten
+            // UI-Darstellung im Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
                 title = "Fehler beim Laden",
                 text = state.errorMessage,
@@ -126,6 +150,8 @@ fun GroupDetailScreen(
                 actionLabel = "Zurück zur Übersicht",
                 onAction = onBack,
             )
+            // 3. ZUSTAND: Gruppe nicht gefunden
+            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.notFound || group == null -> MessageState(
                 title = "Diese Gruppe ist verschwunden",
                 text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
@@ -134,6 +160,7 @@ fun GroupDetailScreen(
                 actionLabel = "Zurück zur Übersicht",
                 onAction = onBack,
             )
+            // 4. ZUSTAND: Inhalt
             else -> GroupDetailContent(
                 group = group,
                 participants = state.participants,
@@ -148,7 +175,7 @@ fun GroupDetailScreen(
         }
     }
 
-    // Dialoge über dem Inhalt
+    // Dialoge als Overlay über dem Inhalt
     if (state.showParticipantEditor) {
         ParticipantEditorDialog(
             isEditMode = state.editingParticipantId != null,
@@ -184,6 +211,13 @@ fun GroupDetailScreen(
     }
 }
 
+/**
+ * UI-Darstellung für den Inhalt der Gruppen-Detailansicht: Seitenkopf, Kennzahlen, Teilnehmerliste
+ * und der Bereich "Auslosung & Historie".
+ *
+ * @param onPrepareDraw Auslosungs-Vorbereitung öffnen.
+ * @param onOpenHistory Historie öffnen.
+ */
 @Composable
 private fun GroupDetailContent(
     group: GiftGroup,
@@ -202,9 +236,12 @@ private fun GroupDetailContent(
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         item {
+            // 1. Eyebrow & Titel (Gruppenname) im Seitenkopf
             PageHeader(
                 eyebrow = "Gruppe",
                 title = group.name,
+                // 3. Stammdaten der Gruppe: Wichteltag und Wichtelart als Zeile im Seitenkopf
+                // (das Budget steht in den Kennzahlen darunter, "Gruppe bearbeiten" im ⋮-Menü der Top-Leiste)
                 meta = {
                     MetaRow(
                         items = listOf(
@@ -216,19 +253,27 @@ private fun GroupDetailContent(
             )
         }
         item {
+            // 2. Kennzahlen (2 Stat-Karten: Teilnehmer und Budget)
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                // Stat 1: Teilnehmer
                 StatTile(value = participants.size.toString(), label = "Teilnehmer", modifier = Modifier.weight(1f))
+                // Stat 2: Budget
                 StatTile(
                     value = "${formatCentsForInput(group.budgetCents)} €",
                     label = "Budget pro Geschenk",
                     modifier = Modifier.weight(1.7f),
                 )
+                // keine dritte Karte für Durchläufe: die gespeicherten Durchläufe stehen in der Auslosungshistorie
             }
         }
 
+        // 4. Kopfbereich des Teilnehmer-Abschnitts
+        // Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
         item { SectionHeader(title = "Teilnehmer", count = participants.size) }
+        // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
         if (participants.isEmpty()) {
             item {
+                // Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
                 MessageState(
                     title = "Noch niemand dabei",
                     text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen. Doppelte Namen sind erlaubt.",
@@ -239,12 +284,19 @@ private fun GroupDetailContent(
             }
         } else {
             items(participants, key = { it.id }) { participant ->
+                // Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
+                // Zeigt entweder das Teilnehmerfoto (über [PhotoThumbnail]) oder einen Avatar mit den Namensinitialen,
+                // sowie das Drei-Punkte-Aktionsmenü (⋮) für Wunschliste, Bearbeiten & Löschen.
                 ListItemCard(
                     title = participant.name,
                     subtitle = "Wunschliste öffnen",
+                    // Avatar mit Foto oder Initialen
+                    // Die Initialen (bis zu 2 Buchstaben) berechnet initialsOf() in ui/components.
                     leading = { InitialsAvatar(name = participant.name, photoFile = participantPhotoFiles[participant.id]) },
+                    // Klick auf die ganze Karte öffnet die Wunschliste
                     onClick = { onOpenWishlist(participant.id) },
                     trailing = {
+                        // Drei-Punkte-Aktionsmenü (⋮)
                         ItemMenu(
                             contentDescription = "Aktionen für ${participant.name}",
                             actions = listOf(
@@ -258,6 +310,9 @@ private fun GroupDetailContent(
             }
         }
 
+        // 7. Auslosung & Historie Abschnitt
+        // Bereich für "Auslosung & Historie" im Gruppen-Detailbereich:
+        // eine Karte öffnet die Vorbereitung (onPrepareDraw), eine die Historie (onOpenHistory).
         item { SectionHeader(title = "Auslosung & Historie") }
         item {
             val (statusText, tone) = when {
@@ -265,6 +320,7 @@ private fun GroupDetailContent(
                 group.drawType == DrawType.NORMAL -> "Vorbereitung möglich" to ChipTone.Success
                 else -> "Regeln offen" to ChipTone.Neutral
             }
+            // Neue Auslosung Karte
             ListItemCard(
                 title = "Neue Auslosung",
                 subtitle = "Teilnehmer und Wichtelart prüfen, dann losen.",
@@ -274,6 +330,7 @@ private fun GroupDetailContent(
             )
         }
         item {
+            // Auslosungshistorie Karte
             ListItemCard(
                 title = "Auslosungshistorie",
                 subtitle = "Gespeicherte Durchläufe ansehen",
@@ -283,14 +340,15 @@ private fun GroupDetailContent(
             )
         }
         item {
+            // Hinweisfeld
             NoteCard(text = "Alte Ziehungen bleiben, wie sie waren.", modifier = Modifier.padding(top = Spacing.m))
         }
     }
 }
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // PREVIEWS
-// =============================================================================
+// -----------------------------------------------------------------------------
 
 private val previewGroup = GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))
 private val previewParticipants = listOf("Mara", "Jonas Weiß", "Leonie").mapIndexed { i, n -> Participant(id = "p$i", groupId = "g1", name = n) }
@@ -309,36 +367,54 @@ private fun PreviewScreen(state: GroupDetailUiState) {
     }
 }
 
+/**
+ * Preview 1: Inhalt mit 3 Teilnehmern (inkl. Initialen und 3-Punkte-Menü).
+ */
 @Preview(showBackground = true, heightDp = 1000)
 @Composable
 private fun GroupDetailScreenContentWithParticipantsPreview() {
     PreviewScreen(GroupDetailUiState(isLoading = false, group = previewGroup, participants = previewParticipants))
 }
 
+/**
+ * Preview 2: Inhalt mit leerer Teilnehmerliste.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenContentEmptyParticipantsPreview() {
     PreviewScreen(GroupDetailUiState(isLoading = false, group = previewGroup.copy(drawType = DrawType.JUNK)))
 }
 
+/**
+ * Preview 3: Ladezustand.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenLoadingPreview() {
     PreviewScreen(GroupDetailUiState(isLoading = true))
 }
 
+/**
+ * Preview 4: Gruppe nicht gefunden.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenNotFoundPreview() {
     PreviewScreen(GroupDetailUiState(isLoading = false, notFound = true))
 }
 
+/**
+ * Preview 5: Ladefehler auf Screen-Ebene.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenErrorPreview() {
     PreviewScreen(GroupDetailUiState(isLoading = false, errorMessage = "Fehler beim Laden der Wichtelgruppe aus der Datenbank."))
 }
 
+/**
+ * Preview 7: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenWithParticipantEditorPreview() {
@@ -350,6 +426,9 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
     )
 }
 
+/**
+ * Preview 8: Screen mit geöffnetem Teilnehmer-Löschdialog.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
@@ -359,4 +438,14 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
             pendingDeleteParticipantId = "p0",
         )
     )
+}
+
+/**
+ * Preview 6: Inhalt mit 12 Teilnehmern.
+ */
+@Preview(showBackground = true, heightDp = 1600)
+@Composable
+private fun GroupDetailScreenContentManyParticipantsPreview() {
+    val participants = (1..12).map { Participant(id = "p_$it", groupId = "g1", name = "Teilnehmer $it") }
+    PreviewScreen(GroupDetailUiState(isLoading = false, group = previewGroup, participants = participants))
 }

@@ -42,17 +42,13 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
-/**
- * Screen zur Kontrolle vor dem Start der Auslosung (#4).
- *
- * @param state Gruppe, Teilnehmer und ob gelost werden darf.
- * @param onBack Zurück zur vorherigen Ansicht.
- * @param onStartDraw Startet die Auslosung.
- */
+/** Screen zur Kontrolle vor dem Start der Auslosung */
 @Composable
 fun PreparationScreen(
     state: PreparationUiState,
+    // Methode fuer "Zurück" (Pfeil in der Top-Leiste und Button in der Aktionsleiste)
     onBack: () -> Unit,
+    // Methode fuer Button "jetzt losen"
     onStartDraw: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -65,13 +61,14 @@ fun PreparationScreen(
         topBar = { WichtlyTopBar(title = "Vorbereitung", onBack = onBack) },
         bottomBar = {
             if (showContent) {
+                // Die unteren Aktionen bleiben beim Scrollen sichtbar.
                 BottomActionBar {
                     SecondaryButton(text = "Zurück", onClick = onBack, modifier = Modifier.weight(1f))
+                    // Der goldene Button "Jetzt losen" ist immer sichtbar, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
                     PrimaryButton(
                         text = if (state.isStarting) "Wird ausgelost..." else "Jetzt losen",
                         onClick = onStartDraw,
                         icon = Icons.Filled.Redeem,
-                        // Losen ist nur möglich, wenn alle Voraussetzungen erfüllt sind.
                         enabled = state.canStartDraw,
                         loading = state.isStarting,
                         modifier = Modifier.weight(1.4f),
@@ -137,6 +134,7 @@ fun PreparationScreen(
                     }
                 }
                 item { SectionHeader(title = "Teilnehmer", count = state.participants.size) }
+                // Die Liste kommt über das PreparationViewModel aus dem ParticipantRepository.
                 items(state.participants, key = { it.id }) { participant ->
                     ListItemCard(
                         title = participant.name,

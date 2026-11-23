@@ -9,10 +9,14 @@ import com.example.wichtly.ui.components.HintBar
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Hinweis bei abgelehnter Kameraberechtigung. Wird bei Gruppen- und
- * Teilnehmerfotos identisch direkt unter dem Fotofeld angezeigt.
+ * Zustandsloser (stateless) Hinweis bei abgelehnter Kameraberechtigung, direkt unter dem Fotofeld.
  *
- * @param onOpenSettings Öffnet die Systemeinstellungen (null = keinen Link anzeigen).
+ * Warum zustandslos?
+ * Zeigt einen verständlichen Warnhinweis als Hinweisleiste ([com.example.wichtly.ui.components.HintBar])
+ * mit Kamera-Symbol und bietet optional
+ * den Link "Einstellungen öffnen" zum Öffnen der Systemeinstellungen an.
+ *
+ * @param onOpenSettings Optionaler Callback zum Öffnen der Systemeinstellungen (null = keinen Link anzeigen).
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -32,7 +36,9 @@ fun CameraPermissionDeniedHint(
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
-/** Preview 1: Hinweis mit Link zu den Einstellungen. */
+/**
+ * Preview 1: Hinweis mit Link zum Öffnen der Einstellungen.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun CameraPermissionDeniedHintWithSettingsPreview() {
@@ -41,7 +47,9 @@ private fun CameraPermissionDeniedHintWithSettingsPreview() {
     }
 }
 
-/** Preview 2: Hinweis ohne Einstellungen-Link. */
+/**
+ * Preview 2: Hinweis ohne Einstellungen-Link.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun CameraPermissionDeniedHintWithoutSettingsPreview() {

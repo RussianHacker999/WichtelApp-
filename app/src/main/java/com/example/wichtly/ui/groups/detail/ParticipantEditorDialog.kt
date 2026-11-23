@@ -19,27 +19,27 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * Zustandsloser Dialog zum Hinzufügen und Bearbeiten eines Teilnehmers (#11).
- * Fotofeld und Foto-Ablauf sind identisch mit dem Gruppenformular.
+ * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wichtelgruppen-Teilnehmers
+ * inklusive Foto-Auswahl und Aufnahme-Workflow.
  *
- * @param isEditMode false = "Teilnehmer hinzufügen", true = "Teilnehmer bearbeiten".
- * @param name Aktueller Name.
- * @param errorMessage Validierungsfehler unter dem Namensfeld.
- * @param isSaving Deaktiviert Interaktionen während des Speicherns.
- * @param onNameChange Texteingabe im Namensfeld.
- * @param onSave Speichern.
- * @param onDismiss Abbrechen oder Schließen.
+ * @param isEditMode Steuert den Dialogtitel: false = "Teilnehmer hinzufügen", true = "Teilnehmer bearbeiten".
+ * @param name Aktueller Inhalt des Namens-Eingabefeldes.
+ * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Namensfeld.
+ * @param isSaving Deaktiviert Interaktionen während eines aktiven Speichervorgangs.
+ * @param onNameChange Callback bei Texteingaben im Namensfeld.
+ * @param onSave Callback beim Bestätigen/Speichern.
+ * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param photoPath Relativer Pfad des Teilnehmerfotos (null = kein Foto).
  * @param photoFile Aufgelöste Bilddatei zur Vorschau.
  * @param photoError Fehlermeldung beim Foto-Handling.
- * @param isPhotoFlowOpen Steuert den Foto-Ablauf.
- * @param cameraDenied Zeigt den Hinweis bei abgelehntem Kamerazugriff.
- * @param onPhotoSelectClick Startet den Foto-Ablauf.
- * @param onPhotoFlowClose Schließt den Foto-Ablauf.
- * @param onPhotoCaptured Neues Foto aufgenommen.
- * @param onRemovePhoto Foto entfernen.
- * @param onCameraDenied Kamerazugriff abgelehnt.
- * @param onOpenAppSettings Öffnet die App-Einstellungen.
+ * @param isPhotoFlowOpen Steuert den Foto-Workflow-Dialog.
+ * @param cameraDenied Zeigt an, ob Kamerazugriff abgelehnt wurde.
+ * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl.
+ * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
+ * @param onPhotoCaptured Callback nach erfolgreicher Aufnahme.
+ * @param onRemovePhoto Callback zum Entfernen des Fotos.
+ * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
+ * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -98,7 +98,7 @@ fun ParticipantEditorDialog(
             )
         }
 
-        // Foto-Ablauf als Geschwister-Element außerhalb des Dialogs
+        // PhotoCaptureFlow als Geschwister-Element außerhalb des WichtlyDialogs
         PhotoCaptureFlow(
             area = PhotoArea.PARTICIPANT,
             hasPhoto = photoPath != null,
@@ -112,7 +112,7 @@ fun ParticipantEditorDialog(
 }
 
 /* ============================================================================
- * Previews
+ * Previews (Vorschaudarstellungen in WichtlyTheme)
  * ============================================================================ */
 
 @Composable

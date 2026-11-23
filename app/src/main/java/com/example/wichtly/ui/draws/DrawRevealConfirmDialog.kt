@@ -9,11 +9,16 @@ import com.example.wichtly.ui.components.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Personen-Check vor dem Aufdecken (#9): nur die schenkende Person soll auf den Bildschirm schauen.
+ * Zustandsloser (stateless) Dialog zur Sicherheitsabfrage vor dem Freilegen der Auslosungs-Zuordnung.
  *
- * @param giverName Name der Person, deren Ergebnis aufgedeckt werden soll.
- * @param onConfirm Ergebnis anzeigen.
- * @param onDismiss Abbrechen.
+ * Warum zustandslos?
+ * Gemäß Unidirectional Data Flow (UDF) wird die Anzeige vom übergeordneten State gesteuert.
+ * Dieser Dialog stellt sicher, dass nur die berechtigte Person das Ergebnis auf dem Bildschirm sieht,
+ * um unbeabsichtigtes Ausspähen zu verhindern.
+ *
+ * @param giverName Der Name der schenkenden Person, deren Zuordnung angezeigt werden soll.
+ * @param onConfirm Callback beim Bestätigen der Abfrage ("Anzeigen").
+ * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs ("Abbrechen").
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -34,6 +39,13 @@ fun DrawRevealConfirmDialog(
     )
 }
 
+/* ============================================================================
+ * Previews (Vorschaudarstellungen in WichtlyTheme)
+ * ============================================================================ */
+
+/**
+ * Preview: Sicherheitsabfrage vor der Ergebnisanzeige.
+ */
 @Preview
 @Composable
 private fun DrawRevealConfirmDialogPreview() {

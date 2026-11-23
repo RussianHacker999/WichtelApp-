@@ -39,20 +39,27 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * Zustandsloser Screen zum Erstellen und Bearbeiten einer Wichtelgruppe (#2).
+ * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
  *
- * Aufbau wie jeder Screen: Top-Leiste, Seitenkopf, Felder (Foto, Name, Budget, Wichteltag,
- * Wichtelart) und unten die Aktionsleiste mit Abbrechen / Speichern.
- * Das Gruppenfoto läuft über denselben Foto-Ablauf wie das Teilnehmerfoto.
+ * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
+ * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
+ * - Sämtliche Zustände werden über [GroupFormUiState] übergeben.
+ * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
+ * - Aufbau wie alle Screens über [com.example.wichtly.ui.components.WichtlyScaffold]:
+ *   - Top-Leiste mit Zurück-Pfeil, darunter der Seitenkopf mit Eyebrow und Titel.
+ *   - Fotofeld mit demselben Foto-Ablauf wie beim Teilnehmerfoto.
+ *   - Formularfelder mit Label darüber und Hinweistexten (supportingText).
+ *   - Auswahlkarten (RadioButton) für die Wichtelart mit kurzer Erklärung.
+ *   - Abbrechen- und Speichern-Buttons nebeneinander in der Aktionsleiste unten.
  *
  * @param state Der aktuelle UI-Zustand des Formulars.
- * @param onNameChange Änderung des Gruppennamens.
- * @param onBudgetChange Änderung des Budgets.
- * @param onDrawDayChange Änderung des Wichteltags.
- * @param onDrawTypeChange Änderung der Wichtelart.
- * @param onSaveClick Speichern.
- * @param onBack Zurück bzw. Abbrechen.
- * @param modifier Äußerer Modifier.
+ * @param onNameChange Callback bei Änderung des Gruppennamens.
+ * @param onBudgetChange Callback bei Änderung des Budgets.
+ * @param onDrawDayChange Callback bei Änderung des Auslosungsdatums.
+ * @param onDrawTypeChange Callback bei Änderung des Wichtel-Typs.
+ * @param onSaveClick Callback zum Auslösen des Speichervorgangs.
+ * @param onBack Callback für die Zurück-Navigation.
+ * @param modifier Äußerer Modifier für den Screen.
  * @param onPhotoSelectClick Öffnet den Foto-Ablauf.
  * @param onPhotoFlowClose Schließt den Foto-Ablauf.
  * @param onPhotoCaptured Neues Foto aufgenommen.
@@ -78,6 +85,7 @@ fun GroupFormScreen(
     onOpenAppSettings: (() -> Unit)? = null,
 ) {
     val showForm = !state.isLoading && !state.notFound
+    // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
     WichtlyScaffold(
         modifier = modifier,
         topBar = {
@@ -88,6 +96,7 @@ fun GroupFormScreen(
         },
         bottomBar = {
             if (showForm) {
+                // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander), nur sichtbar, wenn das Formular angezeigt wird
                 BottomActionBar(modifier = Modifier.imePadding()) {
                     SecondaryButton(
                         text = "Abbrechen",
@@ -110,7 +119,11 @@ fun GroupFormScreen(
         },
     ) { innerPadding ->
         when {
+            // 1. ZUSTAND: Laden (im Bearbeiten-Modus)
+            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
             state.isLoading -> Box(Modifier.fillMaxSize()) { LoadingState(text = "Wichtelgruppe wird geladen...") }
+            // 2. ZUSTAND: Gruppe nicht gefunden
+            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.notFound -> MessageState(
                 title = "Diese Gruppe ist verschwunden",
                 text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
@@ -119,6 +132,7 @@ fun GroupFormScreen(
                 actionLabel = "Zurück zur Übersicht",
                 onAction = onBack,
             )
+            // 3. ZUSTAND: Formular anzeigen
             else -> GroupFormContent(
                 state = state,
                 innerPaddingTop = innerPadding,
@@ -143,6 +157,10 @@ fun GroupFormScreen(
     )
 }
 
+/**
+ * UI-Darstellung des scrollbaren Formulars.
+ * Die Aktionsleiste darunter weicht über imePadding() automatisch der Software-Tastatur aus.
+ */
 @Composable
 private fun GroupFormContent(
     state: GroupFormUiState,
@@ -161,6 +179,7 @@ private fun GroupFormContent(
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         item {
+            // Seitenkopf mit Eyebrow und Titel (PageHeader)
             PageHeader(
                 eyebrow = if (state.isEditMode) "Gruppenstammdaten" else "Neue Wichtelgruppe",
                 title = if (state.isEditMode) "Gruppe aktualisieren." else "Losgewichtelt!",
@@ -183,6 +202,7 @@ private fun GroupFormContent(
         }
         item {
             WichtlyTextField(
+                // 1. Gruppennamen-Eingabe
                 label = "Gruppenname *",
                 value = state.name,
                 onValueChange = onNameChange,
@@ -193,6 +213,7 @@ private fun GroupFormContent(
         }
         item {
             WichtlyTextField(
+                // 2. Budget-Eingabe in Euro (Dezimaltastatur)
                 label = "Geschenkbudget (€) *",
                 value = state.budget,
                 onValueChange = onBudgetChange,
@@ -205,6 +226,7 @@ private fun GroupFormContent(
         }
         item {
             WichtlyTextField(
+                // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
                 label = "Wichteltag *",
                 value = state.drawDay,
                 onValueChange = onDrawDayChange,
@@ -217,6 +239,7 @@ private fun GroupFormContent(
         }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                // 4. Auswahl der Wichtel-Art (Auswahlkarten mit RadioButton)
                 FieldLabel(text = "Wichtelart *")
                 DrawType.entries.forEach { type ->
                     ChoiceCard(
@@ -229,6 +252,7 @@ private fun GroupFormContent(
                 }
             }
         }
+        // 5. Allgemeiner Fehlertext
         state.generalError?.let { error ->
             item { ErrorText(error) }
         }
@@ -245,10 +269,14 @@ private fun ErrorText(text: String) {
     Text(text = text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
 }
 
-// =============================================================================
+// -----------------------------------------------------------------------------
 // PREVIEWS
-// =============================================================================
+// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
+// -----------------------------------------------------------------------------
 
+/**
+ * Preview 1: Erstellen-Modus mit leeren Feldern.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupFormScreenCreatePreview() {
@@ -261,6 +289,9 @@ private fun GroupFormScreenCreatePreview() {
     }
 }
 
+/**
+ * Preview 2: Bearbeiten-Modus mit gefüllten Formularfeldern.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupFormScreenEditPreview() {
@@ -276,6 +307,9 @@ private fun GroupFormScreenEditPreview() {
     }
 }
 
+/**
+ * Preview 3: Formular mit aktiven Feldfehlern und allgemeinem Fehlertext.
+ */
 @Preview(showBackground = true, heightDp = 1000)
 @Composable
 private fun GroupFormScreenErrorsPreview() {
@@ -295,6 +329,9 @@ private fun GroupFormScreenErrorsPreview() {
     }
 }
 
+/**
+ * Preview 4: Formular während des laufenden Speichervorgangs (isSaving = true).
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupFormScreenSavingPreview() {
@@ -310,6 +347,9 @@ private fun GroupFormScreenSavingPreview() {
     }
 }
 
+/**
+ * Preview 5: Ladezustand im Bearbeiten-Modus.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun GroupFormScreenLoadingPreview() {
@@ -322,6 +362,9 @@ private fun GroupFormScreenLoadingPreview() {
     }
 }
 
+/**
+ * Preview 6: Gruppe nicht gefunden (notFound = true).
+ */
 @Preview(showBackground = true)
 @Composable
 private fun GroupFormScreenNotFoundPreview() {

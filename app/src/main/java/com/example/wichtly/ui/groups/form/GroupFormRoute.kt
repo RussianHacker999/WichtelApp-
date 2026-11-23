@@ -16,10 +16,14 @@ import com.example.wichtly.ui.components.photo.openAppSettings
  * Stateful Route Composable für das Gruppen-Formular.
  *
  * Architektur-Hinweise (MVVM & Clean Architecture):
- * - Diese Route verbindet DI / AppContainer, ViewModel und Lifecycle mit dem zustandslosen [GroupFormScreen].
- * - Das ViewModel wird über [GroupFormViewModelFactory] mit einem eindeutigen Key (`groupId ?: "new"`) instanziiert.
- * - Beim Verlassen ohne Speichern (Zurück, Abbrechen, System-Zurück) verwirft das ViewModel ein
+ * - Diese Route fungiert als Bindeglied (Stateful Component) zwischen der Anwendungs-Infrastruktur
+ *   (DI / AppContainer, ViewModel, Lifecycle) und dem zustandslosen [GroupFormScreen].
+ * - Der [GroupFormScreen] bleibt dadurch zu 100 % zustandslos und frei von ViewModel- und Repository-Wissen,
+ *   was die Testbarkeit und Previews erheblich vereinfacht.
+ * - Die Repositories (Gruppen und Fotos) werden direkt aus der [WichtlyApplication] bezogen.
+ * - Beim Verlassen ohne Speichern (Zurück-Pfeil, Abbrechen, System-Zurück) verwirft das ViewModel ein
  *   neu aufgenommenes, noch nicht gespeichertes Gruppenfoto.
+ * - Das ViewModel wird über [GroupFormViewModelFactory] mit einem eindeutigen Key (`groupId ?: "new"`) instanziiert.
  *
  * @param groupId Die ID der Wichtelgruppe (null = Erstellen-Modus, sonst Bearbeiten-Modus).
  * @param onBack Callback für die Zurück-Navigation.

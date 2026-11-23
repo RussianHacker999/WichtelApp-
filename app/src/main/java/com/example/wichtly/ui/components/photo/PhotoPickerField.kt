@@ -22,14 +22,18 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * Zustandsloses Fotofeld für Formulare und Dialoge. Gruppe und Teilnehmer sehen gleich aus:
- * Label "Foto", runde Vorschau (oder Kamera-Platzhalter) und "Foto hinzufügen" / "Foto ändern".
+ * Zustandsloser UI-Baustein zur Darstellung des Foto-Auswahlfeldes in Formularen oder Dialogen.
  *
- * @param area Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
+ * Warum zustandslos?
+ * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]), die optionale Datei ([photoFile])
+ * und Interaktions-Callbacks ([onSelectClick]) vollständig von der übergeordneten Ebene.
+ *
+ * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]). Das Feld sieht für
+ *   beide gleich aus; der Parameter bleibt für die Kennzeichnung erhalten.
  * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist.
- * @param onSelectClick Öffnet den Foto-Ablauf.
+ * @param onSelectClick Callback beim Klick auf das Foto oder auf "Foto hinzufügen" bzw. "Foto ändern".
  * @param modifier Optionaler Layout-Modifier.
- * @param photoFile Optionale Bilddatei für die Vorschau.
+ * @param photoFile Optionale Bilddatei zur Anzeige im [PhotoThumbnail].
  * @param enabled Deaktiviert das Feld, z. B. während gespeichert wird.
  */
 @Suppress("UNUSED_PARAMETER")
@@ -45,6 +49,7 @@ fun PhotoPickerField(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         FieldLabel(text = "Foto")
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            // Runder Foto-Thumbnail oder Platzhalter
             PhotoThumbnail(
                 file = if (hasPhoto) photoFile else null,
                 modifier = Modifier
@@ -52,6 +57,8 @@ fun PhotoPickerField(
                     .clip(CircleShape)
                     .clickable(enabled = enabled, role = Role.Button, onClick = onSelectClick),
             )
+            // kein eigener Titel/Hilfetext mehr: das Label "Foto" steht über der Zeile
+            // Aktionsbutton (Foto hinzufügen / Foto ändern)
             WichtlyTextButton(
                 text = if (hasPhoto) "Foto ändern" else "Foto hinzufügen",
                 onClick = onSelectClick,
@@ -65,7 +72,9 @@ fun PhotoPickerField(
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
-/** Preview 1: Fotofeld ohne Foto (Gruppe). */
+/**
+ * Preview 1: Gruppenfoto-Feld im leeren Zustand.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldGroupEmptyPreview() {
@@ -74,7 +83,9 @@ private fun PhotoPickerFieldGroupEmptyPreview() {
     }
 }
 
-/** Preview 2: Fotofeld ohne Foto (Teilnehmer). */
+/**
+ * Preview 2: Teilnehmerfoto-Feld im leeren Zustand.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldParticipantEmptyPreview() {
@@ -83,7 +94,9 @@ private fun PhotoPickerFieldParticipantEmptyPreview() {
     }
 }
 
-/** Preview 3: Fotofeld mit hinterlegtem Foto. */
+/**
+ * Preview 3: Teilnehmerfoto-Feld mit hinterlegtem Foto.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldParticipantWithPhotoPreview() {

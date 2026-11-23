@@ -9,11 +9,15 @@ import com.example.wichtly.ui.components.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Dialog, der vor der System-Abfrage erklärt, wofür die Kamera gebraucht wird.
+ * Zustandsloser (stateless) Dialog zur Aufklärung über den benötigten Kamerazugriff.
+ *
+ * Warum zustandslos?
+ * Steuert keine eigenen Berechtigungs-Abfragen, sondern informiert den Benutzer verständlich
+ * und delegiert die Reaktionen ("Erlauben" / "Nicht erlauben") per State Hoisting nach oben.
  * `onDismissRequest` ruft ebenfalls [onDeny] auf.
  *
- * @param onAllow Der Nutzer möchte die Berechtigung anfragen ("Erlauben").
- * @param onDeny Der Nutzer lehnt ab ("Nicht erlauben") oder schließt den Dialog.
+ * @param onAllow Callback, wenn der Nutzer die Berechtigung anfordern möchte ("Erlauben").
+ * @param onDeny Callback, wenn der Nutzer die Berechtigung ablehnt ("Nicht erlauben") oder den Dialog schließt.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -38,6 +42,9 @@ fun CameraPermissionDialog(
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
+/**
+ * Preview: Kamera-Berechtigungsdialog.
+ */
 @Preview
 @Composable
 private fun CameraPermissionDialogPreview() {

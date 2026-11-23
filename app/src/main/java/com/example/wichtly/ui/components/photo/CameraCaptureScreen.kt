@@ -53,7 +53,7 @@ import java.io.File
  * Die Kamera-Berechtigung (`android.permission.CAMERA`) ist bereits erteilt.
  *
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme mit der erzeugten [File].
- * @param onCancel Callback beim Abbrechen der Vorschau (z. B. "Abbrechen"-Button oder System-Back).
+ * @param onCancel Callback beim Abbrechen der Vorschau (z. B. Schließen-Button oben links oder System-Back).
  * @param onError Callback im Fehlerfall mit verständlicher Fehlermeldung.
  * @param modifier Optionaler Layout-Modifier.
  */
@@ -116,7 +116,7 @@ fun CameraCaptureScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Schließen-Button und Titel oben links (mit statusBarsPadding)
+        // Schließen-Button (X, bricht die Aufnahme ab) und Titel oben links (mit statusBarsPadding)
         Row(
             modifier = Modifier
                 .fillMaxWidth()

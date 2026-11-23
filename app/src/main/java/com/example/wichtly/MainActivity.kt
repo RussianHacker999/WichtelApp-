@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
             WichtlyTheme {
                 // NEU: Navigation startet mit der Gruppenliste
                 AppNavHost()
-                /* ALT - ersetzt durch AppNavHost (Navigation)
+                /* ALT - ersetzt durch AppNavHost (Navigation). Greeting() gibt es nicht mehr, der Block dient nur als Referenz.
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",

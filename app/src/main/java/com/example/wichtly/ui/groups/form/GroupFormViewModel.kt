@@ -229,7 +229,7 @@ class GroupFormViewModel(
                         photoPath = currentState.photoPath,
                     )
                 } else {
-                    // Bearbeiten: id bleibt durch copy() erhalten
+                    // Bearbeiten: id bleibt durch copy() erhalten, photoPath kommt aus dem Formular (Foto neu, geändert oder entfernt)
                     original.copy(
                         name = currentState.name.trim(),
                         budgetCents = parsedBudgetCents,

@@ -32,11 +32,25 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
 /**
- * Zustandsloser Screen mit allen gespeicherten Auslosungen einer Gruppe (#6).
+ * Zustandsloser Composable-Screen für die Auslosungshistorie einer Wichtelgruppe.
  *
- * @param state Gruppenname und gespeicherte Durchläufe.
- * @param onBack Zurück zur Gruppe.
- * @param onOpenDraw Öffnet einen gespeicherten Durchlauf.
+ * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
+ * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
+ * - Sämtliche Zustände werden über [DrawHistoryUiState] übergeben.
+ * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
+ * - Aufbau wie alle Screens:
+ *   - Top-Leiste mit Zurück-Pfeil und Titel "Auslosungshistorie".
+ *   - Seitenkopf mit Eyebrow "Alle Durchläufe", Titel "Schon mal gelost" und Untertitel.
+ *   - Genau eine [LazyColumn] für das gemeinsame Scrollen aller Karten und Hinweise.
+ *   - Karten für jeden Durchlauf mit Auslosungsdatum, Teilnehmerzahl, Wichtelart, Chip "Gespeichert"
+ *     und Pfeil; ein Klick auf die Karte öffnet den Durchlauf.
+ *   - Leerer Zustand ("Hier ist noch nichts ausgelost.") als Hinweis (MessageState) in der Liste.
+ *   - Hinweisfeld bezüglich der Unveränderlichkeit historischer Snapshots.
+ *
+ * @param state Der aktuelle UI-Zustand der Auslosungshistorie.
+ * @param onBack Callback für die Zurück-Navigation.
+ * @param onOpenDraw Callback zum Öffnen eines spezifischen Auslosungsdurchlaufs (erhält drawId).
+ * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun DrawHistoryScreen(
@@ -50,7 +64,11 @@ fun DrawHistoryScreen(
         topBar = { WichtlyTopBar(title = "Auslosungshistorie", onBack = onBack) },
     ) { innerPadding ->
         when {
+            // 1. ZUSTAND: Laden
+            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
             state.isLoading -> LoadingState(text = "Auslosungshistorie wird geladen...")
+            // 2. ZUSTAND: Fehler aufgetreten
+            // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
                 title = "Fehler beim Laden",
                 text = state.errorMessage,
@@ -59,6 +77,8 @@ fun DrawHistoryScreen(
                 actionLabel = "Zurück zur Übersicht",
                 onAction = onBack,
             )
+            // 3. ZUSTAND: Gruppe nicht gefunden
+            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.groupNotFound -> MessageState(
                 title = "Diese Gruppe ist verschwunden",
                 text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
@@ -67,19 +87,25 @@ fun DrawHistoryScreen(
                 actionLabel = "Zurück zur Übersicht",
                 onAction = onBack,
             )
+            // 4. ZUSTAND: Inhalt (Bereit)
+            // Hauptinhalt der Historien-Ansicht.
+            // Verwendet genau eine zentrale [LazyColumn], sodass Seitenkopf, Listen-Karten und Hinweise gemeinsam scrollen.
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = screenContentPadding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 item {
+                    // (1) Seitenkopf mit Eyebrow und Titel
                     PageHeader(
                         eyebrow = "Alle Durchläufe",
                         title = "Schon mal gelost",
                         subtitle = "Jede Ziehung bleibt gespeichert und lässt sich jederzeit wieder ansehen.",
                     )
                 }
+                // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
                 item { SectionHeader(title = "Gespeicherte Auslosungen", count = state.draws.size) }
+                // (3) Auslosungs-Karten ODER Hinweis bei leerer Liste
                 if (state.draws.isEmpty()) {
                     item {
                         MessageState(
@@ -105,6 +131,7 @@ fun DrawHistoryScreen(
                     }
                 }
                 item {
+                    // (4) Hinweisfeld am Ende
                     NoteCard(
                         text = "Historische Daten sind unveränderliche Snapshots. Änderungen an Teilnehmern oder Wunschlisten verändern frühere Ergebnisse nicht.",
                         modifier = Modifier.padding(top = Spacing.m),
@@ -115,10 +142,15 @@ fun DrawHistoryScreen(
     }
 }
 
-// =============================================================================
-// PREVIEWS
-// =============================================================================
 
+// -----------------------------------------------------------------------------
+// PREVIEWS
+// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
+// -----------------------------------------------------------------------------
+
+/**
+ * Preview 1: Historie mit drei gespeicherten Durchläufen.
+ */
 @Preview(showBackground = true, heightDp = 800)
 @Composable
 private fun DrawHistoryScreenWithThreeDrawsPreview() {
@@ -132,6 +164,21 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
     }
 }
 
+/**
+ * Preview 2: Historie mit genau einem gespeicherten Durchlauf (Einzahl).
+ */
+@Preview(showBackground = true, heightDp = 700)
+@Composable
+private fun DrawHistoryScreenWithSingleDrawPreview() {
+    val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDate.of(2026, 12, 1), drawType = DrawType.NORMAL, assignmentCount = 6))
+    WichtlyTheme {
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onOpenDraw = {})
+    }
+}
+
+/**
+ * Preview 3: Leere Historie (noch keine Durchläufe vorhanden).
+ */
 @Preview(showBackground = true, heightDp = 700)
 @Composable
 private fun DrawHistoryScreenEmptyPreview() {
@@ -140,6 +187,9 @@ private fun DrawHistoryScreenEmptyPreview() {
     }
 }
 
+/**
+ * Preview 4: Ladezustand der Historie.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun DrawHistoryScreenLoadingPreview() {
@@ -148,6 +198,9 @@ private fun DrawHistoryScreenLoadingPreview() {
     }
 }
 
+/**
+ * Preview 5: Fehlerzustand beim Laden der Historie.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun DrawHistoryScreenErrorPreview() {
@@ -159,6 +212,9 @@ private fun DrawHistoryScreenErrorPreview() {
     }
 }
 
+/**
+ * Preview 6: Gruppe nicht gefunden.
+ */
 @Preview(showBackground = true)
 @Composable
 private fun DrawHistoryScreenNotFoundPreview() {

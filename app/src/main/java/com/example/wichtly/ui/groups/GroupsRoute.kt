@@ -34,7 +34,7 @@ fun GroupsRoute(
         onDetailsClick = {groupId -> onOpenGroup(groupId)},
         // oeffnet die Bearbeitungsansicht der ausgewaehlter Gruppe
         onEditGroupClick = onEditGroup,
-        // oeffent die Prepartion--Losung-Ansicht der makierten Seite
+        // oeffnet die Vorbereitung der Auslosung fuer die markierte Gruppe
         onPrepareDrawClick = { groupId ->
             onPrepareDraw(groupId)
         },

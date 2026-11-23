@@ -49,9 +49,21 @@ private val EvergreenColorScheme = darkColorScheme(
     outline = Pine500,
     outlineVariant = Pine600,
     scrim = Color.Black,
+
+    /* Vorlage aus Android Studio, wird nicht mehr verwendet: so hätte man einzelne Standardfarben
+       überschrieben. Im Evergreen-Schema oben ist bereits jede Farbe gesetzt.
+    background = Color(0xFFFFFBFE),
+    surface = Color(0xFFFFFBFE),
+    onPrimary = Color.White,
+    onSecondary = Color.White,
+    onTertiary = Color.White,
+    onBackground = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF1C1B1F),
+    */
 )
 
 @Composable
+// Dynamic color (Android 12+) ist bewusst aus: die Festtagsfarben sollen auf jedem Gerät gleich aussehen.
 fun WichtlyTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalExtendedColors provides EvergreenExtendedColors) {
         MaterialTheme(

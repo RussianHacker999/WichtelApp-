@@ -37,7 +37,7 @@ import java.io.File
  * Warum zustandslos?
  * Dekodiert die übergebene Datei ([file]) asynchron im Hintergrund (Dispatchers.IO) mit Downsampling (inSampleSize)
  * und korrigiert die Bildausrichtung anhand der EXIF-Metadaten.
- * Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist, wird ein Kamera-Symbol als Platzhalter gezeigt.
+ * Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist, wird ein Kamera-Symbol als Platzhalter gerendert.
  *
  * @param file Die anzuzeigende Bilddatei (null = Platzhalter).
  * @param modifier Optionaler Layout-Modifier.

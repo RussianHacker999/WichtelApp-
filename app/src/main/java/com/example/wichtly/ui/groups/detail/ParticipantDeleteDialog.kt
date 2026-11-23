@@ -13,13 +13,18 @@ import com.example.wichtly.ui.components.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Bestätigungsdialog zum Löschen eines Teilnehmers samt Wunschliste (#12).
+ * Zustandsloser (stateless) Dialog zur Bestätigung des Löschens eines Wichtelgruppen-Teilnehmers.
  *
- * @param participantName Name des Teilnehmers.
- * @param errorMessage Fehler beim Löschen (null = kein Fehler).
- * @param isSaving Deaktiviert die Buttons während des Löschens.
- * @param onConfirm Löschen bestätigen.
- * @param onDismiss Abbrechen oder Schließen.
+ * Warum zustandslos?
+ * Gemäß Unidirectional Data Flow (UDF) steuert die übergeordnete Screen/ViewModel-Ebene die Anzeige
+ * und Logik. Der Dialog nimmt lediglich den Namen und eventuelle Fehler entgegen, was ihn frei von
+ * Seiteneffekten und leicht testbar macht.
+ *
+ * @param participantName Der Name des zu löschenden Teilnehmers.
+ * @param errorMessage Optionale Fehlermeldung, die sichtbar im Dialog angezeigt wird, falls das Löschen fehlschlägt.
+ * @param isSaving Deaktiviert die Buttons während des laufenden Löschvorgangs.
+ * @param onConfirm Callback beim Bestätigen der Löschung.
+ * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -34,11 +39,14 @@ fun ParticipantDeleteDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
+        // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
         title = "Teilnehmer löschen",
+        // Hinweis auf das Löschen des Teilnehmers samt seiner Wunschliste
         text = "Möchtest du den Teilnehmer „$participantName“ und seine Wunschliste wirklich löschen?",
         confirmLabel = "Löschen",
         onConfirm = onConfirm,
         destructive = true,
+        // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
         confirmEnabled = !isSaving,
         confirmLoading = isSaving,
         dismissEnabled = !isSaving,
@@ -56,6 +64,16 @@ fun ParticipantDeleteDialog(
     }
 }
 
+/* ============================================================================
+ * Previews (Vorschaudarstellungen in WichtlyTheme)
+ * Warum: Ermöglicht die visuelle Überprüfung aller UI-Zustände im Android Studio
+ * Preview-Fenster ohne App-Start. Verwendet ausschließlich lokale Fake-Daten.
+ * ============================================================================ */
+
+/**
+ * Preview 1: Standard-Löschdialog für einen Teilnehmer.
+ * Warum: Überprüft das Erscheinungsbild des Dialogs mit Hinweis auf die Wunschliste.
+ */
 @Preview
 @Composable
 private fun ParticipantDeleteDialogPreview() {
@@ -64,6 +82,10 @@ private fun ParticipantDeleteDialogPreview() {
     }
 }
 
+/**
+ * Preview 2: Löschdialog mit sichtbarer Fehlermeldung.
+ * Warum: Überprüft die korrekte Anzeige von Fehlertexten (z. B. bei Fehlschlagen der Löschung in der Datenbank).
+ */
 @Preview
 @Composable
 private fun ParticipantDeleteDialogErrorPreview() {

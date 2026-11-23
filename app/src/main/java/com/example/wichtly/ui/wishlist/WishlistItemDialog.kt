@@ -10,15 +10,20 @@ import com.example.wichtly.ui.components.WichtlyTextField
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Dialog zum Hinzufügen oder Bearbeiten eines Wunsches (#13).
+ * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wunschzettel-Eintrags.
  *
- * @param isEditMode true = "Wunsch bearbeiten", false = "Wunsch hinzufügen".
- * @param text Aktueller Wunschtext.
- * @param errorMessage Validierungsfehler unter dem Feld (null = kein Fehler).
- * @param isSaving Deaktiviert Eingaben und Buttons während des Speicherns.
- * @param onTextChange Texteingabe.
- * @param onSave Speichern.
- * @param onDismiss Abbrechen oder Schließen.
+ * Warum zustandslos?
+ * Gemäß Unidirectional Data Flow (UDF) besitzt dieser Dialog keinen eigenen internen Zustand.
+ * Sämtliche Daten (Text, Modus, Fehler, Speicher-Zustand) werden von der übergeordneten Screen/ViewModel-Ebene
+ * hineingereicht. Dadurch bleibt die UI-Komponente vorhersagbar, leicht testbar und frei von Seiteneffekten.
+ *
+ * @param isEditMode Steuert den Dialogtitel: false = "Wunsch hinzufügen", true = "Wunsch bearbeiten".
+ * @param text Aktueller Inhalt des Textfeldes.
+ * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Eingabefeld.
+ * @param isSaving Deaktiviert Interaktionen (wie den Speichern-Button) während eines aktiven Speichervorgangs.
+ * @param onTextChange Callback bei Texteingaben im Textfeld.
+ * @param onSave Callback beim Bestätigen/Speichern.
+ * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -35,14 +40,18 @@ fun WishlistItemDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Redeem,
+        // Warum dynamischer Titel: Eindeutige Kennzeichnung der Nutzer-Aktion (Neu vs. Bearbeiten).
         title = if (isEditMode) "Wunsch bearbeiten" else "Wunsch hinzufügen",
         confirmLabel = "Speichern",
         onConfirm = onSave,
+        // Warum disabled bei isSaving: Verhindert Mehrfachklicks und unbeabsichtigte doppelte Aufrufe während des Speicherns.
         confirmEnabled = !isSaving,
         confirmLoading = isSaving,
         dismissEnabled = !isSaving,
         modifier = modifier,
     ) {
+        // Einzeiliges Textfeld (WichtlyTextField, intern ein OutlinedTextField) für die Eingabe des Wunschtextes.
+        // errorText setzt isError und supportingText und liefert so sofort visuelles Feedback bei Validierungsfehlern.
         WichtlyTextField(
             label = "Wunsch",
             value = text,
@@ -55,10 +64,15 @@ fun WishlistItemDialog(
 }
 
 /* ============================================================================
- * Previews
+ * Previews (Vorschaudarstellungen in WichtlyTheme)
+ * Warum: Ermöglicht die visuelle Überprüfung aller UI-Zustände im Android Studio
+ * Preview-Fenster ohne App-Start. Verwendet ausschließlich lokale Fake-Daten.
  * ============================================================================ */
 
-/** Preview 1: "Wunsch hinzufügen" mit leerem Feld. */
+/**
+ * Preview 1: Modus "Wunsch hinzufügen" mit leerem Textfeld.
+ * Warum: Überprüft den initialen Zustand beim Anlegen eines neuen Wunsches.
+ */
 @Preview
 @Composable
 private fun WishlistItemDialogAddEmptyPreview() {
@@ -67,7 +81,10 @@ private fun WishlistItemDialogAddEmptyPreview() {
     }
 }
 
-/** Preview 2: "Wunsch bearbeiten" mit vorbelegtem Text. */
+/**
+ * Preview 2: Modus "Wunsch bearbeiten" mit vorbelegtem Text.
+ * Warum: Überprüft die korrekte Titelanzeige ("Wunsch bearbeiten") und die Textvorbelegung.
+ */
 @Preview
 @Composable
 private fun WishlistItemDialogEditWithTextPreview() {
@@ -76,7 +93,10 @@ private fun WishlistItemDialogEditWithTextPreview() {
     }
 }
 
-/** Preview 3: Validierungsfehler. */
+/**
+ * Preview 3: Dialog im Fehlerzustand mit angezeigtem Validierungsfehler.
+ * Warum: Überprüft die visuelle Hervorhebung des Textfelds (isError) sowie die Darstellung des supportingText.
+ */
 @Preview
 @Composable
 private fun WishlistItemDialogWithErrorPreview() {
@@ -85,7 +105,10 @@ private fun WishlistItemDialogWithErrorPreview() {
     }
 }
 
-/** Preview 4: Während des Speicherns. */
+/**
+ * Preview 4: Dialog während des aktiven Speichervorgangs (isSaving = true).
+ * Warum: Überprüft das Deaktivieren der Interaktionsbuttons und des Eingabefeldes bei laufendem Ladevorgang.
+ */
 @Preview
 @Composable
 private fun WishlistItemDialogSavingPreview() {

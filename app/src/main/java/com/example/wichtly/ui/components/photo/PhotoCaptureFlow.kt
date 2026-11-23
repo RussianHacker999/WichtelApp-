@@ -31,7 +31,7 @@ private enum class PhotoFlowStep {
  *
  * Architektur- & Design-Hinweise:
  * - Steuert den internen Ablauf (Quell-Auswahl -> Aufklärungsdialog -> Systemberechtigung -> Kameravorschau)
- *   mittels [rememberSaveable], sodass der aktuelle Schritt auch Bildschirmsortierungen (Rotation) übersteht.
+ *   mittels [rememberSaveable], sodass der aktuelle Schritt auch Bildschirmdrehungen (Rotation) übersteht.
  * - Speichert selbst KEIN Foto dauerhaft ab und ruft KEIN Repository auf.
  * - Bei erfolgreicher Fotoaufnahme wird die erzeugte [File] an [onPhotoCaptured] übergeben und [onClose] aufgerufen.
  *

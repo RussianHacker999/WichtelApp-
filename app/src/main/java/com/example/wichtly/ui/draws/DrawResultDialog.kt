@@ -63,13 +63,17 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Ergebnis einer Ziehung als Geschenkanhänger (#10).
+ * Zustandsloser (stateless) Vollbild-Dialog, der die gezogene Zuordnung (Schenker -> Beschenkter) als
+ * Geschenkanhänger zeigt: erst geschlossen ("Tippen zum Öffnen"), nach dem Antippen geöffnet
+ * inklusive der Wünsche des Beschenkten.
  *
- * Der Anhänger erscheint zuerst geschlossen ("Tippen zum Öffnen"). Nach dem Antippen zeigt er,
- * wen die Person beschenkt, und die Wünsche zum Zeitpunkt der Auslosung.
+ * Warum zustandslos?
+ * Gemäß Unidirectional Data Flow (UDF) nimmt die Komponente die fertigen Zuordnungsdaten entgegen
+ * und löst über den Button "Schließen" lediglich [onDismiss] aus. Nur ob der Anhänger schon geöffnet
+ * ist, merkt sich die Komponente selbst (rememberSaveable).
  *
- * @param assignment Die aufgedeckte Zuordnung (Schenkende, Beschenkte, Wünsche).
- * @param onDismiss Schließt das Ergebnis.
+ * @param assignment Die anzuzeigende Ziehungs-Zuordnung mit Schenker, Beschenktem und Wunschliste.
+ * @param onDismiss Callback beim Schließen des Geschenkanhängers.
  * @param modifier Optionaler Layout-Modifier.
  * @param startOpened true öffnet den Anhänger sofort (z. B. für Previews).
  */
@@ -233,7 +237,7 @@ private fun TagLabel(text: String, color: Color) {
     )
 }
 
-/** Light shadow for serif text on the gold tag (the dark title shadow would be too heavy here). */
+/** Heller Schatten für die Serifenschrift auf dem goldenen Anhänger (der dunkle Titelschatten wäre hier zu schwer). */
 private val TagTextShadow = Shadow(color = Color.White.copy(alpha = 0.3f), offset = Offset(0f, 4f), blurRadius = 0f)
 
 /** Anhänger-Form: oben abgeschrägte Ecken, unten abgerundet. */
@@ -258,9 +262,9 @@ private object GiftTagShape : Shape {
     }
 }
 
-// =============================================================================
-// PREVIEWS
-// =============================================================================
+/* ============================================================================
+ * Previews (Vorschaudarstellungen in WichtlyTheme)
+ * ============================================================================ */
 
 private val previewAssignment = DrawAssignmentUiModel(
     giverId = "p1",
@@ -270,20 +274,48 @@ private val previewAssignment = DrawAssignmentUiModel(
     wishes = listOf("Fantasy Bücher", "bunte Textmarker", "Schmuck"),
 )
 
+/**
+ * Preview 0: Geschlossener Geschenkanhänger ("Tippen zum Öffnen").
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
 private fun GiftTagClosedPreview() {
     WichtlyTheme { GiftTagReveal(assignment = previewAssignment, onDismiss = {}, startOpened = false) }
 }
 
+/**
+ * Preview 1: Geöffneter Geschenkanhänger mit drei Wünschen.
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
 private fun GiftTagOpenedPreview() {
     WichtlyTheme { GiftTagReveal(assignment = previewAssignment, onDismiss = {}, startOpened = true) }
 }
 
+/**
+ * Preview 2: Geöffneter Geschenkanhänger ohne Wünsche (leere Wunschliste).
+ */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
 private fun GiftTagNoWishesPreview() {
     WichtlyTheme { GiftTagReveal(assignment = previewAssignment.copy(wishes = emptyList()), onDismiss = {}, startOpened = true) }
+}
+
+/**
+ * Preview 3: Geöffneter Geschenkanhänger mit einem sehr langen Wunschtext.
+ */
+@Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
+@Composable
+private fun GiftTagLongWishPreview() {
+    WichtlyTheme {
+        GiftTagReveal(
+            assignment = previewAssignment.copy(
+                wishes = listOf(
+                    "Ein sehr ausführlicher und detaillierter Wunsch über mehrere Zeilen: Ein gebundenes Buch mit grünem Stoffeinband, mindestens 500 Seiten, aus dem Genre Epic Fantasy.",
+                ),
+            ),
+            onDismiss = {},
+            startOpened = true,
+        )
+    }
 }
