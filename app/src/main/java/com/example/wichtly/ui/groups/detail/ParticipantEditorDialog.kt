@@ -1,21 +1,16 @@
 package com.example.wichtly.ui.groups.detail
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.components.WichtlyDialog
+import com.example.wichtly.ui.components.WichtlyTextField
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
 import com.example.wichtly.ui.components.photo.PhotoArea
 import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
@@ -24,27 +19,27 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wichtelgruppen-Teilnehmers
- * inklusive Foto-Auswahl und Aufnahme-Workflow.
+ * Zustandsloser Dialog zum Hinzufügen und Bearbeiten eines Teilnehmers (#11).
+ * Fotofeld und Foto-Ablauf sind identisch mit dem Gruppenformular.
  *
- * @param isEditMode Steuert den Dialogtitel: false = "Teilnehmer hinzufügen", true = "Teilnehmer bearbeiten".
- * @param name Aktueller Inhalt des Namens-Eingabefeldes.
- * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Namensfeld.
- * @param isSaving Deaktiviert Interaktionen während eines aktiven Speichervorgangs.
- * @param onNameChange Callback bei Texteingaben im Namensfeld.
- * @param onSave Callback beim Bestätigen/Speichern.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
+ * @param isEditMode false = "Teilnehmer hinzufügen", true = "Teilnehmer bearbeiten".
+ * @param name Aktueller Name.
+ * @param errorMessage Validierungsfehler unter dem Namensfeld.
+ * @param isSaving Deaktiviert Interaktionen während des Speicherns.
+ * @param onNameChange Texteingabe im Namensfeld.
+ * @param onSave Speichern.
+ * @param onDismiss Abbrechen oder Schließen.
  * @param photoPath Relativer Pfad des Teilnehmerfotos (null = kein Foto).
  * @param photoFile Aufgelöste Bilddatei zur Vorschau.
  * @param photoError Fehlermeldung beim Foto-Handling.
- * @param isPhotoFlowOpen Steuert den Foto-Workflow-Dialog.
- * @param cameraDenied Zeigt an, ob Kamerazugriff abgelehnt wurde.
- * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl.
- * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
- * @param onPhotoCaptured Callback nach erfolgreicher Aufnahme.
- * @param onRemovePhoto Callback zum Entfernen des Fotos.
- * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
- * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
+ * @param isPhotoFlowOpen Steuert den Foto-Ablauf.
+ * @param cameraDenied Zeigt den Hinweis bei abgelehntem Kamerazugriff.
+ * @param onPhotoSelectClick Startet den Foto-Ablauf.
+ * @param onPhotoFlowClose Schließt den Foto-Ablauf.
+ * @param onPhotoCaptured Neues Foto aufgenommen.
+ * @param onRemovePhoto Foto entfernen.
+ * @param onCameraDenied Kamerazugriff abgelehnt.
+ * @param onOpenAppSettings Öffnet die App-Einstellungen.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -70,78 +65,40 @@ fun ParticipantEditorDialog(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
-        AlertDialog(
+        WichtlyDialog(
             onDismissRequest = onDismiss,
-            title = {
-                Text(text = if (isEditMode) "Teilnehmer bearbeiten" else "Teilnehmer hinzufügen")
-            },
-            text = {
-                val scrollState = rememberScrollState()
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState),
-                ) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = onNameChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Name") },
-                        singleLine = true,
-                        enabled = !isSaving,
-                        isError = errorMessage != null,
-                        supportingText = errorMessage?.let { error ->
-                            { Text(text = error) }
-                        },
-                    )
+            icon = if (isEditMode) Icons.Filled.Edit else Icons.Filled.PersonAdd,
+            title = if (isEditMode) "Teilnehmer bearbeiten" else "Teilnehmer hinzufügen",
+            confirmLabel = "Speichern",
+            onConfirm = onSave,
+            confirmEnabled = !isSaving,
+            confirmLoading = isSaving,
+            dismissEnabled = !isSaving,
+        ) {
+            PhotoPickerField(
+                area = PhotoArea.PARTICIPANT,
+                hasPhoto = photoPath != null,
+                photoFile = photoFile,
+                onSelectClick = onPhotoSelectClick,
+                enabled = !isSaving,
+            )
+            if (cameraDenied) {
+                CameraPermissionDeniedHint(onOpenSettings = onOpenAppSettings)
+            }
+            if (photoError != null) {
+                Text(text = photoError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+            }
+            WichtlyTextField(
+                label = "Name",
+                value = name,
+                onValueChange = onNameChange,
+                placeholder = "Maria",
+                errorText = errorMessage,
+                enabled = !isSaving,
+            )
+        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    PhotoPickerField(
-                        area = PhotoArea.PARTICIPANT,
-                        hasPhoto = photoPath != null,
-                        photoFile = photoFile,
-                        onSelectClick = onPhotoSelectClick,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-
-                    if (cameraDenied) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        CameraPermissionDeniedHint(
-                            onOpenSettings = onOpenAppSettings,
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-
-                    if (photoError != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = photoError,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = onSave,
-                    enabled = !isSaving,
-                ) {
-                    Text("Speichern")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = onDismiss,
-                    enabled = !isSaving,
-                ) {
-                    Text("Abbrechen")
-                }
-            },
-        )
-
-        // PhotoCaptureFlow als Geschwister-Element außerhalb des AlertDialogs
+        // Foto-Ablauf als Geschwister-Element außerhalb des Dialogs
         PhotoCaptureFlow(
             area = PhotoArea.PARTICIPANT,
             hasPhoto = photoPath != null,
@@ -155,113 +112,54 @@ fun ParticipantEditorDialog(
 }
 
 /* ============================================================================
- * Previews (Vorschaudarstellungen in WichtlyTheme)
+ * Previews
  * ============================================================================ */
+
+@Composable
+private fun PreviewDialog(
+    isEditMode: Boolean,
+    name: String,
+    errorMessage: String? = null,
+    isSaving: Boolean = false,
+    cameraDenied: Boolean = false,
+) {
+    WichtlyTheme {
+        ParticipantEditorDialog(
+            isEditMode = isEditMode, name = name, errorMessage = errorMessage, isSaving = isSaving,
+            onNameChange = {}, onSave = {}, onDismiss = {},
+            photoPath = null, photoFile = null, photoError = null, isPhotoFlowOpen = false, cameraDenied = cameraDenied,
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
+        )
+    }
+}
 
 @Preview
 @Composable
 private fun ParticipantEditorDialogAddEmptyPreview() {
-    WichtlyTheme {
-        ParticipantEditorDialog(
-            isEditMode = false,
-            name = "",
-            errorMessage = null,
-            isSaving = false,
-            onNameChange = {},
-            onSave = {},
-            onDismiss = {},
-            photoPath = null,
-            photoFile = null,
-            photoError = null,
-            isPhotoFlowOpen = false,
-            cameraDenied = false,
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-        )
-    }
+    PreviewDialog(isEditMode = false, name = "")
 }
 
 @Preview
 @Composable
 private fun ParticipantEditorDialogEditWithTextPreview() {
-    WichtlyTheme {
-        ParticipantEditorDialog(
-            isEditMode = true,
-            name = "Alex",
-            errorMessage = null,
-            isSaving = false,
-            onNameChange = {},
-            onSave = {},
-            onDismiss = {},
-            photoPath = "photos/participants/participant_123.jpg",
-            photoFile = null,
-            photoError = null,
-            isPhotoFlowOpen = false,
-            cameraDenied = false,
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-        )
-    }
+    PreviewDialog(isEditMode = true, name = "Alex")
 }
 
 @Preview
 @Composable
 private fun ParticipantEditorDialogWithErrorPreview() {
-    WichtlyTheme {
-        ParticipantEditorDialog(
-            isEditMode = false,
-            name = "",
-            errorMessage = "Der Name des Teilnehmers darf nicht leer sein.",
-            isSaving = false,
-            onNameChange = {},
-            onSave = {},
-            onDismiss = {},
-            photoPath = null,
-            photoFile = null,
-            photoError = null,
-            isPhotoFlowOpen = false,
-            cameraDenied = false,
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-        )
-    }
+    PreviewDialog(isEditMode = false, name = "", errorMessage = "Der Name des Teilnehmers darf nicht leer sein.")
+}
+
+@Preview
+@Composable
+private fun ParticipantEditorDialogCameraDeniedPreview() {
+    PreviewDialog(isEditMode = false, name = "Maria", cameraDenied = true)
 }
 
 @Preview
 @Composable
 private fun ParticipantEditorDialogSavingStatePreview() {
-    WichtlyTheme {
-        ParticipantEditorDialog(
-            isEditMode = true,
-            name = "Maria",
-            errorMessage = null,
-            isSaving = true,
-            onNameChange = {},
-            onSave = {},
-            onDismiss = {},
-            photoPath = null,
-            photoFile = null,
-            photoError = null,
-            isPhotoFlowOpen = false,
-            cameraDenied = false,
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-        )
-    }
+    PreviewDialog(isEditMode = true, name = "Maria", isSaving = true)
 }

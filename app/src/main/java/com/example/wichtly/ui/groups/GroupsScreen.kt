@@ -1,315 +1,278 @@
 package com.example.wichtly.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.PhotoCamera
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
-import com.example.wichtly.ui.groups.GroupsUiState
-import com.example.wichtly.ui.theme.WichtlyTheme
-import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
-import com.example.wichtly.ui.components.photo.PhotoArea
+import com.example.wichtly.ui.components.BottomActionBar
+import com.example.wichtly.ui.components.BrandTopBar
+import com.example.wichtly.ui.components.ChipTone
+import com.example.wichtly.ui.components.ItemMenu
+import com.example.wichtly.ui.components.ListItemText
+import com.example.wichtly.ui.components.MenuAction
+import com.example.wichtly.ui.components.MessageState
+import com.example.wichtly.ui.components.PageHeader
+import com.example.wichtly.ui.components.PrimaryButton
+import com.example.wichtly.ui.components.SecondaryButton
+import com.example.wichtly.ui.components.SectionHeader
+import com.example.wichtly.ui.components.StatusChip
+import com.example.wichtly.ui.components.WichtlyScaffold
+import com.example.wichtly.ui.components.areaSparkles
+import com.example.wichtly.ui.components.initialsOf
 import com.example.wichtly.ui.components.photo.PhotoThumbnail
-import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
+import com.example.wichtly.ui.components.screenContentPadding
+import com.example.wichtly.ui.groups.GroupsUiState
+import com.example.wichtly.ui.groups.form.formatCentsForInput
+import com.example.wichtly.ui.theme.Spacing
+import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
-// hier wurden die Schachteln onAddGroupClick, onGroupClick(groupId), onEditGroupClick(groupId) eingefügt
-// die später in AppNavHost verdrahtet und dann jeweils zu "Formular neu", "Gruppendetail" und "Formular bearbeiten" geführt werden
-
-@OptIn(ExperimentalMaterial3Api::class)
-//um die UI-Elemente von Material 3 nutzen zu koennen
+/**
+ * Startscreen mit allen Wichtelgruppen (#1).
+ *
+ * Antippen einer Karte wählt die Gruppe aus, "Losen" in der Aktionsleiste öffnet dann die
+ * Vorbereitung. Details und Bearbeiten liegen im ⋮-Menü der Karte. Das Gruppenfoto wird nur
+ * noch im Formular gesetzt und hier als Kartenbild gezeigt.
+ *
+ * @param uiState Gruppen, Fotos und die ausgewählte Gruppe.
+ * @param onAddGroupClick Öffnet das Formular für eine neue Gruppe.
+ * @param onGroupClick Markiert eine Gruppe für "Losen".
+ * @param onDetailsClick Öffnet die Gruppendetails.
+ * @param onEditGroupClick Öffnet das Formular zum Bearbeiten.
+ * @param onPrepareDrawClick Öffnet die Vorbereitung der Auslosung für die ausgewählte Gruppe.
+ */
 @Composable
-//die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
 fun GroupsScreen(
     uiState: GroupsUiState,
     modifier: Modifier = Modifier,
-    // Callbacks/Event-Handler (Funktionen die von aussen in das Composable reingereicht werden)
     onAddGroupClick: () -> Unit,
     onGroupClick: (groupId: String) -> Unit,
     onDetailsClick: (groupId: String) -> Unit,
     onEditGroupClick: (groupId: String) -> Unit,
     onPrepareDrawClick: (groupId: String) -> Unit,
-    onPhotoClick: (groupId: String) -> Unit,
-    onPhotoFlowClose: () -> Unit,
-    onPhotoCaptured: (groupId: String, File) -> Unit,
-    onRemovePhoto: (groupId: String) -> Unit,
-    onCameraDenied: (groupId: String) -> Unit,
 ) {
-    Scaffold(
-        //Scaffold quasi Geruest fuer einen Screen
+    WichtlyScaffold(
         modifier = modifier,
-        topBar = { TopAppBar(title = {Text("Alle Gruppen")}) },
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-            .fillMaxSize()
-        ) {
-            LazyColumn(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .weight(1f),
-                    //(weight(1f):die LazyColum nimmt den gesamten Platz ein der zur Verfugung steht
-                    //draengt den Losen Button nach ganz unten
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-
-            ) {
-                //jede Spalte muss in ein item (bei einer LazyColum)
-                //ein Zeilen: item vs. mehere Zeilen: items
-                item() {
-                    Button(
-                        onClick = onAddGroupClick,
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                    ) {
-                        Text(
-                            text= "Gruppe hinzufügen",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold)
-                    }
-                }
-                items(uiState.groups) { group ->
-                    //fuer jeden Namen in der names Liste wird ein Item mit einer Card erstellt
-                    Card(
-                        modifier = modifier.fillMaxWidth(),
-                        // Hinterfrundfarbe fuer die Karten bestimmen
-                        onClick = {onGroupClick(group.id)},
-                        colors = CardDefaults.cardColors(
-                            // ausgewaehlte Card ist bekommt einen Blauen Hintergrung, die anderen Karten einen hell grauen
-                            containerColor = if (uiState.selectedGroupId == group.id) {
-                                // Material 3 bietet verschiedene Frabrschemata an (Vorteil: automatische anpassung an hell und dunkelModus)
-                                MaterialTheme.colorScheme.primaryContainer
-                            } else {
-                                MaterialTheme.colorScheme.surfaceContainer
-                            }
-                        )
-                    ) {
-                        //durch die Card wird z.B. die Graue Box eingefuegt
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            //Button rechts
-                            verticalAlignment = Alignment.CenterVertically
-                            //Text mittig
-                        ) {
-                            // holte den Phad des Gruppenbildes aus dem UiSate
-                            val photoFile = uiState.photoFiles[group.id]
-                            IconButton(
-                                // Click ruft dien CallBack onPhotoClick auf
-                                // (oeffent ein Fenster, wo man ausesehlen kann, ob man ein Bild mit der Kamera aufnehmen will, das vorhandene Bild loeschen will oder zurueck zum GroupScreen gehen will
-                                onClick = { onPhotoClick(group.id) },
-                                modifier = Modifier.size(56.dp),
-                            ) {
-                                // wenn ein Pfad zum zum Gruppenbild dieser Gruppe hinterlegt ist,
-                                // dann zeige das Bild an
-                                if (photoFile != null) {
-                                    // PhotoThumbnail ist ein Verkleinertes Bild des original Bildes
-                                    // Ecken sind abgeschnitten
-                                    PhotoThumbnail(
-                                        // Pfad zum Foto
-                                        file = photoFile,
-                                        // Groesse des Fotos
-                                        modifier = Modifier.size(44.dp),
-                                        // Staerke des abgeschittenden Ecken (je hoeher die size, desto runder)
-                                        shape = RoundedCornerShape(12.dp)
-                                    )
-                                // Wenn kein Fototpfad hinterlegt wurde, wird ein Kamera-Icon angezeigt
-                                } else {
-                                    Icon(
-                                        imageVector = Icons.Default.PhotoCamera,
-                                        contentDescription = "Gruppenfoto aufnehmen"
-                                    )
-                                }
-                            }
-                            Text(
-                                text = "${group.name}",
-                                style = MaterialTheme.typography.labelLarge,
-                                fontSize = 16.sp,
-                                modifier = Modifier
-                                    .padding(
-                                    start = 8.dp,
-                                    top = 8.dp,
-                                    end = 8.dp,
-                                    bottom = 8.dp
-                                    )
-                                    .weight(1f)
-                                    //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
-                                //der Modifier sorgt fur den Abstand (nach oben, unten, links und rechts) zwischen dem Text und grauen Kasten
-                            )
-                            IconButton(
-                                onClick = { onDetailsClick(group.id) },
-                                modifier = modifier
-                                    .padding(horizontal = 4.dp)
-                                    //horiontal = absand nach links und nach rechts
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Gruppendetails"
-                                )
-                            }
-                            IconButton(
-                                onClick = {onEditGroupClick(group.id)},
-                                modifier = modifier
-                                    .padding(horizontal = 4.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = "Bearbeiten"
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            Button(
-                // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
-                enabled = uiState.selectedGroupId != null,
-                onClick = {
-                    uiState.selectedGroupId?.let { selectedId ->
-                        onPrepareDrawClick(selectedId)
-                    }
-                },
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(96.dp)
-                    .padding(
-                        start = 16.dp,
-                        top = 12.dp,
-                        end = 16.dp,
-                        bottom = 16.dp)
-            ) {
-                Text(
+        topBar = { BrandTopBar() },
+        bottomBar = {
+            BottomActionBar {
+                SecondaryButton(
+                    text = "Gruppe",
+                    onClick = onAddGroupClick,
+                    icon = Icons.Filled.Add,
+                    modifier = Modifier.weight(1f),
+                )
+                PrimaryButton(
                     text = "Losen",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold
+                    // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
+                    enabled = uiState.selectedGroupId != null,
+                    onClick = { uiState.selectedGroupId?.let(onPrepareDrawClick) },
+                    icon = Icons.Filled.Redeem,
+                    modifier = Modifier.weight(1.4f),
                 )
             }
-
-            // holt sich die Id des Fotos der Gruppe aus dem UiSate
-            val activePhotoGroupId = uiState.photoFlowGroupId
-            if (activePhotoGroupId != null) {
-                val activeGroup = uiState.groups.firstOrNull { it.id == activePhotoGroupId }
-                if (activeGroup != null) {
-                    // oeffnet ein Composable das sich ueber den GroupSceen legt
-                    // Abfrage, ob ein Foto aufgenommen werden soll, ein vorhandenes Foto geloescht werden soll oder das Comosable wieder geschlossen werden soll
-                    PhotoCaptureFlow(
-                        area = PhotoArea.GROUP,
-                        hasPhoto = (activeGroup.photoPath != null),
-                        isOpen = true,
-                        onClose = onPhotoFlowClose,
-                        onPhotoCaptured = { file ->
-                            onPhotoCaptured(activePhotoGroupId, file)
-                        },
-                        onRemovePhoto = { onRemovePhoto(activePhotoGroupId) },
-                        onCameraDenied = { onCameraDenied(activePhotoGroupId) },
+        },
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = screenContentPadding(innerPadding),
+            verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
+        ) {
+            item {
+                PageHeader(title = "Alle Gruppen", subtitle = "Gruppe antippen, dann wird gelost.")
+            }
+            if (uiState.groups.isEmpty()) {
+                item {
+                    MessageState(
+                        title = "Noch ganz schön leer hier",
+                        text = "Lege deine erste Gruppe an, dann kann der Spaß beginnen.",
+                        icon = Icons.Filled.Redeem,
+                        fillMaxSize = false,
+                        modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
                     )
                 }
-            }
-
-            // oeffent Composable, wenn der Kamera Zugriff verweigert wurde
-            if (uiState.cameraDeniedGroupId != null) {
-                CameraPermissionDeniedHint(
-                    onOpenSettings = {},
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                )
+            } else {
+                item { SectionHeader(title = "Gruppen", count = uiState.groups.size) }
+                items(uiState.groups, key = { it.id }) { group ->
+                    HeroGroupCard(
+                        group = group,
+                        photoFile = uiState.photoFiles[group.id],
+                        selected = uiState.selectedGroupId == group.id,
+                        onClick = { onGroupClick(group.id) },
+                        onDetailsClick = { onDetailsClick(group.id) },
+                        onEditClick = { onEditGroupClick(group.id) },
+                    )
+                }
             }
         }
     }
 }
 
-//Methode um den Screen als Vorschau anschauen zukoennen,
-//ohne den Emulator und die App laufen zu lassen
-//oeffen:   im Editor - da wo am die geoeffeneten Dateien wecheln kann
-//          Code | Spilt | Design -> Waehle Split aus
-@Preview(showBackground = true)
+private val chipDateFormatter = DateTimeFormatter.ofPattern("dd.MM.")
+
+/**
+ * Gruppenkarte mit farbigem Bildbereich (Gruppenfoto oder Verlauf mit Sternchen),
+ * darunter Name, Budget und Wichtelart sowie das ⋮-Menü.
+ */
+@Composable
+private fun HeroGroupCard(
+    group: GiftGroup,
+    photoFile: File?,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onDetailsClick: () -> Unit,
+    onEditClick: () -> Unit,
+) {
+    val shape = MaterialTheme.shapes.large
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (selected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.primary), shape) else Modifier),
+        shape = shape,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(92.dp),
+        ) {
+            if (photoFile != null) {
+                PhotoThumbnail(file = photoFile, modifier = Modifier.fillMaxSize(), shape = RectangleShape)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary)
+                            )
+                        )
+                        .areaSparkles(seed = group.id.hashCode()),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(start = Spacing.l, bottom = Spacing.m)
+                        .size(46.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.92f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(text = initialsOf(group.name), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.inverseOnSurface)
+                }
+            }
+            if (selected) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .offset(x = 66.dp, y = (-12).dp)
+                        .size(24.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Ausgewählt",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+            }
+            StatusChip(
+                text = group.drawDay.format(chipDateFormatter),
+                tone = ChipTone.OnImage,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(Spacing.m),
+            )
+        }
+        Row(
+            modifier = Modifier.padding(start = Spacing.l, end = 6.dp, top = 10.dp, bottom = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ListItemText(
+                title = group.name,
+                subtitle = "${formatCentsForInput(group.budgetCents)} € · ${group.drawType.displayName}",
+                modifier = Modifier.weight(1f),
+            )
+            ItemMenu(
+                actions = listOf(
+                    MenuAction("Gruppendetails", Icons.Filled.Groups, onDetailsClick),
+                    MenuAction("Gruppe bearbeiten", Icons.Filled.Edit, onEditClick),
+                ),
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun GroupsScreenPreview() {
-    val testUiState = GroupsUiState(
-        groups = listOf(
-            GiftGroup(
-                id = "1",
-                name = "Familie",
-                budgetCents = 60,
-                drawDay = LocalDate.of(2025, 12,6)
-            ),
-            GiftGroup(
-                id = "2",
-                name = "Abteilung It",
-                budgetCents = 1,
-                drawDay = LocalDate.of(2026, 10, 15)
-            ),
-            GiftGroup(
-                id = "3",
-                name = "Uni",
-                budgetCents = 20,
-                drawDay = LocalDate.of(2026, 11, 4)
-            ),
-            GiftGroup(
-                id = "4",
-                name = "Familie",
-                budgetCents = 60,
-                drawDay = LocalDate.of(2026, 11, 6)
-            ),
-            GiftGroup(
-                id = "5",
-                name = "Buchclub",
-                budgetCents = 20,
-                drawDay = LocalDate.of(2026, 11, 8)
-            ),
-            GiftGroup(
-                id = "6",
-                name = "Volleyball",
-                budgetCents = 15,
-                drawDay = LocalDate.now()
-            )
-        )
+    val groups = listOf(
+        GiftGroup(id = "1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24)),
+        GiftGroup(id = "2", name = "Büro Wichteln 2026", budgetCents = 1500, drawDay = LocalDate.of(2026, 12, 15), drawType = DrawType.JUNK),
+        GiftGroup(id = "3", name = "Buchclub", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 8)),
     )
-    WichtlyTheme() {
+    WichtlyTheme {
         GroupsScreen(
-            testUiState,
+            uiState = GroupsUiState(groups = groups, selectedGroupId = "1"),
             onAddGroupClick = {},
             onGroupClick = {},
             onDetailsClick = {},
             onEditGroupClick = {},
             onPrepareDrawClick = {},
-            onPhotoClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = { _, _ -> },
-            onRemovePhoto = {},
-            onCameraDenied = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 640)
+@Composable
+private fun GroupsScreenEmptyPreview() {
+    WichtlyTheme {
+        GroupsScreen(
+            uiState = GroupsUiState(),
+            onAddGroupClick = {},
+            onGroupClick = {},
+            onDetailsClick = {},
+            onEditGroupClick = {},
+            onPrepareDrawClick = {},
         )
     }
 }

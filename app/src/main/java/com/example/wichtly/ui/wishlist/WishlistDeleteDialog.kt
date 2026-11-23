@@ -1,26 +1,26 @@
 package com.example.wichtly.ui.wishlist
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.components.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zur Bestätigung des Löschens eines Wunschzettel-Eintrags.
+ * Zustandsloser Bestätigungsdialog zum Löschen eines Wunsches (#21).
+ * Gleich aufgebaut wie das Löschen eines Teilnehmers.
  *
- * @param itemText Der Text des zu löschenden Wunsches zur Anzeige in der Bestätigungsmeldung.
- * @param errorMessage Optionale Fehlermeldung, die direkt im Löschdialog angezeigt wird, falls das Löschen fehlschlägt.
- * @param isSaving Deaktiviert die Buttons während des laufenden Löschvorgangs.
- * @param onConfirm Callback beim Bestätigen der Löschung.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
+ * @param itemText Text des zu löschenden Wunsches.
+ * @param errorMessage Fehler beim Löschen (null = kein Fehler).
+ * @param isSaving Deaktiviert die Buttons während des Löschens.
+ * @param onConfirm Löschen bestätigen.
+ * @param onDismiss Abbrechen oder Schließen.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -32,86 +32,50 @@ fun WishlistDeleteDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AlertDialog(
+    WichtlyDialog(
         onDismissRequest = onDismiss,
-        title = {
-            // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
-            Text(text = "Wunsch löschen")
-        },
-        text = {
-            Column {
-                // Warum expliziter Wunschtext in der Meldung: Beugt versehentlichem Löschen falscher Einträge vor.
-                Text(text = "Möchtest du den Wunsch \"$itemText\" wirklich löschen?")
-                if (errorMessage != null) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = errorMessage,
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
-            TextButton(
-                onClick = onConfirm,
-                enabled = !isSaving,
-            ) {
-                Text(text = "Löschen")
-            }
-        },
-        dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isSaving
-            ) {
-                Text(text = "Abbrechen")
-            }
-        },
-        modifier = modifier
-    )
+        icon = Icons.Filled.Delete,
+        title = "Wunsch löschen",
+        text = "Möchtest du den Wunsch „$itemText“ wirklich löschen?",
+        confirmLabel = "Löschen",
+        onConfirm = onConfirm,
+        destructive = true,
+        confirmEnabled = !isSaving,
+        confirmLoading = isSaving,
+        dismissEnabled = !isSaving,
+        modifier = modifier,
+    ) {
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
 }
 
-/**
- * Preview 1: Standard-Löschdialog mit einem Beispiel-Wunschtext.
- */
+/** Preview 1: Normaler Löschdialog. */
 @Preview
 @Composable
 private fun WishlistDeleteDialogPreview() {
     WichtlyTheme {
-        WishlistDeleteDialog(
-            itemText = "Warme Wollsocken",
-            errorMessage = null,
-            isSaving = false,
-            onConfirm = {},
-            onDismiss = {}
-        )
+        WishlistDeleteDialog(itemText = "Warme Wollsocken", errorMessage = null, isSaving = false, onConfirm = {}, onDismiss = {})
     }
 }
 
-/**
- * Preview 2: Löschdialog während des aktiven Löschvorgangs (isSaving = true).
- * Warum: Überprüft das Deaktivieren der Interaktions-Buttons bei laufendem Ladevorgang.
- */
+/** Preview 2: Während des Löschens. */
 @Preview
 @Composable
 private fun WishlistDeleteDialogSavingPreview() {
     WichtlyTheme {
-        WishlistDeleteDialog(
-            itemText = "Warme Wollsocken",
-            errorMessage = null,
-            isSaving = true,
-            onConfirm = {},
-            onDismiss = {}
-        )
+        WishlistDeleteDialog(itemText = "Warme Wollsocken", errorMessage = null, isSaving = true, onConfirm = {}, onDismiss = {})
     }
 }
 
-/**
- * Preview 3: Löschdialog mit sichtbarer Fehlermeldung.
- * Warum: Überprüft die visuelle Hervorhebung von Fehlertexten im Löschdialog.
- */
+/** Preview 3: Mit Fehlermeldung. */
 @Preview
 @Composable
 private fun WishlistDeleteDialogWithErrorPreview() {

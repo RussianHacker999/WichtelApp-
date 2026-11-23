@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -21,7 +23,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -36,7 +37,7 @@ import java.io.File
  * Warum zustandslos?
  * Dekodiert die übergebene Datei ([file]) asynchron im Hintergrund (Dispatchers.IO) mit Downsampling (inSampleSize)
  * und korrigiert die Bildausrichtung anhand der EXIF-Metadaten.
- * Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist, wird ein eleganter Platzhalter ("＋") gerendert.
+ * Falls die Datei `null` ist, nicht existiert oder nicht dekodierbar ist, wird ein Kamera-Symbol als Platzhalter gezeigt.
  *
  * @param file Die anzuzeigende Bilddatei (null = Platzhalter).
  * @param modifier Optionaler Layout-Modifier.
@@ -92,7 +93,7 @@ fun PhotoThumbnail(
     Surface(
         modifier = modifier,
         shape = shape,
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.surfaceContainerHighest,
     ) {
         if (imageBitmap != null) {
             Image(
@@ -103,11 +104,10 @@ fun PhotoThumbnail(
             )
         } else {
             Box(contentAlignment = Alignment.Center) {
-                Text(
-                    text = "＋",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                Icon(
+                    imageVector = Icons.Filled.PhotoCamera,
+                    contentDescription = "Kein Foto",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

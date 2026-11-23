@@ -1,83 +1,63 @@
 package com.example.wichtly.ui.groups.detail
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Event
+import androidx.compose.material.icons.filled.Groups
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Redeem
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
-import com.example.wichtly.ui.components.photo.PhotoThumbnail
+import com.example.wichtly.ui.components.BottomActionBar
+import com.example.wichtly.ui.components.ChevronIcon
+import com.example.wichtly.ui.components.ChipTone
+import com.example.wichtly.ui.components.IconAvatar
+import com.example.wichtly.ui.components.InitialsAvatar
+import com.example.wichtly.ui.components.ItemMenu
+import com.example.wichtly.ui.components.ListItemCard
+import com.example.wichtly.ui.components.LoadingState
+import com.example.wichtly.ui.components.MenuAction
+import com.example.wichtly.ui.components.MessageState
+import com.example.wichtly.ui.components.MetaItem
+import com.example.wichtly.ui.components.MetaRow
+import com.example.wichtly.ui.components.NoteCard
+import com.example.wichtly.ui.components.PageHeader
+import com.example.wichtly.ui.components.PrimaryButton
+import com.example.wichtly.ui.components.SecondaryButton
+import com.example.wichtly.ui.components.SectionHeader
+import com.example.wichtly.ui.components.StatTile
+import com.example.wichtly.ui.components.StatusChip
+import com.example.wichtly.ui.components.WichtlyScaffold
+import com.example.wichtly.ui.components.WichtlyTopBar
+import com.example.wichtly.ui.components.screenContentPadding
 import com.example.wichtly.ui.groups.form.formatCentsForInput
 import com.example.wichtly.ui.groups.form.formatDateForInput
+import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
 
 /**
- * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
+ * Zustandsloser Screen der Gruppendetails (#3).
  *
- * @param state Der aktuelle UI-Zustand des Bildschirms.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onEditGroupClick Callback zum Bearbeiten der Stammdaten der Gruppe.
- * @param onOpenWishlist Callback zum Öffnen der Wunschliste eines Teilnehmers.
- * @param onAddParticipantClick Callback zum Hinzufügen eines neuen Teilnehmers.
- * @param onEditParticipantClick Callback zum Bearbeiten eines Teilnehmers (erhält participantId).
- * @param onDeleteParticipantClick Callback zum Löschen eines Teilnehmers (erhält participantId).
- * @param onParticipantNameChange Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog.
- * @param onSaveParticipant Callback zum Speichern eines Teilnehmers.
- * @param onDismissParticipantEditor Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs.
- * @param onConfirmDelete Callback zum Bestätigen der Teilnehmer-Löschung.
- * @param onDismissDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
- * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl für Teilnehmer.
- * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
- * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
- * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
- * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
- * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
- * @param onPrepareDraw Auslosungs-Vorbereitung für diese Gruppe öffnen.
- * @param onOpenHistory Historie dieser Gruppe öffnen.
- * @param modifier Äußerer Modifier für den Screen.
+ * Seitenkopf mit Wichteltag und Wichtelart, zwei Kennzahlen (Teilnehmer, Budget), die Teilnehmerliste
+ * (Aktionen im ⋮-Menü jeder Karte) und der Bereich "Auslosung & Historie". Unten sitzen
+ * "Teilnehmer hinzufügen" und "Losen". "Gruppe bearbeiten" liegt im ⋮-Menü der Top-Leiste.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GroupDetailScreen(
     state: GroupDetailUiState,
@@ -102,248 +82,115 @@ fun GroupDetailScreen(
     onOpenHistory: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var groupMenuExpanded by remember { mutableStateOf(false) }
-
-    // Der übergebene modifier wird ausschließlich am Top-Level Scaffold angewendet.
-    Scaffold(
+    val group = state.group
+    val ready = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
+    WichtlyScaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        val titleText = state.group?.name ?: "Gruppendetails"
-                        Text(
-                            text = titleText,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = "Gruppenbereich",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-                navigationIcon = {
-                    TextButton(onClick = onBack) {
-                        Text("Zurück")
-                    }
-                },
+            WichtlyTopBar(
+                title = "Gruppendetails",
+                onBack = onBack,
                 actions = {
-                    if (state.group != null) {
-                        Box {
-                            IconButton(onClick = { groupMenuExpanded = true }) {
-                                Text(
-                                    text = "⋮",
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                            }
-                            DropdownMenu(
-                                expanded = groupMenuExpanded,
-                                onDismissRequest = { groupMenuExpanded = false }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Gruppe bearbeiten") },
-                                    onClick = {
-                                        groupMenuExpanded = false
-                                        onEditGroupClick()
-                                    }
-                                )
-                            }
-                        }
+                    if (ready) {
+                        ItemMenu(actions = listOf(MenuAction("Gruppe bearbeiten", Icons.Filled.Edit, onEditGroupClick)))
                     }
+                },
+            )
+        },
+        bottomBar = {
+            if (ready) {
+                BottomActionBar {
+                    SecondaryButton(
+                        text = "Teilnehmer",
+                        onClick = onAddParticipantClick,
+                        icon = Icons.Filled.Add,
+                        modifier = Modifier.weight(1f),
+                    )
+                    PrimaryButton(
+                        text = "Losen",
+                        onClick = onPrepareDraw,
+                        icon = Icons.Filled.Redeem,
+                        modifier = Modifier.weight(1.4f),
+                    )
                 }
+            }
+        },
+    ) { innerPadding ->
+        when {
+            state.isLoading -> LoadingState(text = "Gruppendetails werden geladen...")
+            state.errorMessage != null -> MessageState(
+                title = "Fehler beim Laden",
+                text = state.errorMessage,
+                icon = Icons.Outlined.ErrorOutline,
+                isError = true,
+                actionLabel = "Zurück zur Übersicht",
+                onAction = onBack,
+            )
+            state.notFound || group == null -> MessageState(
+                title = "Diese Gruppe ist verschwunden",
+                text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
+                icon = Icons.Outlined.ErrorOutline,
+                isError = true,
+                actionLabel = "Zurück zur Übersicht",
+                onAction = onBack,
+            )
+            else -> GroupDetailContent(
+                group = group,
+                participants = state.participants,
+                participantPhotoFiles = state.participantPhotoFiles,
+                innerPadding = innerPadding,
+                onOpenWishlist = onOpenWishlist,
+                onEditParticipantClick = onEditParticipantClick,
+                onDeleteParticipantClick = onDeleteParticipantClick,
+                onPrepareDraw = onPrepareDraw,
+                onOpenHistory = onOpenHistory,
             )
         }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            when {
-                // 1. ZUSTAND: Laden
-                state.isLoading -> {
-                    GroupDetailLoadingState()
-                }
-
-                // 2. ZUSTAND: Fehler aufgetreten
-                state.errorMessage != null -> {
-                    GroupDetailErrorState(
-                        errorMessage = state.errorMessage,
-                        onBack = onBack
-                    )
-                }
-
-                // 3. ZUSTAND: Gruppe nicht gefunden
-                state.notFound -> {
-                    GroupDetailNotFoundState(
-                        onBack = onBack
-                    )
-                }
-
-                // 4. ZUSTAND: Inhalt
-                else -> {
-                    val group = state.group
-                    if (group == null) {
-                        GroupDetailNotFoundState(onBack = onBack)
-                    } else {
-                        GroupDetailContentState(
-                            group = group,
-                            participants = state.participants,
-                            participantPhotoFiles = state.participantPhotoFiles,
-                            onEditGroupClick = onEditGroupClick,
-                            onOpenWishlist = onOpenWishlist,
-                            onAddParticipantClick = onAddParticipantClick,
-                            onEditParticipantClick = onEditParticipantClick,
-                            onDeleteParticipantClick = onDeleteParticipantClick,
-                            onPrepareDraw = onPrepareDraw,
-                            onOpenHistory = onOpenHistory,
-                        )
-                    }
-                }
-            }
-
-            // Dialoge als Overlay über dem Inhalt
-            if (state.showParticipantEditor) {
-                ParticipantEditorDialog(
-                    isEditMode = state.editingParticipantId != null,
-                    name = state.participantNameInput,
-                    errorMessage = state.participantNameError,
-                    isSaving = state.isSaving,
-                    onNameChange = onParticipantNameChange,
-                    onSave = onSaveParticipant,
-                    onDismiss = onDismissParticipantEditor,
-                    photoPath = state.participantPhotoPath,
-                    photoFile = state.participantPhotoFile,
-                    photoError = state.photoError,
-                    isPhotoFlowOpen = state.isPhotoFlowOpen,
-                    cameraDenied = state.cameraDenied,
-                    onPhotoSelectClick = onPhotoSelectClick,
-                    onPhotoFlowClose = onPhotoFlowClose,
-                    onPhotoCaptured = onPhotoCaptured,
-                    onRemovePhoto = onRemovePhoto,
-                    onCameraDenied = onCameraDenied,
-                    onOpenAppSettings = onOpenAppSettings,
-                )
-            }
-
-            val pendingDeleteParticipant = state.pendingDeleteParticipantId?.let { pendingId ->
-                state.participants.find { it.id == pendingId }
-            }
-            if (pendingDeleteParticipant != null) {
-                ParticipantDeleteDialog(
-                    participantName = pendingDeleteParticipant.name,
-                    errorMessage = state.participantDeleteError,
-                    isSaving = state.isSaving,
-                    onConfirm = onConfirmDelete,
-                    onDismiss = onDismissDelete
-                )
-            }
-        }
     }
-}
 
-/**
- * UI-Darstellung für den Ladezustand.
- */
-@Composable
-private fun GroupDetailLoadingState() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        CircularProgressIndicator()
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(
-            text = "Gruppendetails werden geladen...",
-            style = MaterialTheme.typography.bodyMedium
+    // Dialoge über dem Inhalt
+    if (state.showParticipantEditor) {
+        ParticipantEditorDialog(
+            isEditMode = state.editingParticipantId != null,
+            name = state.participantNameInput,
+            errorMessage = state.participantNameError,
+            isSaving = state.isSaving,
+            onNameChange = onParticipantNameChange,
+            onSave = onSaveParticipant,
+            onDismiss = onDismissParticipantEditor,
+            photoPath = state.participantPhotoPath,
+            photoFile = state.participantPhotoFile,
+            photoError = state.photoError,
+            isPhotoFlowOpen = state.isPhotoFlowOpen,
+            cameraDenied = state.cameraDenied,
+            onPhotoSelectClick = onPhotoSelectClick,
+            onPhotoFlowClose = onPhotoFlowClose,
+            onPhotoCaptured = onPhotoCaptured,
+            onRemovePhoto = onRemovePhoto,
+            onCameraDenied = onCameraDenied,
+            onOpenAppSettings = onOpenAppSettings,
+        )
+    }
+
+    val pendingDeleteParticipant = state.pendingDeleteParticipantId?.let { id -> state.participants.find { it.id == id } }
+    if (pendingDeleteParticipant != null) {
+        ParticipantDeleteDialog(
+            participantName = pendingDeleteParticipant.name,
+            errorMessage = state.participantDeleteError,
+            isSaving = state.isSaving,
+            onConfirm = onConfirmDelete,
+            onDismiss = onDismissDelete,
         )
     }
 }
 
-/**
- * UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde.
- */
 @Composable
-private fun GroupDetailNotFoundState(
-    onBack: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Gruppe nicht gefunden",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.error,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onBack) {
-            Text("Zurück zur Übersicht")
-        }
-    }
-}
-
-/**
- * UI-Darstellung im Fehlerfall.
- */
-@Composable
-private fun GroupDetailErrorState(
-    errorMessage: String,
-    onBack: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Fehler beim Laden",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.error,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = errorMessage,
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        Button(onClick = onBack) {
-            Text("Zurück")
-        }
-    }
-}
-
-/**
- * UI-Darstellung für den Inhalt der Gruppen-Detailansicht (gemäß Konzept 03 des HTML-Mockups).
- *
- * @param onPrepareDraw Auslosungs-Vorbereitung öffnen.
- * @param onOpenHistory Historie öffnen.
- */
-@Composable
-private fun GroupDetailContentState(
+private fun GroupDetailContent(
     group: GiftGroup,
     participants: List<Participant>,
     participantPhotoFiles: Map<String, File>,
-    onEditGroupClick: () -> Unit,
+    innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onOpenWishlist: (participantId: String) -> Unit,
-    onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
     onDeleteParticipantClick: (participantId: String) -> Unit,
     onPrepareDraw: () -> Unit,
@@ -351,896 +198,165 @@ private fun GroupDetailContentState(
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = screenContentPadding(innerPadding),
+        verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
-        // 1. Eyebrow & Hero Title
-        item(key = "group-hero-header") {
-            Column {
-
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = group.name,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+        item {
+            PageHeader(
+                eyebrow = "Gruppe",
+                title = group.name,
+                meta = {
+                    MetaRow(
+                        items = listOf(
+                            MetaItem(Icons.Filled.Event, formatDateForInput(group.drawDay)),
+                            MetaItem(Icons.Filled.Redeem, group.drawType.displayName),
+                        )
+                    )
+                },
+            )
+        }
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                StatTile(value = participants.size.toString(), label = "Teilnehmer", modifier = Modifier.weight(1f))
+                StatTile(
+                    value = "${formatCentsForInput(group.budgetCents)} €",
+                    label = "Budget pro Geschenk",
+                    modifier = Modifier.weight(1.7f),
                 )
-                Spacer(modifier = Modifier.height(4.dp))
-
             }
         }
 
-        // 2. Stats Grid (3 Stat-Karten: Teilnehmer, Budget, Durchläufe)
-        item(key = "group-stats-row") {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Stat 1: Teilnehmer
-                Card(
-                    modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "${participants.size}",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Teilnehmer",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Stat 2: Budget
-                Card(
-                    modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "${formatCentsForInput(group.budgetCents)} €",
-                            style = MaterialTheme.typography.titleSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = "Budget",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-
-                // Stat 3: Durchläufe
-                Card(
-                    modifier = Modifier.weight(1f),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "0",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Durchläufe",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-
-        // 3. Stammdaten-Karte der Gruppe
-        item(key = "group-card") {
-            GroupDataCard(
-                group = group,
-                onEditGroupClick = onEditGroupClick
-            )
-        }
-
-        // 4. Kopfbereich des Teilnehmer-Abschnitts
-        item(key = "participants-header") {
-            ParticipantsHeader(
-                participantCount = participants.size
-            )
-        }
-
-        // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
+        item { SectionHeader(title = "Teilnehmer", count = participants.size) }
         if (participants.isEmpty()) {
-            item(key = "participants-empty") {
-                EmptyParticipantsHint(
-                    onAddParticipantClick = onAddParticipantClick
+            item {
+                MessageState(
+                    title = "Noch niemand dabei",
+                    text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen. Doppelte Namen sind erlaubt.",
+                    icon = Icons.Filled.Groups,
+                    fillMaxSize = false,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         } else {
-            items(
-                items = participants,
-                key = { participant -> participant.id }
-            ) { participant ->
-                ParticipantCard(
-                    participant = participant,
-                    photoFile = participantPhotoFiles[participant.id],
-                    onOpenWishlist = { onOpenWishlist(participant.id) },
-                    onEditParticipantClick = { onEditParticipantClick(participant.id) },
-                    onDeleteParticipantClick = { onDeleteParticipantClick(participant.id) }
-                )
-            }
-        }
-
-        // 6. Button: Teilnehmer hinzufügen
-        item(key = "add-participant-button") {
-            Button(
-                onClick = onAddParticipantClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("＋ Teilnehmer hinzufügen")
-            }
-        }
-
-        // 7. Auslosung & Historie Abschnitt
-        item(key = "draw-section") {
-            DrawAndHistorySection(
-                group = group,
-                participantCount = participants.size,
-                onPrepareDraw = onPrepareDraw,
-                onOpenHistory = onOpenHistory,
-            )
-        }
-    }
-}
-
-/**
- * Karte mit den Stammdaten der Wichtelgruppe.
- */
-@Composable
-private fun GroupDataCard(
-    group: GiftGroup,
-    onEditGroupClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Gruppenstammdaten",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                OutlinedButton(onClick = onEditGroupClick) {
-                    Text("Gruppe bearbeiten")
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Wichteltag: ${formatDateForInput(group.drawDay)} · Wichtelart: ${group.drawType.displayName}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-/**
- * Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
- */
-@Composable
-private fun ParticipantsHeader(
-    participantCount: Int
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Teilnehmer",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "$participantCount ${if (participantCount == 1) "Teilnehmer" else "Teilnehmer"}",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-/**
- * Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
- */
-@Composable
-private fun EmptyParticipantsHint(
-    onAddParticipantClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "♧",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "Diese Gruppe hat noch keine Teilnehmer.",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen. Doppelte Namen sind erlaubt.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Button(onClick = onAddParticipantClick) {
-                Text("Teilnehmer hinzufügen")
-            }
-        }
-    }
-}
-
-/**
- * Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
- * Zeigt entweder das Teilnehmerfoto (über [PhotoThumbnail]) oder einen Avatar mit den Namensinitialen,
- * sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
- */
-@Composable
-private fun ParticipantCard(
-    participant: Participant,
-    photoFile: File?,
-    onOpenWishlist: () -> Unit,
-    onEditParticipantClick: () -> Unit,
-    onDeleteParticipantClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    var menuExpanded by remember { mutableStateOf(false) }
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Avatar mit Foto oder Initialen
-            if (photoFile != null) {
-                PhotoThumbnail(
-                    file = photoFile,
-                    modifier = Modifier.size(40.dp),
-                    shape = RoundedCornerShape(12.dp)
-                )
-            } else {
-                Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = getInitials(participant.name),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+            items(participants, key = { it.id }) { participant ->
+                ListItemCard(
+                    title = participant.name,
+                    subtitle = "Wunschliste öffnen",
+                    leading = { InitialsAvatar(name = participant.name, photoFile = participantPhotoFiles[participant.id]) },
+                    onClick = { onOpenWishlist(participant.id) },
+                    trailing = {
+                        ItemMenu(
+                            contentDescription = "Aktionen für ${participant.name}",
+                            actions = listOf(
+                                MenuAction("Wunschliste öffnen", Icons.Filled.Redeem, { onOpenWishlist(participant.id) }),
+                                MenuAction("Teilnehmer bearbeiten", Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
+                                MenuAction("Teilnehmer löschen", Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
+                            ),
                         )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            // Klickbarer Bereich für Wunschliste
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = onOpenWishlist)
-            ) {
-                Text(
-                    text = participant.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "Wunschliste öffnen",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    },
                 )
             }
+        }
 
-            // Drei-Punkte-Aktionsmenü (⋮)
-            Box {
-                IconButton(onClick = { menuExpanded = true }) {
-                    Text(
-                        text = "⋮",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                DropdownMenu(
-                    expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Teilnehmer bearbeiten") },
-                        onClick = {
-                            menuExpanded = false
-                            onEditParticipantClick()
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = "Teilnehmer löschen",
-                                color = MaterialTheme.colorScheme.error
-                            )
-                        },
-                        onClick = {
-                            menuExpanded = false
-                            onDeleteParticipantClick()
-                        }
-                    )
-                }
+        item { SectionHeader(title = "Auslosung & Historie") }
+        item {
+            val (statusText, tone) = when {
+                participants.size < 2 -> "Teilnehmer fehlen" to ChipTone.Berry
+                group.drawType == DrawType.NORMAL -> "Vorbereitung möglich" to ChipTone.Success
+                else -> "Regeln offen" to ChipTone.Neutral
             }
+            ListItemCard(
+                title = "Neue Auslosung",
+                subtitle = "Teilnehmer und Wichtelart prüfen, dann losen.",
+                leading = { IconAvatar(icon = Icons.Filled.Redeem) },
+                trailing = { StatusChip(text = statusText, tone = tone, modifier = Modifier.padding(end = Spacing.s)) },
+                onClick = onPrepareDraw,
+            )
+        }
+        item {
+            ListItemCard(
+                title = "Auslosungshistorie",
+                subtitle = "Gespeicherte Durchläufe ansehen",
+                leading = { IconAvatar(icon = Icons.Filled.History) },
+                trailing = { ChevronIcon() },
+                onClick = onOpenHistory,
+            )
+        }
+        item {
+            NoteCard(text = "Alte Ziehungen bleiben, wie sie waren.", modifier = Modifier.padding(top = Spacing.m))
         }
     }
 }
 
-/**
- * Bereich für "Auslosung & Historie" im Gruppen-Detailbereich.
- *
- * @param onPrepareDraw Auslosung vorbereiten.
- * @param onOpenHistory Historie ansehen.
- */
-@Composable
-private fun DrawAndHistorySection(
-    group: GiftGroup,
-    participantCount: Int,
-    onPrepareDraw: () -> Unit,
-    onOpenHistory: () -> Unit,
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = "Auslosung & Historie",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        // Neue Auslosung Karte
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Neue Auslosung",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    val statusText = when {
-                        participantCount < 2 -> "Teilnehmer fehlen"
-                        group.drawType == DrawType.NORMAL -> "Vorbereitung möglich"
-                        else -> "Regeln offen"
-                    }
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    ) {
-                        Text(
-                            text = statusText,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Die Vorbereitung prüft Teilnehmerliste, Wichtelart und Snapshot-Basis. Erst nach Bestätigung wird ein neuer Durchlauf angelegt.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Button(
-                    onClick = onPrepareDraw,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Auslosung durchführen →")
-                }
-            }
-        }
-
-        // Auslosungshistorie Karte
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    modifier = Modifier.size(40.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.tertiaryContainer
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Text(
-                            text = "↺",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = "Auslosungshistorie",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Noch keine gespeicherten Durchläufe",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                OutlinedButton(onClick = onOpenHistory) {
-                    Text("Ansehen")
-                }
-            }
-        }
-
-        // Hinweisfeld
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            )
-        ) {
-            Text(
-                text = "Historische Ergebnisse bleiben unveränderte Snapshots. Teilnehmernamen und Wünsche werden in der Historie nicht aus den aktuellen Datensätzen rekonstruiert.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(12.dp)
-            )
-        }
-    }
-}
-
-/**
- * Extrahiert bis zu 2 Namensinitialen für die Avatar-Darstellung.
- */
-private fun getInitials(name: String): String {
-    val parts = name.trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
-    return when {
-        parts.isEmpty() -> "?"
-        parts.size == 1 -> parts[0].take(1).uppercase()
-        else -> (parts[0].take(1) + parts[1].take(1)).uppercase()
-    }
-}
-
-// -----------------------------------------------------------------------------
+// =============================================================================
 // PREVIEWS
-// -----------------------------------------------------------------------------
+// =============================================================================
 
-/**
- * Preview 1: Inhalt mit 3 Teilnehmern (inkl. Initialen und 3-Punkte-Menü).
- */
-@Preview(showBackground = true)
+private val previewGroup = GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))
+private val previewParticipants = listOf("Mara", "Jonas Weiß", "Leonie").mapIndexed { i, n -> Participant(id = "p$i", groupId = "g1", name = n) }
+
+@Composable
+private fun PreviewScreen(state: GroupDetailUiState) {
+    WichtlyTheme {
+        GroupDetailScreen(
+            state = state,
+            onBack = {}, onEditGroupClick = {}, onOpenWishlist = {}, onAddParticipantClick = {},
+            onEditParticipantClick = {}, onDeleteParticipantClick = {}, onParticipantNameChange = {},
+            onSaveParticipant = {}, onDismissParticipantEditor = {}, onConfirmDelete = {}, onDismissDelete = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {}, onPrepareDraw = {}, onOpenHistory = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1000)
 @Composable
 private fun GroupDetailScreenContentWithParticipantsPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Büro Wichteln 2026",
-        budgetCents = 2500L,
-        drawDay = LocalDate.of(2026, 12, 24),
-        drawType = DrawType.NORMAL
-    )
-
-    val sampleParticipants = listOf(
-        Participant(id = "p1", groupId = "g1", name = "Alex"),
-        Participant(id = "p2", groupId = "g1", name = "Alex Smith"),
-        Participant(id = "p3", groupId = "g1", name = "Maria")
-    )
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                participants = sampleParticipants,
-                participantPhotoFiles = emptyMap()
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
+    PreviewScreen(GroupDetailUiState(isLoading = false, group = previewGroup, participants = previewParticipants))
 }
 
-/**
- * Preview 2: Inhalt mit leerer Teilnehmerliste.
- */
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenContentEmptyParticipantsPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Familie Wichteln",
-        budgetCents = 5000L,
-        drawDay = LocalDate.of(2026, 12, 31),
-        drawType = DrawType.JUNK
-    )
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                participants = emptyList(),
-                participantPhotoFiles = emptyMap()
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
+    PreviewScreen(GroupDetailUiState(isLoading = false, group = previewGroup.copy(drawType = DrawType.JUNK)))
 }
 
-/**
- * Preview 3: Ladezustand.
- */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenLoadingPreview() {
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = true
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
+    PreviewScreen(GroupDetailUiState(isLoading = true))
 }
 
-/**
- * Preview 4: Gruppe nicht gefunden.
- */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenNotFoundPreview() {
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                notFound = true
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
+    PreviewScreen(GroupDetailUiState(isLoading = false, notFound = true))
 }
 
-/**
- * Preview 5: Ladefehler auf Screen-Ebene.
- */
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenErrorPreview() {
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                errorMessage = "Fehler beim Laden der Wichtelgruppe aus der Datenbank."
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
+    PreviewScreen(GroupDetailUiState(isLoading = false, errorMessage = "Fehler beim Laden der Wichtelgruppe aus der Datenbank."))
 }
 
-/**
- * Preview 6: Inhalt mit 12 Teilnehmern.
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupDetailScreenContentManyParticipantsPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Große Firmen-Wichtelgruppe 2026",
-        budgetCents = 2000L,
-        drawDay = LocalDate.of(2026, 12, 18),
-        drawType = DrawType.NORMAL
-    )
-
-    val twelveParticipants = (1..12).map { index ->
-        Participant(
-            id = "p_$index",
-            groupId = "g1",
-            name = "Teilnehmer $index"
-        )
-    }
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                participants = twelveParticipants,
-                participantPhotoFiles = emptyMap()
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
-        )
-    }
-}
-
-/**
- * Preview 7: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
- */
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenWithParticipantEditorPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Büro Wichteln 2026",
-        budgetCents = 2500L,
-        drawDay = LocalDate.of(2026, 12, 24),
-        drawType = DrawType.NORMAL
-    )
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                showParticipantEditor = true,
-                participantNameInput = "Alex",
-                editingParticipantId = null,
-                isSaving = false,
-                participantPhotoFiles = emptyMap()
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
+    PreviewScreen(
+        GroupDetailUiState(
+            isLoading = false, group = previewGroup, participants = previewParticipants,
+            showParticipantEditor = true, participantNameInput = "Maria",
         )
-    }
+    )
 }
 
-/**
- * Preview 8: Screen mit geöffnetem Teilnehmer-Löschdialog.
- */
-@Preview(showBackground = true)
+@Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
-    val sampleGroup = GiftGroup(
-        id = "g1",
-        name = "Büro Wichteln 2026",
-        budgetCents = 2500L,
-        drawDay = LocalDate.of(2026, 12, 24),
-        drawType = DrawType.NORMAL
-    )
-
-    val sampleParticipants = listOf(
-        Participant(id = "p1", groupId = "g1", name = "Alex")
-    )
-
-    WichtlyTheme {
-        GroupDetailScreen(
-            state = GroupDetailUiState(
-                isLoading = false,
-                group = sampleGroup,
-                participants = sampleParticipants,
-                pendingDeleteParticipantId = "p1",
-                isSaving = false,
-                participantPhotoFiles = emptyMap()
-            ),
-            onBack = {},
-            onEditGroupClick = {},
-            onOpenWishlist = {},
-            onAddParticipantClick = {},
-            onEditParticipantClick = {},
-            onDeleteParticipantClick = {},
-            onParticipantNameChange = {},
-            onSaveParticipant = {},
-            onDismissParticipantEditor = {},
-            onConfirmDelete = {},
-            onDismissDelete = {},
-            onPhotoSelectClick = {},
-            onPhotoFlowClose = {},
-            onPhotoCaptured = {},
-            onRemovePhoto = {},
-            onCameraDenied = {},
-            onOpenAppSettings = {},
-            onPrepareDraw = {},
-            onOpenHistory = {}
+    PreviewScreen(
+        GroupDetailUiState(
+            isLoading = false, group = previewGroup, participants = previewParticipants,
+            pendingDeleteParticipantId = "p0",
         )
-    }
+    )
 }

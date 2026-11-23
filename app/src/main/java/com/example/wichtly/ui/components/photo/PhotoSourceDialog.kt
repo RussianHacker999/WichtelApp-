@@ -1,41 +1,39 @@
 package com.example.wichtly.ui.components.photo
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.components.WichtlyDialog
+import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zur Auswahl von Foto-Aktionen (Kamera aufnehmen / Foto entfernen).
+ * Zustandsloser Dialog zur Auswahl der Foto-Aktion (Foto aufnehmen / Foto entfernen).
+ * Für Gruppen- und Teilnehmerfotos identisch; es gibt keine Galerieauswahl.
  *
- * Warum zustandslos?
- * Die Anzeige und Steuerung erfolgt rein über Parameter und Lambda-Callbacks. Es gibt keine Galerieauswahl;
- * ausschließlich die Kameraaufzeichnung wird angeboten.
- *
- * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
- * @param hasPhoto Zeigt die "Foto entfernen"-Aktion an, wenn `hasPhoto == true`.
- * @param onTakePhoto Callback zum Auslösen der Kameraaufnahme.
- * @param onRemovePhoto Callback zum Entfernen des vorhandenen Fotos.
- * @param onDismiss Callback beim Schließen oder Abbrechen des Dialogs.
+ * @param area Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
+ * @param hasPhoto Zeigt "Foto entfernen" an, wenn bereits ein Foto vorhanden ist.
+ * @param onTakePhoto Startet die Kameraaufnahme.
+ * @param onRemovePhoto Entfernt das vorhandene Foto.
+ * @param onDismiss Schließt den Dialog.
  * @param modifier Optionaler Layout-Modifier.
  */
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun PhotoSourceDialog(
     area: PhotoArea,
@@ -45,122 +43,59 @@ fun PhotoSourceDialog(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    AlertDialog(
+    WichtlyDialog(
         onDismissRequest = onDismiss,
-        title = {
+        icon = Icons.Filled.PhotoCamera,
+        title = "Foto hinzufügen",
+        modifier = modifier,
+        content = {
             Text(
-                text = area.dialogTitle,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-            )
-        },
-        text = {
-            Column(
+                text = "Das Foto wird nur auf diesem Gerät gespeichert.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(
-                    text = "Das Foto wird nur auf diesem Gerät gespeichert.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Option: Foto aufnehmen
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable(onClick = onTakePhoto),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier.padding(14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "📷",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                        Column(
-                            modifier = Modifier.padding(start = 12.dp)
-                        ) {
-                            Text(
-                                text = "Foto aufnehmen",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(
-                                text = "Die Kamera wird erst jetzt angefragt.",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-
-                // Option: Foto entfernen (nur sichtbar wenn hasPhoto == true)
-                if (hasPhoto) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable(onClick = onRemovePhoto),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(14.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "✕",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onErrorContainer
-                            )
-                            Column(
-                                modifier = Modifier.padding(start = 12.dp)
-                            ) {
-                                Text(
-                                    text = "Foto entfernen",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = "Ohne Foto fortfahren.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onErrorContainer,
-                                )
-                            }
-                        }
-                    }
-                }
+            )
+            PhotoOption(icon = Icons.Filled.PhotoCamera, label = "Foto aufnehmen", onClick = onTakePhoto)
+            if (hasPhoto) {
+                PhotoOption(icon = Icons.Filled.Delete, label = "Foto entfernen", onClick = onRemovePhoto, destructive = true)
             }
         },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "Abbrechen")
-            }
-        },
-        modifier = modifier
+        // Die Optionen sind selbst die Aktionen; unten bleibt nur "Abbrechen".
+        confirmLabel = null,
+        onConfirm = {},
     )
+}
+
+@Composable
+private fun PhotoOption(icon: ImageVector, label: String, onClick: () -> Unit, destructive: Boolean = false) {
+    val color = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+    Surface(
+        onClick = onClick,
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        shape = MaterialTheme.shapes.medium,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = Spacing.m),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(Spacing.m),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (destructive) color else MaterialTheme.colorScheme.primary,
+            )
+            Text(text = label, style = MaterialTheme.typography.titleSmall, color = color)
+        }
+    }
 }
 
 // -----------------------------------------------------------------------------
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
-/**
- * Preview 1: Gruppenfoto-Auswahldialog ohne vorhandenes Foto.
- */
+/** Preview 1: Auswahldialog ohne vorhandenes Foto. */
 @Preview
 @Composable
 private fun PhotoSourceDialogGroupEmptyPreview() {
@@ -175,9 +110,7 @@ private fun PhotoSourceDialogGroupEmptyPreview() {
     }
 }
 
-/**
- * Preview 2: Teilnehmerfoto-Auswahldialog mit vorhandenem Foto.
- */
+/** Preview 2: Auswahldialog mit vorhandenem Foto. */
 @Preview
 @Composable
 private fun PhotoSourceDialogParticipantWithPhotoPreview() {

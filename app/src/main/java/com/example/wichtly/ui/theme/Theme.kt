@@ -1,57 +1,71 @@
 package com.example.wichtly.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.ui.graphics.Color
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
+/**
+ * The one Wichtly color scheme ("Evergreen Night").
+ * Dynamic color is off on purpose: the festive palette should look the same on every device,
+ * and the app uses this scheme in both light and dark system mode.
+ */
+private val EvergreenColorScheme = darkColorScheme(
+    primary = Gold,
+    onPrimary = OnGold,
+    primaryContainer = GoldContainer,
+    onPrimaryContainer = OnGoldContainer,
+    inversePrimary = GoldDeep,
+    secondary = Cranberry,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondaryContainer = CranberryContainer,
+    onSecondaryContainer = OnCranberryContainer,
+    tertiary = Mint,
+    onTertiary = OnMint,
+    tertiaryContainer = Pine700,
+    onTertiaryContainer = OnMintContainer,
+    background = Pine900,
+    onBackground = Snow,
+    surface = Pine900,
+    onSurface = Snow,
+    surfaceVariant = Pine800,
+    onSurfaceVariant = Frost,
+    surfaceTint = Gold,
+    surfaceDim = Pine950,
+    surfaceBright = Pine700,
+    surfaceContainerLowest = Pine950,
+    surfaceContainerLow = Pine850,
+    surfaceContainer = Pine800,
+    surfaceContainerHigh = Pine750,
+    surfaceContainerHighest = Pine700,
+    inverseSurface = Snow,
+    inverseOnSurface = Pine900,
+    error = ErrorRose,
+    onError = OnErrorRose,
+    errorContainer = ErrorContainer,
+    onErrorContainer = OnErrorContainer,
+    outline = Pine500,
+    outlineVariant = Pine600,
+    scrim = Color.Black,
 )
 
 @Composable
-fun WichtlyTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
-) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+fun WichtlyTheme(content: @Composable () -> Unit) {
+    CompositionLocalProvider(LocalExtendedColors provides EvergreenExtendedColors) {
+        MaterialTheme(
+            colorScheme = EvergreenColorScheme,
+            typography = Typography,
+            shapes = WichtlyShapes,
+            content = content,
+        )
     }
+}
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+/** Access to the Wichtly-specific theme values that Material 3 has no slot for. */
+object WichtlyTheme {
+    val extendedColors: ExtendedColors
+        @Composable @ReadOnlyComposable
+        get() = LocalExtendedColors.current
 }

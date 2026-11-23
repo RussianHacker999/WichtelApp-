@@ -1,42 +1,38 @@
 package com.example.wichtly.ui.components.photo
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.ui.components.FieldLabel
+import com.example.wichtly.ui.components.WichtlyTextButton
+import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * Zustandsloser UI-Baustein zur Darstellung des Foto-Auswahlfeldes in Formularen oder Dialogen.
+ * Zustandsloses Fotofeld für Formulare und Dialoge. Gruppe und Teilnehmer sehen gleich aus:
+ * Label "Foto", runde Vorschau (oder Kamera-Platzhalter) und "Foto hinzufügen" / "Foto ändern".
  *
- * Warum zustandslos?
- * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]), die optionale Datei ([photoFile])
- * und Interaktions-Callbacks ([onSelectClick]) vollständig von der übergeordneten Ebene.
- *
- * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]) für projektspezifische Texte.
+ * @param area Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
  * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist.
- * @param onSelectClick Callback beim Klick auf den "Auswählen"- bzw. "Ändern"-Button.
+ * @param onSelectClick Öffnet den Foto-Ablauf.
  * @param modifier Optionaler Layout-Modifier.
- * @param photoFile Optionale Bilddatei zur Anzeige im [PhotoThumbnail].
+ * @param photoFile Optionale Bilddatei für die Vorschau.
+ * @param enabled Deaktiviert das Feld, z. B. während gespeichert wird.
  */
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun PhotoPickerField(
     area: PhotoArea,
@@ -44,64 +40,23 @@ fun PhotoPickerField(
     onSelectClick: () -> Unit,
     modifier: Modifier = Modifier,
     photoFile: File? = null,
+    enabled: Boolean = true,
 ) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = area.fieldTitle,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant
-            )
-        ) {
-            Row(
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        FieldLabel(text = "Foto")
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+            PhotoThumbnail(
+                file = if (hasPhoto) photoFile else null,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Runder Foto-Thumbnail oder Platzhalter
-                PhotoThumbnail(
-                    file = photoFile,
-                    modifier = Modifier.size(40.dp),
-                )
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                // Titel & Hilfetext
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = if (hasPhoto) "Foto gespeichert" else area.emptyTitle,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = if (hasPhoto) "Tippe auf Ändern, um ein neues Foto aufzunehmen." else area.emptyHint,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Aktionsbutton (Auswählen / Ändern)
-                OutlinedButton(onClick = onSelectClick) {
-                    Text(text = if (hasPhoto) "Ändern" else "Auswählen")
-                }
-            }
+                    .size(56.dp)
+                    .clip(CircleShape)
+                    .clickable(enabled = enabled, role = Role.Button, onClick = onSelectClick),
+            )
+            WichtlyTextButton(
+                text = if (hasPhoto) "Foto ändern" else "Foto hinzufügen",
+                onClick = onSelectClick,
+                enabled = enabled,
+            )
         }
     }
 }
@@ -110,47 +65,29 @@ fun PhotoPickerField(
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
-/**
- * Preview 1: Gruppenfoto-Feld im leeren Zustand.
- */
-@Preview(showBackground = true)
+/** Preview 1: Fotofeld ohne Foto (Gruppe). */
+@Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldGroupEmptyPreview() {
     WichtlyTheme {
-        PhotoPickerField(
-            area = PhotoArea.GROUP,
-            hasPhoto = false,
-            onSelectClick = {}
-        )
+        PhotoPickerField(area = PhotoArea.GROUP, hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }
 
-/**
- * Preview 2: Teilnehmerfoto-Feld im leeren Zustand.
- */
-@Preview(showBackground = true)
+/** Preview 2: Fotofeld ohne Foto (Teilnehmer). */
+@Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldParticipantEmptyPreview() {
     WichtlyTheme {
-        PhotoPickerField(
-            area = PhotoArea.PARTICIPANT,
-            hasPhoto = false,
-            onSelectClick = {}
-        )
+        PhotoPickerField(area = PhotoArea.PARTICIPANT, hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }
 
-/**
- * Preview 3: Teilnehmerfoto-Feld mit hinterlegtem Foto.
- */
-@Preview(showBackground = true)
+/** Preview 3: Fotofeld mit hinterlegtem Foto. */
+@Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoPickerFieldParticipantWithPhotoPreview() {
     WichtlyTheme {
-        PhotoPickerField(
-            area = PhotoArea.PARTICIPANT,
-            hasPhoto = true,
-            onSelectClick = {}
-        )
+        PhotoPickerField(area = PhotoArea.PARTICIPANT, hasPhoto = true, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }

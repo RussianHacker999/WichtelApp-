@@ -20,7 +20,12 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.border
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -111,21 +116,23 @@ fun CameraCaptureScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Abbrechen-Button oben links (mit statusBarsPadding)
+        // Schließen-Button und Titel oben links (mit statusBarsPadding)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(16.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp)
                 .align(Alignment.TopStart),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            TextButton(onClick = onCancel) {
-                Text(
-                    text = "Abbrechen",
-                    color = Color.White
-                )
+            IconButton(onClick = onCancel) {
+                Icon(imageVector = Icons.Filled.Close, contentDescription = "Abbrechen", tint = Color.White)
             }
+            Text(
+                text = "Foto aufnehmen",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White,
+            )
         }
 
         // Runder Auslöser-Button unten zentriert (mit navigationBarsPadding)
@@ -159,20 +166,18 @@ fun CameraCaptureScreen(
                     }
                 )
             },
+            // Auslöser: weißer Kreis mit goldenem Ring
             modifier = Modifier
-                .size(72.dp)
+                .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 16.dp)
-                .align(Alignment.BottomCenter),
+                .padding(bottom = 32.dp)
+                .size(80.dp)
+                .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                .padding(8.dp),
             shape = CircleShape,
-            containerColor = Color.White
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(Color.White, CircleShape),
-            )
-        }
+            containerColor = Color.White,
+            contentColor = Color.White,
+        ) {}
     }
 
     // Beim Verlassen der Screen die Kamera unbinden

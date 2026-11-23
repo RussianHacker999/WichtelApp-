@@ -38,11 +38,7 @@ fun GroupsRoute(
         onPrepareDrawClick = { groupId ->
             onPrepareDraw(groupId)
         },
-        onPhotoClick = viewModel::openPhotoFlow,
-        onPhotoFlowClose = viewModel::closePhotoFlow,
-        onPhotoCaptured = viewModel::onPhotoCaptured,
-        onRemovePhoto = viewModel::removePhoto,
-        onCameraDenied = viewModel::onCameraDenied,
+        // Das Gruppenfoto wird seit dem Redesign nur noch im Gruppenformular gesetzt.
         modifier = modifier,
     )
 }
