@@ -17,7 +17,6 @@ import com.example.wichtly.ui.draws.DrawHistoryRoute
 import com.example.wichtly.ui.groups.preparation.PreparationRoute
 
 
-
 object Routes {
     const val ARG_GROUP_ID = "groupId"
     const val ARG_DRAW_ID = "drawId"
@@ -30,7 +29,6 @@ object Routes {
     const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"
     const val DRAW_HISTORY = "draw-history/{$ARG_GROUP_ID}"
     const val PREPARATION = "preparation/{$ARG_GROUP_ID}"
-
 
 
     fun groupEdit(groupId: String) = "group-form/$groupId"
@@ -101,8 +99,8 @@ fun AppNavHost(
                         )
                     )
                 },
-                onPrepareDraw = { id -> navController.navigate(Routes.preparation(id))}, //Auslosungs-Vorbereitung navigieren
-                onOpenHistory = { id -> navController.navigate(Routes.drawHistory(id)) }, //zur Historie der Gruppe navigieren
+                onPrepareDraw = { id -> navController.navigate(Routes.preparation(id)) }, // Auslosungs-Vorbereitung navigieren
+                onOpenHistory = { id -> navController.navigate(Routes.drawHistory(id)) }, // zur Historie der Gruppe navigieren
             )
         }
 

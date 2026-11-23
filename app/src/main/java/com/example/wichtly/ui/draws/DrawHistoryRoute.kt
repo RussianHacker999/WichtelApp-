@@ -20,14 +20,14 @@ fun DrawHistoryRoute(
     val context = LocalContext.current
     val container = (context.applicationContext as WichtlyApplication).container
     val drawRepository = container.drawRepository
-    val giftGroupRepository = container.giftGroupRepository   // neu
+    val giftGroupRepository = container.giftGroupRepository
 
     // Factory mit groupId und beiden Repositories bauen
     val factory = remember(groupId, drawRepository, giftGroupRepository) {
         DrawHistoryViewModelFactory(
             groupId = groupId,
             drawRepository = drawRepository,
-            giftGroupRepository = giftGroupRepository,          // neu
+            giftGroupRepository = giftGroupRepository,
         )
     }
 

@@ -11,8 +11,6 @@ import com.example.wichtly.WichtlyApplication
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 
-
-
 @Composable
 fun DrawDetailRoute(
     drawId: String,
