@@ -5,6 +5,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -151,7 +153,7 @@ private fun GiftTagReveal(
                         if (isOpen) {
                             OpenedTag(assignment = assignment, contentColor = onTag, onDismiss = onDismiss)
                         } else {
-                            ClosedTag(giverName = assignment.giverName, contentColor = onTag)
+                            ClosedTag(giverName = assignment.giverName, contentColor = onTag, onDismiss = onDismiss)
                         }
                     }
                 }
@@ -162,8 +164,14 @@ private fun GiftTagReveal(
     }
 }
 
+/**
+ * Geschlossener Anhänger ("Nur für deine Augen").
+ *
+ * @param onDismiss Schließt den Anhänger, ohne das Ergebnis aufzudecken: für den Fall,
+ *   dass gerade nicht die richtige Person vor dem Bildschirm sitzt.
+ */
 @Composable
-private fun ClosedTag(giverName: String, contentColor: Color) {
+private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         // Der geschlossene Anhänger ersetzt die frühere Sicherheitsabfrage ("Nur für deine Augen").
         TagLabel(text = "Nur für deine Augen", color = contentColor)
@@ -180,6 +188,17 @@ private fun ClosedTag(giverName: String, contentColor: Color) {
             color = contentColor.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
+        // Falsche Person: schließen, ohne aufzudecken. Der Button fängt den Klick ab,
+        // daher öffnet sich der Anhänger dabei nicht.
+        OutlinedButton(
+            onClick = onDismiss,
+            shape = CircleShape,
+            border = BorderStroke(1.5.dp, contentColor.copy(alpha = 0.6f)),
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
+            modifier = Modifier.padding(top = Spacing.s),
+        ) {
+            Text(text = "Vertippt", style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
 
