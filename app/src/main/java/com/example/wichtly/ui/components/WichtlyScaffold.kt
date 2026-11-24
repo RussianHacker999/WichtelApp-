@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -29,6 +28,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -130,16 +130,30 @@ fun BrandTopBar(
 }
 
 /**
- * Fixed action bar at the bottom of a screen. Put a [SecondaryButton] (weight 1f) and a
- * [PrimaryButton] (weight 1.4f) inside, or a single [PrimaryButton] with weight 1f.
+ * Fixed action bar at the bottom of a screen. Put a [SecondaryButton] and a [PrimaryButton] (both weight 1f, so
+ * neither label gets clipped) inside, or a single [PrimaryButton] with weight 1f.
+ *
+ * @param hint Optional short line above the buttons, e.g. why the main button is disabled.
  */
 @Composable
 fun BottomActionBar(
     modifier: Modifier = Modifier,
+    hint: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     Column(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        if (hint != null) {
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = Spacing.l, end = Spacing.l, top = Spacing.s),
+            )
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,9 +173,8 @@ private fun WichtlyScaffoldPreview() {
         WichtlyScaffold(
             topBar = { WichtlyTopBar(title = "Gruppendetails", onBack = {}) },
             bottomBar = {
-                BottomActionBar {
-                    SecondaryButton(text = "Teilnehmer", onClick = {}, icon = Icons.Filled.Add, modifier = Modifier.weight(1f))
-                    PrimaryButton(text = "Losen", onClick = {}, icon = Icons.Filled.Redeem, modifier = Modifier.weight(1.4f))
+                BottomActionBar(hint = "Mindestens 3 Teilnehmer zum Losen") {
+                    PrimaryButton(text = "Losen", onClick = {}, icon = Icons.Filled.Redeem, enabled = false, modifier = Modifier.weight(1f))
                 }
             },
         ) { innerPadding ->

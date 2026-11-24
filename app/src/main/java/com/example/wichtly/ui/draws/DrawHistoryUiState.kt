@@ -1,19 +1,19 @@
 package com.example.wichtly.ui.draws
 
 import com.example.wichtly.domain.model.DrawType
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * UI-Modell für einen einzelnen Karteneintrag in der Auslosungshistorie.
  *
  * @property id Eindeutige ID des Auslosungsdurchlaufs.
- * @property drawnAt Datum der Auslosung.
+ * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignmentCount Anzahl der Personen/Zuordnungen in diesem Durchlauf.
  */
 data class DrawHistoryItemUiModel(
     val id: String,
-    val drawnAt: LocalDate,
+    val drawnAt: LocalDateTime,
     val drawType: DrawType,
     val assignmentCount: Int,
 )

@@ -1,4 +1,5 @@
 package com.example.wichtly.data.repository
+import com.example.wichtly.domain.model.DrawRules
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GroupDrawOverview
 import com.example.wichtly.data.local.dao.DrawDao
@@ -63,7 +64,7 @@ class DrawRepositoryImpl(
             ?: return DrawResult.ValidationError(errors = listOf(DrawValidationError.GroupNotFound))
 
         val currentParticipants = participantDao.getParticipantsByGroupId(groupId).first()
-        if (currentParticipants.size < 2) {
+        if (!DrawRules.canDraw(currentParticipants.size)) {
             return DrawResult.ValidationError(errors = listOf(DrawValidationError.NotEnoughParticipants))
         }
 

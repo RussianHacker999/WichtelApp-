@@ -198,11 +198,12 @@ class DrawDetailViewModelTest {
         assertEquals(false, state.notFound)
     }
 
+
     /**
-     * Test 6: Giver-Klick öffnet den Bestätigungsdialog (confirmGiverId).
+     * Test 6: Giver-Klick öffnet direkt den Geschenkanhänger (revealedGiverId), ohne Zwischendialog.
      */
     @Test
-    fun giverClick_opensConfirmDialog() = runTest {
+    fun giverClick_opensGiftTagDirectly() = runTest {
         val draw = createSampleDraw()
         val repository = FakeDrawRepository().apply {
             setDraws(listOf(draw))
@@ -216,9 +217,7 @@ class DrawDetailViewModelTest {
         viewModel.onGiverClick("p1")
         testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertEquals("p1", state.confirmGiverId)
-        assertNull(state.revealedGiverId)
+        assertEquals("p1", viewModel.uiState.value.revealedGiverId)
     }
 
     /**
@@ -239,63 +238,11 @@ class DrawDetailViewModelTest {
         viewModel.onGiverClick("unknown-id")
         testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertNull(state.revealedGiverId)
+        assertNull(viewModel.uiState.value.revealedGiverId)
     }
 
     /**
-     * Test 8: Bestätigen der Abfrage (confirmReveal) schließt Confirm und öffnet Result (revealedGiverId).
-     */
-    @Test
-    fun confirmReveal_movesFromConfirmToRevealed() = runTest {
-        val draw = createSampleDraw()
-        val repository = FakeDrawRepository().apply {
-            setDraws(listOf(draw))
-        }
-
-        val viewModel = DrawDetailViewModel(drawId, repository)
-
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onGiverClick("p1")
-        testScheduler.advanceUntilIdle()
-        viewModel.onConfirmReveal()
-        testScheduler.advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertEquals("p1", state.revealedGiverId)
-    }
-
-    /**
-     * Test 9: dismissConfirm schließt den Bestätigungsdialog.
-     */
-    @Test
-    fun dismissConfirm_clearsConfirm() = runTest {
-        val draw = createSampleDraw()
-        val repository = FakeDrawRepository().apply {
-            setDraws(listOf(draw))
-        }
-
-        val viewModel = DrawDetailViewModel(drawId, repository)
-
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onGiverClick("p1")
-        testScheduler.advanceUntilIdle()
-        viewModel.onDismissConfirm()
-        testScheduler.advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertNull(state.revealedGiverId)
-    }
-
-    /**
-     * Test 10: dismissResult schließt das Ergebnis-Popup.
+     * Test 8: dismissResult schließt den Geschenkanhänger.
      */
     @Test
     fun dismissResult_clearsRevealed() = runTest {
@@ -311,21 +258,17 @@ class DrawDetailViewModelTest {
 
         viewModel.onGiverClick("p1")
         testScheduler.advanceUntilIdle()
-        viewModel.onConfirmReveal()
-        testScheduler.advanceUntilIdle()
         viewModel.onDismissResult()
         testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertNull(state.revealedGiverId)
+        assertNull(viewModel.uiState.value.revealedGiverId)
     }
 
     /**
-     * Test 11: Giver-Klick während Ergebnis offen ist setzt revealed zurück und öffnet neues Confirm.
+     * Test 9: Giver-Klick während ein Anhänger offen ist, wechselt zum neuen Schenker.
      */
     @Test
-    fun giverClickWhileRevealed_resetsRevealed() = runTest {
+    fun giverClickWhileRevealed_switchesGiver() = runTest {
         val draw = createSampleDraw()
         val repository = FakeDrawRepository().apply {
             setDraws(listOf(draw))
@@ -338,22 +281,17 @@ class DrawDetailViewModelTest {
 
         viewModel.onGiverClick("p1")
         testScheduler.advanceUntilIdle()
-        viewModel.onConfirmReveal()
-        testScheduler.advanceUntilIdle()
-
         viewModel.onGiverClick("p2")
         testScheduler.advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertNull(state.revealedGiverId)
-        assertEquals("p2", state.confirmGiverId)
+        assertEquals("p2", viewModel.uiState.value.revealedGiverId)
     }
 
     /**
-     * Test 12: appStopped schließt beide Dialoge.
+     * Test 10: appStopped schließt den Geschenkanhänger.
      */
     @Test
-    fun appStopped_closesBothDialogs() = runTest {
+    fun appStopped_closesGiftTag() = runTest {
         val draw = createSampleDraw()
         val repository = FakeDrawRepository().apply {
             setDraws(listOf(draw))
@@ -369,27 +307,14 @@ class DrawDetailViewModelTest {
         viewModel.onAppStopped()
         testScheduler.advanceUntilIdle()
 
-        var state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertNull(state.revealedGiverId)
-
-        viewModel.onGiverClick("p1")
-        testScheduler.advanceUntilIdle()
-        viewModel.onConfirmReveal()
-        testScheduler.advanceUntilIdle()
-        viewModel.onAppStopped()
-        testScheduler.advanceUntilIdle()
-
-        state = viewModel.uiState.value
-        assertNull(state.confirmGiverId)
-        assertNull(state.revealedGiverId)
+        assertNull(viewModel.uiState.value.revealedGiverId)
     }
 
     /**
-     * Test 13: Entfernen des Durchlaufs während Dialog offen ist schließt Dialoge und setzt notFound.
+     * Test 11: Entfernen des Durchlaufs bei offenem Anhänger schließt ihn und setzt notFound.
      */
     @Test
-    fun drawRemovedWhileDialogOpen_closesDialogs() = runTest {
+    fun drawRemovedWhileGiftTagOpen_closesGiftTag() = runTest {
         val draw = createSampleDraw()
         val repository = FakeDrawRepository().apply {
             setDraws(listOf(draw))
@@ -408,45 +333,6 @@ class DrawDetailViewModelTest {
 
         val state = viewModel.uiState.value
         assertTrue(state.notFound)
-        assertNull(state.confirmGiverId)
         assertNull(state.revealedGiverId)
-    }
-
-    /**
-     * Test 14: confirmGiverId und revealedGiverId sind niemals gleichzeitig gesetzt.
-     */
-    @Test
-    fun confirmDialogAndRevealedNeverSetTogether() = runTest {
-        val draw = createSampleDraw()
-        val repository = FakeDrawRepository().apply {
-            setDraws(listOf(draw))
-        }
-
-        val viewModel = DrawDetailViewModel(drawId, repository)
-
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        fun assertNotBoth() {
-            val s = viewModel.uiState.value
-            assertTrue((s.confirmGiverId == null) || (s.revealedGiverId == null))
-        }
-
-        assertNotBoth()
-        viewModel.onGiverClick("p1")
-        testScheduler.advanceUntilIdle()
-        assertNotBoth()
-
-        viewModel.onConfirmReveal()
-        testScheduler.advanceUntilIdle()
-        assertNotBoth()
-
-        viewModel.onGiverClick("p2")
-        testScheduler.advanceUntilIdle()
-        assertNotBoth()
-
-        viewModel.onDismissConfirm()
-        testScheduler.advanceUntilIdle()
-        assertNotBoth()
     }
 }

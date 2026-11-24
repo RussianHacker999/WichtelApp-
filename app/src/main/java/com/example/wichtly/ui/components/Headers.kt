@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.components
 
+import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,13 +49,14 @@ fun PageHeader(
         modifier = modifier
             .fillMaxWidth()
             .headerSparkles(seed = title.hashCode())
-            .padding(top = 6.dp, bottom = Spacing.m),
+            .padding(top = 10.dp, bottom = Spacing.m),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         if (eyebrow != null) {
             Text(
                 text = eyebrow.uppercase(),
-                style = MaterialTheme.typography.labelSmall,
+                // gemeinsamer Eyebrow-Stil (fett, 13sp), siehe EyebrowStyle in Type.kt
+                style = EyebrowStyle,
                 color = MaterialTheme.colorScheme.primary,
             )
         } else {
@@ -64,7 +66,8 @@ fun PageHeader(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier.padding(end = 40.dp),
+            // the right strip stays free for the sparkles (see headerSparkles)
+            modifier = Modifier.padding(end = SparkleStripWidth),
         )
         if (subtitle != null) {
             Text(
@@ -111,12 +114,16 @@ fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
 /**
  * Section title with the item count as a gold badge right next to it.
  * The top padding creates the 24dp gap between sections.
+ *
+ * @param action Optional action on the right edge (e.g. [SectionActionButton] "Hinzufügen"),
+ *   so adding something sits right next to the list it changes.
  */
 @Composable
 fun SectionHeader(
     title: String,
     modifier: Modifier = Modifier,
     count: Int? = null,
+    action: (@Composable () -> Unit)? = null,
 ) {
     Row(
         modifier = modifier
@@ -132,6 +139,10 @@ fun SectionHeader(
         )
         if (count != null) {
             CountBadge(count = count)
+        }
+        if (action != null) {
+            Spacer(modifier = Modifier.weight(1f))
+            action()
         }
     }
 }
@@ -173,7 +184,7 @@ private fun HeadersPreview() {
                 },
             )
             PageHeader(title = "Alle Gruppen", subtitle = "Gruppe antippen, dann wird gelost.")
-            SectionHeader(title = "Teilnehmer", count = 6)
+            SectionHeader(title = "Teilnehmer", count = 6, action = { SectionActionButton(text = "Hinzufügen", onClick = {}) })
         }
     }
 }

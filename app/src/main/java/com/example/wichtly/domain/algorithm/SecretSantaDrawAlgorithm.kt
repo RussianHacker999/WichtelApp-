@@ -1,5 +1,6 @@
 package com.example.wichtly.domain.algorithm
 
+import com.example.wichtly.domain.model.DrawRules
 import kotlin.random.Random
 
 /**
@@ -15,10 +16,10 @@ class SecretSantaDrawAlgorithm(
      * Generates a random derangement (giverId -> receiverId) for the given list of participant IDs.
      * Uses rejection sampling up to [maxAttempts] to generate ANY valid derangement.
      * Falls back to a deterministic ring-shift derangement if [maxAttempts] is exceeded.
-     * Returns an empty map if [participantIds] has fewer than 2 elements.
+     * Returns an empty map if [participantIds] has fewer than [DrawRules.MIN_PARTICIPANTS] elements.
      */
     fun generateDerangement(participantIds: List<String>): Map<String, String> {
-        if (participantIds.size < 2) return emptyMap()
+        if (!DrawRules.canDraw(participantIds.size)) return emptyMap()
 
         var attempts = 0
         while (attempts < maxAttempts) {

@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.detail
 
+import com.example.wichtly.domain.model.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Event
@@ -24,7 +24,6 @@ import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
 import com.example.wichtly.ui.components.BottomActionBar
 import com.example.wichtly.ui.components.ChevronIcon
-import com.example.wichtly.ui.components.ChipTone
 import com.example.wichtly.ui.components.IconAvatar
 import com.example.wichtly.ui.components.InitialsAvatar
 import com.example.wichtly.ui.components.ItemMenu
@@ -37,10 +36,9 @@ import com.example.wichtly.ui.components.MetaRow
 import com.example.wichtly.ui.components.NoteCard
 import com.example.wichtly.ui.components.PageHeader
 import com.example.wichtly.ui.components.PrimaryButton
-import com.example.wichtly.ui.components.SecondaryButton
+import com.example.wichtly.ui.components.SectionActionButton
 import com.example.wichtly.ui.components.SectionHeader
 import com.example.wichtly.ui.components.StatTile
-import com.example.wichtly.ui.components.StatusChip
 import com.example.wichtly.ui.components.WichtlyScaffold
 import com.example.wichtly.ui.components.WichtlyTopBar
 import com.example.wichtly.ui.components.screenContentPadding
@@ -50,6 +48,7 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
+
 
 /**
  * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
@@ -118,19 +117,16 @@ fun GroupDetailScreen(
         },
         bottomBar = {
             if (ready) {
-                BottomActionBar {
-                    // 6. Button: Teilnehmer hinzufügen (fest in der Aktionsleiste unten, neben "Losen")
-                    SecondaryButton(
-                        text = "Teilnehmer",
-                        onClick = onAddParticipantClick,
-                        icon = Icons.Filled.Add,
-                        modifier = Modifier.weight(1f),
-                    )
+                // "Losen" ist die EINE Hauptaktion des Screens (wie in der Gruppenliste).
+                // Teilnehmer hinzufügen sitzt direkt am Teilnehmer-Abschnitt.
+                val canDraw = DrawRules.canDraw(state.participants.size)
+                BottomActionBar(hint = if (canDraw) null else "Mindestens ${DrawRules.MIN_PARTICIPANTS} Teilnehmer zum Losen") {
                     PrimaryButton(
                         text = "Losen",
                         onClick = onPrepareDraw,
                         icon = Icons.Filled.Redeem,
-                        modifier = Modifier.weight(1.4f),
+                        enabled = canDraw,
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -167,9 +163,9 @@ fun GroupDetailScreen(
                 participantPhotoFiles = state.participantPhotoFiles,
                 innerPadding = innerPadding,
                 onOpenWishlist = onOpenWishlist,
+                onAddParticipantClick = onAddParticipantClick,
                 onEditParticipantClick = onEditParticipantClick,
                 onDeleteParticipantClick = onDeleteParticipantClick,
-                onPrepareDraw = onPrepareDraw,
                 onOpenHistory = onOpenHistory,
             )
         }
@@ -213,9 +209,10 @@ fun GroupDetailScreen(
 
 /**
  * UI-Darstellung für den Inhalt der Gruppen-Detailansicht: Seitenkopf, Kennzahlen, Teilnehmerliste
- * und der Bereich "Auslosung & Historie".
+ * (mit "Hinzufügen" im Abschnittskopf) und der Bereich "Historie".
+ * Gelost wird ausschließlich über den Button "Losen" in der Aktionsleiste.
  *
- * @param onPrepareDraw Auslosungs-Vorbereitung öffnen.
+ * @param onAddParticipantClick Teilnehmer-Dialog zum Hinzufügen öffnen.
  * @param onOpenHistory Historie öffnen.
  */
 @Composable
@@ -225,9 +222,9 @@ private fun GroupDetailContent(
     participantPhotoFiles: Map<String, File>,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onOpenWishlist: (participantId: String) -> Unit,
+    onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
     onDeleteParticipantClick: (participantId: String) -> Unit,
-    onPrepareDraw: () -> Unit,
     onOpenHistory: () -> Unit,
 ) {
     LazyColumn(
@@ -269,14 +266,20 @@ private fun GroupDetailContent(
 
         // 4. Kopfbereich des Teilnehmer-Abschnitts
         // Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
-        item { SectionHeader(title = "Teilnehmer", count = participants.size) }
+        item {
+            SectionHeader(
+                title = "Teilnehmer",
+                count = participants.size,
+                action = { SectionActionButton(text = "Hinzufügen", onClick = onAddParticipantClick) },
+            )
+        }
         // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
         if (participants.isEmpty()) {
             item {
                 // Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
                 MessageState(
                     title = "Noch niemand dabei",
-                    text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen. Doppelte Namen sind erlaubt.",
+                    text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen.",
                     icon = Icons.Filled.Groups,
                     fillMaxSize = false,
                     modifier = Modifier.fillMaxWidth(),
@@ -286,7 +289,8 @@ private fun GroupDetailContent(
             items(participants, key = { it.id }) { participant ->
                 // Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
                 // Zeigt entweder das Teilnehmerfoto (über [PhotoThumbnail]) oder einen Avatar mit den Namensinitialen,
-                // sowie das Drei-Punkte-Aktionsmenü (⋮) für Wunschliste, Bearbeiten & Löschen.
+                // sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
+                // Die Wunschliste öffnet sich ausschließlich per Tippen auf die Karte (nur EIN Weg).
                 ListItemCard(
                     title = participant.name,
                     subtitle = "Wunschliste öffnen",
@@ -300,7 +304,6 @@ private fun GroupDetailContent(
                         ItemMenu(
                             contentDescription = "Aktionen für ${participant.name}",
                             actions = listOf(
-                                MenuAction("Wunschliste öffnen", Icons.Filled.Redeem, { onOpenWishlist(participant.id) }),
                                 MenuAction("Teilnehmer bearbeiten", Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
                                 MenuAction("Teilnehmer löschen", Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
                             ),
@@ -310,30 +313,12 @@ private fun GroupDetailContent(
             }
         }
 
-        // 7. Auslosung & Historie Abschnitt
-        // Bereich für "Auslosung & Historie" im Gruppen-Detailbereich:
-        // eine Karte öffnet die Vorbereitung (onPrepareDraw), eine die Historie (onOpenHistory).
-        item { SectionHeader(title = "Auslosung & Historie") }
-        item {
-            val (statusText, tone) = when {
-                participants.size < 2 -> "Teilnehmer fehlen" to ChipTone.Berry
-                group.drawType == DrawType.NORMAL -> "Vorbereitung möglich" to ChipTone.Success
-                else -> "Regeln offen" to ChipTone.Neutral
-            }
-            // Neue Auslosung Karte
-            ListItemCard(
-                title = "Neue Auslosung",
-                subtitle = "Teilnehmer und Wichtelart prüfen, dann losen.",
-                leading = { IconAvatar(icon = Icons.Filled.Redeem) },
-                trailing = { StatusChip(text = statusText, tone = tone, modifier = Modifier.padding(end = Spacing.s)) },
-                onClick = onPrepareDraw,
-            )
-        }
+        // 7. Historie-Abschnitt (gelost wird nur über "Losen" in der Aktionsleiste)
+        item { SectionHeader(title = "Historie") }
         item {
             // Auslosungshistorie Karte
             ListItemCard(
                 title = "Auslosungshistorie",
-                subtitle = "Gespeicherte Durchläufe ansehen",
                 leading = { IconAvatar(icon = Icons.Filled.History) },
                 trailing = { ChevronIcon() },
                 onClick = onOpenHistory,

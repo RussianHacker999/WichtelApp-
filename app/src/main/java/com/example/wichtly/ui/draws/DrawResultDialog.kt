@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.draws
 
+import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -164,15 +165,21 @@ private fun GiftTagReveal(
 @Composable
 private fun ClosedTag(giverName: String, contentColor: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TagLabel(text = "Für $giverName", color = contentColor)
+        // Der geschlossene Anhänger ersetzt die frühere Sicherheitsabfrage ("Nur für deine Augen").
+        TagLabel(text = "Nur für deine Augen", color = contentColor)
         Icon(imageVector = Icons.Filled.Redeem, contentDescription = null, tint = contentColor, modifier = Modifier.size(54.dp))
         Text(
-            text = "Dein Wichtelkind",
+            text = "$giverName, bist du das?",
             style = MaterialTheme.typography.headlineSmall.copy(shadow = TagTextShadow),
             color = contentColor,
             textAlign = TextAlign.Center,
         )
-        Text(text = "Tippen zum Öffnen", style = MaterialTheme.typography.bodySmall, color = contentColor.copy(alpha = 0.8f))
+        Text(
+            text = "Bildschirm abschirmen und tippen zum Öffnen.",
+            style = MaterialTheme.typography.bodySmall,
+            color = contentColor.copy(alpha = 0.8f),
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -231,8 +238,9 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
 private fun TagLabel(text: String, color: Color) {
     Text(
         text = text.uppercase(),
-        style = MaterialTheme.typography.labelSmall,
-        color = color.copy(alpha = 0.75f),
+        // Eyebrow auf dem Anhänger: fett, damit sie deutlich lesbar ist
+        style = EyebrowStyle,
+        color = color.copy(alpha = 0.85f),
         textAlign = TextAlign.Center,
     )
 }

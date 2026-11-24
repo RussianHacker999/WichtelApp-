@@ -46,21 +46,23 @@ class SecretSantaDrawAlgorithmTest {
     }
 
     @Test
-    fun wenigerAlsZweiTeilnehmerLiefertLeeresErgebnis() {
+    fun wenigerAlsDreiTeilnehmerLiefertLeeresErgebnis() {
+        // Mindestzahl kommt aus DrawRules.MIN_PARTICIPANTS (= 3)
         val algorithm = SecretSantaDrawAlgorithm()
 
         assertTrue(algorithm.generateDerangement(emptyList()).isEmpty())
         assertTrue(algorithm.generateDerangement(listOf("anna")).isEmpty())
+        assertTrue(algorithm.generateDerangement(listOf("anna", "ben")).isEmpty())
     }
 
     @Test
-    fun zweiTeilnehmerBeschenkenSichGegenseitig() {
+    fun dreiTeilnehmerErgebenGueltigeAuslosung() {
         val algorithm = SecretSantaDrawAlgorithm()
+        val teilnehmer = listOf("anna", "ben", "cem")
 
-        val ergebnis = algorithm.generateDerangement(listOf("anna", "ben"))
+        val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        assertEquals("ben", ergebnis["anna"])
-        assertEquals("anna", ergebnis["ben"])
+        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
     }
 
     @Test

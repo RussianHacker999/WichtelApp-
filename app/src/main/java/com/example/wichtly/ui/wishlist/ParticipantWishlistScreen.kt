@@ -24,7 +24,6 @@ import com.example.wichtly.ui.components.ListItemCard
 import com.example.wichtly.ui.components.LoadingState
 import com.example.wichtly.ui.components.MenuAction
 import com.example.wichtly.ui.components.MessageState
-import com.example.wichtly.ui.components.NoteCard
 import com.example.wichtly.ui.components.NumberAvatar
 import com.example.wichtly.ui.components.PageHeader
 import com.example.wichtly.ui.components.PrimaryButton
@@ -229,13 +228,6 @@ private fun WishlistContent(
                     },
                 )
             }
-        }
-        item {
-            // (7) Hinweisfeld am Seitenende
-            NoteCard(
-                text = "Nur einfache Texte in dieser Version. Die Reihenfolge deiner Einträge bleibt erhalten.",
-                modifier = Modifier.padding(top = Spacing.m),
-            )
         }
     }
 }

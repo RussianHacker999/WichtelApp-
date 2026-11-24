@@ -112,7 +112,7 @@ fun GroupFormScreen(
                         },
                         onClick = onSaveClick,
                         loading = state.isSaving,
-                        modifier = Modifier.weight(1.4f),
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -181,7 +181,7 @@ private fun GroupFormContent(
         item {
             // Seitenkopf mit Eyebrow und Titel (PageHeader)
             PageHeader(
-                eyebrow = if (state.isEditMode) "Gruppenstammdaten" else "Neue Wichtelgruppe",
+                eyebrow = if (state.isEditMode) "Basisdaten" else "Neue Wichtelgruppe",
                 title = if (state.isEditMode) "Gruppe aktualisieren." else "Losgewichtelt!",
             )
         }
@@ -206,7 +206,7 @@ private fun GroupFormContent(
                 label = "Gruppenname *",
                 value = state.name,
                 onValueChange = onNameChange,
-                placeholder = "Familie Wichteln",
+                placeholder = "Familien-Wichteln",
                 errorText = state.nameError,
                 enabled = enabled,
             )

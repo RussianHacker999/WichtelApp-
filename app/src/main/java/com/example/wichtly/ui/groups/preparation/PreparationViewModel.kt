@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.preparation
 
+import com.example.wichtly.domain.model.DrawRules
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -67,7 +68,7 @@ class PreparationViewModel(
         val notFound = (group == null && errorMessage == null)
         // berechet, ob die Losung gestartet werden darf
         // (es die Gruppe gefunden werden und min 3 Teilnehmer haben
-        val canStartDraw = (group != null && participants.size >= 3)
+        val canStartDraw = (group != null && DrawRules.canDraw(participants.size))
 
         // die eben ermittelten Daten werden in einen PreparationUiState zusammengefasst
         // so muss die Ui nur den UiState und nicht die einzelen Objekte beobachten

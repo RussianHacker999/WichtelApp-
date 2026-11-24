@@ -47,6 +47,18 @@ private fun serif(size: Int, lineHeight: Int, letterSpacing: Float = 0f) = TextS
     shadow = TitleShadow,
 )
 
+/**
+ * Eyebrow (kleine Überzeile über Titeln, z. B. "WAS WÜNSCHST DU DIR?"): EIN Stil für alle Screens.
+ * Bewusst größer (13sp) und fett, damit sie auf dem dunklen Grund deutlich sichtbar ist.
+ */
+val EyebrowStyle = TextStyle(
+    fontFamily = InstrumentSans,
+    fontWeight = FontWeight.Bold,
+    fontSize = 13.sp,
+    lineHeight = 18.sp,
+    letterSpacing = 1.6.sp,
+)
+
 // Die komplette Material-Typografie der App: Young Serif für Titel, Instrument Sans für alle anderen Texte.
 val Typography = Typography(
     displayLarge = serif(52, 58, -0.5f),

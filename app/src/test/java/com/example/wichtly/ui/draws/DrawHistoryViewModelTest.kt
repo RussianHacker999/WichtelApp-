@@ -86,8 +86,8 @@ class DrawHistoryViewModelTest {
         val olderInstant = Instant.now().minusSeconds(3600)
         val newerInstant = Instant.now()
 
-        val olderDate = olderInstant.atZone(ZoneId.systemDefault()).toLocalDate()
-        val newerDate = newerInstant.atZone(ZoneId.systemDefault()).toLocalDate()
+        val olderDate = olderInstant.atZone(ZoneId.systemDefault()).toLocalDateTime()
+        val newerDate = newerInstant.atZone(ZoneId.systemDefault()).toLocalDateTime()
 
         val groupRepository = FakeGiftGroupRepository().apply {
             setGroups(listOf(createSampleGroup()))

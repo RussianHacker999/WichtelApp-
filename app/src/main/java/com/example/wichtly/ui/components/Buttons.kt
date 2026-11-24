@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -18,7 +21,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Text
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -27,13 +30,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 private val ButtonHeight = 48.dp
 private val CompactButtonHeight = 40.dp
 
 private fun buttonPadding(compact: Boolean) =
-    PaddingValues(horizontal = if (compact) 16.dp else 20.dp)
+    PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
 
 @Composable
 private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, loadingColor: Color) {
@@ -46,9 +50,19 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
         Spacer(modifier = Modifier.width(8.dp))
     } else if (icon != null) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(modifier = Modifier.width(6.dp))
+        Spacer(modifier = Modifier.width(4.dp))
     }
-    Text(text = text, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    // Die Beschriftung wird nie abgeschnitten: autoSize verkleinert sie schrittweise bis 11sp,
+    // falls der Button schmal ist (zwei gleich breite Buttons, große Systemschrift).
+    val labelStyle = MaterialTheme.typography.labelLarge
+    BasicText(
+        text = text,
+        style = labelStyle.copy(color = LocalContentColor.current),
+        maxLines = 1,
+        softWrap = false,
+        overflow = TextOverflow.Ellipsis,
+        autoSize = TextAutoSize.StepBased(minFontSize = 11.sp, maxFontSize = labelStyle.fontSize, stepSize = 0.5.sp),
+    )
 }
 
 /** Gold pill button for the main action of a screen or dialog. */
@@ -141,6 +155,33 @@ fun WichtlyTextButton(
     }
 }
 
+/**
+ * Small gold outlined pill for an action that belongs to a section (e.g. "+ Hinzufügen" next to
+ * the participant list). Keeps the bottom bar free for the one main action of the screen.
+ */
+@Composable
+fun SectionActionButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: ImageVector? = Icons.Filled.Add,
+    enabled: Boolean = true,
+) {
+    OutlinedButton(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.height(SectionActionHeight),
+        shape = CircleShape,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
+        contentPadding = PaddingValues(start = 10.dp, end = 12.dp),
+    ) {
+        ButtonContent(text, icon, loading = false, loadingColor = MaterialTheme.colorScheme.primary)
+    }
+}
+
+private val SectionActionHeight = 34.dp
+
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun ButtonsPreview() {
@@ -151,6 +192,7 @@ private fun ButtonsPreview() {
             SecondaryButton(text = "Abbrechen", onClick = {})
             DangerButton(text = "Löschen", onClick = {}, compact = true)
             WichtlyTextButton(text = "Einstellungen öffnen", onClick = {})
+            SectionActionButton(text = "Hinzufügen", onClick = {})
         }
     }
 }

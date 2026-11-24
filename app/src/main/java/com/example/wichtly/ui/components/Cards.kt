@@ -90,6 +90,8 @@ fun ListItemText(title: String, subtitle: String?, titleMaxLines: Int = 1, modif
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }

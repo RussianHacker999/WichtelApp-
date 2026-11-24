@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.preparation
 
+import com.example.wichtly.domain.model.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -71,7 +72,7 @@ fun PreparationScreen(
                         icon = Icons.Filled.Redeem,
                         enabled = state.canStartDraw,
                         loading = state.isStarting,
-                        modifier = Modifier.weight(1.4f),
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -128,7 +129,7 @@ fun PreparationScreen(
                     } else {
                         StatusLine(
                             icon = Icons.Outlined.ErrorOutline,
-                            text = "Mindestens drei Teilnehmer werden benötigt.",
+                            text = "Mindestens ${DrawRules.MIN_PARTICIPANTS} Teilnehmer werden benötigt.",
                             color = MaterialTheme.colorScheme.error,
                         )
                     }

@@ -34,14 +34,12 @@ import java.time.LocalDate
  * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
  * - GEHEIMHALTUNG: Der Name der beschenkten Person darf in der Liste an keiner Stelle auftauchen,
  *   weder im sichtbaren Text noch in Accessibility-/Semantics-Eigenschaften!
- * - Jede Karte zeigt NUR den Namen der schenkenden Person, den Platzhalter "schenkt ••••" und "Spicken".
- * - Dialoge liegen als Overlay über dem Screen-Inhalt außerhalb der Zustandsverzweigung.
+ * - Jede Karte zeigt NUR den Namen der schenkenden Person, den Platzhalter "schenkt ???" und "Spicken".
+ * - Der Geschenkanhänger liegt als Overlay über dem Screen-Inhalt außerhalb der Zustandsverzweigung.
  *
  * @param state Der aktuelle UI-Zustand des Auslosungs-Details.
  * @param onBack Callback für die Zurück-Navigation.
- * @param onGiverClick Callback zum Auswählen einer schenkenden Person (erhält giverId).
- * @param onConfirmReveal Callback nach Bestätigung der Sicherheitsabfrage ("Anzeigen").
- * @param onDismissConfirm Callback zum Schließen/Abbrechen der Sicherheitsabfrage.
+ * @param onGiverClick Callback zum Auswählen einer schenkenden Person (erhält giverId), öffnet den Geschenkanhänger.
  * @param onDismissResult Callback zum Schließen des Geschenkanhängers mit dem Ergebnis.
  * @param modifier Äußerer Modifier für den Screen.
  */
@@ -50,8 +48,6 @@ fun DrawDetailScreen(
     state: DrawDetailUiState,
     onBack: () -> Unit,
     onGiverClick: (giverId: String) -> Unit,
-    onConfirmReveal: () -> Unit,
-    onDismissConfirm: () -> Unit,
     onDismissResult: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -102,11 +98,11 @@ fun DrawDetailScreen(
                 }
                 // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
                 item { SectionHeader(title = "Alle Zuordnungen", count = draw.assignments.size) }
-                // (3) Karten pro Zuordnung (NUR Schenker-Name & "schenkt ••••", NIEMALS Beschenkten-Name!)
+                // (3) Karten pro Zuordnung (NUR Schenker-Name & "schenkt ???", NIEMALS Beschenkten-Name!)
                 itemsIndexed(draw.assignments, key = { _, a -> a.giverId }) { index, assignment ->
                     ListItemCard(
                         title = assignment.giverName,
-                        subtitle = "schenkt ••••",
+                        subtitle = "schenkt ???",
                         leading = { NumberAvatar(number = index + 1) },
                         trailing = {
                             WichtlyTextButton(text = "Spicken", onClick = { onGiverClick(assignment.giverId) })
@@ -120,17 +116,7 @@ fun DrawDetailScreen(
 
     // Dialog-Overlays außerhalb der Zustandsverzweigung
 
-    // 1. Sicherheitsabfrage ("Personen-Check") vor der Enthüllung
-    val pendingConfirmAssignment = state.confirmGiverId?.let { id -> draw?.assignments?.find { it.giverId == id } }
-    if (pendingConfirmAssignment != null) {
-        DrawRevealConfirmDialog(
-            giverName = pendingConfirmAssignment.giverName,
-            onConfirm = onConfirmReveal,
-            onDismiss = onDismissConfirm,
-        )
-    }
-
-    // 2. Ergebnis als Geschenkanhänger ("…, du beschenkst")
+    // Ergebnis als Geschenkanhänger: startet geschlossen ("Nur für deine Augen"), nach Antippen "…, du beschenkst"
     val pendingRevealedAssignment = state.revealedGiverId?.let { id -> draw?.assignments?.find { it.giverId == id } }
     if (pendingRevealedAssignment != null) {
         DrawResultDialog(
@@ -172,7 +158,7 @@ private fun createSampleDraw(): DrawDetailUiModel {
 @Composable
 private fun PreviewScreen(state: DrawDetailUiState) {
     WichtlyTheme {
-        DrawDetailScreen(state = state, onBack = {}, onGiverClick = {}, onConfirmReveal = {}, onDismissConfirm = {}, onDismissResult = {})
+        DrawDetailScreen(state = state, onBack = {}, onGiverClick = {}, onDismissResult = {})
     }
 }
 
@@ -186,16 +172,7 @@ private fun DrawDetailScreenWithAssignmentsPreview() {
 }
 
 /**
- * Preview 2: Auslosungs-Detailansicht mit geöffneter Sicherheitsabfrage ("Personen-Check").
- */
-@Preview(showBackground = true, heightDp = 860)
-@Composable
-private fun DrawDetailScreenWithConfirmDialogPreview() {
-    PreviewScreen(DrawDetailUiState(isLoading = false, draw = createSampleDraw(), confirmGiverId = "p_1"))
-}
-
-/**
- * Preview 3: Auslosungs-Detailansicht mit geöffnetem Geschenkanhänger (Ergebnis).
+ * Preview 2: Auslosungs-Detailansicht mit geschlossenem Geschenkanhänger ("Nur für deine Augen").
  */
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -204,7 +181,7 @@ private fun DrawDetailScreenWithResultDialogPreview() {
 }
 
 /**
- * Preview 4: Ladezustand der Auslosungsdetails.
+ * Preview 3: Ladezustand der Auslosungsdetails.
  */
 @Preview(showBackground = true)
 @Composable
@@ -213,7 +190,7 @@ private fun DrawDetailScreenLoadingPreview() {
 }
 
 /**
- * Preview 5: Fehlerzustand beim Laden der Auslosungsdetails.
+ * Preview 4: Fehlerzustand beim Laden der Auslosungsdetails.
  */
 @Preview(showBackground = true)
 @Composable
@@ -222,7 +199,7 @@ private fun DrawDetailScreenErrorPreview() {
 }
 
 /**
- * Preview 6: Auslosung nicht gefunden.
+ * Preview 5: Auslosung nicht gefunden.
  */
 @Preview(showBackground = true)
 @Composable

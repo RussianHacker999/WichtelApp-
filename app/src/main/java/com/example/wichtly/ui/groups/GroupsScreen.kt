@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Groups
@@ -48,7 +47,7 @@ import com.example.wichtly.ui.components.MenuAction
 import com.example.wichtly.ui.components.MessageState
 import com.example.wichtly.ui.components.PageHeader
 import com.example.wichtly.ui.components.PrimaryButton
-import com.example.wichtly.ui.components.SecondaryButton
+import com.example.wichtly.ui.components.SectionActionButton
 import com.example.wichtly.ui.components.SectionHeader
 import com.example.wichtly.ui.components.StatusChip
 import com.example.wichtly.ui.components.WichtlyScaffold
@@ -85,21 +84,20 @@ fun GroupsScreen(
         modifier = modifier,
         topBar = { BrandTopBar() },
         bottomBar = {
-            BottomActionBar {
-                SecondaryButton(
-                    text = "Gruppe",
-                    onClick = onAddGroupClick,
-                    icon = Icons.Filled.Add,
-                    modifier = Modifier.weight(1f),
-                )
-                PrimaryButton(
-                    text = "Losen",
-                    // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
-                    enabled = uiState.selectedGroupId != null,
-                    onClick = { uiState.selectedGroupId?.let(onPrepareDrawClick) },
-                    icon = Icons.Filled.Redeem,
-                    modifier = Modifier.weight(1.4f),
-                )
+            // "Losen" ist die EINE Hauptaktion; "Neue Gruppe" sitzt am Abschnitt "Gruppen".
+            // Ohne Gruppen (oder beim Laden/Fehler) gibt es nichts zu losen, also keine Aktionsleiste.
+            if (!uiState.isLoading && uiState.errorMessage == null && uiState.groups.isNotEmpty()) {
+                val hasSelection = uiState.selectedGroupId != null
+                BottomActionBar(hint = if (hasSelection) null else "Tippe eine Gruppe an, um zu losen") {
+                    PrimaryButton(
+                        text = "Losen",
+                        // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
+                        enabled = hasSelection,
+                        onClick = { uiState.selectedGroupId?.let(onPrepareDrawClick) },
+                        icon = Icons.Filled.Redeem,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         },
     ) { innerPadding ->
@@ -113,7 +111,7 @@ fun GroupsScreen(
             item {
                 // jedes Element muss in ein item (bei einer LazyColumn)
                 // ein Element: item vs. mehrere Elemente aus einer Liste: items
-                PageHeader(title = "Alle Gruppen", subtitle = "Gruppe antippen, dann wird gelost.")
+                PageHeader(title = "Alle Gruppen", subtitle = "Deine Wichtelrunden auf einen Blick.")
             }
             if (uiState.isLoading) {
                 item {
@@ -140,12 +138,20 @@ fun GroupsScreen(
                         title = "Noch ganz schön leer hier",
                         text = "Lege deine erste Gruppe an, dann kann der Spaß beginnen.",
                         icon = Icons.Filled.Redeem,
+                        actionLabel = "Erste Gruppe anlegen",
+                        onAction = onAddGroupClick,
                         fillMaxSize = false,
                         modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
                     )
                 }
             } else {
-                item { SectionHeader(title = "Gruppen", count = uiState.groups.size) }
+                item {
+                    SectionHeader(
+                        title = "Gruppen",
+                        count = uiState.groups.size,
+                        action = { SectionActionButton(text = "Neue Gruppe", onClick = onAddGroupClick) },
+                    )
+                }
                 items(uiState.groups, key = { it.id }) { group ->
                     // fuer jede Gruppe in uiState.groups wird eine HeroGroupCard erstellt
                     HeroGroupCard(

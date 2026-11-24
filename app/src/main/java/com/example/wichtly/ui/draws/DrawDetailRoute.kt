@@ -40,8 +40,6 @@ fun DrawDetailRoute(
         state = state,
         onBack = onBack,
         onGiverClick = viewModel::onGiverClick,
-        onConfirmReveal = viewModel::onConfirmReveal,
-        onDismissConfirm = viewModel::onDismissConfirm,
         onDismissResult = viewModel::onDismissResult,
         modifier = modifier,
     )

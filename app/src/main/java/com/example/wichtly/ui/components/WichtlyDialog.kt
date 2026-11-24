@@ -121,9 +121,9 @@ private fun WichtlyDialogPreview() {
         WichtlyDialog(
             onDismissRequest = {},
             icon = Icons.Filled.Visibility,
-            title = "Nur für deine Augen",
-            text = "Mara, bist du das? Dann Bildschirm abschirmen und aufdecken.",
-            confirmLabel = "Anzeigen",
+            title = "Kamera erlauben",
+            text = "Wichtly braucht Zugriff auf die Kamera, um ein Foto aufzunehmen.",
+            confirmLabel = "Erlauben",
             onConfirm = {},
         )
     }

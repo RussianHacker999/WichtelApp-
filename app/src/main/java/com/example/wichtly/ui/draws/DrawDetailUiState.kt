@@ -7,26 +7,23 @@ package com.example.wichtly.ui.draws
  * - `isLoading == true`: Der Auslosungs-Snapshot wird geladen.
  * - `notFound == true`: Der angeforderte Auslosungsdurchlauf existiert nicht oder wurde gelöscht.
  * - `errorMessage`: Enthält eine Fehlermeldung auf Screen-Ebene für Ladefehler.
- * - `confirmGiverId`: Gibt an, dass die Sicherheitsabfrage ("Bist du Person X?") für diesen Schenker geöffnet ist.
- * - `revealedGiverId`: Gibt an, dass das Ergebnis-Popup ("Du beschenkst Person Y") für diesen Schenker geöffnet ist.
+ * - `revealedGiverId`: Gibt an, dass der Geschenkanhänger für diesen Schenker geöffnet ist.
  *
- * WICHTIG ZUM ZUSTANDSFLUSS:
- * `confirmGiverId` und `revealedGiverId` dürfen NIEMALS gleichzeitig gesetzt sein!
- * Zuerst öffnet sich die Sicherheitsabfrage (`confirmGiverId`), nach Bestätigung schließt diese und
- * es öffnet sich das Ergebnis-Popup (`revealedGiverId`).
+ * ZUSTANDSFLUSS:
+ * Ein Tippen auf einen Schenker setzt `revealedGiverId` direkt. Der Anhänger startet geschlossen
+ * ("Nur für deine Augen … bist du das?") und übernimmt damit die frühere Sicherheitsabfrage;
+ * erst nach erneutem Antippen zeigt er den Beschenkten.
  *
  * @property isLoading Zeigt an, ob die Auslosungsdaten geladen werden.
  * @property draw Der geladene Auslosungsdurchlauf mit allen Zuordnungen (null, falls geladen wird oder fehlt).
  * @property notFound Zeigt an, dass die Auslosung nicht gefunden wurde.
  * @property errorMessage Fehlermeldung auf Screen-Ebene für Ladefehler.
- * @property confirmGiverId ID des Schenkers, für den die Sicherheitsabfrage geöffnet ist (null = keine Abfrage offen).
- * @property revealedGiverId ID des Schenkers, für den das Ergebnis-Popup geöffnet ist (null = kein Ergebnis offen).
+ * @property revealedGiverId ID des Schenkers, für den der Geschenkanhänger geöffnet ist (null = kein Anhänger offen).
  */
 data class DrawDetailUiState(
     val isLoading: Boolean = true,
     val draw: DrawDetailUiModel? = null,
     val notFound: Boolean = false,
     val errorMessage: String? = null,
-    val confirmGiverId: String? = null,
     val revealedGiverId: String? = null,
 )

@@ -20,7 +20,6 @@ import java.time.ZoneId
  * Lokaler interner Zustand für Dialoge und Ladefehler der Auslosungs-Detailansicht.
  */
 private data class DrawDetailLocalState(
-    val confirmGiverId: String? = null,
     val revealedGiverId: String? = null,
     val loadError: String? = null,
 )
@@ -32,7 +31,7 @@ private data class DrawDetailLocalState(
  * - Der State wird reaktiv über [combine] aus dem Auslosungs-Flow des [DrawRepository]
  *   und dem lokalen UI-Zustand erzeugt.
  * - [SharingStarted.WhileSubscribed(5_000)] hält den Flow bei Konfigurationsänderungen (z. B. Rotation) 5 Sekunden aktiv.
- * - Die Dialoge (Sicherheitsabfrage & Ergebnis-Popup) überstehen Bildschirmsortierungen,
+ * - Der Geschenkanhänger (Ergebnis-Popup) übersteht Bildschirmdrehungen,
  *   da ihr Zustand im ViewModel verwaltet wird.
  *
  * @param drawId Die ID des gespeicherten Auslosungsdurchlaufs.
@@ -60,12 +59,9 @@ class DrawDetailViewModel(
 
         // Prüfen, ob die IDs aus dem Dialog-Zustand in der aktuellen Zuordnungsliste existieren
         val currentAssignments = uiDraw?.assignments ?: emptyList()
-        val isConfirmGiverPresent = (localState.confirmGiverId != null) &&
-                currentAssignments.any { it.giverId == localState.confirmGiverId }
         val isRevealedGiverPresent = (localState.revealedGiverId != null) &&
                 currentAssignments.any { it.giverId == localState.revealedGiverId }
 
-        val validConfirmGiverId = if (isConfirmGiverPresent) localState.confirmGiverId else null
         val validRevealedGiverId = if (isRevealedGiverPresent) localState.revealedGiverId else null
 
         DrawDetailUiState(
@@ -73,7 +69,6 @@ class DrawDetailViewModel(
             draw = uiDraw,
             notFound = isNotFound,
             errorMessage = localState.loadError,
-            confirmGiverId = validConfirmGiverId,
             revealedGiverId = validRevealedGiverId,
         )
     }.stateIn(
@@ -87,49 +82,13 @@ class DrawDetailViewModel(
     // =========================================================================
 
     /**
-     * Setzt die ID für die Sicherheitsabfrage ("Personen-Check"), wenn die ID in den Zuordnungen existiert.
+     * Öffnet den Geschenkanhänger für den gewählten Schenker, wenn die ID in den Zuordnungen existiert.
+     * Der Anhänger startet geschlossen und übernimmt damit die frühere Sicherheitsabfrage.
      */
     fun onGiverClick(giverId: String) {
         val currentAssignments = uiState.value.draw?.assignments ?: emptyList()
         if (currentAssignments.any { it.giverId == giverId }) {
-            _localState.update {
-                it.copy(
-                    confirmGiverId = giverId,
-                    revealedGiverId = null
-                )
-            }
-        }
-    }
-
-    /**
-     * Bestätigt die Sicherheitsabfrage und öffnet das Ergebnis-Popup.
-     */
-    fun onConfirmReveal() {
-        val currentConfirmId = _localState.value.confirmGiverId ?: return
-        val currentAssignments = uiState.value.draw?.assignments ?: emptyList()
-        if (currentAssignments.any { it.giverId == currentConfirmId }) {
-            _localState.update {
-                it.copy(
-                    confirmGiverId = null,
-                    revealedGiverId = currentConfirmId
-                )
-            }
-        } else {
-            _localState.update {
-                it.copy(
-                    confirmGiverId = null,
-                    revealedGiverId = null
-                )
-            }
-        }
-    }
-
-    /**
-     * Schließt die Sicherheitsabfrage.
-     */
-    fun onDismissConfirm() {
-        _localState.update {
-            it.copy(confirmGiverId = null)
+            _localState.update { it.copy(revealedGiverId = giverId) }
         }
     }
 
@@ -146,12 +105,7 @@ class DrawDetailViewModel(
      * Öffentliche Funktion zum Schließen aller Dialoge bei App-Stop (ON_STOP).
      */
     fun onAppStopped() {
-        _localState.update {
-            it.copy(
-                confirmGiverId = null,
-                revealedGiverId = null
-            )
-        }
+        _localState.update { it.copy(revealedGiverId = null) }
     }
 
     // =========================================================================

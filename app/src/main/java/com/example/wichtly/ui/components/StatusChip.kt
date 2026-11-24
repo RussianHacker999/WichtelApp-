@@ -96,9 +96,9 @@ private fun StatusChipPreview() {
     WichtlyTheme {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             StatusChip(text = "Gespeichert")
-            StatusChip(text = "Vorbereitung möglich", tone = ChipTone.Success)
+            StatusChip(text = "Bereit", tone = ChipTone.Success)
             StatusChip(text = "Teilnehmer fehlen", tone = ChipTone.Berry)
-            StatusChip(text = "Regeln offen", tone = ChipTone.Neutral)
+            StatusChip(text = "Offen", tone = ChipTone.Neutral)
         }
     }
 }

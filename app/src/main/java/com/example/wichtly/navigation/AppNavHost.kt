@@ -15,12 +15,14 @@ import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
 import com.example.wichtly.ui.draws.DrawDetailRoute
 import com.example.wichtly.ui.draws.DrawHistoryRoute
 import com.example.wichtly.ui.groups.preparation.PreparationRoute
+import com.example.wichtly.ui.start.StartRoute
 
 
 object Routes {
     const val ARG_GROUP_ID = "groupId"
     const val ARG_DRAW_ID = "drawId"
     const val ARG_PARTICIPANT_ID = "participantId"
+    const val START = "start"
     const val GROUPS = "groups"
     const val GROUP_CREATE = "group-form"
     const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}"
@@ -47,9 +49,17 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.GROUPS,
+        startDestination = Routes.START,
         modifier = modifier,
     ) {
+        // 0) Startseite (großer Schriftzug, führt zur Gruppenliste oder zum Formular)
+        composable(Routes.START) {
+            StartRoute(
+                onOpenGroups = { navController.navigate(Routes.GROUPS) { launchSingleTop = true } },
+                onCreateGroup = { navController.navigate(Routes.GROUP_CREATE) },
+            )
+        }
+
         // 1) Gruppenliste
         composable(Routes.GROUPS) {
             GroupsRoute(
@@ -154,7 +164,16 @@ fun AppNavHost(
             PreparationRoute(
                 groupId = groupId,
                 onBack = { navController.popBackStack() },
-                onDrawStarted = { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
+                onDrawStarted = { drawId ->
+                    // Nach dem Losen darf "Zurück" nicht mehr in die Vorbereitung führen, sondern ins Gruppendetail.
+                    // Vorbereitung vom Stack nehmen; liegt das Gruppendetail schon darunter, wird es wiederverwendet
+                    // (launchSingleTop), sonst (Start über die Gruppenliste) neu darunter gelegt.
+                    navController.navigate(Routes.groupDetail(groupId)) {
+                        popUpTo(Routes.PREPARATION) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    navController.navigate(Routes.drawDetail(drawId))
+                },
             )
         }
     }

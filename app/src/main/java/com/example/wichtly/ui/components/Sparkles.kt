@@ -63,8 +63,13 @@ private fun sparklePath(center: Offset, radius: Float): Path {
     }
 }
 
+/** Width of the strip on the right of a header that is kept free for the sparkles. */
+val SparkleStripWidth: Dp = 64.dp
+
 /**
- * Scatters 1–3 sparkles over the upper right part of the element, like in the mockup.
+ * Scatters 1–3 sparkles in the upper right strip ([SparkleStripWidth]) of the element, like in the mockup.
+ * Every sparkle stays fully inside the element, so the top bar can never cover it and it never
+ * runs into the title (the title keeps the strip free with its end padding).
  * The layout comes from [seed], so the same title always gets the same sparkles,
  * but two different titles never look alike.
  */
@@ -73,14 +78,18 @@ fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = O
         drawContent()
         val r = Random(seed)
         fun between(a: Float, b: Float) = a + (b - a) * r.nextFloat()
+        val stripStart = (size.width - SparkleStripWidth.toPx()).coerceAtLeast(0f)
         val count = 1 + r.nextInt(3)
         repeat(count) { index ->
             val big = index == 0
             val sizeDp = if (big) between(14f, 22f) else between(6f, 11f)
-            val x = size.width * if (big) between(0.60f, 0.90f) else between(0.42f, 0.96f)
-            val y = (if (big) between(-8f, 10f) else between(-10f, 16f)).dp.toPx()
+            val radius = sizeDp.dp.toPx() / 2f
+            // x and y are clamped so the whole sparkle lies inside the element
+            val x = (stripStart + (size.width - stripStart) * between(0.15f, 0.85f))
+                .coerceIn(radius, size.width - radius)
+            val y = (if (big) between(2f, 14f) else between(0f, 30f)).dp.toPx() + radius
             drawSparkle(
-                center = Offset(x, y + sizeDp.dp.toPx() / 2f),
+                center = Offset(x, y.coerceAtMost(size.height - radius)),
                 radius = sizeDp.dp.toPx() / 2f,
                 color = if (r.nextInt(3) == 0) highlight else color,
                 alpha = between(0.55f, 1f),
@@ -91,7 +100,10 @@ fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = O
         if (r.nextFloat() < 0.35f) {
             val sizeDp = between(6f, 9f)
             drawSparkle(
-                center = Offset(size.width * between(0.84f, 0.96f), size.height - between(6f, 16f).dp.toPx()),
+                center = Offset(
+                    (size.width * between(0.84f, 0.96f)).coerceAtMost(size.width - sizeDp.dp.toPx() / 2f),
+                    size.height - between(6f, 16f).dp.toPx(),
+                ),
                 radius = sizeDp.dp.toPx() / 2f,
                 color = color,
                 alpha = between(0.55f, 1f),

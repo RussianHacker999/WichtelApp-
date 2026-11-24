@@ -22,14 +22,16 @@ import com.example.wichtly.ui.components.MessageState
 import com.example.wichtly.ui.components.NoteCard
 import com.example.wichtly.ui.components.PageHeader
 import com.example.wichtly.ui.components.SectionHeader
-import com.example.wichtly.ui.components.StatusChip
 import com.example.wichtly.ui.components.WichtlyScaffold
 import com.example.wichtly.ui.components.WichtlyTopBar
 import com.example.wichtly.ui.components.screenContentPadding
-import com.example.wichtly.ui.groups.form.formatDateForInput
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+/** Datum und Uhrzeit einer Ziehung, z. B. "01.12.2026, 18:42 Uhr". */
+private val historyDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm 'Uhr'")
 
 /**
  * Zustandsloser Composable-Screen für die Auslosungshistorie einer Wichtelgruppe.
@@ -42,7 +44,7 @@ import java.time.LocalDate
  *   - Top-Leiste mit Zurück-Pfeil und Titel "Auslosungshistorie".
  *   - Seitenkopf mit Eyebrow "Alle Durchläufe", Titel "Schon mal gelost" und Untertitel.
  *   - Genau eine [LazyColumn] für das gemeinsame Scrollen aller Karten und Hinweise.
- *   - Karten für jeden Durchlauf mit Auslosungsdatum, Teilnehmerzahl, Wichtelart, Chip "Gespeichert"
+ *   - Karten für jeden Durchlauf mit Datum und Uhrzeit der Auslosung
  *     und Pfeil; ein Klick auf die Karte öffnet den Durchlauf.
  *   - Leerer Zustand ("Hier ist noch nichts ausgelost.") als Hinweis (MessageState) in der Liste.
  *   - Hinweisfeld bezüglich der Unveränderlichkeit historischer Snapshots.
@@ -118,14 +120,11 @@ fun DrawHistoryScreen(
                     }
                 } else {
                     items(state.draws, key = { it.id }) { draw ->
+                        // Nur Datum und Uhrzeit: so lassen sich mehrere Ziehungen am selben Tag unterscheiden.
                         ListItemCard(
-                            title = "Auslosung vom ${formatDateForInput(draw.drawnAt)}",
-                            subtitle = "${draw.assignmentCount} Teilnehmer · ${draw.drawType.displayName}",
+                            title = draw.drawnAt.format(historyDateTimeFormatter),
                             leading = { IconAvatar(icon = Icons.Filled.Redeem) },
-                            trailing = {
-                                StatusChip(text = "Gespeichert")
-                                ChevronIcon()
-                            },
+                            trailing = { ChevronIcon() },
                             onClick = { onOpenDraw(draw.id) },
                         )
                     }
@@ -155,9 +154,9 @@ fun DrawHistoryScreen(
 @Composable
 private fun DrawHistoryScreenWithThreeDrawsPreview() {
     val draws = listOf(
-        DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDate.of(2026, 12, 1), drawType = DrawType.NORMAL, assignmentCount = 6),
-        DrawHistoryItemUiModel(id = "d2", drawnAt = LocalDate.of(2026, 11, 28), drawType = DrawType.NORMAL, assignmentCount = 5),
-        DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDate.of(2025, 12, 3), drawType = DrawType.JUNK, assignmentCount = 8),
+        DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42), drawType = DrawType.NORMAL, assignmentCount = 6),
+        DrawHistoryItemUiModel(id = "d2", drawnAt = LocalDateTime.of(2026, 11, 28, 20, 5), drawType = DrawType.NORMAL, assignmentCount = 5),
+        DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30), drawType = DrawType.JUNK, assignmentCount = 8),
     )
     WichtlyTheme {
         DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onOpenDraw = {})
@@ -170,7 +169,7 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 @Preview(showBackground = true, heightDp = 700)
 @Composable
 private fun DrawHistoryScreenWithSingleDrawPreview() {
-    val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDate.of(2026, 12, 1), drawType = DrawType.NORMAL, assignmentCount = 6))
+    val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42), drawType = DrawType.NORMAL, assignmentCount = 6))
     WichtlyTheme {
         DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onOpenDraw = {})
     }
