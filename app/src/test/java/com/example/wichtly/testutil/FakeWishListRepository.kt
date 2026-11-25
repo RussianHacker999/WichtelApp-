@@ -2,19 +2,16 @@ package com.example.wichtly.testutil
 
 import com.example.wichtly.domain.model.WishListItem
 import com.example.wichtly.domain.repository.WishListRepository
-import com.example.wichtly.domain.validation.WishListItemResult
-import com.example.wichtly.domain.validation.WishListValidationError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import java.util.UUID
 
 /**
  * Ein In-Memory-Fake für [WishListRepository] zu Testzwecken.
  *
- * Unterstützt Test-Schalter wie [nextResult] für erzwungene Ergebnisse, [shouldThrow] für
- * simulierte Exceptions, [failFlows] für fehlerhafte Lese-Flows sowie Zähler für Schreibzugriffe
+ * Reine Persistenz wie das echte Repository (geprüft wird im SaveWishListItemUseCase).
+ * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lese-Flows sowie Zähler für Schreibzugriffe
  * und Hilfsmethoden zum direkten Befüllen von Wunschlisten-Einträgen.
  */
 class FakeWishListRepository : WishListRepository {
@@ -22,11 +19,10 @@ class FakeWishListRepository : WishListRepository {
     private val itemsFlow = MutableStateFlow<List<WishListItem>>(emptyList())
 
     // Test-Schalter und Zähler
-    var nextResult: WishListItemResult? = null
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
-    var createCalls: Int = 0
+    var insertCalls: Int = 0
         private set
     var updateCalls: Int = 0
         private set
@@ -54,44 +50,25 @@ class FakeWishListRepository : WishListRepository {
         return itemsFlow.map { list -> list.find { it.id == id } }
     }
 
-    override suspend fun createWishListItem(item: WishListItem): WishListItemResult {
-        createCalls++
+    override suspend fun insertWishListItem(item: WishListItem) {
+        insertCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Erstellen des Wunsches")
         }
-        nextResult?.let {
-            nextResult = null
-            return it
-        }
-
-        // ID generieren, falls leer
-        val idToUse = if (item.id.isBlank()) UUID.randomUUID().toString() else item.id
-        val created = item.copy(id = idToUse)
-
-        itemsFlow.value = itemsFlow.value + created
-        return WishListItemResult.Success(created)
+        itemsFlow.value = itemsFlow.value + item
     }
 
-    override suspend fun updateWishListItem(item: WishListItem): WishListItemResult {
+    override suspend fun updateWishListItem(item: WishListItem): Boolean {
         updateCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Aktualisieren des Wunsches")
         }
-        nextResult?.let {
-            nextResult = null
-            return it
-        }
-
         val currentList = itemsFlow.value
         val index = currentList.indexOfFirst { it.id == item.id }
-        if (index < 0) {
-            return WishListItemResult.ValidationError(listOf(WishListValidationError.ItemNotFound))
-        }
+        if (index < 0) return false
 
-        val updatedList = currentList.toMutableList()
-        updatedList[index] = item
-        itemsFlow.value = updatedList
-        return WishListItemResult.Success(item)
+        itemsFlow.value = currentList.toMutableList().also { it[index] = item }
+        return true
     }
 
     override suspend fun deleteWishListItem(id: String) {

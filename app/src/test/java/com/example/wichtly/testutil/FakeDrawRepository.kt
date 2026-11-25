@@ -2,22 +2,20 @@ package com.example.wichtly.testutil
 
 import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.domain.model.DrawSummary
-import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GroupDrawOverview
 import com.example.wichtly.domain.model.ParticipantPreview
 import com.example.wichtly.domain.repository.DrawRepository
-import com.example.wichtly.domain.validation.DrawResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import java.time.Instant
 
 /**
  * Ein In-Memory-Fake für [DrawRepository] zu Testzwecken.
  *
- * Unterstützt Test-Schalter wie [nextDrawResult] für erzwungene Ergebnisse, [shouldThrow] für
- * simulierte Exceptions, [failFlows] für fehlerhafte Lese-Flows sowie Zähler für Ausführungen
+ * Reine Persistenz wie das echte Repository (gelost wird im PerformDrawUseCase).
+ * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für
+ * fehlerhafte Lese-Flows sowie Zähler für Speichervorgänge
  * und Hilfsmethoden zum direkten Befüllen/Entfernen von Testdaten.
  */
 class FakeDrawRepository : DrawRepository {
@@ -25,11 +23,10 @@ class FakeDrawRepository : DrawRepository {
     private val drawsFlow = MutableStateFlow<List<DrawDetail>>(emptyList())
 
     // Test-Schalter und Zähler
-    var nextDrawResult: DrawResult? = null
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
-    var performDrawCalls: Int = 0
+    var saveDrawCalls: Int = 0
         private set
 
     /**
@@ -103,23 +100,11 @@ class FakeDrawRepository : DrawRepository {
         }
     }
 
-    override suspend fun performDraw(groupId: String): DrawResult {
-        performDrawCalls++
+    override suspend fun saveDraw(draw: DrawDetail) {
+        saveDrawCalls++
         if (shouldThrow) {
-            throw IllegalStateException("Simulierter Fehler bei der Auslosung")
+            throw IllegalStateException("Simulierter Fehler beim Speichern der Auslosung")
         }
-        nextDrawResult?.let {
-            nextDrawResult = null
-            return it
-        }
-
-        val newDraw = DrawDetail(
-            groupId = groupId,
-            drawnAt = Instant.now(),
-            drawType = DrawType.NORMAL,
-            assignments = emptyList()
-        )
-        drawsFlow.value += newDraw
-        return DrawResult.Success(newDraw)
+        drawsFlow.value += draw
     }
 }

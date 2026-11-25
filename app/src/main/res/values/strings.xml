@@ -85,9 +85,8 @@
     <string name="error_participant_save">Fehler beim Speichern des Teilnehmers.</string>
     <string name="error_participant_delete">Fehler beim Löschen des Teilnehmers. Bitte erneut versuchen.</string>
     <string name="error_participant_name_empty">Der Name des Teilnehmers darf nicht leer sein.</string>
-    <string name="error_participant_name_too_long">Der Name des Teilnehmers darf maximal 50 Zeichen lang sein.</string>
+    <string name="error_participant_name_too_long">Der Name des Teilnehmers darf maximal %1$d Zeichen lang sein.</string>
     <string name="error_participant_name_duplicate">Ein Teilnehmer mit diesem Namen existiert bereits in dieser Gruppe.</string>
-    <string name="error_participant_not_found">Der Teilnehmer wurde nicht gefunden.</string>
     <string name="error_group_not_found">Die Wichtelgruppe wurde nicht gefunden.</string>
 
     <!-- Gruppenformular -->
@@ -110,7 +109,7 @@
     <string name="error_date_format">Ungültiges Datum. Bitte verwende das Format TT.MM.JJJJ (z. B. 24.12.2026).</string>
     <string name="error_budget_format">Ungültiges Budget. Bitte gib einen Betrag wie 25,50 ein.</string>
     <string name="error_group_name_empty">Der Gruppenname darf nicht leer sein.</string>
-    <string name="error_group_name_too_long">Der Gruppenname darf maximal 50 Zeichen lang sein.</string>
+    <string name="error_group_name_too_long">Der Gruppenname darf maximal %1$d Zeichen lang sein.</string>
     <string name="error_group_name_duplicate">Eine Wichtelgruppe mit diesem Namen existiert bereits.</string>
     <string name="error_budget_invalid">Das Budget muss größer als 0 Euro sein.</string>
     <string name="error_date_in_past">Der Wichteltag muss in der Zukunft liegen.</string>
@@ -154,8 +153,7 @@
     <string name="wishlist_item_label">Wunsch</string>
     <string name="wishlist_item_placeholder">Warme Wollsocken</string>
     <string name="error_wish_empty">Der Wunschtext darf nicht leer sein.</string>
-    <string name="error_wish_too_long">Der Wunschtext darf maximal 200 Zeichen lang sein.</string>
-    <string name="error_wish_not_found">Der Wunsch wurde nicht gefunden.</string>
+    <string name="error_wish_too_long">Der Wunschtext darf maximal %1$d Zeichen lang sein.</string>
     <string name="error_participant_load">Fehler beim Laden des Teilnehmers.</string>
     <string name="error_wishlist_load">Fehler beim Laden der Wunschliste.</string>
     <string name="error_wish_missing">Der zu bearbeitende Wunsch existiert nicht mehr.</string>

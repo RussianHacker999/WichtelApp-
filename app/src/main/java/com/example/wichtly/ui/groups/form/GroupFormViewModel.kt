@@ -9,6 +9,8 @@ import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
+import com.example.wichtly.domain.usecase.GiftGroupInput
+import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.domain.validation.GiftGroupResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,19 +28,22 @@ import java.io.File
  *
  * Warum MVVM & Clean Architecture?
  * Das ViewModel verwaltet den UI-Zustand ([GroupFormUiState]) entkoppelt von der UI.
- * Es verarbeitet Benutzereingaben, führt UI-Formatprüfungen durch und ruft das [GiftGroupRepository] auf.
+ * Es nimmt Benutzereingaben entgegen, gibt sie unverändert an den [SaveGiftGroupUseCase] weiter
+ * und übersetzt dessen Fehler in Texte. Geprüft wird ausschließlich im Use Case.
  *
  * @param groupId ID der zu bearbeitenden Gruppe (null = Erstellen-Modus, sonst Bearbeiten-Modus).
- * @param repository Das Repository für Datenhaltung und Domain-Validierung.
+ * @param repository Liest die zu bearbeitende Gruppe.
  * @param photoRepository Speichert, löst auf und löscht das Gruppenfoto.
+ * @param saveGiftGroup Prüft und speichert die Gruppe.
  */
 class GroupFormViewModel(
     private val groupId: String?,
     private val repository: GiftGroupRepository,
     private val photoRepository: PhotoRepository,
+    private val saveGiftGroup: SaveGiftGroupUseCase,
 ) : ViewModel() {
 
-    // Gemerkte Instanz der geladenen Gruppe im Bearbeiten-Modus, um id und photoPath bei copy() beizubehalten
+    // Geladene Gruppe im Bearbeiten-Modus; null, solange (noch) nichts geladen werden konnte
     private var originalGroup: GiftGroup? = null
 
     // Foto, das aktuell in der Datenbank steht. Alles andere ist ein noch nicht gespeichertes Foto
@@ -173,11 +178,9 @@ class GroupFormViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz vor dem Starten der Coroutine.
-     * 2. Formatprüfung von Budget und Datum vor dem Repository-Aufruf. Bei Fehlern werden
-     *    die Konstanten [INVALID_BUDGET_FORMAT_ERROR] bzw. [INVALID_DATE_FORMAT_ERROR] gesetzt und abgebrochen.
-     * 3. Erstellen der [GiftGroup] (Neu: leere ID, photoPath null; Bearbeiten: copy() der geladenen Gruppe).
-     * 4. Aufruf von createGiftGroup bzw. updateGiftGroup im Repository.
-     * 5. Verarbeiten von Success (isSaved = true), ValidationError (Fehlerübersetzung) und Exceptions.
+     * 2. Rohe Eingaben an den [SaveGiftGroupUseCase] übergeben. Er parst Budget und Datum, prüft alle
+     *    Regeln in einem Durchlauf und speichert nur bei fehlerfreiem Ergebnis.
+     * 3. Verarbeiten von Success (isSaved = true), ValidationError (Fehlerübersetzung) und Exceptions.
      */
     fun onSaveClick() {
         val currentState = _uiState.value
@@ -193,19 +196,6 @@ class GroupFormViewModel(
             return
         }
 
-        // Formatprüfung vor dem Repository-Aufruf
-        val parsedBudgetCents = parseBudgetToCents(currentState.budget)
-        val parsedDate = parseDate(currentState.drawDay)
-        if (parsedBudgetCents == null || parsedDate == null) {
-            _uiState.update {
-                it.copy(
-                    budgetError = if (parsedBudgetCents == null) INVALID_BUDGET_FORMAT_ERROR else null,
-                    drawDayError = if (parsedDate == null) INVALID_DATE_FORMAT_ERROR else null,
-                )
-            }
-            return
-        }
-
         _uiState.update {
             it.copy(
                 isSaving = true,
@@ -216,37 +206,18 @@ class GroupFormViewModel(
             )
         }
 
-        val original = originalGroup
+        val input = GiftGroupInput(
+            name = currentState.name,
+            budget = currentState.budget,
+            drawDay = currentState.drawDay,
+            drawType = currentState.drawType,
+            // Foto neu, geändert oder entfernt: der aktuelle Stand des Formulars wird gespeichert
+            photoPath = currentState.photoPath,
+        )
 
         viewModelScope.launch {
             try {
-                val groupToSave = if (original == null) {
-                    // Erstellen: Domain-Modell erzeugt die UUID über den Standard-Parameter
-                    GiftGroup(
-                        name = currentState.name.trim(),
-                        budgetCents = parsedBudgetCents,
-                        drawDay = parsedDate,
-                        drawType = currentState.drawType,
-                        photoPath = currentState.photoPath,
-                    )
-                } else {
-                    // Bearbeiten: id bleibt durch copy() erhalten, photoPath kommt aus dem Formular (Foto neu, geändert oder entfernt)
-                    original.copy(
-                        name = currentState.name.trim(),
-                        budgetCents = parsedBudgetCents,
-                        drawDay = parsedDate,
-                        drawType = currentState.drawType,
-                        photoPath = currentState.photoPath,
-                    )
-                }
-
-                val result = if (original == null) {
-                    repository.createGiftGroup(groupToSave)
-                } else {
-                    repository.updateGiftGroup(groupToSave)
-                }
-
-                when (result) {
+                when (val result = saveGiftGroup(groupId, input)) {
                     is GiftGroupResult.Success -> {
                         // Ein ersetztes oder entferntes altes Foto erst nach erfolgreichem Speichern löschen
                         val oldCommitted = committedPhotoPath

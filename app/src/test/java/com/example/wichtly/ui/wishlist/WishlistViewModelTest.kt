@@ -3,8 +3,8 @@ package com.example.wichtly.ui.wishlist
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.Participant
 import com.example.wichtly.domain.model.WishListItem
-import com.example.wichtly.domain.validation.WishListItemResult
-import com.example.wichtly.domain.validation.WishListValidationError
+import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
+import com.example.wichtly.domain.validation.WishListValidator
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakeWishListRepository
 import com.example.wichtly.testutil.MainDispatcherRule
@@ -55,7 +55,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -78,7 +79,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -91,7 +93,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Fall (3): Leerer Text beim Speichern setzt editorError und createCalls bleibt 0.
+     * Fall (3): Leerer Text beim Speichern setzt editorError und insertCalls bleibt 0.
      */
     @Test
     fun saveEmptyText_setsEditorErrorAndDoesNotCallRepository() = runTest {
@@ -103,7 +105,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -115,8 +118,8 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(EMPTY_WISH_TEXT_ERROR, state.editorError)
-        assertEquals(0, wishListRepository.createCalls)
+        assertEquals(R.string.error_wish_empty, state.editorError)
+        assertEquals(0, wishListRepository.insertCalls)
     }
 
     /**
@@ -132,7 +135,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -161,7 +165,7 @@ class WishlistViewModelTest {
         assertEquals("Wunsch B", items[1].text)
         assertEquals(2, items[2].sortOrder)
         assertEquals("Wunsch C", items[2].text)
-        assertEquals(3, wishListRepository.createCalls)
+        assertEquals(3, wishListRepository.insertCalls)
     }
 
     /**
@@ -185,7 +189,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -221,7 +226,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -233,35 +239,35 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Fall (7): Ein ValidationError vom Repository (nextResult) lässt den Editor offen und setzt editorError.
+     * Fall (7): Ein ValidationError vom Use Case (Text zu lang) lässt den Editor offen, setzt editorError
+     * und schreibt nichts.
      */
     @Test
-    fun repositoryValidationError_keepsEditorOpenAndSetsEditorError() = runTest {
+    fun useCaseValidationError_keepsEditorOpenAndSetsEditorError() = runTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository().apply {
-            nextResult = WishListItemResult.ValidationError(listOf(WishListValidationError.TextTooLong))
-        }
+        val wishListRepository = FakeWishListRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("Zu langer Text vom Repository abgelehnt")
+        viewModel.onEditorTextChange("x".repeat(WishListValidator.MAX_TEXT_LENGTH + 1))
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(true, state.showEditor)
-        assertEquals(WISH_TEXT_TOO_LONG_ERROR, state.editorError)
-        assertEquals(1, wishListRepository.createCalls)
+        assertEquals(R.string.error_wish_too_long, state.editorError)
+        assertEquals(0, wishListRepository.insertCalls)
     }
 
     /**
@@ -285,7 +291,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -315,7 +322,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -353,7 +361,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -378,7 +387,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Fall (11): Zweimal direkt hintereinander onSaveClick aufgerufen ergibt genau einen Aufruf am Repository (createCalls ist 1).
+     * Fall (11): Zweimal direkt hintereinander onSaveClick aufgerufen ergibt genau einen Aufruf am Repository (insertCalls ist 1).
      */
     @Test
     fun doubleSaveClickImmediately_callsRepositoryOnlyOnce() = runTest {
@@ -390,7 +399,8 @@ class WishlistViewModelTest {
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository
+            wishListRepository = wishListRepository,
+            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -404,6 +414,6 @@ class WishlistViewModelTest {
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
-        assertEquals(1, wishListRepository.createCalls)
+        assertEquals(1, wishListRepository.insertCalls)
     }
 }

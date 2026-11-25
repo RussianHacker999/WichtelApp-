@@ -9,7 +9,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
 import java.time.LocalDate
 
 class GroupsViewModelTest {
@@ -91,32 +90,5 @@ class GroupsViewModelTest {
         viewModel.closePhotoFlow()
 
         assertNull(viewModel.uiState.photoFlowGroupId)
-    }
-
-    @Test
-    fun fotoAufnehmenSpeichertFotoUndAktualisiertGruppe() {
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(familie)) }
-        val photoRepository = FakePhotoRepository()
-        val viewModel = GroupsViewModel(groupRepository, photoRepository)
-
-        viewModel.onPhotoCaptured("g1", File("kamera.jpg"))
-
-        assertEquals(1, photoRepository.saveCalls)
-        assertEquals(1, groupRepository.updateCalls)
-        assertEquals(photoRepository.savedPaths.first(), viewModel.uiState.groups.first().photoPath)
-        assertNull(viewModel.uiState.photoFlowGroupId)
-    }
-
-    @Test
-    fun fotoEntfernenLoeschtAltesFoto() {
-        val mitFoto = familie.copy(photoPath = "photos/groups/alt.jpg")
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(mitFoto)) }
-        val photoRepository = FakePhotoRepository()
-        val viewModel = GroupsViewModel(groupRepository, photoRepository)
-
-        viewModel.removePhoto("g1")
-
-        assertTrue("photos/groups/alt.jpg" in photoRepository.deletedPaths)
-        assertNull(viewModel.uiState.groups.first().photoPath)
     }
 }

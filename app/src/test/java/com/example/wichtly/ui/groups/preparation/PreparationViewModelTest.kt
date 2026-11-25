@@ -14,10 +14,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
-import com.example.wichtly.domain.validation.DrawResult
-import com.example.wichtly.domain.validation.DrawValidationError
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import com.example.wichtly.domain.usecase.PerformDrawUseCase
+import com.example.wichtly.testutil.FakeWishListRepository
 
 
 /**
@@ -57,7 +57,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            FakeDrawRepository(),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository()),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -94,7 +94,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            FakeDrawRepository(),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository()),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -125,7 +125,8 @@ class PreparationViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants((1..anzahlTeilnehmer).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") })
         }
-        return PreparationViewModel(groupId, groupRepository, participantRepository, drawRepository)
+        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), drawRepository)
+        return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw)
     }
 
     @Test
@@ -150,7 +151,7 @@ class PreparationViewModelTest {
         viewModel.startDraw { drawId -> erhalteneDrawId = drawId }
         testScheduler.advanceUntilIdle()
 
-        assertEquals(1, drawRepository.performDrawCalls)
+        assertEquals(1, drawRepository.saveDrawCalls)
         assertNotNull(erhalteneDrawId)
         assertFalse(viewModel.uiState.value.isStarting)
     }
@@ -166,16 +167,15 @@ class PreparationViewModelTest {
         viewModel.startDraw { drawId -> erhalteneDrawId = drawId }
         testScheduler.advanceUntilIdle()
 
-        assertEquals(0, drawRepository.performDrawCalls)
+        assertEquals(0, drawRepository.saveDrawCalls)
         assertNull(erhalteneDrawId)
     }
 
     @Test
-    fun fehlerVomRepositoryZeigtFehlermeldung() = runTest {
-        val drawRepository = FakeDrawRepository().apply {
-            nextDrawResult = DrawResult.ValidationError(listOf(DrawValidationError.NotEnoughParticipants))
-        }
-        val viewModel = erstelleViewModel(anzahlTeilnehmer = 3, drawRepository = drawRepository)
+    fun ablehnungDurchUseCaseZeigtFehlermeldung() = runTest {
+        // Der Button ist bei zwei Teilnehmern deaktiviert; wird trotzdem gelost, lehnt der Use Case ab
+        val drawRepository = FakeDrawRepository()
+        val viewModel = erstelleViewModel(anzahlTeilnehmer = 2, drawRepository = drawRepository)
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
@@ -184,6 +184,7 @@ class PreparationViewModelTest {
         testScheduler.advanceUntilIdle()
 
         assertNull(erhalteneDrawId)
+        assertEquals(0, drawRepository.saveDrawCalls)
         assertNotNull(viewModel.uiState.value.errorMessage)
     }
 

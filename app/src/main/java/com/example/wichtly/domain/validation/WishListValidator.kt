@@ -13,22 +13,25 @@ sealed interface WishListItemResult {
     data class ValidationError(val errors: List<WishListValidationError>) : WishListItemResult
 }
 
+/**
+ * Einzige Quelle aller Fachregeln für Wünsche. Aufgerufen vom SaveWishListItemUseCase.
+ */
 class WishListValidator {
-    fun validate(
-        item: WishListItem,
-    ): List<WishListValidationError> {
-        val errors = mutableListOf<WishListValidationError>()
-        val trimmedText = item.text.trim()
 
-        if (trimmedText.isEmpty()) {
-            errors.add(WishListValidationError.EmptyText)
-        }
-
-        // Rule: Max wish text length is 200
-        if (trimmedText.length > 200) {
-            errors.add(WishListValidationError.TextTooLong)
-        }
-
-        return errors
+    companion object {
+        const val MAX_TEXT_LENGTH = 200
     }
+
+    /** Bringt einen eingegebenen Wunschtext in die gespeicherte Form (heute: Leerraum am Rand entfernen). */
+    fun normalizeText(raw: String): String = raw.trim()
+
+    /** Regel: Text ist nicht leer und höchstens [MAX_TEXT_LENGTH] Zeichen lang. */
+    fun validateText(raw: String): List<WishListValidationError> = buildList {
+        val text = normalizeText(raw)
+        if (text.isEmpty()) add(WishListValidationError.EmptyText)
+        if (text.length > MAX_TEXT_LENGTH) add(WishListValidationError.TextTooLong)
+    }
+
+    /** Prüft alle Regeln für einen Wunsch. */
+    fun validate(item: WishListItem): List<WishListValidationError> = validateText(item.text)
 }

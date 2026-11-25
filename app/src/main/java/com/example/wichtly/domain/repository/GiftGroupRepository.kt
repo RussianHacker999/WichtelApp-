@@ -1,14 +1,18 @@
 package com.example.wichtly.domain.repository
 
 import com.example.wichtly.domain.model.GiftGroup
-import com.example.wichtly.domain.validation.GiftGroupResult
 import kotlinx.coroutines.flow.Flow
 
-
+/**
+ * Reine Persistenz für Wichtelgruppen. Fachliche Prüfungen passieren vorher im
+ * SaveGiftGroupUseCase; geschrieben werden nur bereits geprüfte Gruppen.
+ */
 interface GiftGroupRepository {
     fun getGiftGroups(): Flow<List<GiftGroup>>
     fun getGiftGroupById(id: String): Flow<GiftGroup?>
-    suspend fun createGiftGroup(group: GiftGroup): GiftGroupResult
-    suspend fun updateGiftGroup(group: GiftGroup): GiftGroupResult
+    suspend fun insertGiftGroup(group: GiftGroup)
+
+    /** @return false, wenn es keine Gruppe mit dieser ID (mehr) gibt. */
+    suspend fun updateGiftGroup(group: GiftGroup): Boolean
     suspend fun deleteGiftGroup(id: String)
 }

@@ -35,6 +35,7 @@ import com.example.wichtly.ui.components.WichtlyTopBar
 import com.example.wichtly.ui.components.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.domain.validation.WishListValidator
 
 /**
  * Zustandsloser Composable-Screen für die Wunschliste eines Teilnehmers.
@@ -141,7 +142,7 @@ fun ParticipantWishlistScreen(
         WishlistItemDialog(
             isEditMode = state.editingItemId != null,
             text = state.editorText,
-            errorMessage = state.editorError?.let { stringResource(it) },
+            errorMessage = state.editorError?.let { stringResource(it, WishListValidator.MAX_TEXT_LENGTH) },
             isSaving = state.isSaving,
             onTextChange = onEditorTextChange,
             onSave = onSaveClick,

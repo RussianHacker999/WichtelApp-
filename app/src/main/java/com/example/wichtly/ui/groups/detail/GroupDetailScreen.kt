@@ -51,6 +51,7 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
+import com.example.wichtly.domain.validation.ParticipantValidator
 
 
 /**
@@ -179,7 +180,7 @@ fun GroupDetailScreen(
         ParticipantEditorDialog(
             isEditMode = state.editingParticipantId != null,
             name = state.participantNameInput,
-            errorMessage = state.participantNameError?.let { stringResource(it) },
+            errorMessage = state.participantNameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
             isSaving = state.isSaving,
             onNameChange = onParticipantNameChange,
             onSave = onSaveParticipant,

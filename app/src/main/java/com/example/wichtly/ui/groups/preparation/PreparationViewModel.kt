@@ -5,9 +5,9 @@ import com.example.wichtly.domain.model.DrawRules
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
+import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.validation.DrawResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +28,8 @@ class PreparationViewModel(
     private val groupId: String,
     private val giftGroupRepository: GiftGroupRepository,
     private val participantRepository: ParticipantRepository,
-    private val drawRepository: DrawRepository,
+    // prüft, ob gelost werden darf, lost aus und speichert die Auslosung
+    private val performDraw: PerformDrawUseCase,
 ) : ViewModel() {
 
     // die beiden Flows speichern interne Zustaende des ViewModels, die sich verwaehrendern der Laufzeit koennne
@@ -67,8 +68,9 @@ class PreparationViewModel(
 
         // berechnet die Variable notFound
         val notFound = (group == null && errorMessage == null)
-        // berechet, ob die Losung gestartet werden darf
-        // (es die Gruppe gefunden werden und min 3 Teilnehmer haben
+        // berechet, ob der Button "Jetzt losen" aktiv angezeigt wird
+        // (es die Gruppe gefunden werden und min 3 Teilnehmer haben).
+        // Das ist nur Anzeige; verbindlich prüft der PerformDrawUseCase beim Losen
         val canStartDraw = (group != null && DrawRules.canDraw(participants.size))
 
         // die eben ermittelten Daten werden in einen PreparationUiState zusammengefasst
@@ -99,16 +101,13 @@ class PreparationViewModel(
 
     /**
      * Sartet die Aussung
-     * Bedingunge: Die Gruppe hat mindestens drei Teilnehmer.
+     * Ob gelost werden darf (Gruppe vorhanden, mindestens drei Teilnehmer), prueft der PerformDrawUseCase.
      * Bei Erfolg wird die ID des neu angelegten Auslosungsdurchlaufs zurueckgegeben.
      */
     fun startDraw(onSuccess: (drawId: String) -> Unit) {
         // Wenn die Meothe onSuccess in dieser Methode aufgerufen wird wird der String drawId definiert
-        val currentState = uiState.value
-        // holte aktuellen UiState
-        if (!currentState.canStartDraw || startingState.value) return
-        // Wenn im UiState steht, dass noch nicht gelost werden kann oder wenn die Auslosung gerade lauft,
-        // dann wird die Methode beendet (und "tut nix")
+        if (startingState.value) return
+        // Wenn die Auslosung gerade lauft, wird die Methode beendet (und "tut nix")
 
         viewModelScope.launch {
             // makiert das gearade ausgelost wird
@@ -116,11 +115,11 @@ class PreparationViewModel(
             errorState.update { null }
 
             try {
-                // traegt dem Repository auf, dass es die Auslosunf durchfueheren soll
-                when (val result = drawRepository.performDraw(groupId)) {
+                // traegt dem Use Case auf, dass er die Auslosung pruefen und durchfuehren soll
+                when (val result = performDraw(groupId)) {
                     // Wenn die Auslosung erfolgreich durch gefuehrt wurde,
                     // wird in OnSuccess aufgerufen und die drawId wird gesetzt.
-                    // drwaId traegt nun die Id der Auslosung die zuebend vom Repository ausgefuehrt wurde
+                    // drwaId traegt nun die Id der Auslosung die zuvor vom Use Case ausgefuehrt wurde
                     is DrawResult.Success -> onSuccess(result.draw.id)
                     // Wenn die Auslosung nicht erfolgreich durchgefuehrt wurde,
                     // dann wird im ViewModel eine error-Meldung gespeichert

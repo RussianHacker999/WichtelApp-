@@ -30,13 +30,13 @@ fun PreparationRoute(
         groupId,
         container.giftGroupRepository,
         container.participantRepository,
-        container.drawRepository,
+        container.performDrawUseCase,
     ) {
         PreparationViewModelFactory(
             groupId = groupId,
             giftGroupRepository = container.giftGroupRepository,
             participantRepository = container.participantRepository,
-            drawRepository = container.drawRepository,
+            performDraw = container.performDrawUseCase,
         )
     }
     // Faktory erstellt eine ViewModel

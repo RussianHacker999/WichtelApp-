@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wichtly.domain.model.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import kotlinx.coroutines.CancellationException
@@ -84,51 +83,5 @@ class GroupsViewModel(
             photoFlowGroupId = null,
             cameraDeniedGroupId = groupId,
         )
-    }
-
-    fun onPhotoCaptured(groupId: String, sourceFile: File) {
-        viewModelScope.launch {
-            val group = uiState.groups.firstOrNull { it.id == groupId } ?: return@launch
-            try {
-                val oldPhotoPath = group.photoPath
-                val relativePath = photoRepository.savePhoto(sourceFile, PhotoOwnerType.GROUPS)
-                val updatedGroup = group.copy(photoPath = relativePath)
-                val result = repository.updateGiftGroup(updatedGroup)
-                if (result is com.example.wichtly.domain.validation.GiftGroupResult.Success) {
-                    if (oldPhotoPath != null) {
-                        photoRepository.deletePhoto(oldPhotoPath)
-                    }
-                    uiState = uiState.copy(
-                        photoFlowGroupId = null,
-                        cameraDeniedGroupId = null,
-                        photoFiles = uiState.photoFiles + (groupId to (photoRepository.getFileForRelativePath(relativePath) ?: File(""))),
-                    )
-                }
-            } catch (e: Exception) {
-                uiState = uiState.copy(photoFlowGroupId = null)
-            }
-        }
-    }
-
-    fun removePhoto(groupId: String) {
-        viewModelScope.launch {
-            val group = uiState.groups.firstOrNull { it.id == groupId } ?: return@launch
-            try {
-                val oldPhotoPath = group.photoPath
-                val updatedGroup = group.copy(photoPath = null)
-                val result = repository.updateGiftGroup(updatedGroup)
-                if (result is com.example.wichtly.domain.validation.GiftGroupResult.Success) {
-                    if (oldPhotoPath != null) {
-                        photoRepository.deletePhoto(oldPhotoPath)
-                    }
-                    uiState = uiState.copy(
-                        photoFlowGroupId = null,
-                        photoFiles = uiState.photoFiles - groupId,
-                    )
-                }
-            } catch (_: Exception) {
-                uiState = uiState.copy(photoFlowGroupId = null)
-            }
-        }
     }
 }

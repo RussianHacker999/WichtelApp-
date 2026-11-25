@@ -34,7 +34,7 @@ class WishListErrorsTest {
         val errors = listOf(WishListValidationError.EmptyText)
         val result = mapWishListValidationErrors(errors)
 
-        assertEquals(EMPTY_WISH_TEXT_ERROR, result)
+        assertEquals(R.string.error_wish_empty, result)
     }
 
     /**
@@ -45,7 +45,7 @@ class WishListErrorsTest {
         val errors = listOf(WishListValidationError.TextTooLong)
         val result = mapWishListValidationErrors(errors)
 
-        assertEquals(WISH_TEXT_TOO_LONG_ERROR, result)
+        assertEquals(R.string.error_wish_too_long, result)
     }
 
     /**
@@ -56,7 +56,7 @@ class WishListErrorsTest {
         val errors = listOf(WishListValidationError.ItemNotFound)
         val result = mapWishListValidationErrors(errors)
 
-        assertEquals(R.string.error_wish_not_found, result)
+        assertEquals(R.string.error_wish_missing, result)
     }
 
     /**
@@ -69,13 +69,13 @@ class WishListErrorsTest {
             WishListValidationError.TextTooLong,
         )
         val result1 = mapWishListValidationErrors(errors1)
-        assertEquals(EMPTY_WISH_TEXT_ERROR, result1)
+        assertEquals(R.string.error_wish_empty, result1)
 
         val errors2 = listOf(
             WishListValidationError.TextTooLong,
             WishListValidationError.EmptyText,
         )
         val result2 = mapWishListValidationErrors(errors2)
-        assertEquals(WISH_TEXT_TOO_LONG_ERROR, result2)
+        assertEquals(R.string.error_wish_too_long, result2)
     }
 }

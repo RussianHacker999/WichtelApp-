@@ -5,18 +5,6 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.validation.ParticipantValidationError
 
 /**
- * Fehlermeldungen als String-Ressourcen (Texte in strings.xml) für Formatfehler auf UI-Ebene.
- *
- * Warum als Konstanten?
- * Diese Fehler entstehen im ViewModel vor dem Aufruf des Repositorys, wenn Benutzereingaben
- * direkt auf der UI-Ebene validiert werden (z. B. leeres Namensfeld oder Name länger als 50 Zeichen).
- */
-@StringRes
-val EMPTY_PARTICIPANT_NAME_ERROR: Int = R.string.error_participant_name_empty
-@StringRes
-val PARTICIPANT_NAME_TOO_LONG_ERROR: Int = R.string.error_participant_name_too_long
-
-/**
  * Datenklasse zur klaren Trennung von spezifischen Feldfehlern (für den Dialog)
  * und allgemeinen Fehlern (auf Screen-Ebene).
  *
@@ -29,7 +17,7 @@ data class ParticipantUiErrors(
 )
 
 /**
- * Übersetzt eine Liste von [ParticipantValidationError] aus der Domain-Validierung in strukturierte [ParticipantUiErrors].
+ * Übersetzt eine Liste von [ParticipantValidationError] aus dem SaveParticipantUseCase in strukturierte [ParticipantUiErrors].
  *
  * Zuordnung der Fehler:
  * - EmptyName, NameTooLong, DuplicateNameInGroup -> gehören zum Namensfeld (nameError).
@@ -50,16 +38,16 @@ fun mapParticipantValidationErrors(
     for (error in errors) {
         when (error) {
             is ParticipantValidationError.EmptyName -> {
-                if (nameErr == null) nameErr = EMPTY_PARTICIPANT_NAME_ERROR
+                if (nameErr == null) nameErr = R.string.error_participant_name_empty
             }
             is ParticipantValidationError.NameTooLong -> {
-                if (nameErr == null) nameErr = PARTICIPANT_NAME_TOO_LONG_ERROR
+                if (nameErr == null) nameErr = R.string.error_participant_name_too_long
             }
             is ParticipantValidationError.DuplicateNameInGroup -> {
                 if (nameErr == null) nameErr = R.string.error_participant_name_duplicate
             }
             is ParticipantValidationError.ParticipantNotFound -> {
-                if (genErr == null) genErr = R.string.error_participant_not_found
+                if (genErr == null) genErr = R.string.error_participant_missing
             }
             is ParticipantValidationError.GroupNotFound -> {
                 if (genErr == null) genErr = R.string.error_group_not_found

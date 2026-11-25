@@ -5,9 +5,9 @@ import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wichtly.domain.model.WishListItem
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
 import com.example.wichtly.domain.validation.WishListItemResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,12 +44,14 @@ private data class WishlistLocalState(
  *
  * @param participantId Die ID des Teilnehmers.
  * @param participantRepository Repository für Teilnehmer.
- * @param wishListRepository Repository für Wunschlisten-Einträge.
+ * @param wishListRepository Repository für Wunschlisten-Einträge (Lesen und Löschen).
+ * @param saveWishListItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
  */
 class WishlistViewModel(
     private val participantId: String,
     private val participantRepository: ParticipantRepository,
-    private val wishListRepository: WishListRepository
+    private val wishListRepository: WishListRepository,
+    private val saveWishListItem: SaveWishListItemUseCase,
 ) : ViewModel() {
 
     private val _localState = MutableStateFlow(WishlistLocalState())
@@ -201,39 +203,15 @@ class WishlistViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Frühe Validierung des Textes (leer oder > 200 Zeichen).
-     * 3. Erstellen eines neuen Wunsches (mit neuer ID und nächstem sortOrder)
-     *    oder Aktualisieren eines bestehenden Wunsches via copy().
-     * 4. Aufruf von createWishListItem bzw. updateWishListItem im Repository.
+     * 2. Text unverändert an den [SaveWishListItemUseCase] übergeben. Er prüft den Text und die
+     *    Existenz des Wunsches, vergibt beim Anlegen die nächste sortOrder und speichert.
+     * 3. Fehler des Use Cases in einen Text für den Editor übersetzen.
      */
     fun onSaveClick() {
         // Synchroner Doppel-Submit-Schutz
         if (_localState.value.isSaving) return
 
         val localState = _localState.value
-        val trimmedText = localState.editorText.trim()
-
-        // Frühe Validierung auf UI-Ebene
-        if (trimmedText.isEmpty()) {
-            _localState.update { it.copy(editorError = EMPTY_WISH_TEXT_ERROR) }
-            return
-        }
-
-        if (trimmedText.length > 200) {
-            _localState.update { it.copy(editorError = WISH_TEXT_TOO_LONG_ERROR) }
-            return
-        }
-
-        val editingId = localState.editingItemId
-        val currentItems = uiState.value.items
-        val existingItem = if (editingId != null) {
-            currentItems.find { it.id == editingId }
-        } else null
-
-        if (editingId != null && existingItem == null) {
-            _localState.update { it.copy(editorError = R.string.error_wish_missing) }
-            return
-        }
 
         _localState.update {
             it.copy(
@@ -244,20 +222,11 @@ class WishlistViewModel(
 
         viewModelScope.launch {
             try {
-                val result = if (existingItem == null) {
-                    // Hinzufügen-Modus: sortOrder berechnen, ID erzeugt das Modell per Default
-                    val newSortOrder = (currentItems.maxOfOrNull { it.sortOrder } ?: -1) + 1
-                    val newItem = WishListItem(
-                        participantId = participantId,
-                        text = trimmedText,
-                        sortOrder = newSortOrder
-                    )
-                    wishListRepository.createWishListItem(newItem)
-                } else {
-                    // Bearbeiten-Modus: id und sortOrder bleiben über copy() erhalten
-                    val updatedItem = existingItem.copy(text = trimmedText)
-                    wishListRepository.updateWishListItem(updatedItem)
-                }
+                val result = saveWishListItem(
+                    itemId = localState.editingItemId,
+                    participantId = participantId,
+                    text = localState.editorText,
+                )
 
                 when (result) {
                     is WishListItemResult.Success -> {

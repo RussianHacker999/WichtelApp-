@@ -5,7 +5,6 @@ import com.example.wichtly.domain.model.GroupDrawOverview
 
 import com.example.wichtly.domain.model.DrawSummary
 import com.example.wichtly.domain.model.ParticipantPreview
-import com.example.wichtly.domain.validation.DrawResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -40,10 +39,9 @@ interface DrawRepository {
     fun observeLatestDrawDetail(groupId: String): Flow<DrawDetail?>
 
     /**
-     * Performs a Secret Santa draw for the group: fetches current group settings (drawType),
-     * current participants and wishlists, generates random derangement assignments,
-     * persists the immutable snapshot to Room, and returns the resulting DrawResult.
-     * Used by: DrawPreparation Screen when clicking "Perform Draw" or "Redraw".
+     * Persists a complete, already validated draw (draw, assignments and wishlist snapshots)
+     * atomically as an immutable snapshot.
+     * Used by: PerformDrawUseCase.
      */
-    suspend fun performDraw(groupId: String): DrawResult
+    suspend fun saveDraw(draw: DrawDetail)
 }

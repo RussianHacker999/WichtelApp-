@@ -1,6 +1,7 @@
 package com.example.wichtly.domain.validation
 
 import com.example.wichtly.domain.model.GiftGroup
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
@@ -12,68 +13,81 @@ class GiftGroupValidatorTest {
     // festes "Heute", damit der Test an jedem Tag gleich funktioniert
     private val heute = LocalDate.of(2026, 11, 23)
 
-    // gültige Gruppe als Vorlage; in den Tests wird jeweils nur ein Wert verändert
-    private val gueltigeGruppe = GiftGroup(
+    private val familie = GiftGroup(
         id = "g1",
         name = "Familie",
         budgetCents = 2000,
         drawDay = LocalDate.of(2026, 12, 6),
     )
 
+    // ----------------------------------------------------------------- Name
+
     @Test
-    fun gueltigeGruppeHatKeineFehler() {
-        val fehler = validator.validate(gueltigeGruppe, emptyList(), currentDate = heute)
-        assertTrue(fehler.isEmpty())
+    fun gueltigerNameHatKeineFehler() {
+        assertTrue(validator.validateName("Familie").isEmpty())
     }
 
     @Test
     fun leererNameIstFehler() {
-        val gruppe = gueltigeGruppe.copy(name = "   ")
-        val fehler = validator.validate(gruppe, emptyList(), currentDate = heute)
-        assertTrue(GiftGroupValidationError.EmptyName in fehler)
+        assertTrue(GiftGroupValidationError.EmptyName in validator.validateName("   "))
     }
 
     @Test
-    fun nameUeber50ZeichenIstFehler() {
-        val gruppe = gueltigeGruppe.copy(name = "a".repeat(51))
-        val fehler = validator.validate(gruppe, emptyList(), currentDate = heute)
-        assertTrue(GiftGroupValidationError.NameTooLong in fehler)
+    fun nameMitMaximalLaengeIstErlaubtEinZeichenMehrNicht() {
+        val max = GiftGroupValidator.MAX_NAME_LENGTH
+        assertTrue(validator.validateName("a".repeat(max)).isEmpty())
+        assertTrue(GiftGroupValidationError.NameTooLong in validator.validateName("a".repeat(max + 1)))
     }
+
+    @Test
+    fun normalizeNameEntferntLeerraumAmRand() {
+        assertEquals("Familie", validator.normalizeName("  Familie \t"))
+    }
+
+    // ----------------------------------------------------------------- Duplikat
 
     @Test
     fun doppelterNameIstFehlerAuchMitAndererGrossschreibung() {
-        val vorhanden = listOf(gueltigeGruppe.copy(id = "g2", name = "FAMILIE"))
-        val fehler = validator.validate(gueltigeGruppe, vorhanden, currentDate = heute)
+        val vorhanden = listOf(familie.copy(id = "g2", name = "FAMILIE"))
+        val fehler = validator.validateUniqueName("Familie", groupId = null, existingGroups = vorhanden)
         assertTrue(GiftGroupValidationError.DuplicateName in fehler)
     }
 
     @Test
     fun eigenerNameBeimBearbeitenIstKeinDuplikat() {
-        // dieselbe Gruppe (gleiche id) steht schon in der Liste -> Bearbeiten, kein Duplikat
-        val fehler = validator.validate(gueltigeGruppe, listOf(gueltigeGruppe), currentDate = heute)
+        val fehler = validator.validateUniqueName("Familie", groupId = "g1", existingGroups = listOf(familie))
         assertTrue(fehler.isEmpty())
     }
+
+    // ----------------------------------------------------------------- Budget
 
     @Test
     fun budgetNullOderNegativIstFehler() {
-        val nullBudget = validator.validate(gueltigeGruppe.copy(budgetCents = 0), emptyList(), currentDate = heute)
-        val negativ = validator.validate(gueltigeGruppe.copy(budgetCents = -100), emptyList(), currentDate = heute)
-        assertTrue(GiftGroupValidationError.InvalidBudget in nullBudget)
-        assertTrue(GiftGroupValidationError.InvalidBudget in negativ)
+        assertTrue(GiftGroupValidationError.InvalidBudget in validator.validateBudget(0))
+        assertTrue(GiftGroupValidationError.InvalidBudget in validator.validateBudget(-100))
+        assertTrue(validator.validateBudget(1).isEmpty())
+    }
+
+    // ----------------------------------------------------------------- Wichteltag
+
+    @Test
+    fun neuanlageVerlangtDatumNachHeute() {
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute, previousDay = null, today = heute))
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute.minusDays(1), null, heute))
+        assertTrue(validator.validateDrawDay(heute.plusDays(1), null, heute).isEmpty())
     }
 
     @Test
-    fun datumHeuteOderVergangenheitIstFehler() {
-        val heuteFehler = validator.validate(gueltigeGruppe.copy(drawDay = heute), emptyList(), currentDate = heute)
-        val gesternFehler = validator.validate(gueltigeGruppe.copy(drawDay = heute.minusDays(1)), emptyList(), currentDate = heute)
-        assertTrue(GiftGroupValidationError.DateInPast in heuteFehler)
-        assertTrue(GiftGroupValidationError.DateInPast in gesternFehler)
+    fun bearbeitenMitUnveraendertemVergangenemDatumIstErlaubt() {
+        // P1-1: Eine Gruppe muss sich auch am oder nach ihrem Wichteltag noch bearbeiten lassen
+        val gespeichert = heute.minusDays(10)
+        assertTrue(validator.validateDrawDay(gespeichert, previousDay = gespeichert, today = heute).isEmpty())
+        assertTrue(validator.validateDrawDay(heute, previousDay = heute, today = heute).isEmpty())
     }
 
     @Test
-    fun altesDatumErlaubtWennZukunftNichtVerlangt() {
-        val gruppe = gueltigeGruppe.copy(drawDay = heute.minusDays(10))
-        val fehler = validator.validate(gruppe, emptyList(), requireFutureDate = false, currentDate = heute)
-        assertTrue(fehler.isEmpty())
+    fun bearbeitenMitGeaendertemDatumVerlangtWiederDatumNachHeute() {
+        val fehler = validator.validateDrawDay(heute.minusDays(1), previousDay = heute.minusDays(10), today = heute)
+        assertTrue(GiftGroupValidationError.DateInPast in fehler)
     }
 }

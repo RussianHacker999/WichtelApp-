@@ -8,21 +8,37 @@ import com.example.wichtly.data.repository.GiftGroupRepositoryImpl
 import com.example.wichtly.data.repository.ParticipantRepositoryImpl
 import com.example.wichtly.data.repository.PhotoRepositoryImpl
 import com.example.wichtly.data.repository.WishListRepositoryImpl
+import com.example.wichtly.domain.algorithm.SecretSantaDrawAlgorithm
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.usecase.PerformDrawUseCase
+import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
+import com.example.wichtly.domain.usecase.SaveParticipantUseCase
+import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.domain.validation.WishListValidator
 
+/**
+ * Composition Root der App.
+ *
+ * Lesen: über die Repositories. Schreiben: ausschließlich über die Use Cases, weil nur sie die
+ * Fachregeln prüfen. Die Repositories selbst sind reine Persistenz.
+ */
 interface AppContainer {
     val giftGroupRepository: GiftGroupRepository
     val participantRepository: ParticipantRepository
     val wishListRepository: WishListRepository
     val drawRepository: DrawRepository
     val photoRepository: PhotoRepository
+
+    val saveGiftGroupUseCase: SaveGiftGroupUseCase
+    val saveParticipantUseCase: SaveParticipantUseCase
+    val saveWishListItemUseCase: SaveWishListItemUseCase
+    val performDrawUseCase: PerformDrawUseCase
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -32,44 +48,59 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     private val photoStorageManager: LocalPhotoStorageManager by lazy {
         LocalPhotoStorageManager(context)
     }
-    private val giftGroupValidator: GiftGroupValidator by lazy {
-        GiftGroupValidator()
-    }
-    private val participantValidator: ParticipantValidator by lazy {
-        ParticipantValidator()
-    }
-    private val wishListValidator: WishListValidator by lazy {
-        WishListValidator()
-    }
+
+    // =========================================================================
+    // REPOSITORIES (Persistenz)
+    // =========================================================================
+
     override val giftGroupRepository: GiftGroupRepository by lazy {
-        GiftGroupRepositoryImpl(
-            giftGroupDao = database.giftGroupDao(),
-            validator = giftGroupValidator,
-        )
+        GiftGroupRepositoryImpl(giftGroupDao = database.giftGroupDao())
     }
     override val participantRepository: ParticipantRepository by lazy {
-        ParticipantRepositoryImpl(
-            participantDao = database.participantDao(),
-            validator = participantValidator,
-        )
+        ParticipantRepositoryImpl(participantDao = database.participantDao())
     }
     override val wishListRepository: WishListRepository by lazy {
-        WishListRepositoryImpl(
-            wishListItemDao = database.wishListItemDao(),
-            validator = wishListValidator,
-        )
+        WishListRepositoryImpl(wishListItemDao = database.wishListItemDao())
     }
     override val drawRepository: DrawRepository by lazy {
-        DrawRepositoryImpl(
-            drawDao = database.drawDao(),
-            giftGroupDao = database.giftGroupDao(),
-            participantDao = database.participantDao(),
-            wishListItemDao = database.wishListItemDao(),
-        )
+        DrawRepositoryImpl(drawDao = database.drawDao())
     }
     override val photoRepository: PhotoRepository by lazy {
         PhotoRepositoryImpl(
             storageManager = photoStorageManager,
+        )
+    }
+
+    // =========================================================================
+    // USE CASES (Fachlogik und Validierung)
+    // =========================================================================
+
+    override val saveGiftGroupUseCase: SaveGiftGroupUseCase by lazy {
+        SaveGiftGroupUseCase(
+            repository = giftGroupRepository,
+            validator = GiftGroupValidator(),
+        )
+    }
+    override val saveParticipantUseCase: SaveParticipantUseCase by lazy {
+        SaveParticipantUseCase(
+            participantRepository = participantRepository,
+            giftGroupRepository = giftGroupRepository,
+            validator = ParticipantValidator(),
+        )
+    }
+    override val saveWishListItemUseCase: SaveWishListItemUseCase by lazy {
+        SaveWishListItemUseCase(
+            repository = wishListRepository,
+            validator = WishListValidator(),
+        )
+    }
+    override val performDrawUseCase: PerformDrawUseCase by lazy {
+        PerformDrawUseCase(
+            giftGroupRepository = giftGroupRepository,
+            participantRepository = participantRepository,
+            wishListRepository = wishListRepository,
+            drawRepository = drawRepository,
+            algorithm = SecretSantaDrawAlgorithm(),
         )
     }
 }

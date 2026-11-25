@@ -41,13 +41,15 @@ fun GroupDetailRoute(
     val giftGroupRepository = container.giftGroupRepository
     val participantRepository = container.participantRepository
     val photoRepository = container.photoRepository
+    val saveParticipant = container.saveParticipantUseCase
 
-    val factory = remember(groupId, giftGroupRepository, participantRepository, photoRepository) {
+    val factory = remember(groupId, giftGroupRepository, participantRepository, photoRepository, saveParticipant) {
         GroupDetailViewModelFactory(
             groupId = groupId,
             giftGroupRepository = giftGroupRepository,
             participantRepository = participantRepository,
             photoRepository = photoRepository,
+            saveParticipant = saveParticipant,
         )
     }
 

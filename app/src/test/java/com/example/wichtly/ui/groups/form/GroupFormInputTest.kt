@@ -4,9 +4,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
+import com.example.wichtly.domain.validation.parseBudgetToCents
+import com.example.wichtly.domain.validation.parseDate
 
 /**
- * Unit-Tests für die Formulartext-Umwandlungsfunktionen in GroupFormInput.kt.
+ * Unit-Tests für die Umwandlung der Formulartexte: Parsen (domain/validation/GiftGroupInputParsing.kt)
+ * und Formatieren für die Anzeige (ui/groups/form/GroupFormInput.kt).
  *
  * Warum diese Tests wichtig sind:
  * Stellt sicher, dass Texteingaben für Budget und Datum korrekt geparst und formatiert werden

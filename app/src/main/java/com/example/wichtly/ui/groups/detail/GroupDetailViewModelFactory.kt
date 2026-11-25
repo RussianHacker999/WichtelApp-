@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
+import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 
 /**
  * Factory zur Erstellung von [GroupDetailViewModel]-Instanzen mit manueller Dependency Injection.
@@ -13,18 +14,20 @@ import com.example.wichtly.domain.repository.PhotoRepository
  * @param giftGroupRepository Das Repository für Gruppendaten.
  * @param participantRepository Das Repository für Teilnehmerdaten.
  * @param photoRepository Das Repository für Fotofunktionen.
+ * @param saveParticipant Der Use Case, der Teilnehmer prüft und speichert.
  */
 class GroupDetailViewModelFactory(
     private val groupId: String,
     private val giftGroupRepository: GiftGroupRepository,
     private val participantRepository: ParticipantRepository,
     private val photoRepository: PhotoRepository,
+    private val saveParticipant: SaveParticipantUseCase,
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(GroupDetailViewModel::class.java)) {
-            return GroupDetailViewModel(groupId, giftGroupRepository, participantRepository, photoRepository) as T
+            return GroupDetailViewModel(groupId, giftGroupRepository, participantRepository, photoRepository, saveParticipant) as T
         }
         throw IllegalArgumentException("Unbekannte ViewModel-Klasse: ${modelClass.name}")
     }

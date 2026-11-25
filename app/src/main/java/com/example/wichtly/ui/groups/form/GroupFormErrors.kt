@@ -1,29 +1,18 @@
 package com.example.wichtly.ui.groups.form
 
-import androidx.annotation.StringRes
 import com.example.wichtly.R
 import com.example.wichtly.domain.validation.GiftGroupValidationError
 
 /**
- * Fehlermeldungen als String-Ressourcen (Texte in strings.xml) für Format- und Konvertierungsfehler auf UI-/ViewModel-Ebene.
- *
- * Warum als Konstanten?
- * Diese Fehler entstehen im ViewModel vor dem Aufruf des Repositorys, wenn Benutzereingaben
- * nicht in die internen Zieltypen (LocalDate bzw. Cent-Betrag als Long) geparst werden können.
- * Das Datum fordert explizit das Format TT.MM.JJJJ und das Budget gibt ein Beispiel wie 25,50 an.
- */
-@StringRes
-val INVALID_DATE_FORMAT_ERROR: Int = R.string.error_date_format
-@StringRes
-val INVALID_BUDGET_FORMAT_ERROR: Int = R.string.error_budget_format
-
-/**
  * Übersetzt eine Liste von [GiftGroupValidationError] aus der Domain-Validierung in die Fehlerfelder von [GroupFormUiState].
+ *
+ * Die Fehler kommen vollständig aus dem SaveGiftGroupUseCase (Format- und Fachfehler in einem
+ * Durchlauf); das ViewModel prüft selbst nichts, es übersetzt nur.
  *
  * Zuordnung der Fehler:
  * - EmptyName, NameTooLong, DuplicateName -> nameError
- * - InvalidBudget -> budgetError
- * - DateInPast -> drawDayError
+ * - InvalidBudgetFormat, InvalidBudget -> budgetError
+ * - InvalidDateFormat, DateInPast -> drawDayError
  * - GroupNotFound -> generalError
  *
  * Regel bei Mehrfachfehlern auf demselben Feld:
@@ -33,6 +22,7 @@ val INVALID_BUDGET_FORMAT_ERROR: Int = R.string.error_budget_format
  * @param state Der aktuelle [GroupFormUiState].
  * @param errors Die Liste der aufgetretenen [GiftGroupValidationError]s.
  * @return Ein neues [GroupFormUiState] mit übersetzten, nutzerfreundlichen Fehlertexten auf Deutsch.
+ *         Felder ohne Fehler werden zurückgesetzt, auch ein früherer allgemeiner Fehler.
  */
 fun applyDomainValidationErrors(
     state: GroupFormUiState,
@@ -54,8 +44,14 @@ fun applyDomainValidationErrors(
             is GiftGroupValidationError.DuplicateName -> {
                 if (nameErr == null) nameErr = R.string.error_group_name_duplicate
             }
+            is GiftGroupValidationError.InvalidBudgetFormat -> {
+                if (budgetErr == null) budgetErr = R.string.error_budget_format
+            }
             is GiftGroupValidationError.InvalidBudget -> {
                 if (budgetErr == null) budgetErr = R.string.error_budget_invalid
+            }
+            is GiftGroupValidationError.InvalidDateFormat -> {
+                if (dateErr == null) dateErr = R.string.error_date_format
             }
             is GiftGroupValidationError.DateInPast -> {
                 if (dateErr == null) dateErr = R.string.error_date_in_past

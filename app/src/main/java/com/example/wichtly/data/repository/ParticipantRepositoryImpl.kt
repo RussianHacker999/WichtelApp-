@@ -6,16 +6,15 @@ import com.example.wichtly.data.mapper.toDomainModelList
 import com.example.wichtly.data.mapper.toEntity
 import com.example.wichtly.domain.model.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
-import com.example.wichtly.domain.validation.ParticipantResult
-import com.example.wichtly.domain.validation.ParticipantValidationError
-import com.example.wichtly.domain.validation.ParticipantValidator
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
+/**
+ * Room-Implementierung von [ParticipantRepository]. Reine Persistenz: Prüfungen passieren
+ * vorher im SaveParticipantUseCase.
+ */
 class ParticipantRepositoryImpl(
     private val participantDao: ParticipantDao,
-    private val validator: ParticipantValidator,
 ) : ParticipantRepository {
 
     override fun getParticipantsByGroupId(groupId: String): Flow<List<Participant>> {
@@ -26,39 +25,13 @@ class ParticipantRepositoryImpl(
         return participantDao.getParticipantById(id).map { it?.toDomainModel() }
     }
 
-    override suspend fun createParticipant(participant: Participant): ParticipantResult {
-        val sanitizedParticipant = participant.copy(name = participant.name.trim())
-        val existingParticipants = participantDao.getParticipantsByGroupId(sanitizedParticipant.groupId)
-            .first()
-            .toDomainModelList()
-
-        val errors = validator.validate(sanitizedParticipant, existingParticipants)
-        if (errors.isNotEmpty()) {
-            return ParticipantResult.ValidationError(errors)
-        }
-        participantDao.insertParticipant(sanitizedParticipant.toEntity())
-        return ParticipantResult.Success(sanitizedParticipant)
+    override suspend fun insertParticipant(participant: Participant) {
+        participantDao.insertParticipant(participant.toEntity())
     }
 
-    override suspend fun updateParticipant(participant: Participant): ParticipantResult {
-        val sanitizedParticipant = participant.copy(name = participant.name.trim())
-        val existingParticipants = participantDao.getParticipantsByGroupId(sanitizedParticipant.groupId)
-            .first()
-            .toDomainModelList()
-
-        val exists = existingParticipants.any { it.id == sanitizedParticipant.id }
-        if (!exists) {
-            return ParticipantResult.ValidationError(listOf(ParticipantValidationError.ParticipantNotFound))
-        }
-
-        val errors = validator.validate(sanitizedParticipant, existingParticipants)
-        if (errors.isNotEmpty()) {
-            return ParticipantResult.ValidationError(errors)
-        }
-
-        participantDao.updateParticipant(sanitizedParticipant.toEntity())
-        return ParticipantResult.Success(sanitizedParticipant)
-    }
+    // @Update liefert die Anzahl geänderter Zeilen; 0 heißt, der Teilnehmer existiert nicht (mehr)
+    override suspend fun updateParticipant(participant: Participant): Boolean =
+        participantDao.updateParticipant(participant.toEntity()) > 0
 
     override suspend fun deleteParticipant(id: String) {
         participantDao.deleteParticipantById(id)

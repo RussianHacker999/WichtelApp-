@@ -41,9 +41,15 @@ fun GroupFormRoute(
     val container = (context.applicationContext as WichtlyApplication).container
     val repository = container.giftGroupRepository
     val photoRepository = container.photoRepository
+    val saveGiftGroup = container.saveGiftGroupUseCase
 
-    val factory = remember(groupId, repository, photoRepository) {
-        GroupFormViewModelFactory(groupId = groupId, repository = repository, photoRepository = photoRepository)
+    val factory = remember(groupId, repository, photoRepository, saveGiftGroup) {
+        GroupFormViewModelFactory(
+            groupId = groupId,
+            repository = repository,
+            photoRepository = photoRepository,
+            saveGiftGroup = saveGiftGroup,
+        )
     }
     val viewModel: GroupFormViewModel = viewModel(key = groupId ?: "new", factory = factory)
     val state by viewModel.uiState.collectAsStateWithLifecycle()

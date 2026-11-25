@@ -41,6 +41,7 @@ import com.example.wichtly.ui.components.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
+import com.example.wichtly.domain.validation.GiftGroupValidator
 
 /**
  * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -213,7 +214,7 @@ private fun GroupFormContent(
                 value = state.name,
                 onValueChange = onNameChange,
                 placeholder = stringResource(R.string.group_form_name_placeholder),
-                errorText = state.nameError?.let { stringResource(it) },
+                errorText = state.nameError?.let { stringResource(it, GiftGroupValidator.MAX_NAME_LENGTH) },
                 enabled = enabled,
             )
         }

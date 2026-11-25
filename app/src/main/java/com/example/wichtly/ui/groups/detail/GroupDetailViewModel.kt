@@ -5,11 +5,11 @@ import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.wichtly.domain.model.Participant
 import com.example.wichtly.domain.model.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
+import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 import com.example.wichtly.domain.validation.ParticipantResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -50,12 +50,14 @@ private data class GroupDetailLocalState(
  * @param giftGroupRepository Repository für Gruppen.
  * @param participantRepository Repository für Teilnehmer.
  * @param photoRepository Repository für Fotofunktionen.
+ * @param saveParticipant Prüft und speichert Teilnehmer (einzige Stelle der Teilnehmer-Validierung).
  */
 class GroupDetailViewModel(
     private val groupId: String,
     private val giftGroupRepository: GiftGroupRepository,
     private val participantRepository: ParticipantRepository,
     private val photoRepository: PhotoRepository,
+    private val saveParticipant: SaveParticipantUseCase,
 ) : ViewModel() {
 
     private val _localState = MutableStateFlow(GroupDetailLocalState())
@@ -353,32 +355,16 @@ class GroupDetailViewModel(
     // TEILNEHMER SPEICHERN
     // =========================================================================
 
+    /**
+     * Speichert den Teilnehmer aus dem Editor-Dialog.
+     *
+     * Das ViewModel prüft nichts selbst: Name, Duplikat und Existenz von Gruppe und Teilnehmer
+     * prüft der [SaveParticipantUseCase]; hier werden nur seine Fehler in Texte übersetzt.
+     */
     fun onSaveParticipant() {
         if (_localState.value.isSaving) return
 
         val localState = _localState.value
-        val nameInput = localState.participantNameInput
-        val trimmedName = nameInput.trim()
-
-        if (trimmedName.isEmpty()) {
-            _localState.update { it.copy(participantNameError = EMPTY_PARTICIPANT_NAME_ERROR) }
-            return
-        }
-
-        if (trimmedName.length > 50) {
-            _localState.update { it.copy(participantNameError = PARTICIPANT_NAME_TOO_LONG_ERROR) }
-            return
-        }
-
-        val editingId = localState.editingParticipantId
-        val existingParticipant = if (editingId != null) {
-            uiState.value.participants.find { it.id == editingId }
-        } else null
-
-        if (editingId != null && existingParticipant == null) {
-            _localState.update { it.copy(participantNameError = R.string.error_participant_missing) }
-            return
-        }
 
         _localState.update {
             it.copy(
@@ -390,20 +376,12 @@ class GroupDetailViewModel(
 
         viewModelScope.launch {
             try {
-                val result = if (existingParticipant == null) {
-                    val newParticipant = Participant(
-                        groupId = groupId,
-                        name = trimmedName,
-                        photoPath = localState.participantPhotoPath,
-                    )
-                    participantRepository.createParticipant(newParticipant)
-                } else {
-                    val updatedParticipant = existingParticipant.copy(
-                        name = trimmedName,
-                        photoPath = localState.participantPhotoPath,
-                    )
-                    participantRepository.updateParticipant(updatedParticipant)
-                }
+                val result = saveParticipant(
+                    participantId = localState.editingParticipantId,
+                    groupId = groupId,
+                    name = localState.participantNameInput,
+                    photoPath = localState.participantPhotoPath,
+                )
 
                 when (result) {
                     is ParticipantResult.Success -> {

@@ -42,13 +42,15 @@ fun ParticipantWishlistRoute(
     val container = (context.applicationContext as WichtlyApplication).container
     val participantRepository = container.participantRepository
     val wishListRepository = container.wishListRepository
+    val saveWishListItem = container.saveWishListItemUseCase
 
-    // Instanziieren der ViewModelFactory mit den nötigen Repositories
-    val factory = remember(participantId, participantRepository, wishListRepository) {
+    // Instanziieren der ViewModelFactory mit den nötigen Repositories und dem Use Case zum Speichern
+    val factory = remember(participantId, participantRepository, wishListRepository, saveWishListItem) {
         WishlistViewModelFactory(
             participantId = participantId,
             participantRepository = participantRepository,
             wishListRepository = wishListRepository,
+            saveWishListItem = saveWishListItem,
         )
     }
 

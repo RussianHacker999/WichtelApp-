@@ -35,7 +35,7 @@ class ParticipantErrorsTest {
         val errors = listOf(ParticipantValidationError.EmptyName)
         val result = mapParticipantValidationErrors(errors)
 
-        assertEquals(EMPTY_PARTICIPANT_NAME_ERROR, result.nameError)
+        assertEquals(R.string.error_participant_name_empty, result.nameError)
         assertNull(result.generalError)
     }
 
@@ -47,7 +47,7 @@ class ParticipantErrorsTest {
         val errors = listOf(ParticipantValidationError.NameTooLong)
         val result = mapParticipantValidationErrors(errors)
 
-        assertEquals(PARTICIPANT_NAME_TOO_LONG_ERROR, result.nameError)
+        assertEquals(R.string.error_participant_name_too_long, result.nameError)
         assertNull(result.generalError)
     }
 
@@ -72,7 +72,7 @@ class ParticipantErrorsTest {
         val result = mapParticipantValidationErrors(errors)
 
         assertNull(result.nameError)
-        assertEquals(R.string.error_participant_not_found, result.generalError)
+        assertEquals(R.string.error_participant_missing, result.generalError)
     }
 
     /**
@@ -98,7 +98,7 @@ class ParticipantErrorsTest {
         )
         val result = mapParticipantValidationErrors(errors)
 
-        assertEquals(EMPTY_PARTICIPANT_NAME_ERROR, result.nameError)
+        assertEquals(R.string.error_participant_name_empty, result.nameError)
         assertNull(result.generalError)
     }
 }

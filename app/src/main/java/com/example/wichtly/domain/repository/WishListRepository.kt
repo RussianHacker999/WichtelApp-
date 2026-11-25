@@ -1,11 +1,11 @@
 package com.example.wichtly.domain.repository
 
 import com.example.wichtly.domain.model.WishListItem
-import com.example.wichtly.domain.validation.WishListItemResult
 import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing [WishListItem] domain entities.
+ * Pure persistence: business rules are checked beforehand in the SaveWishListItemUseCase.
  */
 interface WishListRepository {
     /**
@@ -19,14 +19,15 @@ interface WishListRepository {
     fun getWishListItemById(id: String): Flow<WishListItem?>
 
     /**
-     * Creates a new wishlist item.
+     * Stores a new, already validated wishlist item.
      */
-    suspend fun createWishListItem(item: WishListItem): WishListItemResult
+    suspend fun insertWishListItem(item: WishListItem)
 
     /**
-     * Updates an existing wishlist item.
+     * Updates an existing, already validated wishlist item.
+     * @return false if no item with this ID exists (anymore).
      */
-    suspend fun updateWishListItem(item: WishListItem): WishListItemResult
+    suspend fun updateWishListItem(item: WishListItem): Boolean
 
     /**
      * Deletes a wishlist item by its unique ID.

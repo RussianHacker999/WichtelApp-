@@ -57,10 +57,23 @@ class GroupFormErrorsTest {
     }
 
     @Test
-    fun formatErrorConstants_pointToFormatMessages() {
-        // Die Texte selbst (mit TT.MM.JJJJ bzw. 25,50) stehen in strings.xml
-        assertEquals(R.string.error_date_format, INVALID_DATE_FORMAT_ERROR)
-        assertEquals(R.string.error_budget_format, INVALID_BUDGET_FORMAT_ERROR)
+    fun formatErrors_mapToFormatMessages() {
+        // Formatfehler kommen jetzt ebenfalls aus dem Use Case; die Texte (mit TT.MM.JJJJ bzw. 25,50) stehen in strings.xml
+        val updatedState = applyDomainValidationErrors(
+            GroupFormUiState(),
+            listOf(GiftGroupValidationError.InvalidBudgetFormat, GiftGroupValidationError.InvalidDateFormat),
+        )
+        assertEquals(R.string.error_budget_format, updatedState.budgetError)
+        assertEquals(R.string.error_date_format, updatedState.drawDayError)
+    }
+
+    @Test
+    fun noErrors_clearsPreviousGeneralError() {
+        val updatedState = applyDomainValidationErrors(
+            GroupFormUiState(generalError = R.string.error_group_save),
+            emptyList(),
+        )
+        assertNull(updatedState.generalError)
     }
 
     @Test
