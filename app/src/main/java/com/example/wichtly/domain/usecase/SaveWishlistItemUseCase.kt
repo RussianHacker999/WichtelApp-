@@ -5,10 +5,10 @@ import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.validation.WishlistItemResult
 import com.example.wichtly.domain.validation.WishlistValidationError
 import com.example.wichtly.domain.validation.WishlistValidator
-import kotlinx.coroutines.flow.first
 import com.example.wichtly.logging.AppLog
+import kotlinx.coroutines.flow.first
 
-private const val TAG = "SaveWishlistItem"
+private const val TAG = "SaveWishlistItemUseCase"
 
 /**
  * Legt einen Wunsch an oder ändert ihn. Einzige Stelle, an der Wünsche geprüft werden.

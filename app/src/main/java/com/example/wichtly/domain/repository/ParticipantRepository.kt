@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.Flow
 interface ParticipantRepository {
     fun observeParticipantsByGroupId(groupId: String): Flow<List<Participant>>
     fun observeParticipantById(id: String): Flow<Participant?>
+
+    /** Fotopfade aller Teilnehmer aller Gruppen; für das Aufräumen verwaister Fotos. */
+    suspend fun getAllPhotoPaths(): List<String>
     suspend fun insertParticipant(participant: Participant)
 
     /** @return false, wenn es keinen Teilnehmer mit dieser ID (mehr) gibt. */

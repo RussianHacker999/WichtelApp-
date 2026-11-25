@@ -14,6 +14,9 @@ interface ParticipantDao {
     @Query("SELECT * FROM participants WHERE groupId = :groupId ORDER BY name COLLATE NOCASE ASC")
     fun observeParticipantsByGroupId(groupId: String): Flow<List<ParticipantEntity>>
 
+    @Query("SELECT photoPath FROM participants WHERE photoPath IS NOT NULL")
+    suspend fun getAllPhotoPaths(): List<String>
+
     @Query("SELECT * FROM participants WHERE id = :id")
     fun observeParticipantById(id: String): Flow<ParticipantEntity?>
 

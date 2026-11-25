@@ -2,14 +2,21 @@ package com.example.wichtly.ui.draws.history.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wichtly.WichtlyApplication
+import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryScreen
 
+/**
+ * Zustandsbehaftete Route der Auslosungshistorie: erzeugt das [DrawHistoryViewModel] (eins je Gruppe)
+ * und verbindet dessen Zustand mit dem zustandslosen [DrawHistoryScreen].
+ *
+ * @param groupId Gruppe, deren Auslosungen gezeigt werden.
+ * @param onBack Zurück-Navigation.
+ * @param onOpenDraw Navigation zu einer gespeicherten Auslosung.
+ * @param modifier Äußerer Modifier.
+ */
 @Composable
 fun DrawHistoryRoute(
     groupId: String,
@@ -17,23 +24,10 @@ fun DrawHistoryRoute(
     onOpenDraw: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Repositories aus dem AppContainer holen
-    val context = LocalContext.current
-    val container = (context.applicationContext as WichtlyApplication).container
-    val drawRepository = container.drawRepository
-    val giftGroupRepository = container.giftGroupRepository
-
-    // Factory mit groupId und beiden Repositories bauen
-    val factory = remember(groupId, drawRepository, giftGroupRepository) {
-        DrawHistoryViewModelFactory(
-            groupId = groupId,
-            drawRepository = drawRepository,
-            giftGroupRepository = giftGroupRepository,
-        )
-    }
-
-    // ViewModel holen, groupId als Schlüssel, eine Historie pro Gruppe
-    val viewModel: DrawHistoryViewModel = viewModel(key = groupId, factory = factory)
+    val viewModel: DrawHistoryViewModel = viewModel(
+        key = groupId,
+        factory = DrawHistoryViewModel.factory(appContainer(), groupId),
+    )
 
     // Zustand aus dem StateFlow einsammeln
     val state by viewModel.uiState.collectAsStateWithLifecycle()

@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.groups.detail.state
 
+import androidx.lifecycle.SavedStateHandle
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
@@ -541,7 +543,8 @@ class GroupDetailViewModelPhotoTest {
             )
         }
         val photoRepo = FakePhotoRepository().apply {
-            setExistingPaths(setOf(path1, path2))
+            // path2 steht in der Datenbank, die Datei fehlt aber auf dem Gerät
+            setExistingPaths(setOf(path1))
         }
 
         val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo))
@@ -554,5 +557,52 @@ class GroupDetailViewModelPhotoTest {
         assertNotNull(state.participantPhotoFiles["p1"])
         // p2 hat path2, aber Datei existiert auf der Platte nicht -> nicht in participantPhotoFiles
         assertTrue(!state.participantPhotoFiles.containsKey("p2"))
+    }
+
+    @Test
+    fun captureError_closesFlowAndShowsError() = runTest {
+        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
+        val participantRepo = FakeParticipantRepository()
+        val photoRepo = FakePhotoRepository()
+        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo))
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        viewModel.onAddParticipantClick()
+        viewModel.onPhotoSelectClick()
+        testScheduler.advanceUntilIdle()
+
+        viewModel.onPhotoCaptureError()
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.isPhotoFlowOpen)
+        assertEquals(R.string.error_photo_capture, viewModel.uiState.value.photoError)
+    }
+
+    @Test
+    fun restoredEditor_keepsInputsAndDoesNotDeleteCommittedPhoto() = runTest {
+        val committed = "photos/participants/anna.jpg"
+        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
+        val participantRepo = FakeParticipantRepository().apply {
+            setParticipants(listOf(Participant(id = participantId, groupId = groupId, name = "Anna", photoPath = committed)))
+        }
+        val photoRepo = FakePhotoRepository().apply { setExistingPaths(setOf(committed)) }
+        val handle = SavedStateHandle()
+        val vorher = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), savedStateHandle = handle)
+        backgroundScope.launch { vorher.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+        vorher.onEditParticipantClick(participantId)
+        vorher.onParticipantNameChange("Anna B.")
+        testScheduler.advanceUntilIdle()
+
+        // Prozesstod: neues ViewModel mit demselben Handle, dann ohne Speichern schließen
+        val nachher = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), savedStateHandle = handle)
+        backgroundScope.launch { nachher.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+        assertTrue(nachher.uiState.value.showParticipantEditor)
+        assertEquals("Anna B.", nachher.uiState.value.participantNameInput)
+
+        nachher.onDismissParticipantEditor()
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(photoRepo.deletedPaths.isEmpty())
     }
 }

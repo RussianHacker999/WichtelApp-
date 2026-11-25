@@ -24,10 +24,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.theme.Spacing
-import com.example.wichtly.ui.theme.WichtlyTheme
 import com.example.wichtly.ui.components.controls.PrimaryButton
 import com.example.wichtly.ui.components.display.Sparkle
+import com.example.wichtly.ui.theme.Spacing
+import com.example.wichtly.ui.theme.WichtlyTheme
 
 /** Centered spinner with a short text. Same on every screen. */
 @Composable

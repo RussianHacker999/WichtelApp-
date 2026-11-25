@@ -6,11 +6,11 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
-
 import com.example.wichtly.data.local.entity.DrawEntity
 import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
+import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface DrawDao {
@@ -28,6 +28,14 @@ interface DrawDao {
         """
     )
     fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummaryTuple>>
+
+    /**
+     * Lädt Gruppe, Teilnehmer und Wünsche für eine Auslosung in einer Transaktion.
+     * Nicht als Flow, weil die Auslosung einen festen Stand braucht.
+     */
+    @Transaction
+    @Query("SELECT * FROM gift_groups WHERE id = :groupId")
+    suspend fun getDrawSource(groupId: String): GiftGroupWithParticipants?
 
     @Transaction
     @Query("SELECT * FROM draws WHERE id = :drawId")

@@ -6,22 +6,19 @@ import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 import com.example.wichtly.domain.repository.DrawRepository
-import com.example.wichtly.domain.repository.GiftGroupRepository
-import com.example.wichtly.domain.repository.ParticipantRepository
-import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
-import kotlinx.coroutines.flow.first
+import com.example.wichtly.logging.AppLog
 import java.time.Instant
 import java.time.LocalDate
-import com.example.wichtly.logging.AppLog
 
-private const val TAG = "PerformDraw"
+private const val TAG = "PerformDrawUseCase"
 
 /**
  * Führt eine Auslosung durch. Einzige Stelle, an der geprüft wird, ob gelost werden darf.
  *
- * Ablauf: Gruppe muss existieren → Wichteltag darf nicht vorbei sein → mindestens
+ * Ablauf: Gruppe, Teilnehmer und Wünsche in einer Transaktion lesen ([DrawRepository.getDrawSource]) →
+ * Gruppe muss existieren → Wichteltag darf nicht vorbei sein → mindestens
  * [DrawRules.MIN_PARTICIPANTS] Teilnehmer →
  * Zuordnung per [SecretSantaDrawAlgorithm] → Namen und Wunschlisten der Empfänger als
  * unveränderlichen Snapshot kopieren → atomar über [DrawRepository.insertDraw] speichern.
@@ -30,9 +27,6 @@ private const val TAG = "PerformDraw"
  * @param today Liefert das heutige Datum für die Prüfung des Wichteltags; in Tests ersetzbar.
  */
 class PerformDrawUseCase(
-    private val giftGroupRepository: GiftGroupRepository,
-    private val participantRepository: ParticipantRepository,
-    private val wishlistRepository: WishlistRepository,
     private val drawRepository: DrawRepository,
     private val algorithm: SecretSantaDrawAlgorithm = SecretSantaDrawAlgorithm(),
     private val now: () -> Instant = { Instant.now() },
@@ -40,13 +34,13 @@ class PerformDrawUseCase(
 ) {
     suspend operator fun invoke(groupId: String): DrawResult {
         AppLog.d(TAG) { "Auslosung für Gruppe $groupId gestartet" }
-        val group = giftGroupRepository.observeGiftGroupById(groupId).first()
-        if (group == null) {
+        val source = drawRepository.getDrawSource(groupId)
+        if (source == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, keine Auslosung")
             return DrawResult.ValidationError(listOf(DrawValidationError.GroupNotFound))
         }
-
-        val participants = participantRepository.observeParticipantsByGroupId(groupId).first()
+        val group = source.group
+        val participants = source.participants.map { it.participant }
         val errors = buildList {
             if (!DrawRules.isDrawDayOpen(group.drawDay, today())) add(DrawValidationError.DrawDayPassed)
             if (!DrawRules.canDraw(participants.size)) add(DrawValidationError.NotEnoughParticipants)
@@ -58,12 +52,13 @@ class PerformDrawUseCase(
         }
 
         val participantsById = participants.associateBy { it.id }
+        val wishlistsById = source.participants.associate { it.participant.id to it.wishlist }
         val assignmentMap = algorithm.generateDerangement(participants.map { it.id })
 
         val assignments = assignmentMap.map { (giverId, receiverId) ->
             val giver = participantsById.getValue(giverId)
             val receiver = participantsById.getValue(receiverId)
-            val receiverWishes = wishlistRepository.observeWishlistItems(receiver.id).first()
+            val receiverWishes = wishlistsById.getValue(receiver.id)
                 .map { item -> DrawWishlistItemSnapshot(text = item.text, sortOrder = item.sortOrder) }
             DrawAssignment(
                 giverName = giver.name,

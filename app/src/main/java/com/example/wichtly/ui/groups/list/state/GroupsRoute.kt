@@ -2,12 +2,10 @@ package com.example.wichtly.ui.groups.list.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wichtly.WichtlyApplication
+import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.groups.list.screen.GroupsScreen
 
 /**
@@ -28,15 +26,9 @@ fun GroupsRoute(
     onPrepareDraw: (groupId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
-    val container = (context.applicationContext as WichtlyApplication).container
-    val giftGroupRepository = container.giftGroupRepository
-    val photoRepository = container.photoRepository
-
-    val factory = remember(giftGroupRepository, photoRepository) {
-        GroupsViewModelFactory(repository = giftGroupRepository, photoRepository = photoRepository)
-    }
-    val viewModel: GroupsViewModel = viewModel(factory = factory)
+    val viewModel: GroupsViewModel = viewModel(
+        factory = GroupsViewModel.factory(appContainer()),
+    )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     GroupsScreen(

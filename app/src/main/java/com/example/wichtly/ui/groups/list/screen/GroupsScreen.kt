@@ -1,8 +1,5 @@
 package com.example.wichtly.ui.groups.list.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.components.display.labelRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -36,29 +33,32 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.components.layout.LoadingState
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
-import com.example.wichtly.ui.components.layout.BottomActionBar
-import com.example.wichtly.ui.components.layout.BrandTopBar
-import com.example.wichtly.ui.components.display.ChipTone
 import com.example.wichtly.ui.components.controls.ItemMenu
-import com.example.wichtly.ui.components.display.ListItemText
 import com.example.wichtly.ui.components.controls.MenuAction
-import com.example.wichtly.ui.components.layout.MessageState
-import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.controls.PrimaryButton
 import com.example.wichtly.ui.components.controls.SectionActionButton
-import com.example.wichtly.ui.components.layout.SectionHeader
+import com.example.wichtly.ui.components.display.ChipTone
+import com.example.wichtly.ui.components.display.ListItemText
 import com.example.wichtly.ui.components.display.StatusChip
-import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.display.areaSparkles
-import com.example.wichtly.ui.components.display.initialsOf
-import com.example.wichtly.ui.components.photo.PhotoThumbnail
-import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.components.display.formatCentsForInput
+import com.example.wichtly.ui.components.display.initialsOf
+import com.example.wichtly.ui.components.display.labelRes
+import com.example.wichtly.ui.components.layout.BottomActionBar
+import com.example.wichtly.ui.components.layout.BrandTopBar
+import com.example.wichtly.ui.components.layout.LoadingState
+import com.example.wichtly.ui.components.layout.MessageState
+import com.example.wichtly.ui.components.layout.PageHeader
+import com.example.wichtly.ui.components.layout.SectionHeader
+import com.example.wichtly.ui.components.layout.WichtlyScaffold
+import com.example.wichtly.ui.components.layout.screenContentPadding
+import com.example.wichtly.ui.components.photo.PhotoThumbnail
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
@@ -99,11 +99,16 @@ fun GroupsScreen(
             // Ohne Gruppen (oder beim Laden/Fehler) gibt es nichts zu losen, also keine Aktionsleiste.
             if (!state.isLoading && state.errorMessage == null && state.groups.isNotEmpty()) {
                 val hasSelection = state.selectedGroupId != null
-                BottomActionBar(hint = if (hasSelection) null else stringResource(R.string.groups_select_hint)) {
+                val hint = when {
+                    !hasSelection -> stringResource(R.string.groups_select_hint)
+                    state.selectedDrawDayPassed -> stringResource(R.string.common_draw_day_passed)
+                    else -> null
+                }
+                BottomActionBar(hint = hint) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
                         // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
-                        enabled = hasSelection,
+                        enabled = hasSelection && !state.selectedDrawDayPassed,
                         onClick = { state.selectedGroupId?.let(onPrepareDrawClick) },
                         icon = Icons.Filled.Redeem,
                         modifier = Modifier.weight(1f),

@@ -1,8 +1,5 @@
 package com.example.wichtly.ui.draws.detail.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,9 +28,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,6 +52,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,7 +61,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.wichtly.R
 import com.example.wichtly.ui.components.display.Sparkle
+import com.example.wichtly.ui.theme.EyebrowStyle
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
@@ -301,6 +301,7 @@ private object GiftTagShape : Shape {
  * ============================================================================ */
 
 private val previewAssignment = DrawAssignmentUiModel(
+    id = "a1",
     giverId = "p1",
     giverName = "Mara",
     receiverId = "p2",

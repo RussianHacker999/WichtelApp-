@@ -1,7 +1,5 @@
 package com.example.wichtly.ui.wishlist.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,26 +14,28 @@ import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.participant.WishlistItem
-import com.example.wichtly.ui.components.layout.BottomActionBar
-import com.example.wichtly.ui.components.display.InitialsAvatar
+import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.ui.components.controls.ItemMenu
-import com.example.wichtly.ui.components.display.ListItemCard
-import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.controls.MenuAction
-import com.example.wichtly.ui.components.layout.MessageState
-import com.example.wichtly.ui.components.display.NumberAvatar
-import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.controls.PrimaryButton
+import com.example.wichtly.ui.components.display.InitialsAvatar
+import com.example.wichtly.ui.components.display.ListItemCard
+import com.example.wichtly.ui.components.display.NumberAvatar
+import com.example.wichtly.ui.components.layout.BottomActionBar
+import com.example.wichtly.ui.components.layout.LoadingState
+import com.example.wichtly.ui.components.layout.MessageState
+import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
-import com.example.wichtly.domain.validation.WishlistValidator
 
 /**
  * Zustandsloser Composable-Screen für die Wunschliste eines Teilnehmers.

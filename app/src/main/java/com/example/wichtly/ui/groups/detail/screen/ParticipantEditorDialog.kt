@@ -1,7 +1,5 @@
 package com.example.wichtly.ui.groups.detail.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -10,7 +8,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.wichtly.R
+import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
@@ -18,7 +19,6 @@ import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
 import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
-import com.example.wichtly.domain.validation.ParticipantValidator
 
 /**
  * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wichtelgruppen-Teilnehmers
@@ -41,6 +41,7 @@ import com.example.wichtly.domain.validation.ParticipantValidator
  * @param onPhotoCaptured Callback nach erfolgreicher Aufnahme.
  * @param onRemovePhoto Callback zum Entfernen des Fotos.
  * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
+ * @param onPhotoCaptureError Kamera startet nicht oder Aufnahme scheitert.
  * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
  * @param modifier Optionaler Layout-Modifier.
  */
@@ -63,6 +64,7 @@ fun ParticipantEditorDialog(
     onPhotoCaptured: (File) -> Unit,
     onRemovePhoto: () -> Unit,
     onCameraDenied: () -> Unit,
+    onPhotoCaptureError: () -> Unit,
     onOpenAppSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -108,6 +110,7 @@ fun ParticipantEditorDialog(
             onPhotoCaptured = onPhotoCaptured,
             onRemovePhoto = onRemovePhoto,
             onCameraDenied = onCameraDenied,
+            onCaptureError = onPhotoCaptureError,
         )
     }
 }
@@ -130,7 +133,7 @@ private fun PreviewDialog(
             onNameChange = {}, onSave = {}, onDismiss = {},
             photoPath = null, photoFile = null, photoError = null, isPhotoFlowOpen = false, cameraDenied = cameraDenied,
             onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            onCameraDenied = {}, onPhotoCaptureError = {}, onOpenAppSettings = {},
         )
     }
 }

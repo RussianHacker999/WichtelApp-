@@ -1,15 +1,16 @@
 package com.example.wichtly.ui.components.photo
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
+import android.util.Size
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview as CameraPreview
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,14 +20,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.foundation.border
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -37,15 +37,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.CancellationException
-import java.io.File
+import com.example.wichtly.R
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.theme.Spacing
+import java.io.File
+import androidx.camera.core.Preview as CameraPreview
 
 private const val TAG = "CameraCaptureScreen"
+
+// Zielauflösung der Aufnahme: reicht für Vorschaubilder und Avatare, spart Speicher gegenüber voller Sensorauflösung
+private val CaptureTargetSize = Size(1280, 960)
 
 /**
  * Vollbild-Kameravorschau mit CameraX zur Aufnahme eines Gruppen- oder Teilnehmerfotos.
@@ -56,6 +63,10 @@ private const val TAG = "CameraCaptureScreen"
  *
  * VORAUSSETZUNG:
  * Die Kamera-Berechtigung (`android.permission.CAMERA`) ist bereits erteilt.
+ *
+ * Robustheit: Ohne Rückkamera (z. B. manche Emulatoren) wird die Frontkamera genutzt; der Auslöser
+ * ignoriert weitere Tipps, solange eine Aufnahme läuft; wird der Screen vor dem Binden geschlossen,
+ * bindet der verspätete Listener die Kamera nicht mehr.
  *
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme mit der erzeugten [File].
  * @param onCancel Callback beim Abbrechen der Vorschau (z. B. Schließen-Button oben links oder System-Back).
@@ -74,7 +85,11 @@ fun CameraCaptureScreen(
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
+    var isCapturing by remember { mutableStateOf(false) }
+    // Wird in onDispose gesetzt; der Listener des Providers kann danach noch laufen
+    val isDisposed = remember { booleanArrayOf(false) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val shutterDescription = stringResource(R.string.photo_take)
 
     // System-Zurück abfangen
     BackHandler {
@@ -93,15 +108,28 @@ fun CameraCaptureScreen(
                 val executor = ContextCompat.getMainExecutor(ctx)
 
                 cameraProviderFuture.addListener({
+                    // Screen schon geschlossen: nicht mehr binden, sonst bleibt die Kamera belegt
+                    if (isDisposed[0]) return@addListener
                     try {
                         val cameraProvider = cameraProviderFuture.get()
                         val preview = CameraPreview.Builder().build().also {
                             it.setSurfaceProvider(previewView.surfaceProvider)
                         }
-                        val capture = ImageCapture.Builder().build()
+                        val resolutionSelector = ResolutionSelector.Builder()
+                            .setResolutionStrategy(
+                                ResolutionStrategy(CaptureTargetSize, ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER)
+                            )
+                            .build()
+                        val capture = ImageCapture.Builder().setResolutionSelector(resolutionSelector).build()
                         imageCapture = capture
 
-                        val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                        // Emulatoren und manche Geräte haben keine Rückkamera
+                        val cameraSelector = if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                            CameraSelector.DEFAULT_BACK_CAMERA
+                        } else {
+                            AppLog.i(TAG, "Keine Rückkamera, nutze Frontkamera")
+                            CameraSelector.DEFAULT_FRONT_CAMERA
+                        }
 
                         cameraProvider.unbindAll()
                         cameraProvider.bindToLifecycle(
@@ -112,7 +140,6 @@ fun CameraCaptureScreen(
                         )
                         AppLog.d(TAG) { "Kamera gebunden" }
                     } catch (e: Exception) {
-                        if (e is CancellationException) throw e
                         AppLog.e(TAG, "Fehler beim Binden der Kamera", e)
                         onError(captureErrorText)
                     }
@@ -145,15 +172,17 @@ fun CameraCaptureScreen(
         // Runder Auslöser-Button unten zentriert (mit navigationBarsPadding)
         FloatingActionButton(
             onClick = {
+                // Doppeltipp: nur eine Aufnahme, sonst bleiben verwaiste Dateien zurück
+                if (isCapturing) return@FloatingActionButton
                 val capture = imageCapture ?: return@FloatingActionButton
                 val photoFile = try {
                     File.createTempFile("photo_", ".jpg", context.cacheDir)
                 } catch (e: Exception) {
-                    if (e is CancellationException) throw e
                     AppLog.e(TAG, "Fehler beim Erstellen der temporären Datei", e)
                     onError(captureErrorText)
                     return@FloatingActionButton
                 }
+                isCapturing = true
 
                 val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
                 val mainExecutor = ContextCompat.getMainExecutor(context)
@@ -169,6 +198,8 @@ fun CameraCaptureScreen(
 
                         override fun onError(exception: ImageCaptureException) {
                             AppLog.e(TAG, "Fehler beim Speichern des Fotos", exception)
+                            isCapturing = false
+                            photoFile.delete()
                             onError(captureErrorText)
                         }
                     }
@@ -181,7 +212,9 @@ fun CameraCaptureScreen(
                 .padding(bottom = Spacing.xxl)
                 .size(80.dp)
                 .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                .padding(Spacing.s),
+                .padding(Spacing.s)
+                // Der Auslöser hat kein Icon; TalkBack liest diese Beschreibung vor
+                .semantics { contentDescription = shutterDescription },
             shape = CircleShape,
             containerColor = Color.White,
             contentColor = Color.White,
@@ -191,12 +224,12 @@ fun CameraCaptureScreen(
     // Beim Verlassen der Screen die Kamera unbinden
     DisposableEffect(lifecycleOwner) {
         onDispose {
+            isDisposed[0] = true
             try {
                 if (cameraProviderFuture.isDone) {
                     cameraProviderFuture.get().unbindAll()
                 }
             } catch (e: Exception) {
-                if (e is CancellationException) throw e
                 AppLog.w(TAG, "Fehler beim Unbinden der Kamera", e)
             }
         }

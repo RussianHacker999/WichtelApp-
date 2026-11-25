@@ -1,12 +1,12 @@
 package com.example.wichtly.ui.components.photo
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.R
 import com.example.wichtly.ui.components.controls.HintBar
 import com.example.wichtly.ui.theme.WichtlyTheme
 

@@ -1,9 +1,5 @@
 package com.example.wichtly.ui.groups.form.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.components.display.labelRes
-import com.example.wichtly.ui.components.display.descriptionRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,28 +15,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.DrawType
-import com.example.wichtly.ui.components.layout.BottomActionBar
+import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.ui.components.controls.ChoiceCard
 import com.example.wichtly.ui.components.controls.FieldLabel
+import com.example.wichtly.ui.components.controls.PrimaryButton
+import com.example.wichtly.ui.components.controls.SecondaryButton
+import com.example.wichtly.ui.components.controls.WichtlyTextField
+import com.example.wichtly.ui.components.display.descriptionRes
+import com.example.wichtly.ui.components.display.labelRes
+import com.example.wichtly.ui.components.layout.BottomActionBar
 import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.layout.MessageState
 import com.example.wichtly.ui.components.layout.PageHeader
-import com.example.wichtly.ui.components.controls.PrimaryButton
-import com.example.wichtly.ui.components.controls.SecondaryButton
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
-import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
+import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
 import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
 import com.example.wichtly.ui.components.photo.PhotoPickerField
-import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
-import java.io.File
-import com.example.wichtly.domain.validation.GiftGroupValidator
 
 /**
  * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -57,35 +56,13 @@ import com.example.wichtly.domain.validation.GiftGroupValidator
  *   - Abbrechen- und Speichern-Buttons nebeneinander in der Aktionsleiste unten.
  *
  * @param state Der aktuelle UI-Zustand des Formulars.
- * @param onNameChange Callback bei Änderung des Gruppennamens.
- * @param onBudgetChange Callback bei Änderung des Budgets.
- * @param onDrawDayChange Callback bei Änderung des Auslosungsdatums.
- * @param onDrawTypeChange Callback bei Änderung des Wichtel-Typs.
- * @param onSaveClick Callback zum Auslösen des Speichervorgangs.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onPhotoSelectClick Öffnet den Foto-Ablauf.
- * @param onPhotoFlowClose Schließt den Foto-Ablauf.
- * @param onPhotoCaptured Neues Foto aufgenommen.
- * @param onRemovePhoto Foto entfernen.
- * @param onCameraDenied Kamerazugriff abgelehnt.
- * @param onOpenAppSettings Öffnet die App-Einstellungen.
+ * @param actions Alle Nutzeraktionen des Screens, siehe [GroupFormActions].
  * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun GroupFormScreen(
     state: GroupFormUiState,
-    onNameChange: (String) -> Unit,
-    onBudgetChange: (String) -> Unit,
-    onDrawDayChange: (String) -> Unit,
-    onDrawTypeChange: (DrawType) -> Unit,
-    onSaveClick: () -> Unit,
-    onBack: () -> Unit,
-    onPhotoSelectClick: () -> Unit,
-    onPhotoFlowClose: () -> Unit,
-    onPhotoCaptured: (File) -> Unit,
-    onRemovePhoto: () -> Unit,
-    onCameraDenied: () -> Unit,
-    onOpenAppSettings: () -> Unit,
+    actions: GroupFormActions,
     modifier: Modifier = Modifier,
 ) {
     val showForm = !state.isLoading && !state.notFound
@@ -95,7 +72,7 @@ fun GroupFormScreen(
         topBar = {
             WichtlyTopBar(
                 title = stringResource(if (state.isEditMode) R.string.common_edit_group else R.string.action_create_group),
-                onBack = onBack,
+                onBack = actions.onBack,
             )
         },
         bottomBar = {
@@ -104,7 +81,7 @@ fun GroupFormScreen(
                 BottomActionBar(modifier = Modifier.imePadding()) {
                     SecondaryButton(
                         text = stringResource(R.string.common_cancel),
-                        onClick = onBack,
+                        onClick = actions.onBack,
                         enabled = !state.isSaving,
                         modifier = Modifier.weight(1f),
                     )
@@ -116,7 +93,7 @@ fun GroupFormScreen(
                                 else -> R.string.group_form_create
                             }
                         ),
-                        onClick = onSaveClick,
+                        onClick = actions.onSaveClick,
                         loading = state.isSaving,
                         modifier = Modifier.weight(1f),
                     )
@@ -136,18 +113,18 @@ fun GroupFormScreen(
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
                 actionLabel = stringResource(R.string.common_back_to_overview),
-                onAction = onBack,
+                onAction = actions.onBack,
             )
             // 3. ZUSTAND: Formular anzeigen
             else -> GroupFormContent(
                 state = state,
                 innerPaddingTop = innerPadding,
-                onNameChange = onNameChange,
-                onBudgetChange = onBudgetChange,
-                onDrawDayChange = onDrawDayChange,
-                onDrawTypeChange = onDrawTypeChange,
-                onPhotoSelectClick = onPhotoSelectClick,
-                onOpenAppSettings = onOpenAppSettings,
+                onNameChange = actions.onNameChange,
+                onBudgetChange = actions.onBudgetChange,
+                onDrawDayChange = actions.onDrawDayChange,
+                onDrawTypeChange = actions.onDrawTypeChange,
+                onPhotoSelectClick = actions.onPhotoSelectClick,
+                onOpenAppSettings = actions.onOpenAppSettings,
             )
         }
     }
@@ -155,10 +132,11 @@ fun GroupFormScreen(
     PhotoCaptureFlow(
         hasPhoto = state.photoPath != null,
         isOpen = state.isPhotoFlowOpen,
-        onClose = onPhotoFlowClose,
-        onPhotoCaptured = onPhotoCaptured,
-        onRemovePhoto = onRemovePhoto,
-        onCameraDenied = onCameraDenied,
+        onClose = actions.onPhotoFlowClose,
+        onPhotoCaptured = actions.onPhotoCaptured,
+        onRemovePhoto = actions.onRemovePhoto,
+        onCameraDenied = actions.onCameraDenied,
+        onCaptureError = actions.onPhotoCaptureError,
     )
 }
 
@@ -279,16 +257,30 @@ private fun ErrorText(text: String) {
 /**
  * Preview 1: Erstellen-Modus mit leeren Feldern.
  */
+
+private val previewActions = GroupFormActions(
+    onNameChange = { _ -> },
+    onBudgetChange = { _ -> },
+    onDrawDayChange = { _ -> },
+    onDrawTypeChange = { _ -> },
+    onSaveClick = { },
+    onBack = { },
+    onPhotoSelectClick = { },
+    onPhotoFlowClose = { },
+    onPhotoCaptured = { _ -> },
+    onRemovePhoto = { },
+    onCameraDenied = { },
+    onPhotoCaptureError = { },
+    onOpenAppSettings = { },
+)
+
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupFormScreenCreatePreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(isEditMode = false, isLoading = false),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }
@@ -305,10 +297,7 @@ private fun GroupFormScreenEditPreview() {
                 isEditMode = true, isLoading = false, name = "Büro Wichteln 2026",
                 budget = "25,00", drawDay = "24.12.2026", drawType = DrawType.NORMAL,
             ),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }
@@ -329,10 +318,7 @@ private fun GroupFormScreenErrorsPreview() {
                 generalError = R.string.error_group_save,
                 cameraDenied = true,
             ),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }
@@ -349,10 +335,7 @@ private fun GroupFormScreenSavingPreview() {
                 isEditMode = true, isLoading = false, isSaving = true, name = "Familie Wichteln",
                 budget = "50,00", drawDay = "31.12.2026", drawType = DrawType.JUNK,
             ),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }
@@ -366,10 +349,7 @@ private fun GroupFormScreenLoadingPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(isEditMode = true, isLoading = true),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }
@@ -383,10 +363,7 @@ private fun GroupFormScreenNotFoundPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(isEditMode = true, isLoading = false, notFound = true),
-            onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {},
+            actions = previewActions,
         )
     }
 }

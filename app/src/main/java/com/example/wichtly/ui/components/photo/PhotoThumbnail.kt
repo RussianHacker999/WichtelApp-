@@ -1,7 +1,5 @@
 package com.example.wichtly.ui.components.photo
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -11,11 +9,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
@@ -24,14 +22,16 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.R
+import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.theme.WichtlyTheme
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import com.example.wichtly.logging.AppLog
 
 private const val TAG = "PhotoThumbnail"
 
@@ -83,8 +83,9 @@ fun PhotoThumbnail(
                         val rotatedBitmap = rotateBitmapIfNeeded(decodedBitmap, file.absolutePath)
                         rotatedBitmap.asImageBitmap()
                     }
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
-                    if (e is CancellationException) throw e
                     AppLog.w(TAG, "Foto konnte nicht dekodiert werden, Platzhalter wird angezeigt: ${file.name}", e)
                     null
                 }
@@ -156,7 +157,7 @@ private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
             rotatedBitmap
         }
     } catch (e: Exception) {
-        if (e is CancellationException) throw e
+        // Kein Rethrow von CancellationException: normale Funktion, keine Coroutine
         AppLog.w(TAG, "EXIF-Ausrichtung nicht lesbar, Foto wird ungedreht angezeigt: ${filePath.substringAfterLast('/')}", e)
         bitmap
     }

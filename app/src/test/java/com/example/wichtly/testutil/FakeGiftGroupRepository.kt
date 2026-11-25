@@ -4,6 +4,7 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -43,11 +44,10 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         groupsFlow.value = groupsFlow.value.filter { it.id != id }
     }
 
-    override fun observeGiftGroups(): Flow<List<GiftGroup>> {
-        if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppen") }
-        }
-        return groupsFlow
+    // failFlows wird erst beim Sammeln geprüft: so lässt sich ein erneutes Abonnieren nach einem Fehler testen
+    override fun observeGiftGroups(): Flow<List<GiftGroup>> = flow {
+        if (failFlows) throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppen")
+        emitAll(groupsFlow)
     }
 
     override fun observeGiftGroupById(id: String): Flow<GiftGroup?> {

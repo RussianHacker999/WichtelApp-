@@ -1,23 +1,24 @@
 package com.example.wichtly.ui.draws.preparation.state
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
+import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
+import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.MainDispatcherRule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
-import com.example.wichtly.domain.usecase.PerformDrawUseCase
-import com.example.wichtly.testutil.FakeWishlistRepository
 
 
 /**
@@ -60,7 +61,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), FakeDrawRepository(), today = { heute }),
+            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute }),
             today = { heute },
         )
 
@@ -98,7 +99,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), FakeDrawRepository(), today = { heute }),
+            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute }),
             today = { heute },
         )
 
@@ -130,7 +131,7 @@ class PreparationViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants((1..anzahlTeilnehmer).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") })
         }
-        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), drawRepository, today = { heute })
+        val performDraw = PerformDrawUseCase(drawRepository.withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute })
         return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw, today = { heute })
     }
 
@@ -190,7 +191,8 @@ class PreparationViewModelTest {
 
         assertNull(erhalteneDrawId)
         assertEquals(0, drawRepository.insertDrawCalls)
-        assertNotNull(viewModel.uiState.value.errorMessage)
+        assertNull(viewModel.uiState.value.errorMessage)
+        assertEquals(R.string.preparation_min_participants, viewModel.uiState.value.drawError)
     }
 
     @Test
@@ -203,7 +205,9 @@ class PreparationViewModelTest {
         viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
 
-        assertNotNull(viewModel.uiState.value.errorMessage)
+        // Technischer Fehler beim Losen: Inhalt bleibt, Fehler steht über dem Button
+        assertNull(viewModel.uiState.value.errorMessage)
+        assertEquals(R.string.error_draw_failed, viewModel.uiState.value.drawError)
         assertFalse(viewModel.uiState.value.isDrawing)
     }
 

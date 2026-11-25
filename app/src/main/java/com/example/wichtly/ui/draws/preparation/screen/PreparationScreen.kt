@@ -1,9 +1,5 @@
 package com.example.wichtly.ui.draws.preparation.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.components.display.labelRes
-import com.example.wichtly.domain.model.draw.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,26 +18,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.wichtly.R
+import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.ui.components.layout.BottomActionBar
+import com.example.wichtly.ui.components.controls.PrimaryButton
+import com.example.wichtly.ui.components.controls.SecondaryButton
 import com.example.wichtly.ui.components.display.InfoRowsCard
 import com.example.wichtly.ui.components.display.InitialsAvatar
 import com.example.wichtly.ui.components.display.ListItemCard
+import com.example.wichtly.ui.components.display.formatCentsForInput
+import com.example.wichtly.ui.components.display.formatDateForInput
+import com.example.wichtly.ui.components.display.labelRes
+import com.example.wichtly.ui.components.layout.BottomActionBar
 import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.layout.MessageState
 import com.example.wichtly.ui.components.layout.PageHeader
-import com.example.wichtly.ui.components.controls.PrimaryButton
-import com.example.wichtly.ui.components.controls.SecondaryButton
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.display.formatCentsForInput
-import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
@@ -96,7 +96,7 @@ fun PreparationScreen(
             )
             state.notFound || group == null -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
-                text = stringResource(R.string.preparation_group_missing_text),
+                text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
                 actionLabel = stringResource(R.string.common_back),
@@ -126,7 +126,14 @@ fun PreparationScreen(
                     )
                 }
                 item {
-                    if (state.canStartDraw) {
+                    if (state.drawError != null) {
+                        // Aktionsfehler: Inhalt und Button bleiben, damit erneut gelost werden kann
+                        StatusLine(
+                            icon = Icons.Outlined.ErrorOutline,
+                            text = stringResource(state.drawError, DrawRules.MIN_PARTICIPANTS),
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    } else if (state.canStartDraw) {
                         StatusLine(
                             icon = Icons.Filled.CheckCircle,
                             text = stringResource(R.string.preparation_ready),

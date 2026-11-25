@@ -8,11 +8,11 @@ import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.parseBudgetToCents
 import com.example.wichtly.domain.validation.parseDate
+import com.example.wichtly.logging.AppLog
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
-import com.example.wichtly.logging.AppLog
 
-private const val TAG = "SaveGiftGroup"
+private const val TAG = "SaveGiftGroupUseCase"
 
 /**
  * Rohe Formulareingaben einer Wichtelgruppe, so wie der Nutzer sie getippt hat.

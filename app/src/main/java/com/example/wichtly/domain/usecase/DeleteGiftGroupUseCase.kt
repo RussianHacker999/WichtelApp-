@@ -3,15 +3,13 @@ package com.example.wichtly.domain.usecase
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
+import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.domain.validation.GiftGroupResult
 import com.example.wichtly.domain.validation.GiftGroupValidationError
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import com.example.wichtly.logging.AppLog
+import kotlinx.coroutines.flow.first
 
-private const val TAG = "DeleteGiftGroup"
+private const val TAG = "DeleteGiftGroupUseCase"
 
 /**
  * Löscht eine Wichtelgruppe samt allem, was zu ihr gehört.
@@ -48,19 +46,8 @@ class DeleteGiftGroupUseCase(
         giftGroupRepository.deleteGiftGroup(groupId)
         AppLog.i(TAG, "Gruppe $groupId gelöscht (${participants.size} Teilnehmer, ${photoPaths.size} Fotos)")
 
-        // Aufräumen darf nicht abbrechen, auch wenn der Nutzer den Screen schon verlässt
-        withContext(NonCancellable) {
-            for (path in photoPaths) {
-                try {
-                    photoRepository.deletePhoto(path)
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    // Best Effort: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
-                    AppLog.w(TAG, "Foto $path konnte nicht gelöscht werden", e)
-                }
-            }
-        }
+        // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
+        photoPaths.forEach { photoRepository.deletePhotoQuietly(it, TAG) }
         return GiftGroupResult.Success(group)
     }
 }

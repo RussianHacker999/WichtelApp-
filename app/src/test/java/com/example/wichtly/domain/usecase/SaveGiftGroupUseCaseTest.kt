@@ -7,10 +7,10 @@ import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
-import org.junit.Assert.assertFalse
 
 /**
  * Tests für [SaveGiftGroupUseCase], die einzige Stelle, an der Wichtelgruppen geprüft werden.

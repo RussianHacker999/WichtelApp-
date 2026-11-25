@@ -63,10 +63,7 @@ class UseCaseLoggingTest {
     fun auslosungLoggtNurAnzahlenUndKeineNamen() = runTest {
         val teilnehmer = listOf("Anna", "Ben", "Clara").mapIndexed { i, name -> Participant(id = "p$i", groupId = "g1", name = name) }
         val useCase = PerformDrawUseCase(
-            FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
-            FakeParticipantRepository().apply { setParticipants(teilnehmer) },
-            FakeWishlistRepository(),
-            FakeDrawRepository(),
+            FakeDrawRepository().withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(teilnehmer) }, FakeWishlistRepository()),
             today = { LocalDate.of(2026, 11, 25) },
         )
 

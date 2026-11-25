@@ -1,13 +1,21 @@
 package com.example.wichtly.ui.draws.detail.state
 
-import androidx.annotation.StringRes
-import com.example.wichtly.R
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.wichtly.R
+import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
+import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.asResult
+import com.example.wichtly.ui.draws.detail.screen.DrawAssignmentUiModel
+import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiModel
+import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -22,10 +30,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.time.ZoneId
-import com.example.wichtly.logging.AppLog
-import com.example.wichtly.ui.draws.detail.screen.DrawAssignmentUiModel
-import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiModel
-import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiState
 
 private const val TAG = "DrawDetailViewModel"
 
@@ -34,7 +38,6 @@ private const val TAG = "DrawDetailViewModel"
  */
 private data class DrawDetailLocalState(
     val revealedGiverId: String? = null,
-    @StringRes val loadError: Int? = null,
 )
 
 /**
@@ -68,16 +71,12 @@ class DrawDetailViewModel(
      * Scheitert nur das Laden des Namens, bleibt die Auslosung sichtbar und die UI zeigt den Platzhalter.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val drawWithGroupName: Flow<Pair<DrawDetail?, String?>> = drawRepository.observeDrawDetailById(drawId)
-        .catch { e ->
-            if (e is CancellationException) throw e
-            AppLog.e(TAG, "Fehler beim Laden der Auslosung.", e)
-            _localState.update { it.copy(loadError = R.string.error_draw_load) }
-            emit(null)
-        }
-        .flatMapLatest { draw ->
+    private val drawWithGroupName: Flow<Pair<Result<DrawDetail?>, String?>> = drawRepository.observeDrawDetailById(drawId)
+        .asResult(TAG, "Fehler beim Laden der Auslosung.")
+        .flatMapLatest { drawResult ->
+            val draw = drawResult.getOrNull()
             if (draw == null) {
-                flowOf(null to null)
+                flowOf(drawResult to null)
             } else {
                 giftGroupRepository.observeGiftGroupById(draw.groupId)
                     .map<_, String?> { group -> group?.name }
@@ -86,16 +85,18 @@ class DrawDetailViewModel(
                         AppLog.w(TAG, "Fehler beim Laden des Gruppennamens.", e)
                         emit(null)
                     }
-                    .map { name -> draw to name }
+                    .map { name -> drawResult to name }
             }
         }
 
     val uiState: StateFlow<DrawDetailUiState> = combine(
         drawWithGroupName,
         _localState,
-    ) { (domainDraw, groupName), localState ->
+    ) { (drawResult, groupName), localState ->
+        val domainDraw = drawResult.getOrNull()
+        val loadError = if (drawResult.isFailure) R.string.error_draw_load else null
         val uiDraw = domainDraw?.let { mapDomainToUiModel(it, groupName) }
-        val isNotFound = (domainDraw == null) && (localState.loadError == null)
+        val isNotFound = domainDraw == null && loadError == null
 
         // Prüfen, ob die IDs aus dem Dialog-Zustand in der aktuellen Zuordnungsliste existieren
         val currentAssignments = uiDraw?.assignments ?: emptyList()
@@ -108,7 +109,7 @@ class DrawDetailViewModel(
             isLoading = false,
             draw = uiDraw,
             notFound = isNotFound,
-            errorMessage = localState.loadError,
+            errorMessage = loadError,
             revealedGiverId = validRevealedGiverId,
         )
     }.stateIn(
@@ -171,6 +172,7 @@ class DrawDetailViewModel(
                     .map { it.text }
 
                 DrawAssignmentUiModel(
+                    id = assignment.id,
                     giverId = assignment.giverId,
                     giverName = assignment.giverName,
                     receiverId = assignment.receiverId,
@@ -187,5 +189,20 @@ class DrawDetailViewModel(
             drawType = domainDraw.drawType,
             assignments = sortedAssignments
         )
+    }
+
+    companion object {
+        /**
+         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         */
+        fun factory(container: AppContainer, drawId: String): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                DrawDetailViewModel(
+                    drawId = drawId,
+                    drawRepository = container.drawRepository,
+                    giftGroupRepository = container.giftGroupRepository,
+                )
+            }
+        }
     }
 }

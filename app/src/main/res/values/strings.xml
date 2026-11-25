@@ -60,7 +60,7 @@
     <string name="groups_section">Gruppen</string>
     <string name="groups_new">Neue Gruppe</string>
     <string name="groups_card_subtitle">%1$s € · %2$s</string>
-    <string name="error_groups_load">Die Gruppendaten konnten nicht geladen werden.</string>
+    <string name="error_groups_load">Fehler beim Laden der Wichtelgruppen.</string>
 
     <!-- Gruppendetails und Teilnehmer -->
     <string name="group_detail_loading">Gruppendetails werden geladen...</string>
@@ -120,7 +120,6 @@
     <string name="error_budget_too_high">Das Budget muss unter %1$,d € liegen.</string>
     <string name="error_date_in_past">Der Wichteltag muss in der Zukunft liegen.</string>
     <string name="error_date_too_far">Der Wichteltag muss weniger als %1$d Jahre in der Zukunft liegen.</string>
-    <string name="error_group_requested_not_found">Die angeforderte Wichtelgruppe wurde nicht gefunden.</string>
     <string name="error_group_not_loaded_cannot_save">Die Wichtelgruppe konnte nicht geladen werden. Speichern ist nicht möglich.</string>
     <string name="error_group_save">Fehler beim Speichern der Wichtelgruppe.</string>
 
@@ -128,7 +127,6 @@
     <string name="preparation_title">Vorbereitung</string>
     <string name="preparation_drawing">Wird ausgelost...</string>
     <string name="preparation_draw_now">Jetzt losen</string>
-    <string name="preparation_group_missing_text">Die ausgewählte Gruppe wurde nicht in der Datenbank gefunden.</string>
     <string name="preparation_eyebrow">Fast geschafft</string>
     <string name="preparation_header">Alles bereit?</string>
     <string name="preparation_subtitle">Bitte überprüfe, ob die Daten der Gruppe korrekt sind, bevor du die Auslosung startest.</string>
@@ -137,8 +135,6 @@
     <string name="preparation_row_date">Übergabedatum</string>
     <string name="preparation_ready">Alles startklar, es kann gelost werden!</string>
     <string name="preparation_min_participants" tools:ignore="PluralsCandidate">Mindestens %1$d Teilnehmer werden benötigt.</string>
-    <string name="error_participant_list_load">Die Teilnehmerliste konnte nicht geladen werden.</string>
-    <string name="error_draw_start">Die Auslosung konnte nicht gestartet werden.</string>
     <string name="error_draw_failed">Beim Starten der Auslosung ist ein Fehler aufgetreten.</string>
 
     <!-- Wunschliste -->
@@ -222,4 +218,5 @@
     <string name="camera_permission_deny">Nicht erlauben</string>
     <string name="error_photo_capture">Foto konnte nicht aufgenommen werden.</string>
     <string name="error_photo_save">Foto konnte nicht gespeichert werden.</string>
+    <string name="error_storage_full">Der Speicher des Geräts ist voll. Bitte Platz schaffen und erneut versuchen.</string>
 </resources>

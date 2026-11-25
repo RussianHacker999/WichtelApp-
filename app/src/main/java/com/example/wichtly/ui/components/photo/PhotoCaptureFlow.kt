@@ -14,8 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
-import java.io.File
 import com.example.wichtly.logging.AppLog
+import java.io.File
 
 private const val TAG = "PhotoCaptureFlow"
 
@@ -43,6 +43,7 @@ private enum class PhotoFlowStep {
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme mit der erzeugten [File].
  * @param onRemovePhoto Callback beim Klick auf "Foto entfernen".
  * @param onCameraDenied Callback, wenn die Kamera-Berechtigung abgelehnt wurde.
+ * @param onCaptureError Callback, wenn die Kamera nicht startet oder die Aufnahme scheitert; der Ablauf schließt sich danach.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
@@ -53,6 +54,7 @@ fun PhotoCaptureFlow(
     onPhotoCaptured: (File) -> Unit,
     onRemovePhoto: () -> Unit,
     onCameraDenied: () -> Unit,
+    onCaptureError: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (!isOpen) return
@@ -111,6 +113,7 @@ fun PhotoCaptureFlow(
                     onCameraDenied()
                     onClose()
                 },
+                onDismiss = onClose,
                 modifier = modifier,
             )
         }
@@ -129,9 +132,10 @@ fun PhotoCaptureFlow(
                         onClose()
                     },
                     onCancel = onClose,
-                    onError = { error ->
+                    onError = {
                         // Ursache hat CameraCaptureScreen bereits als ERROR geloggt
                         AppLog.w(TAG, "Kamera-Ablauf nach Fehler geschlossen")
+                        onCaptureError()
                         onClose()
                     },
                     modifier = modifier,

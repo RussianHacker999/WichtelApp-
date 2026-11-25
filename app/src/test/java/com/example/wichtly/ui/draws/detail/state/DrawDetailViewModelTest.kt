@@ -3,8 +3,8 @@ package com.example.wichtly.ui.draws.detail.state
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
-import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
+import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository

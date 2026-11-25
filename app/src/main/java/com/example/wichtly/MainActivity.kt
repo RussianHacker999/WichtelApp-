@@ -8,9 +8,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.navigation.AppNavHost
-import com.example.wichtly.ui.theme.WichtlyTheme
 import com.example.wichtly.ui.groups.list.screen.GroupsScreen
 import com.example.wichtly.ui.groups.list.screen.GroupsUiState
+import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
 class MainActivity : ComponentActivity() {

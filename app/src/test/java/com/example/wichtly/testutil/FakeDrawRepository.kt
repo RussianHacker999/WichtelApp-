@@ -1,10 +1,13 @@
 package com.example.wichtly.testutil
 
 import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSource
 import com.example.wichtly.domain.model.draw.DrawSummary
+import com.example.wichtly.domain.model.draw.ParticipantWithWishlist
 import com.example.wichtly.domain.repository.DrawRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
@@ -26,6 +29,24 @@ class FakeDrawRepository : DrawRepository {
 
     var insertDrawCalls: Int = 0
         private set
+
+    private var groups: FakeGiftGroupRepository? = null
+    private var participants: FakeParticipantRepository? = null
+    private var wishlists: FakeWishlistRepository? = null
+
+    /**
+     * Verbindet das Fake mit den anderen Fakes, aus denen [getDrawSource] liest (wie die echte
+     * Transaktion über die drei Tabellen). Gibt sich selbst zurück, damit der Aufruf inline passt.
+     */
+    fun withSources(
+        groups: FakeGiftGroupRepository,
+        participants: FakeParticipantRepository,
+        wishlists: FakeWishlistRepository = FakeWishlistRepository(),
+    ): FakeDrawRepository = apply {
+        this.groups = groups
+        this.participants = participants
+        this.wishlists = wishlists
+    }
 
     /**
      * Setzt die Liste der Auslosungsdurchläufe im Speicher direkt.
@@ -72,6 +93,20 @@ class FakeDrawRepository : DrawRepository {
             return flow { throw RuntimeException("Flow-Fehler beim Laden der Auslosungsdetails") }
         }
         return drawsFlow.map { list -> list.find { it.id == drawId } }
+    }
+
+    override suspend fun getDrawSource(groupId: String): DrawSource? {
+        val group = groups?.observeGiftGroupById(groupId)?.first() ?: return null
+        val members = participants?.observeParticipantsByGroupId(groupId)?.first().orEmpty()
+        return DrawSource(
+            group = group,
+            participants = members.sortedBy { it.name.lowercase() }.map { participant ->
+                ParticipantWithWishlist(
+                    participant = participant,
+                    wishlist = wishlists?.observeWishlistItems(participant.id)?.first().orEmpty().sortedBy { it.sortOrder },
+                )
+            },
+        )
     }
 
     override suspend fun insertDraw(draw: DrawDetail) {

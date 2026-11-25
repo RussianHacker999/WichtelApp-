@@ -5,6 +5,7 @@ import com.example.wichtly.data.mapper.toDomainModel
 import com.example.wichtly.data.mapper.toDomainModels
 import com.example.wichtly.data.mapper.toEntities
 import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSource
 import com.example.wichtly.domain.model.draw.DrawSummary
 import com.example.wichtly.domain.repository.DrawRepository
 import kotlinx.coroutines.flow.Flow
@@ -26,6 +27,9 @@ class DrawRepositoryImpl(
         return drawDao.observeDrawDetailById(drawId)
             .map { it?.toDomainModel() }
     }
+
+    override suspend fun getDrawSource(groupId: String): DrawSource? =
+        drawDao.getDrawSource(groupId)?.toDomainModel()
 
     override suspend fun insertDraw(draw: DrawDetail) {
         // Auslosung, Zuordnungen und Wunsch-Snapshots in einer Transaktion (DrawDao.insertCompleteDraw)

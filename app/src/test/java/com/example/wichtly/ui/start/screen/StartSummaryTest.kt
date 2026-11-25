@@ -1,9 +1,9 @@
 package com.example.wichtly.ui.start.screen
 
 import com.example.wichtly.R
-import org.junit.Assert.assertNull
 import com.example.wichtly.domain.model.group.GiftGroup
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
 

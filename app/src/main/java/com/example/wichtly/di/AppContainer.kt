@@ -14,6 +14,7 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.WishlistRepository
+import com.example.wichtly.domain.usecase.CleanUpOrphanPhotosUseCase
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
@@ -41,6 +42,7 @@ interface AppContainer {
     val saveParticipantUseCase: SaveParticipantUseCase
     val saveWishlistItemUseCase: SaveWishlistItemUseCase
     val performDrawUseCase: PerformDrawUseCase
+    val cleanUpOrphanPhotosUseCase: CleanUpOrphanPhotosUseCase
 }
 
 class DefaultAppContainer(private val context: Context) : AppContainer {
@@ -105,11 +107,15 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     }
     override val performDrawUseCase: PerformDrawUseCase by lazy {
         PerformDrawUseCase(
-            giftGroupRepository = giftGroupRepository,
-            participantRepository = participantRepository,
-            wishlistRepository = wishlistRepository,
             drawRepository = drawRepository,
             algorithm = SecretSantaDrawAlgorithm(),
+        )
+    }
+    override val cleanUpOrphanPhotosUseCase: CleanUpOrphanPhotosUseCase by lazy {
+        CleanUpOrphanPhotosUseCase(
+            giftGroupRepository = giftGroupRepository,
+            participantRepository = participantRepository,
+            photoRepository = photoRepository,
         )
     }
 }

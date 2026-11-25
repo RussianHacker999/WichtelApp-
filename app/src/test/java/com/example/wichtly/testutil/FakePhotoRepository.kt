@@ -3,6 +3,7 @@ package com.example.wichtly.testutil
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.PhotoRepository
 import java.io.File
+import java.time.Instant
 
 /**
  * Ein In-Memory-Fake für [PhotoRepository] zu Testzwecken ohne echte Dateisystem-Operationen.
@@ -39,7 +40,7 @@ class FakePhotoRepository : PhotoRepository {
         mutableExistingPaths.addAll(paths)
     }
 
-    override fun getFileForRelativePath(relativePath: String?): File? {
+    override suspend fun getFileForRelativePath(relativePath: String?): File? {
         if (relativePath.isNullOrBlank()) return null
         if (!mutableExistingPaths.contains(relativePath)) return null
         return File(relativePath)
@@ -67,4 +68,10 @@ class FakePhotoRepository : PhotoRepository {
             mutableExistingPaths.remove(relativePath)
         }
     }
+
+    /** Pfade, die [listPhotoPaths] als "alt genug" meldet; Standard: alle vorhandenen. */
+    var oldPaths: Set<String>? = null
+
+    override suspend fun listPhotoPaths(olderThan: Instant): List<String> =
+        (oldPaths ?: mutableExistingPaths).toList()
 }

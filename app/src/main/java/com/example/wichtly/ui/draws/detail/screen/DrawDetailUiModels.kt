@@ -28,6 +28,7 @@ data class DrawDetailUiModel(
  * UI-Modell einer einzelnen Ziehungs-Zuordnung (Schenker -> Beschenkter)
  * inklusive der historischen Wunschliste des Beschenkten.
  *
+ * @property id Primärschlüssel der Zuordnung; eindeutiger Listen-Key, auch wenn eine Person doppelt vorkäme.
  * @property giverId ID der schenkenden Person.
  * @property giverName Name der schenkenden Person.
  * @property receiverId ID der beschenkten Person.
@@ -35,6 +36,7 @@ data class DrawDetailUiModel(
  * @property wishes Liste der Wunschtexte der beschenkten Person zum Zeitpunkt der Auslosung (Snapshot).
  */
 data class DrawAssignmentUiModel(
+    val id: String,
     val giverId: String,
     val giverName: String,
     val receiverId: String,

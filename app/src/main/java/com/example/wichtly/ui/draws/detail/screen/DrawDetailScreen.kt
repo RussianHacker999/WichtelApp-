@@ -1,8 +1,5 @@
 package com.example.wichtly.ui.draws.detail.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.components.display.labelRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,16 +9,19 @@ import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.DrawType
+import com.example.wichtly.ui.components.controls.WichtlyTextButton
 import com.example.wichtly.ui.components.display.ListItemCard
+import com.example.wichtly.ui.components.display.NumberAvatar
+import com.example.wichtly.ui.components.display.labelRes
 import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.layout.MessageState
-import com.example.wichtly.ui.components.display.NumberAvatar
 import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
-import com.example.wichtly.ui.components.controls.WichtlyTextButton
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
@@ -117,7 +117,7 @@ fun DrawDetailScreen(
                 // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
                 item { SectionHeader(title = stringResource(R.string.draw_detail_section), count = draw.assignments.size) }
                 // (3) Karten pro Zuordnung (NUR Schenker-Name & "schenkt ???", NIEMALS Beschenkten-Name!)
-                itemsIndexed(draw.assignments, key = { _, a -> a.giverId }) { index, assignment ->
+                itemsIndexed(draw.assignments, key = { _, a -> a.id }) { index, assignment ->
                     ListItemCard(
                         title = assignment.giverName,
                         subtitle = stringResource(R.string.draw_detail_gives_hidden),
@@ -163,6 +163,7 @@ private fun createSampleDraw(): DrawDetailUiModel {
         assignments = names.mapIndexed { index, name ->
             val receiverIndex = (index + 1) % names.size
             DrawAssignmentUiModel(
+                id = "a_${index + 1}",
                 giverId = "p_${index + 1}",
                 giverName = name,
                 receiverId = "p_${receiverIndex + 1}",

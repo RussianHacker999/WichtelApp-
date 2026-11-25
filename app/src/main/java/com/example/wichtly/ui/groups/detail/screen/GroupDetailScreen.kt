@@ -1,9 +1,5 @@
 package com.example.wichtly.ui.groups.detail.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.components.display.labelRes
-import com.example.wichtly.domain.model.draw.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,92 +17,54 @@ import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.wichtly.R
+import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.ui.components.layout.BottomActionBar
+import com.example.wichtly.domain.validation.ParticipantValidator
+import com.example.wichtly.ui.components.controls.ItemMenu
+import com.example.wichtly.ui.components.controls.MenuAction
+import com.example.wichtly.ui.components.controls.PrimaryButton
+import com.example.wichtly.ui.components.controls.SectionActionButton
 import com.example.wichtly.ui.components.display.ChevronIcon
 import com.example.wichtly.ui.components.display.IconAvatar
 import com.example.wichtly.ui.components.display.InitialsAvatar
-import com.example.wichtly.ui.components.controls.ItemMenu
 import com.example.wichtly.ui.components.display.ListItemCard
+import com.example.wichtly.ui.components.display.NoteCard
+import com.example.wichtly.ui.components.display.StatTile
+import com.example.wichtly.ui.components.display.formatCentsForInput
+import com.example.wichtly.ui.components.display.formatDateForInput
+import com.example.wichtly.ui.components.display.labelRes
+import com.example.wichtly.ui.components.layout.BottomActionBar
 import com.example.wichtly.ui.components.layout.LoadingState
-import com.example.wichtly.ui.components.controls.MenuAction
 import com.example.wichtly.ui.components.layout.MessageState
 import com.example.wichtly.ui.components.layout.MetaItem
 import com.example.wichtly.ui.components.layout.MetaRow
-import com.example.wichtly.ui.components.display.NoteCard
 import com.example.wichtly.ui.components.layout.PageHeader
-import com.example.wichtly.ui.components.controls.PrimaryButton
-import com.example.wichtly.ui.components.controls.SectionActionButton
 import com.example.wichtly.ui.components.layout.SectionHeader
-import com.example.wichtly.ui.components.display.StatTile
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.display.formatCentsForInput
-import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
-import com.example.wichtly.domain.validation.ParticipantValidator
 
 
 /**
  * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
  *
  * @param state Der aktuelle UI-Zustand des Bildschirms.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onEditGroupClick Callback zum Bearbeiten der Stammdaten der Gruppe.
- * @param onWishlistClick Callback zum Öffnen der Wunschliste eines Teilnehmers.
- * @param onAddParticipantClick Callback zum Hinzufügen eines neuen Teilnehmers.
- * @param onEditParticipantClick Callback zum Bearbeiten eines Teilnehmers (erhält participantId).
- * @param onDeleteParticipantClick Callback zum Löschen eines Teilnehmers (erhält participantId).
- * @param onParticipantNameChange Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog.
- * @param onSaveParticipantClick Callback zum Speichern eines Teilnehmers.
- * @param onDismissParticipantEditor Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs.
- * @param onConfirmParticipantDelete Callback zum Bestätigen der Teilnehmer-Löschung.
- * @param onDismissParticipantDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
- * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl für Teilnehmer.
- * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
- * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
- * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
- * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
- * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
- * @param onPrepareDrawClick Auslosungs-Vorbereitung für diese Gruppe öffnen.
- * @param onHistoryClick Historie dieser Gruppe öffnen.
- * @param onDeleteGroupClick Öffnet den Dialog zum Löschen der Gruppe.
- * @param onConfirmGroupDelete Bestätigt das Löschen der Gruppe.
- * @param onDismissGroupDelete Schließt den Gruppen-Löschdialog.
+ * @param actions Alle Nutzeraktionen des Screens, siehe [GroupDetailActions].
  * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun GroupDetailScreen(
     state: GroupDetailUiState,
-    onBack: () -> Unit,
-    onEditGroupClick: () -> Unit,
-    onWishlistClick: (participantId: String) -> Unit,
-    onAddParticipantClick: () -> Unit,
-    onEditParticipantClick: (participantId: String) -> Unit,
-    onDeleteParticipantClick: (participantId: String) -> Unit,
-    onParticipantNameChange: (String) -> Unit,
-    onSaveParticipantClick: () -> Unit,
-    onDismissParticipantEditor: () -> Unit,
-    onConfirmParticipantDelete: () -> Unit,
-    onDismissParticipantDelete: () -> Unit,
-    onPhotoSelectClick: () -> Unit,
-    onPhotoFlowClose: () -> Unit,
-    onPhotoCaptured: (File) -> Unit,
-    onRemovePhoto: () -> Unit,
-    onCameraDenied: () -> Unit,
-    onOpenAppSettings: () -> Unit,
-    onPrepareDrawClick: () -> Unit,
-    onHistoryClick: () -> Unit,
-    onDeleteGroupClick: () -> Unit,
-    onConfirmGroupDelete: () -> Unit,
-    onDismissGroupDelete: () -> Unit,
+    actions: GroupDetailActions,
     modifier: Modifier = Modifier,
 ) {
     val group = state.group
@@ -117,13 +75,13 @@ fun GroupDetailScreen(
         topBar = {
             WichtlyTopBar(
                 title = stringResource(R.string.common_group_details),
-                onBack = onBack,
+                onBack = actions.onBack,
                 actions = {
                     if (ready) {
                         ItemMenu(
                             actions = listOf(
-                                MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, onEditGroupClick),
-                                MenuAction(stringResource(R.string.group_delete), Icons.Filled.Delete, onDeleteGroupClick, destructive = true),
+                                MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, actions.onEditGroupClick),
+                                MenuAction(stringResource(R.string.group_delete), Icons.Filled.Delete, actions.onDeleteGroupClick, destructive = true),
                             ),
                         )
                     }
@@ -144,7 +102,7 @@ fun GroupDetailScreen(
                 BottomActionBar(hint = hint) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
-                        onClick = onPrepareDrawClick,
+                        onClick = actions.onPrepareDrawClick,
                         icon = Icons.Filled.Redeem,
                         enabled = canDraw,
                         modifier = Modifier.weight(1f),
@@ -165,7 +123,7 @@ fun GroupDetailScreen(
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
                 actionLabel = stringResource(R.string.common_back_to_overview),
-                onAction = onBack,
+                onAction = actions.onBack,
             )
             // 3. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
@@ -175,7 +133,7 @@ fun GroupDetailScreen(
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
                 actionLabel = stringResource(R.string.common_back_to_overview),
-                onAction = onBack,
+                onAction = actions.onBack,
             )
             // Gruppe wurde gerade hier gelöscht, die Route navigiert zurück: nichts mehr anzeigen
             group == null -> Unit
@@ -185,11 +143,11 @@ fun GroupDetailScreen(
                 participants = state.participants,
                 participantPhotoFiles = state.participantPhotoFiles,
                 innerPadding = innerPadding,
-                onWishlistClick = onWishlistClick,
-                onAddParticipantClick = onAddParticipantClick,
-                onEditParticipantClick = onEditParticipantClick,
-                onDeleteParticipantClick = onDeleteParticipantClick,
-                onHistoryClick = onHistoryClick,
+                onWishlistClick = actions.onWishlistClick,
+                onAddParticipantClick = actions.onAddParticipantClick,
+                onEditParticipantClick = actions.onEditParticipantClick,
+                onDeleteParticipantClick = actions.onDeleteParticipantClick,
+                onHistoryClick = actions.onHistoryClick,
             )
         }
     }
@@ -201,20 +159,21 @@ fun GroupDetailScreen(
             name = state.participantNameInput,
             errorMessage = state.participantNameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
             isBusy = state.isSaving,
-            onNameChange = onParticipantNameChange,
-            onSave = onSaveParticipantClick,
-            onDismiss = onDismissParticipantEditor,
+            onNameChange = actions.onParticipantNameChange,
+            onSave = actions.onSaveParticipantClick,
+            onDismiss = actions.onDismissParticipantEditor,
             photoPath = state.participantPhotoPath,
             photoFile = state.participantPhotoFile,
             photoError = state.photoError?.let { stringResource(it) },
             isPhotoFlowOpen = state.isPhotoFlowOpen,
             cameraDenied = state.cameraDenied,
-            onPhotoSelectClick = onPhotoSelectClick,
-            onPhotoFlowClose = onPhotoFlowClose,
-            onPhotoCaptured = onPhotoCaptured,
-            onRemovePhoto = onRemovePhoto,
-            onCameraDenied = onCameraDenied,
-            onOpenAppSettings = onOpenAppSettings,
+            onPhotoSelectClick = actions.onPhotoSelectClick,
+            onPhotoFlowClose = actions.onPhotoFlowClose,
+            onPhotoCaptured = actions.onPhotoCaptured,
+            onRemovePhoto = actions.onRemovePhoto,
+            onCameraDenied = actions.onCameraDenied,
+            onPhotoCaptureError = actions.onPhotoCaptureError,
+            onOpenAppSettings = actions.onOpenAppSettings,
         )
     }
 
@@ -224,8 +183,8 @@ fun GroupDetailScreen(
             participantName = pendingDeleteParticipant.name,
             errorMessage = state.participantDeleteError?.let { stringResource(it) },
             isBusy = state.isSaving,
-            onConfirm = onConfirmParticipantDelete,
-            onDismiss = onDismissParticipantDelete,
+            onConfirm = actions.onConfirmParticipantDelete,
+            onDismiss = actions.onDismissParticipantDelete,
         )
     }
 
@@ -234,8 +193,8 @@ fun GroupDetailScreen(
             groupName = group.name,
             errorMessage = state.groupDeleteError?.let { stringResource(it) },
             isBusy = state.isDeletingGroup,
-            onConfirm = onConfirmGroupDelete,
-            onDismiss = onDismissGroupDelete,
+            onConfirm = actions.onConfirmGroupDelete,
+            onDismiss = actions.onDismissGroupDelete,
         )
     }
 }
@@ -368,6 +327,32 @@ private fun GroupDetailContent(
 // PREVIEWS
 // -----------------------------------------------------------------------------
 
+private val previewActions = GroupDetailActions(
+    onBack = { },
+    onEditGroupClick = { },
+    onWishlistClick = { _ -> },
+    onAddParticipantClick = { },
+    onEditParticipantClick = { _ -> },
+    onDeleteParticipantClick = { _ -> },
+    onParticipantNameChange = { _ -> },
+    onSaveParticipantClick = { },
+    onDismissParticipantEditor = { },
+    onConfirmParticipantDelete = { },
+    onDismissParticipantDelete = { },
+    onPhotoSelectClick = { },
+    onPhotoFlowClose = { },
+    onPhotoCaptured = { _ -> },
+    onRemovePhoto = { },
+    onCameraDenied = { },
+    onPhotoCaptureError = { },
+    onOpenAppSettings = { },
+    onPrepareDrawClick = { },
+    onHistoryClick = { },
+    onDeleteGroupClick = { },
+    onConfirmGroupDelete = { },
+    onDismissGroupDelete = { },
+)
+
 private val previewGroup = GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))
 private val previewParticipants = listOf("Mara", "Jonas Weiß", "Leonie").mapIndexed { i, n -> Participant(id = "p$i", groupId = "g1", name = n) }
 
@@ -376,12 +361,7 @@ private fun PreviewScreen(state: GroupDetailUiState) {
     WichtlyTheme {
         GroupDetailScreen(
             state = state,
-            onBack = {}, onEditGroupClick = {}, onWishlistClick = {}, onAddParticipantClick = {},
-            onEditParticipantClick = {}, onDeleteParticipantClick = {}, onParticipantNameChange = {},
-            onSaveParticipantClick = {}, onDismissParticipantEditor = {}, onConfirmParticipantDelete = {}, onDismissParticipantDelete = {},
-            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {}, onPrepareDrawClick = {}, onHistoryClick = {},
-            onDeleteGroupClick = {}, onConfirmGroupDelete = {}, onDismissGroupDelete = {},
+            actions = previewActions,
         )
     }
 }

@@ -1,23 +1,17 @@
 package com.example.wichtly.ui.groups.detail.state
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.wichtly.WichtlyApplication
-import kotlinx.coroutines.CancellationException
-import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.appContainer
+import com.example.wichtly.ui.components.photo.openAppSettings
+import com.example.wichtly.ui.groups.detail.screen.GroupDetailActions
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
 
-private const val TAG = "GroupDetailRoute"
 
 /**
  * Zustandstragende (stateful) Route-Komponente für die Gruppen-Detailansicht.
@@ -43,25 +37,10 @@ fun GroupDetailRoute(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val container = (context.applicationContext as WichtlyApplication).container
-    val giftGroupRepository = container.giftGroupRepository
-    val participantRepository = container.participantRepository
-    val photoRepository = container.photoRepository
-    val saveParticipant = container.saveParticipantUseCase
-    val deleteGiftGroup = container.deleteGiftGroupUseCase
-
-    val factory = remember(groupId, giftGroupRepository, participantRepository, photoRepository, saveParticipant, deleteGiftGroup) {
-        GroupDetailViewModelFactory(
-            groupId = groupId,
-            giftGroupRepository = giftGroupRepository,
-            participantRepository = participantRepository,
-            photoRepository = photoRepository,
-            saveParticipant = saveParticipant,
-            deleteGiftGroup = deleteGiftGroup,
-        )
-    }
-
-    val viewModel: GroupDetailViewModel = viewModel(key = groupId, factory = factory)
+    val viewModel: GroupDetailViewModel = viewModel(
+        key = groupId,
+        factory = GroupDetailViewModel.factory(appContainer(), groupId),
+    )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Nach dem Löschen genau einmal zurücknavigieren und das Ereignis quittieren
@@ -72,23 +51,8 @@ fun GroupDetailRoute(
         }
     }
 
-    val onOpenAppSettings = {
-        try {
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                data = Uri.fromParts("package", context.packageName, null)
-            }
-            context.startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            AppLog.w(TAG, "Einstellungen-App konnte nicht geöffnet werden", e)
-        } catch (e: Exception) {
-            if (e is CancellationException) throw e
-            AppLog.w(TAG, "Fehler beim Öffnen der Einstellungen", e)
-        }
-        Unit
-    }
 
-    GroupDetailScreen(
-        state = state,
+    val actions = GroupDetailActions(
         onBack = onBack,
         onEditGroupClick = { onEditGroup(groupId) },
         onWishlistClick = onOpenWishlist,
@@ -105,12 +69,18 @@ fun GroupDetailRoute(
         onPhotoCaptured = viewModel::onPhotoCaptured,
         onRemovePhoto = viewModel::onRemovePhoto,
         onCameraDenied = viewModel::onCameraDenied,
-        onOpenAppSettings = onOpenAppSettings,
+        onPhotoCaptureError = viewModel::onPhotoCaptureError,
+        onOpenAppSettings = { openAppSettings(context) },
         onPrepareDrawClick = { onPrepareDraw(groupId) },
         onHistoryClick = { onOpenHistory(groupId) },
         onDeleteGroupClick = viewModel::onDeleteGroupClick,
         onConfirmGroupDelete = viewModel::onConfirmGroupDelete,
         onDismissGroupDelete = viewModel::onDismissGroupDelete,
+    )
+
+    GroupDetailScreen(
+        state = state,
+        actions = actions,
         modifier = modifier,
     )
 }

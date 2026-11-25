@@ -84,6 +84,8 @@ fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = O
             val big = index == 0
             val sizeDp = if (big) between(14f, 22f) else between(6f, 11f)
             val radius = sizeDp.dp.toPx() / 2f
+            // Zu schmales Element: kein Platz für den Funkel, coerceIn würde sonst mit leerem Bereich abstürzen
+            if (size.width < 2 * radius) return@repeat
             // x and y are clamped so the whole sparkle lies inside the element
             val x = (stripStart + (size.width - stripStart) * between(0.15f, 0.85f))
                 .coerceIn(radius, size.width - radius)

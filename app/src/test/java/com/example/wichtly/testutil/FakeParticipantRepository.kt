@@ -57,6 +57,9 @@ class FakeParticipantRepository : ParticipantRepository {
         return participantsFlow.map { list -> list.find { it.id == id } }
     }
 
+    override suspend fun getAllPhotoPaths(): List<String> =
+        participantsFlow.value.mapNotNull { it.photoPath }
+
     override suspend fun insertParticipant(participant: Participant) {
         insertCalls++
         if (shouldThrow) {

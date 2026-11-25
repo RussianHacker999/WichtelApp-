@@ -2,10 +2,10 @@ package com.example.wichtly.ui.groups.form.state
 
 import com.example.wichtly.R
 import com.example.wichtly.domain.validation.GiftGroupValidationError
+import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 
 /**
  * Unit-Tests für GroupFormErrors.kt.
@@ -54,7 +54,7 @@ class GroupFormErrorsTest {
         assertNull(updatedState.nameError)
         assertEquals(R.string.error_budget_invalid, updatedState.budgetError)
         assertEquals(R.string.error_date_in_past, updatedState.drawDayError)
-        assertEquals(R.string.error_group_requested_not_found, updatedState.generalError)
+        assertEquals(R.string.error_group_not_found, updatedState.generalError)
     }
 
     @Test

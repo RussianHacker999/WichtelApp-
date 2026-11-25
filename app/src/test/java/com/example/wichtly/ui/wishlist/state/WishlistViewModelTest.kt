@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.wishlist.state
 
+import androidx.lifecycle.SavedStateHandle
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.model.participant.WishlistItem
@@ -416,5 +417,25 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         assertEquals(1, wishlistRepository.insertCalls)
+    }
+
+    @Test
+    fun offenerEditorUeberstehtProzesstod() = runTest {
+        val participantRepository = FakeParticipantRepository().apply {
+            setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
+        }
+        val wishlistRepository = FakeWishlistRepository()
+        val handle = SavedStateHandle()
+        val vorher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), handle)
+        vorher.onAddClick()
+        vorher.onEditorTextChange("Wollsocken")
+
+        // Neues ViewModel mit demselben Handle, wie nach einem Prozesstod
+        val nachher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), handle)
+        backgroundScope.launch { nachher.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(true, nachher.uiState.value.showEditor)
+        assertEquals("Wollsocken", nachher.uiState.value.editorText)
     }
 }

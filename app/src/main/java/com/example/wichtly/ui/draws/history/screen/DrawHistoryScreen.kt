@@ -1,8 +1,5 @@
 package com.example.wichtly.ui.draws.history.screen
 
-import androidx.compose.ui.res.stringResource
-import com.example.wichtly.R
-import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,15 +11,18 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.ui.components.display.ChevronIcon
 import com.example.wichtly.ui.components.display.IconAvatar
 import com.example.wichtly.ui.components.display.ListItemCard
+import com.example.wichtly.ui.components.display.NoteCard
 import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.layout.MessageState
-import com.example.wichtly.ui.components.display.NoteCard
 import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold

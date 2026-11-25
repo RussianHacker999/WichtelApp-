@@ -1,6 +1,5 @@
 package com.example.wichtly.ui.components.layout
 
-import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,11 +27,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.theme.Spacing
-import com.example.wichtly.ui.theme.WichtlyTheme
 import com.example.wichtly.ui.components.controls.SectionActionButton
 import com.example.wichtly.ui.components.display.SparkleStripWidth
 import com.example.wichtly.ui.components.display.headerSparkles
+import com.example.wichtly.ui.theme.EyebrowStyle
+import com.example.wichtly.ui.theme.Spacing
+import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
  * Page header below the top bar: optional eyebrow, large serif title with hard shadow,

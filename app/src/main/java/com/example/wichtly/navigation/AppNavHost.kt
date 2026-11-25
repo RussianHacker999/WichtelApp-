@@ -13,17 +13,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.wichtly.ui.groups.list.state.GroupsRoute
-import com.example.wichtly.ui.groups.detail.state.GroupDetailRoute
-import com.example.wichtly.ui.groups.form.state.GroupFormRoute
-import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
+import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.draws.detail.state.DrawDetailRoute
 import com.example.wichtly.ui.draws.history.state.DrawHistoryRoute
 import com.example.wichtly.ui.draws.preparation.state.PreparationRoute
+import com.example.wichtly.ui.groups.detail.state.GroupDetailRoute
+import com.example.wichtly.ui.groups.form.state.GroupFormRoute
+import com.example.wichtly.ui.groups.list.state.GroupsRoute
 import com.example.wichtly.ui.start.state.StartRoute
-import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
 
-private const val TAG = "Navigation"
+private const val TAG = "AppNavHost"
 
 /**
  * Navigation der App.
@@ -79,7 +79,12 @@ fun AppNavHost(
             GroupFormRoute(
                 groupId = null,
                 onBack = dropUnlessResumed { navController.popBackStack() },
-                onSaved = { navController.popBackStack() },
+                onSaved = { groupId ->
+                    // Nach dem Anlegen direkt zur neuen Gruppe; das Formular verschwindet vom Back-Stack
+                    navController.navigate(Routes.groupDetail(groupId)) {
+                        popUpTo(Routes.GROUP_CREATE) { inclusive = true }
+                    }
+                },
             )
         }
 

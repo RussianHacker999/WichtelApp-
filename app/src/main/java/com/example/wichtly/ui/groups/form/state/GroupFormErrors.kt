@@ -64,7 +64,7 @@ fun applyDomainValidationErrors(
                 if (dateErr == null) dateErr = R.string.error_date_too_far
             }
             is GiftGroupValidationError.GroupNotFound -> {
-                if (genErr == null) genErr = R.string.error_group_requested_not_found
+                if (genErr == null) genErr = R.string.error_group_not_found
             }
         }
     }

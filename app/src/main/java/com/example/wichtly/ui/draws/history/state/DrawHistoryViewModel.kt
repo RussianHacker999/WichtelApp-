@@ -1,33 +1,25 @@
 package com.example.wichtly.ui.draws.history.state
 
-import androidx.annotation.StringRes
-import com.example.wichtly.R
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.wichtly.R
+import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.model.draw.DrawSummary
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
-import java.time.ZoneId
-import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryItemUiModel
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryUiState
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import java.time.ZoneId
 
 private const val TAG = "DrawHistoryViewModel"
-
-/**
- * Lokaler interner Zustand für Ladefehler der Auslosungshistorie.
- */
-private data class DrawHistoryLocalState(
-    @StringRes val loadError: Int? = null,
-)
 
 /**
  * ViewModel für die Auslosungshistorie einer Wichtelgruppe.
@@ -48,26 +40,16 @@ class DrawHistoryViewModel(
     private val giftGroupRepository: GiftGroupRepository,
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(DrawHistoryLocalState())
-
     val uiState: StateFlow<DrawHistoryUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe.", e)
-                _localState.update { it.copy(loadError = R.string.error_history_load) }
-                emit(null)
-            },
+            .asResult(TAG, "Fehler beim Laden der Wichtelgruppe."),
         drawRepository.observeDrawSummariesByGroupId(groupId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Fehler beim Laden der Auslosungshistorie.", e)
-                _localState.update { it.copy(loadError = R.string.error_history_load) }
-                emit(emptyList())
-            },
-        _localState,
-    ) { group, summaries, localState ->
-        val isGroupNotFound = (group == null) && (localState.loadError == null)
+            .asResult(TAG, "Fehler beim Laden der Auslosungshistorie."),
+    ) { groupResult, summariesResult ->
+        val group = groupResult.getOrNull()
+        val summaries = summariesResult.getOrDefault(emptyList())
+        val loadError = if (groupResult.isFailure || summariesResult.isFailure) R.string.error_history_load else null
+        val isGroupNotFound = group == null && loadError == null
 
         val uiItems = summaries.map { summary ->
             mapSummaryToUiModel(summary)
@@ -78,7 +60,7 @@ class DrawHistoryViewModel(
             groupName = group?.name,
             notFound = isGroupNotFound,
             draws = uiItems,
-            errorMessage = localState.loadError,
+            errorMessage = loadError,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -93,5 +75,20 @@ class DrawHistoryViewModel(
             drawType = summary.drawType,
             assignmentCount = summary.assignmentCount,
         )
+    }
+
+    companion object {
+        /**
+         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         */
+        fun factory(container: AppContainer, groupId: String): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                DrawHistoryViewModel(
+                    groupId = groupId,
+                    drawRepository = container.drawRepository,
+                    giftGroupRepository = container.giftGroupRepository,
+                )
+            }
+        }
     }
 }

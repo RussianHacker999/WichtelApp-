@@ -6,10 +6,13 @@ import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.relation.DrawAssignmentWithWishlist
 import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
+import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSource
 import com.example.wichtly.domain.model.draw.DrawSummary
 import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
+import com.example.wichtly.domain.model.draw.ParticipantWithWishlist
 
 
 fun DrawWithDetails.toDomainModel(): DrawDetail {
@@ -89,3 +92,19 @@ fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List
     }
     return Triple(drawEntity, assignmentEntities, wishlistEntities)
 }
+
+/**
+ * Lesemodell der Auslosung in das Domain-Modell. Sortiert wie die übrigen Abfragen:
+ * Teilnehmer nach Name (ohne Groß-/Kleinschreibung), Wünsche nach sortOrder.
+ */
+fun GiftGroupWithParticipants.toDomainModel(): DrawSource = DrawSource(
+    group = group.toDomainModel(),
+    participants = participants
+        .sortedBy { it.participant.name.lowercase() }
+        .map { entry ->
+            ParticipantWithWishlist(
+                participant = entry.participant.toDomainModel(),
+                wishlist = entry.wishlistItems.sortedBy { it.sortOrder }.map { it.toDomainModel() },
+            )
+        },
+)

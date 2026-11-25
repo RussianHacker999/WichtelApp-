@@ -1,24 +1,34 @@
 package com.example.wichtly.ui.wishlist.state
 
 import androidx.annotation.StringRes
-import com.example.wichtly.R
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.wichtly.R
+import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
 import com.example.wichtly.domain.validation.WishlistItemResult
+import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.asResult
+import com.example.wichtly.ui.common.saveErrorMessage
+import com.example.wichtly.ui.wishlist.screen.WishlistUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.example.wichtly.logging.AppLog
-import com.example.wichtly.ui.wishlist.screen.WishlistUiState
 
 private const val TAG = "WishlistViewModel"
 
@@ -33,8 +43,6 @@ private data class WishlistLocalState(
     @StringRes val editorError: Int? = null,
     val pendingDeleteItemId: String? = null,
     @StringRes val deleteError: Int? = null,
-    @StringRes val participantLoadError: Int? = null,
-    @StringRes val wishlistLoadError: Int? = null,
 )
 
 /**
@@ -49,35 +57,51 @@ private data class WishlistLocalState(
  * @param participantRepository Repository für Teilnehmer.
  * @param wishlistRepository Repository für Wunschlisten-Einträge (Lesen und Löschen).
  * @param saveWishlistItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
+ * @param savedStateHandle Hält den offenen Editor samt Text, auch wenn Android den Prozess im Hintergrund beendet.
  */
 class WishlistViewModel(
     private val participantId: String,
     private val participantRepository: ParticipantRepository,
     private val wishlistRepository: WishlistRepository,
     private val saveWishlistItem: SaveWishlistItemUseCase,
+    private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(WishlistLocalState())
+    // Ein offener Editor wird aus dem SavedStateHandle wiederhergestellt (Prozesstod im Hintergrund)
+    private val _localState = MutableStateFlow(
+        WishlistLocalState(
+            showEditor = savedStateHandle[KEY_EDITOR_OPEN] ?: false,
+            editingItemId = savedStateHandle[KEY_EDITING_ID],
+            editorText = savedStateHandle[KEY_EDITOR_TEXT] ?: "",
+        )
+    )
+
+    init {
+        // Jede Änderung am Editor sofort sichern; das SavedStateHandle schreibt sie beim Pausieren weg
+        _localState
+            .onEach { state ->
+                savedStateHandle[KEY_EDITOR_OPEN] = state.showEditor
+                savedStateHandle[KEY_EDITING_ID] = state.editingItemId
+                savedStateHandle[KEY_EDITOR_TEXT] = state.editorText
+            }
+            .launchIn(viewModelScope)
+    }
 
     val uiState: StateFlow<WishlistUiState> = combine(
         participantRepository.observeParticipantById(participantId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Fehler beim Laden des Teilnehmers", e)
-                _localState.update { it.copy(participantLoadError = R.string.error_participant_load) }
-                emit(null)
-            },
+            .asResult(TAG, "Fehler beim Laden des Teilnehmers"),
         wishlistRepository.observeWishlistItems(participantId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Fehler beim Laden der Wunschliste", e)
-                _localState.update { it.copy(wishlistLoadError = R.string.error_wishlist_load) }
-                emit(emptyList())
-            },
+            .asResult(TAG, "Fehler beim Laden der Wunschliste"),
         _localState
-    ) { participant, items, localState ->
-        val isParticipantNotFound = (participant == null) && (localState.participantLoadError == null)
-        val combinedErrorMessage = localState.participantLoadError ?: localState.wishlistLoadError
+    ) { participantResult, itemsResult, localState ->
+        val participant = participantResult.getOrNull()
+        val items = itemsResult.getOrDefault(emptyList())
+        val isParticipantNotFound = participant == null && participantResult.isSuccess
+        val combinedErrorMessage = when {
+            participantResult.isFailure -> R.string.error_participant_load
+            itemsResult.isFailure -> R.string.error_wishlist_load
+            else -> null
+        }
 
         // Prüfen, ob der aktuell bearbeitete bzw. zum Löschen vorgemerkte Wunsch noch in der Liste vorhanden ist
         val isEditingItemPresent = localState.editingItemId == null ||
@@ -262,7 +286,7 @@ class WishlistViewModel(
                 _localState.update {
                     it.copy(
                         isSaving = false,
-                        editorError = R.string.error_wish_save
+                        editorError = saveErrorMessage(e, R.string.error_wish_save)
                     )
                 }
             }
@@ -315,6 +339,27 @@ class WishlistViewModel(
                         deleteError = R.string.error_wish_delete
                     )
                 }
+            }
+        }
+    }
+
+    companion object {
+        internal const val KEY_EDITOR_OPEN = "wish_editor_open"
+        internal const val KEY_EDITING_ID = "wish_editing_id"
+        internal const val KEY_EDITOR_TEXT = "wish_editor_text"
+
+        /**
+         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         */
+        fun factory(container: AppContainer, participantId: String): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                WishlistViewModel(
+                    participantId = participantId,
+                    participantRepository = container.participantRepository,
+                    wishlistRepository = container.wishlistRepository,
+                    saveWishlistItem = container.saveWishlistItemUseCase,
+                    savedStateHandle = createSavedStateHandle(),
+                )
             }
         }
     }

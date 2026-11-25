@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.wichtly.ui.theme.WichtlyTheme
 import com.example.wichtly.ui.theme.Spacing
+import com.example.wichtly.ui.theme.WichtlyTheme
 
 /** Color sets for [StatusChip]. */
 enum class ChipTone { Gold, Berry, Success, Neutral, OnImage }

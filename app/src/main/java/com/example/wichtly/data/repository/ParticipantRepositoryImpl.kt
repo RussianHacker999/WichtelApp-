@@ -25,6 +25,8 @@ class ParticipantRepositoryImpl(
         return participantDao.observeParticipantById(id).map { it?.toDomainModel() }
     }
 
+    override suspend fun getAllPhotoPaths(): List<String> = participantDao.getAllPhotoPaths()
+
     override suspend fun insertParticipant(participant: Participant) {
         participantDao.insertParticipant(participant.toEntity())
     }

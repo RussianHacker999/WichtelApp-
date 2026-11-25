@@ -1,8 +1,8 @@
 package com.example.wichtly.domain.model.draw
 
+import com.example.wichtly.domain.model.group.DrawType
 import java.time.Instant
 import java.util.UUID
-import com.example.wichtly.domain.model.group.DrawType
 
 data class DrawDetail(
     val id: String = UUID.randomUUID().toString(),

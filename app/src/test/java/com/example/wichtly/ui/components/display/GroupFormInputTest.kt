@@ -1,11 +1,11 @@
 package com.example.wichtly.ui.components.display
 
+import com.example.wichtly.domain.validation.parseBudgetToCents
+import com.example.wichtly.domain.validation.parseDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 import java.time.LocalDate
-import com.example.wichtly.domain.validation.parseBudgetToCents
-import com.example.wichtly.domain.validation.parseDate
 
 /**
  * Unit-Tests für die Umwandlung der Formulartexte: Parsen (domain/validation/GiftGroupInputParsing.kt)

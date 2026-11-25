@@ -20,12 +20,13 @@ import java.io.File
  * @property drawDayError Validierungs- oder Formatfehlermeldung für das Datumsfeld (null = kein Fehler).
  * @property generalError Allgemeine Fehlermeldung auf Formular-Ebene (z. B. "Gruppe nicht gefunden").
  * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
- * @property isSaved true, wenn der Speichervorgang erfolgreich abgeschlossen wurde (Signal für Navigation).
+ * @property savedGroupId Einmal-Ereignis: ID der gespeicherten Gruppe; die Route navigiert und quittiert
+ *   mit onSavedHandled()..
  * @property photoPath Relativer Pfad des Gruppenfotos im Formular (null = kein Foto). Wird erst beim Speichern übernommen.
  * @property photoFile Aufgelöste Bilddatei zur Vorschau im Fotofeld.
  * @property isPhotoFlowOpen Steuert den Foto-Ablauf (Quelle → Berechtigung → Kamera).
  * @property cameraDenied true, wenn der Kamerazugriff abgelehnt wurde (zeigt den Hinweis unter dem Fotofeld).
- * @property photoError Fehlermeldung beim Speichern des aufgenommenen Fotos.
+ * @property photoError Fehlermeldung beim Aufnehmen oder Speichern des Fotos.
  * @property drawDayPassed Beim Bearbeiten: Der gespeicherte Wichteltag ist vorbei. Das Formular erklärt
  *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.
  */
@@ -42,7 +43,7 @@ data class GroupFormUiState(
     @StringRes val drawDayError: Int? = null,
     @StringRes val generalError: Int? = null,
     val isSaving: Boolean = false,
-    val isSaved: Boolean = false,
+    val savedGroupId: String? = null,
     val photoPath: String? = null,
     val photoFile: File? = null,
     val isPhotoFlowOpen: Boolean = false,

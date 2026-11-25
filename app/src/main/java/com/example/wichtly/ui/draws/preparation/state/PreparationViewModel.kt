@@ -2,14 +2,20 @@ package com.example.wichtly.ui.draws.preparation.state
 
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.wichtly.R
+import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.asResult
+import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.draws.preparation.screen.PreparationUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +35,7 @@ private const val TAG = "PreparationViewModel"
  */
 private data class PreparationLocalState(
     val isDrawing: Boolean = false,
-    @StringRes val errorMessage: Int? = null,
+    @StringRes val drawError: Int? = null,
     val completedDrawId: String? = null,
 )
 
@@ -56,23 +62,19 @@ class PreparationViewModel(
     // Zustand erzeugt einen neuen PreparationUiState.
     val uiState: StateFlow<PreparationUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Gruppe konnte nicht geladen werden", e)
-                _localState.update { it.copy(errorMessage = R.string.error_groups_load) }
-                // emit() sendet statt einer Gruppe null an alle, die den Flow beobachten
-                emit(null)
-            },
+            .asResult(TAG, "Gruppe konnte nicht geladen werden"),
         participantRepository.observeParticipantsByGroupId(groupId)
-            .catch { e ->
-                if (e is CancellationException) throw e
-                AppLog.e(TAG, "Teilnehmer konnten nicht geladen werden", e)
-                _localState.update { it.copy(errorMessage = R.string.error_participant_list_load) }
-                emit(emptyList())
-            },
+            .asResult(TAG, "Teilnehmer konnten nicht geladen werden"),
         _localState,
-    ) { group, participants, localState ->
-        val notFound = group == null && localState.errorMessage == null
+    ) { groupResult, participantsResult, localState ->
+        val group = groupResult.getOrNull()
+        val participants = participantsResult.getOrDefault(emptyList())
+        val loadError = when {
+            groupResult.isFailure -> R.string.error_group_load
+            participantsResult.isFailure -> R.string.error_participants_load
+            else -> null
+        }
+        val notFound = group == null && loadError == null
         // Ob "Jetzt losen" aktiv angezeigt wird; verbindlich prüft der PerformDrawUseCase beim Losen
         val drawDayPassed = group != null && !DrawRules.isDrawDayOpen(group.drawDay, today())
         val canStartDraw = group != null && DrawRules.canDraw(participants.size) && !drawDayPassed
@@ -82,7 +84,8 @@ class PreparationViewModel(
             group = group,
             participants = participants,
             notFound = notFound,
-            errorMessage = localState.errorMessage,
+            errorMessage = loadError,
+            drawError = localState.drawError,
             isDrawing = localState.isDrawing,
             canStartDraw = canStartDraw,
             drawDayPassed = drawDayPassed,
@@ -108,7 +111,7 @@ class PreparationViewModel(
     fun onStartDrawClick() {
         // Läuft die Auslosung schon, passiert nichts (Doppelklick-Schutz)
         if (_localState.value.isDrawing) return
-        _localState.update { it.copy(isDrawing = true, errorMessage = null) }
+        _localState.update { it.copy(isDrawing = true, drawError = null) }
 
         viewModelScope.launch {
             try {
@@ -117,14 +120,14 @@ class PreparationViewModel(
                     is DrawResult.ValidationError -> {
                         // Details hat der PerformDrawUseCase bereits geloggt
                         AppLog.d(TAG) { "Auslosung für Gruppe $groupId nicht gestartet: ${result.errors.joinToString()}" }
-                        _localState.update { it.copy(errorMessage = R.string.error_draw_start) }
+                        _localState.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Auslosung fehlgeschlagen", e)
-                _localState.update { it.copy(errorMessage = R.string.error_draw_failed) }
+                _localState.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
             } finally {
                 _localState.update { it.copy(isDrawing = false) }
             }
@@ -137,5 +140,21 @@ class PreparationViewModel(
      */
     fun onDrawHandled() {
         _localState.update { it.copy(completedDrawId = null) }
+    }
+
+    companion object {
+        /**
+         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         */
+        fun factory(container: AppContainer, groupId: String): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                PreparationViewModel(
+                    groupId = groupId,
+                    giftGroupRepository = container.giftGroupRepository,
+                    participantRepository = container.participantRepository,
+                    performDraw = container.performDrawUseCase,
+                )
+            }
+        }
     }
 }

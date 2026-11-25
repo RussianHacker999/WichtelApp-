@@ -6,10 +6,10 @@ import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.validation.ParticipantResult
 import com.example.wichtly.domain.validation.ParticipantValidationError
 import com.example.wichtly.domain.validation.ParticipantValidator
-import kotlinx.coroutines.flow.first
 import com.example.wichtly.logging.AppLog
+import kotlinx.coroutines.flow.first
 
-private const val TAG = "SaveParticipant"
+private const val TAG = "SaveParticipantUseCase"
 
 /**
  * Legt einen Teilnehmer an oder ändert ihn. Einzige Stelle, an der Teilnehmer geprüft werden.

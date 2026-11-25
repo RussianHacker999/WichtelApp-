@@ -1,9 +1,5 @@
 package com.example.wichtly.ui.start.screen
 
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.pluralStringResource
-import com.example.wichtly.R
-import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +29,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -43,9 +41,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
+import com.example.wichtly.R
 import com.example.wichtly.ui.components.controls.PrimaryButton
-import com.example.wichtly.ui.components.display.Sparkle
 import com.example.wichtly.ui.components.controls.WichtlyTextButton
+import com.example.wichtly.ui.components.display.Sparkle
+import com.example.wichtly.ui.theme.EyebrowStyle
 import com.example.wichtly.ui.theme.OnGoldContainer
 import com.example.wichtly.ui.theme.Pine700
 import com.example.wichtly.ui.theme.Pine900
