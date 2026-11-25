@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.wishlist
 
+import androidx.annotation.StringRes
+import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,11 +27,11 @@ private data class WishlistLocalState(
     val showEditor: Boolean = false,
     val editingItemId: String? = null,
     val editorText: String = "",
-    val editorError: String? = null,
+    @StringRes val editorError: Int? = null,
     val pendingDeleteItemId: String? = null,
-    val deleteError: String? = null,
-    val participantLoadError: String? = null,
-    val wishlistLoadError: String? = null,
+    @StringRes val deleteError: Int? = null,
+    @StringRes val participantLoadError: Int? = null,
+    @StringRes val wishlistLoadError: Int? = null,
 )
 
 /**
@@ -57,14 +59,14 @@ class WishlistViewModel(
             .catch { e ->
                 if (e is CancellationException) throw e
                 Log.e("WishlistViewModel", "Fehler beim Laden des Teilnehmers", e)
-                _localState.update { it.copy(participantLoadError = "Fehler beim Laden des Teilnehmers.") }
+                _localState.update { it.copy(participantLoadError = R.string.error_participant_load) }
                 emit(null)
             },
         wishListRepository.observeWishlistItems(participantId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 Log.e("WishlistViewModel", "Fehler beim Laden der Wunschliste", e)
-                _localState.update { it.copy(wishlistLoadError = "Fehler beim Laden der Wunschliste.") }
+                _localState.update { it.copy(wishlistLoadError = R.string.error_wishlist_load) }
                 emit(emptyList())
             },
         _localState
@@ -229,7 +231,7 @@ class WishlistViewModel(
         } else null
 
         if (editingId != null && existingItem == null) {
-            _localState.update { it.copy(editorError = "Der zu bearbeitende Wunsch existiert nicht mehr.") }
+            _localState.update { it.copy(editorError = R.string.error_wish_missing) }
             return
         }
 
@@ -271,7 +273,7 @@ class WishlistViewModel(
                     }
                     is WishListItemResult.ValidationError -> {
                         val mappedError = mapWishListValidationErrors(result.errors)
-                            ?: "Fehler beim Validieren des Wunsches."
+                            ?: R.string.error_wish_validate
                         _localState.update {
                             it.copy(
                                 isSaving = false,
@@ -287,7 +289,7 @@ class WishlistViewModel(
                 _localState.update {
                     it.copy(
                         isSaving = false,
-                        editorError = "Fehler beim Speichern des Wunsches."
+                        editorError = R.string.error_wish_save
                     )
                 }
             }
@@ -336,7 +338,7 @@ class WishlistViewModel(
                 _localState.update {
                     it.copy(
                         isSaving = false,
-                        deleteError = "Fehler beim Löschen des Wunsches. Bitte erneut versuchen."
+                        deleteError = R.string.error_wish_delete
                     )
                 }
             }

@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.detail
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.validation.ParticipantValidationError
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -58,7 +59,7 @@ class ParticipantErrorsTest {
         val errors = listOf(ParticipantValidationError.DuplicateNameInGroup)
         val result = mapParticipantValidationErrors(errors)
 
-        assertEquals("Ein Teilnehmer mit diesem Namen existiert bereits in dieser Gruppe.", result.nameError)
+        assertEquals(R.string.error_participant_name_duplicate, result.nameError)
         assertNull(result.generalError)
     }
 
@@ -71,7 +72,7 @@ class ParticipantErrorsTest {
         val result = mapParticipantValidationErrors(errors)
 
         assertNull(result.nameError)
-        assertEquals("Der Teilnehmer wurde nicht gefunden.", result.generalError)
+        assertEquals(R.string.error_participant_not_found, result.generalError)
     }
 
     /**
@@ -83,7 +84,7 @@ class ParticipantErrorsTest {
         val result = mapParticipantValidationErrors(errors)
 
         assertNull(result.nameError)
-        assertEquals("Die Wichtelgruppe wurde nicht gefunden.", result.generalError)
+        assertEquals(R.string.error_group_not_found, result.generalError)
     }
 
     /**

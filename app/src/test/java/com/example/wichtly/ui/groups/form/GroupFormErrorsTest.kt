@@ -1,9 +1,9 @@
 package com.example.wichtly.ui.groups.form
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.validation.GiftGroupValidationError
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
@@ -22,7 +22,7 @@ class GroupFormErrorsTest {
         val errors = listOf(GiftGroupValidationError.EmptyName)
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
-        assertEquals("Der Gruppenname darf nicht leer sein.", updatedState.nameError)
+        assertEquals(R.string.error_group_name_empty, updatedState.nameError)
         assertNull(updatedState.budgetError)
         assertNull(updatedState.drawDayError)
         assertNull(updatedState.generalError)
@@ -38,7 +38,7 @@ class GroupFormErrorsTest {
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
         // Stellt sicher, dass nur die erste Fehlermeldung auf dem Feld übernommen wird (genau ein Text)
-        assertEquals("Der Gruppenname darf nicht leer sein.", updatedState.nameError)
+        assertEquals(R.string.error_group_name_empty, updatedState.nameError)
     }
 
     @Test
@@ -51,18 +51,16 @@ class GroupFormErrorsTest {
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
         assertNull(updatedState.nameError)
-        assertEquals("Das Budget muss größer als 0 Euro sein.", updatedState.budgetError)
-        assertEquals("Der Wichteltag muss in der Zukunft liegen.", updatedState.drawDayError)
-        assertEquals("Die angeforderte Wichtelgruppe wurde nicht gefunden.", updatedState.generalError)
+        assertEquals(R.string.error_budget_invalid, updatedState.budgetError)
+        assertEquals(R.string.error_date_in_past, updatedState.drawDayError)
+        assertEquals(R.string.error_group_requested_not_found, updatedState.generalError)
     }
 
     @Test
-    fun formatErrorConstants_containRequiredInformation() {
-        // Formatfehler für Datum muss TT.MM.JJJJ erwähnen
-        assertTrue(INVALID_DATE_FORMAT_ERROR.contains("TT.MM.JJJJ"))
-
-        // Formatfehler für Budget muss ein Beispiel wie 25,50 beinhalten
-        assertTrue(INVALID_BUDGET_FORMAT_ERROR.contains("25,50"))
+    fun formatErrorConstants_pointToFormatMessages() {
+        // Die Texte selbst (mit TT.MM.JJJJ bzw. 25,50) stehen in strings.xml
+        assertEquals(R.string.error_date_format, INVALID_DATE_FORMAT_ERROR)
+        assertEquals(R.string.error_budget_format, INVALID_BUDGET_FORMAT_ERROR)
     }
 
     @Test
@@ -71,16 +69,16 @@ class GroupFormErrorsTest {
             initialState,
             listOf(GiftGroupValidationError.DuplicateName)
         )
-        assertEquals("Eine Wichtelgruppe mit diesem Namen existiert bereits.", updated.nameError)
+        assertEquals(R.string.error_group_name_duplicate, updated.nameError)
     }
 
     @Test
     fun applyDomainValidationErrors_emptyList_clearsPreviousErrors() {
         val withErrors = initialState.copy(
-            nameError = "alt",
-            budgetError = "alt",
-            drawDayError = "alt",
-            generalError = "alt"
+            nameError = R.string.error_group_save,
+            budgetError = R.string.error_group_save,
+            drawDayError = R.string.error_group_save,
+            generalError = R.string.error_group_save
         )
         val updated = applyDomainValidationErrors(withErrors, emptyList())
 

@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -90,7 +92,7 @@ fun WichtlyTopBar(
         navigationIcon = {
             if (onBack != null) {
                 IconButton(onClick = onBack) {
-                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Zurück")
+                    Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.common_back))
                 }
             }
         },
@@ -115,7 +117,7 @@ fun BrandTopBar(
         modifier = modifier,
         title = {
             Row(verticalAlignment = Alignment.Top) {
-                Text(text = "Wichtly", style = MaterialTheme.typography.headlineSmall)
+                Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
                 Spacer(modifier = Modifier.width(3.dp))
                 Sparkle(size = 13.dp, rotationDegrees = 12f)
             }

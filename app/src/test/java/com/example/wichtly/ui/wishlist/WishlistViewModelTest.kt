@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.wishlist
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.Participant
 import com.example.wichtly.domain.model.WishListItem
 import com.example.wichtly.domain.validation.WishListItemResult
@@ -297,7 +298,7 @@ class WishlistViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals("wish-delete-me", state.pendingDeleteItemId)
-        assertEquals("Fehler beim Löschen des Wunsches. Bitte erneut versuchen.", state.deleteError)
+        assertEquals(R.string.error_wish_delete, state.deleteError)
         assertEquals(1, wishListRepository.deleteCalls)
     }
 

@@ -1,12 +1,14 @@
 package com.example.wichtly.ui.start
 
+import com.example.wichtly.R
+import org.junit.Assert.assertNull
 import com.example.wichtly.domain.model.GiftGroup
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Unit-Tests für die Infozeile der Startseite ([startSummaryOf], [daysUntilText]).
+ * Unit-Tests für die Infozeile der Startseite ([startSummaryOf], [daysUntilSpecialRes]).
  */
 class StartSummaryTest {
 
@@ -46,11 +48,11 @@ class StartSummaryTest {
         assertEquals(StartSummary.OnlyPast(2), startSummaryOf(groups, today))
     }
 
-    /** Test 5: Texte für heute, morgen und mehrere Tage. */
+    /** Test 5: Heute und morgen haben eigene Texte, mehrere Tage laufen über den Plural. */
     @Test
-    fun daysUntilText_coversSpecialCases() {
-        assertEquals("heute", daysUntilText(0))
-        assertEquals("morgen", daysUntilText(1))
-        assertEquals("in 30 Tagen", daysUntilText(30))
+    fun daysUntilSpecialRes_coversSpecialCases() {
+        assertEquals(R.string.start_days_today, daysUntilSpecialRes(0))
+        assertEquals(R.string.start_days_tomorrow, daysUntilSpecialRes(1))
+        assertNull(daysUntilSpecialRes(30))
     }
 }

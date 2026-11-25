@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -38,7 +40,7 @@ data class MenuAction(
 fun ItemMenu(
     actions: List<MenuAction>,
     modifier: Modifier = Modifier,
-    contentDescription: String = "Weitere Aktionen",
+    contentDescription: String = stringResource(R.string.common_more_actions),
     enabled: Boolean = true,
 ) {
     var expanded by remember { mutableStateOf(false) }

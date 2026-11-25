@@ -1,5 +1,8 @@
 package com.example.wichtly.ui.groups.preparation
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import com.example.wichtly.ui.components.labelRes
 import com.example.wichtly.domain.model.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -59,15 +62,15 @@ fun PreparationScreen(
     val showContent = state.errorMessage == null && !state.notFound && group != null
     WichtlyScaffold(
         modifier = modifier,
-        topBar = { WichtlyTopBar(title = "Vorbereitung", onBack = onBack) },
+        topBar = { WichtlyTopBar(title = stringResource(R.string.preparation_title), onBack = onBack) },
         bottomBar = {
             if (showContent) {
                 // Die unteren Aktionen bleiben beim Scrollen sichtbar.
                 BottomActionBar {
-                    SecondaryButton(text = "Zurück", onClick = onBack, modifier = Modifier.weight(1f))
+                    SecondaryButton(text = stringResource(R.string.common_back), onClick = onBack, modifier = Modifier.weight(1f))
                     // Der goldene Button "Jetzt losen" ist immer sichtbar, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
                     PrimaryButton(
-                        text = if (state.isStarting) "Wird ausgelost..." else "Jetzt losen",
+                        text = stringResource(if (state.isStarting) R.string.preparation_drawing else R.string.preparation_draw_now),
                         onClick = onStartDraw,
                         icon = Icons.Filled.Redeem,
                         enabled = state.canStartDraw,
@@ -79,21 +82,21 @@ fun PreparationScreen(
         },
     ) { innerPadding ->
         when {
-            isLoading -> LoadingState(text = "Einen Moment, wird ausgepackt …")
+            isLoading -> LoadingState(text = stringResource(R.string.common_loading_unpacking))
             state.errorMessage != null -> MessageState(
-                title = "Fehler beim Laden",
-                text = state.errorMessage,
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.errorMessage),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück",
+                actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
             state.notFound || group == null -> MessageState(
-                title = "Diese Gruppe ist verschwunden",
-                text = "Die ausgewählte Gruppe wurde nicht in der Datenbank gefunden.",
+                title = stringResource(R.string.common_group_missing_title),
+                text = stringResource(R.string.preparation_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück",
+                actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
             else -> LazyColumn(
@@ -103,19 +106,19 @@ fun PreparationScreen(
             ) {
                 item {
                     PageHeader(
-                        eyebrow = "Fast geschafft",
-                        title = "Alles bereit?",
-                        subtitle = "Bitte überprüfe, ob die Daten der Gruppe korrekt sind, bevor du die Auslosung startest.",
+                        eyebrow = stringResource(R.string.preparation_eyebrow),
+                        title = stringResource(R.string.preparation_header),
+                        subtitle = stringResource(R.string.preparation_subtitle),
                     )
                 }
                 item {
                     InfoRowsCard(
                         rows = listOf(
-                            "Gruppe" to group.name,
-                            "Art des Wichtelns" to group.drawType.displayName,
-                            "Budget" to "${formatCentsForInput(group.budgetCents)} €",
-                            "Übergabedatum" to formatDateForInput(group.drawDay),
-                            "Teilnehmer" to state.participants.size.toString(),
+                            stringResource(R.string.common_group) to group.name,
+                            stringResource(R.string.preparation_row_draw_type) to stringResource(group.drawType.labelRes()),
+                            stringResource(R.string.preparation_row_budget) to stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
+                            stringResource(R.string.preparation_row_date) to formatDateForInput(group.drawDay),
+                            stringResource(R.string.common_participants) to state.participants.size.toString(),
                         )
                     )
                 }
@@ -123,18 +126,18 @@ fun PreparationScreen(
                     if (state.canStartDraw) {
                         StatusLine(
                             icon = Icons.Filled.CheckCircle,
-                            text = "Alles startklar, es kann gelost werden!",
+                            text = stringResource(R.string.preparation_ready),
                             color = com.example.wichtly.ui.theme.WichtlyTheme.extendedColors.success,
                         )
                     } else {
                         StatusLine(
                             icon = Icons.Outlined.ErrorOutline,
-                            text = "Mindestens ${DrawRules.MIN_PARTICIPANTS} Teilnehmer werden benötigt.",
+                            text = stringResource(R.string.preparation_min_participants, DrawRules.MIN_PARTICIPANTS),
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
                 }
-                item { SectionHeader(title = "Teilnehmer", count = state.participants.size) }
+                item { SectionHeader(title = stringResource(R.string.common_participants), count = state.participants.size) }
                 // Die Liste kommt über das PreparationViewModel aus dem ParticipantRepository.
                 items(state.participants, key = { it.id }) { participant ->
                     ListItemCard(

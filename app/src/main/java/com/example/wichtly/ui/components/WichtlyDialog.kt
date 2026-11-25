@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -45,7 +47,7 @@ fun WichtlyDialog(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier,
     text: String? = null,
-    dismissLabel: String? = "Abbrechen",
+    dismissLabel: String? = stringResource(R.string.common_cancel),
     onDismiss: () -> Unit = onDismissRequest,
     destructive: Boolean = false,
     confirmEnabled: Boolean = true,
@@ -83,7 +85,7 @@ fun WichtlyDialog(
         },
         confirmButton = {
             if (confirmLabel == null) {
-                WichtlyTextButton(text = dismissLabel ?: "Abbrechen", onClick = onDismiss, enabled = dismissEnabled)
+                WichtlyTextButton(text = dismissLabel ?: stringResource(R.string.common_cancel), onClick = onDismiss, enabled = dismissEnabled)
             } else if (destructive) {
                 DangerButton(text = confirmLabel, onClick = onConfirm, enabled = confirmEnabled, loading = confirmLoading, compact = true)
             } else {

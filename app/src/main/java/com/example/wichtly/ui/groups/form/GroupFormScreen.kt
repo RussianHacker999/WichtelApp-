@@ -1,5 +1,9 @@
 package com.example.wichtly.ui.groups.form
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import com.example.wichtly.ui.components.labelRes
+import com.example.wichtly.ui.components.descriptionRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,7 +94,7 @@ fun GroupFormScreen(
         modifier = modifier,
         topBar = {
             WichtlyTopBar(
-                title = if (state.isEditMode) "Gruppe bearbeiten" else "Neue Gruppe anlegen",
+                title = stringResource(if (state.isEditMode) R.string.common_edit_group else R.string.action_create_group),
                 onBack = onBack,
             )
         },
@@ -99,17 +103,19 @@ fun GroupFormScreen(
                 // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander), nur sichtbar, wenn das Formular angezeigt wird
                 BottomActionBar(modifier = Modifier.imePadding()) {
                     SecondaryButton(
-                        text = "Abbrechen",
+                        text = stringResource(R.string.common_cancel),
                         onClick = onBack,
                         enabled = !state.isSaving,
                         modifier = Modifier.weight(1f),
                     )
                     PrimaryButton(
-                        text = when {
-                            state.isSaving -> "Wird gespeichert..."
-                            state.isEditMode -> "Speichern"
-                            else -> "Gruppe erstellen"
-                        },
+                        text = stringResource(
+                            when {
+                                state.isSaving -> R.string.group_form_saving
+                                state.isEditMode -> R.string.common_save
+                                else -> R.string.group_form_create
+                            }
+                        ),
                         onClick = onSaveClick,
                         loading = state.isSaving,
                         modifier = Modifier.weight(1f),
@@ -121,15 +127,15 @@ fun GroupFormScreen(
         when {
             // 1. ZUSTAND: Laden (im Bearbeiten-Modus)
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
-            state.isLoading -> Box(Modifier.fillMaxSize()) { LoadingState(text = "Wichtelgruppe wird geladen...") }
+            state.isLoading -> Box(Modifier.fillMaxSize()) { LoadingState(text = stringResource(R.string.group_form_loading)) }
             // 2. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.notFound -> MessageState(
-                title = "Diese Gruppe ist verschwunden",
-                text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
+                title = stringResource(R.string.common_group_missing_title),
+                text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 3. ZUSTAND: Formular anzeigen
@@ -181,8 +187,8 @@ private fun GroupFormContent(
         item {
             // Seitenkopf mit Eyebrow und Titel (PageHeader)
             PageHeader(
-                eyebrow = if (state.isEditMode) "Basisdaten" else "Neue Wichtelgruppe",
-                title = if (state.isEditMode) "Gruppe aktualisieren." else "Losgewichtelt!",
+                eyebrow = stringResource(if (state.isEditMode) R.string.group_form_eyebrow_edit else R.string.group_form_eyebrow_create),
+                title = stringResource(if (state.isEditMode) R.string.group_form_header_edit else R.string.group_form_header_create),
             )
         }
         item {
@@ -198,28 +204,28 @@ private fun GroupFormContent(
             item { CameraPermissionDeniedHint(onOpenSettings = onOpenAppSettings) }
         }
         state.photoError?.let { error ->
-            item { ErrorText(error) }
+            item { ErrorText(stringResource(error)) }
         }
         item {
             WichtlyTextField(
                 // 1. Gruppennamen-Eingabe
-                label = "Gruppenname *",
+                label = stringResource(R.string.group_form_name_label),
                 value = state.name,
                 onValueChange = onNameChange,
-                placeholder = "Familien-Wichteln",
-                errorText = state.nameError,
+                placeholder = stringResource(R.string.group_form_name_placeholder),
+                errorText = state.nameError?.let { stringResource(it) },
                 enabled = enabled,
             )
         }
         item {
             WichtlyTextField(
                 // 2. Budget-Eingabe in Euro (Dezimaltastatur)
-                label = "Geschenkbudget (€) *",
+                label = stringResource(R.string.group_form_budget_label),
                 value = state.budget,
                 onValueChange = onBudgetChange,
-                placeholder = "25,00",
-                supportingText = "Wie viel darf ein Geschenk kosten?",
-                errorText = state.budgetError,
+                placeholder = stringResource(R.string.group_form_budget_placeholder),
+                supportingText = stringResource(R.string.group_form_budget_support),
+                errorText = state.budgetError?.let { stringResource(it) },
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
@@ -227,12 +233,12 @@ private fun GroupFormContent(
         item {
             WichtlyTextField(
                 // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
-                label = "Wichteltag *",
+                label = stringResource(R.string.group_form_date_label),
                 value = state.drawDay,
                 onValueChange = onDrawDayChange,
-                placeholder = "24.12.2026",
-                supportingText = "Datum im Format TT.MM.JJJJ (z. B. 24.12.2026).",
-                errorText = state.drawDayError,
+                placeholder = stringResource(R.string.group_form_date_placeholder),
+                supportingText = stringResource(R.string.group_form_date_support),
+                errorText = state.drawDayError?.let { stringResource(it) },
                 enabled = enabled,
                 trailingIcon = { Icon(imageVector = Icons.Filled.Event, contentDescription = null) },
             )
@@ -240,11 +246,11 @@ private fun GroupFormContent(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 // 4. Auswahl der Wichtel-Art (Auswahlkarten mit RadioButton)
-                FieldLabel(text = "Wichtelart *")
+                FieldLabel(text = stringResource(R.string.group_form_type_label))
                 DrawType.entries.forEach { type ->
                     ChoiceCard(
-                        title = type.displayName,
-                        description = drawTypeDescription(type),
+                        title = stringResource(type.labelRes()),
+                        description = stringResource(type.descriptionRes()),
                         selected = state.drawType == type,
                         onClick = { onDrawTypeChange(type) },
                         enabled = enabled,
@@ -254,14 +260,9 @@ private fun GroupFormContent(
         }
         // 5. Allgemeiner Fehlertext
         state.generalError?.let { error ->
-            item { ErrorText(error) }
+            item { ErrorText(stringResource(error)) }
         }
     }
-}
-
-private fun drawTypeDescription(type: DrawType): String = when (type) {
-    DrawType.NORMAL -> "Jeder schenkt einer Person."
-    DrawType.JUNK -> "Kurioses statt Nützliches."
 }
 
 @Composable
@@ -317,10 +318,10 @@ private fun GroupFormScreenErrorsPreview() {
         GroupFormScreen(
             state = GroupFormUiState(
                 isEditMode = false, isLoading = false, name = "", budget = "abc", drawDay = "31.02.2026",
-                nameError = "Der Gruppenname darf nicht leer sein.",
-                budgetError = "Ungültiges Budget. Bitte gib einen Betrag wie 25,50 ein.",
-                drawDayError = "Ungültiges Datum. Bitte verwende das Format TT.MM.JJJJ (z. B. 24.12.2026).",
-                generalError = "Ein unerwarteter Fehler ist aufgetreten.",
+                nameError = R.string.error_group_name_empty,
+                budgetError = R.string.error_budget_format,
+                drawDayError = R.string.error_date_format,
+                generalError = R.string.error_group_save,
                 cameraDenied = true,
             ),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},

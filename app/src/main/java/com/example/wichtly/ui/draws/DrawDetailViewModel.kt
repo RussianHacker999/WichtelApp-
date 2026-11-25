@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.draws
 
+import androidx.annotation.StringRes
+import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,7 +23,7 @@ import java.time.ZoneId
  */
 private data class DrawDetailLocalState(
     val revealedGiverId: String? = null,
-    val loadError: String? = null,
+    @StringRes val loadError: Int? = null,
 )
 
 /**
@@ -49,7 +51,7 @@ class DrawDetailViewModel(
             .catch { e ->
                 if (e is CancellationException) throw e
                 Log.e("DrawDetailViewModel", "Fehler beim Laden der Auslosung.", e)
-                _localState.update { it.copy(loadError = "Fehler beim Laden der Auslosung.") }
+                _localState.update { it.copy(loadError = R.string.error_draw_load) }
                 emit(null)
             },
         _localState,
@@ -140,7 +142,7 @@ class DrawDetailViewModel(
         return DrawDetailUiModel(
             id = domainDraw.id,
             groupId = domainDraw.groupId,
-            groupName = "Wichtelgruppe",
+            groupName = null, // nicht gespeichert; die UI zeigt den Platzhalter aus strings.xml
             createdAt = domainDraw.drawnAt.atZone(ZoneId.systemDefault()).toLocalDate(),
             drawType = domainDraw.drawType,
             assignments = sortedAssignments

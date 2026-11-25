@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,8 +27,8 @@ fun CameraPermissionDeniedHint(
     modifier: Modifier = Modifier,
 ) {
     HintBar(
-        text = "Kamerazugriff wurde abgelehnt. Du kannst ohne Foto fortfahren.",
-        actionLabel = if (onOpenSettings != null) "Einstellungen öffnen" else null,
+        text = stringResource(R.string.camera_denied_hint),
+        actionLabel = if (onOpenSettings != null) stringResource(R.string.camera_open_settings) else null,
         onAction = onOpenSettings,
         modifier = modifier,
     )

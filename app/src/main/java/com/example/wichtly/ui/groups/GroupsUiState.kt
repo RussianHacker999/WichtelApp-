@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.GiftGroup
 // Zum erstellen, abfragen und loeschen von Datein und Verzeichnissen
 import java.io.File
@@ -12,7 +13,7 @@ import java.io.File
  * @param cameraDeniedGroupId ID der Gruppe, für die die Kamera-Berechtigung abgelehnt wurde (null, wenn keine Ablehnung vorliegt).
  * @param selectedGroupId ID der zuletzt ausgewählten Gruppe (null, wenn keine Gruppe ausgewählt ist).
  * @param isLoading Gibt an, ob der Screen gerade lädt.
- * @param errorMessage Fehlermeldung, die angezeigt wird (null, wenn keine Fehlermeldung vorliegt).
+ * @param errorMessage String-Ressource der Fehlermeldung, die angezeigt wird (null, wenn keine Fehlermeldung vorliegt).
  */
 data class GroupsUiState(
     val groups: List<GiftGroup> = emptyList(),
@@ -25,5 +26,5 @@ data class GroupsUiState(
     val selectedGroupId: String? = null,
 
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    @StringRes val errorMessage: Int? = null
 )

@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.draws
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -137,7 +139,7 @@ private fun GiftTagReveal(
                         .clickable(
                             enabled = !opened,
                             role = Role.Button,
-                            onClickLabel = "Anhänger öffnen",
+                            onClickLabel = stringResource(R.string.draw_result_open_label),
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) { opened = true }
@@ -174,16 +176,16 @@ private fun GiftTagReveal(
 private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         // Der geschlossene Anhänger ersetzt die frühere Sicherheitsabfrage ("Nur für deine Augen").
-        TagLabel(text = "Nur für deine Augen", color = contentColor)
+        TagLabel(text = stringResource(R.string.draw_result_only_for_you), color = contentColor)
         Icon(imageVector = Icons.Filled.Redeem, contentDescription = null, tint = contentColor, modifier = Modifier.size(54.dp))
         Text(
-            text = "$giverName, bist du das?",
+            text = stringResource(R.string.draw_result_is_it_you, giverName),
             style = MaterialTheme.typography.headlineSmall.copy(shadow = TagTextShadow),
             color = contentColor,
             textAlign = TextAlign.Center,
         )
         Text(
-            text = "Bildschirm abschirmen und tippen zum Öffnen.",
+            text = stringResource(R.string.draw_result_shield_hint),
             style = MaterialTheme.typography.bodySmall,
             color = contentColor.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
@@ -197,7 +199,7 @@ private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> U
             colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
             modifier = Modifier.padding(top = Spacing.s),
         ) {
-            Text(text = "Vertippt", style = MaterialTheme.typography.labelLarge)
+            Text(text = stringResource(R.string.draw_result_mistyped), style = MaterialTheme.typography.labelLarge)
         }
     }
 }
@@ -206,7 +208,7 @@ private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> U
 @Composable
 private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, onDismiss: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TagLabel(text = "${assignment.giverName}, du beschenkst", color = contentColor)
+        TagLabel(text = stringResource(R.string.draw_result_you_gift, assignment.giverName), color = contentColor)
         Text(
             text = assignment.receiverName,
             style = MaterialTheme.typography.displaySmall.copy(shadow = TagTextShadow),
@@ -214,13 +216,13 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
             textAlign = TextAlign.Center,
         )
         Text(
-            text = "Wunschliste von ${assignment.receiverName}",
+            text = stringResource(R.string.draw_result_wishlist_of, assignment.receiverName),
             style = MaterialTheme.typography.bodySmall,
             color = contentColor.copy(alpha = 0.8f),
         )
         if (assignment.wishes.isEmpty()) {
             Text(
-                text = "Zum Zeitpunkt der Auslosung waren keine Wünsche eingetragen.",
+                text = stringResource(R.string.draw_result_no_wishes),
                 style = MaterialTheme.typography.bodySmall,
                 color = contentColor,
                 textAlign = TextAlign.Center,
@@ -248,7 +250,7 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
             colors = ButtonDefaults.buttonColors(containerColor = contentColor, contentColor = MaterialTheme.colorScheme.primary),
             modifier = Modifier.padding(top = Spacing.s),
         ) {
-            Text(text = "Schließen", style = MaterialTheme.typography.labelLarge)
+            Text(text = stringResource(R.string.draw_result_close), style = MaterialTheme.typography.labelLarge)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.wishlist
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.validation.WishListValidationError
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -55,7 +56,7 @@ class WishListErrorsTest {
         val errors = listOf(WishListValidationError.ItemNotFound)
         val result = mapWishListValidationErrors(errors)
 
-        assertEquals("Der Wunsch wurde nicht gefunden.", result)
+        assertEquals(R.string.error_wish_not_found, result)
     }
 
     /**

@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
@@ -65,6 +67,7 @@ fun CameraCaptureScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
+    val captureErrorText = stringResource(R.string.error_photo_capture)
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
@@ -107,7 +110,7 @@ fun CameraCaptureScreen(
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e
                         Log.e("CameraCaptureScreen", "Fehler beim Binden der Kamera", e)
-                        onError("Foto konnte nicht aufgenommen werden.")
+                        onError(captureErrorText)
                     }
                 }, executor)
 
@@ -126,10 +129,10 @@ fun CameraCaptureScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onCancel) {
-                Icon(imageVector = Icons.Filled.Close, contentDescription = "Abbrechen", tint = Color.White)
+                Icon(imageVector = Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel), tint = Color.White)
             }
             Text(
-                text = "Foto aufnehmen",
+                text = stringResource(R.string.photo_take),
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.White,
             )
@@ -144,7 +147,7 @@ fun CameraCaptureScreen(
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
                     Log.e("CameraCaptureScreen", "Fehler beim Erstellen der temporären Datei", e)
-                    onError("Foto konnte nicht aufgenommen werden.")
+                    onError(captureErrorText)
                     return@FloatingActionButton
                 }
 
@@ -161,7 +164,7 @@ fun CameraCaptureScreen(
 
                         override fun onError(exception: ImageCaptureException) {
                             Log.e("CameraCaptureScreen", "Fehler beim Speichern des Fotos", exception)
-                            onError("Foto konnte nicht aufgenommen werden.")
+                            onError(captureErrorText)
                         }
                     }
                 )

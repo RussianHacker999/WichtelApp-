@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.runtime.Composable
@@ -29,11 +31,11 @@ fun CameraPermissionDialog(
     WichtlyDialog(
         onDismissRequest = onDeny,
         icon = Icons.Filled.PhotoCamera,
-        title = "Kamerazugriff",
-        text = "Kamerazugriff wird nur für die Fotoaufnahme benötigt.",
-        confirmLabel = "Erlauben",
+        title = stringResource(R.string.camera_permission_title),
+        text = stringResource(R.string.camera_permission_text),
+        confirmLabel = stringResource(R.string.camera_permission_allow),
         onConfirm = onAllow,
-        dismissLabel = "Nicht erlauben",
+        dismissLabel = stringResource(R.string.camera_permission_deny),
         modifier = modifier,
     )
 }

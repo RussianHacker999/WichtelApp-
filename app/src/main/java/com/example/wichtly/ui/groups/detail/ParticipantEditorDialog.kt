@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
@@ -68,8 +70,8 @@ fun ParticipantEditorDialog(
         WichtlyDialog(
             onDismissRequest = onDismiss,
             icon = if (isEditMode) Icons.Filled.Edit else Icons.Filled.PersonAdd,
-            title = if (isEditMode) "Teilnehmer bearbeiten" else "Teilnehmer hinzufügen",
-            confirmLabel = "Speichern",
+            title = stringResource(if (isEditMode) R.string.participant_edit else R.string.participant_add),
+            confirmLabel = stringResource(R.string.common_save),
             onConfirm = onSave,
             confirmEnabled = !isSaving,
             confirmLoading = isSaving,
@@ -89,10 +91,10 @@ fun ParticipantEditorDialog(
                 Text(text = photoError, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             WichtlyTextField(
-                label = "Name",
+                label = stringResource(R.string.participant_name_label),
                 value = name,
                 onValueChange = onNameChange,
-                placeholder = "Maria",
+                placeholder = stringResource(R.string.participant_name_placeholder),
                 errorText = errorMessage,
                 enabled = !isSaving,
             )

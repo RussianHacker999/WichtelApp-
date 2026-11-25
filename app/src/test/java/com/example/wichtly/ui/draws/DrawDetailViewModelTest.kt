@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.draws
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.DrawAssignment
 import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.domain.model.DrawType
@@ -194,7 +195,7 @@ class DrawDetailViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
-        assertEquals("Fehler beim Laden der Auslosung.", state.errorMessage)
+        assertEquals(R.string.error_draw_load, state.errorMessage)
         assertEquals(false, state.notFound)
     }
 

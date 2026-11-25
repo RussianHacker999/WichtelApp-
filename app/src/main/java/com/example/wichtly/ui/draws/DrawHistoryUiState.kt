@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.draws
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.DrawType
 import java.time.LocalDateTime
 
@@ -32,12 +33,12 @@ data class DrawHistoryItemUiModel(
  * @property groupName Name der Wichtelgruppe für den Titel (null, falls geladen wird oder Gruppe fehlt).
  * @property groupNotFound Zeigt an, dass die Wichtelgruppe nicht gefunden wurde.
  * @property draws Liste aller bisher durchgeführten Auslosungsdurchläufe dieser Gruppe.
- * @property errorMessage Fehlermeldung auf Screen-Ebene für Ladefehler.
+ * @property errorMessage String-Ressource der Fehlermeldung auf Screen-Ebene für Ladefehler.
  */
 data class DrawHistoryUiState(
     val isLoading: Boolean = true,
     val groupName: String? = null,
     val groupNotFound: Boolean = false,
     val draws: List<DrawHistoryItemUiModel> = emptyList(),
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
 )

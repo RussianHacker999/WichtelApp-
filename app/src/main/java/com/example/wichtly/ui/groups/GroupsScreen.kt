@@ -1,5 +1,8 @@
 package com.example.wichtly.ui
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import com.example.wichtly.ui.components.labelRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -88,9 +91,9 @@ fun GroupsScreen(
             // Ohne Gruppen (oder beim Laden/Fehler) gibt es nichts zu losen, also keine Aktionsleiste.
             if (!uiState.isLoading && uiState.errorMessage == null && uiState.groups.isNotEmpty()) {
                 val hasSelection = uiState.selectedGroupId != null
-                BottomActionBar(hint = if (hasSelection) null else "Tippe eine Gruppe an, um zu losen") {
+                BottomActionBar(hint = if (hasSelection) null else stringResource(R.string.groups_select_hint)) {
                     PrimaryButton(
-                        text = "Losen",
+                        text = stringResource(R.string.common_draw),
                         // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
                         enabled = hasSelection,
                         onClick = { uiState.selectedGroupId?.let(onPrepareDrawClick) },
@@ -111,21 +114,21 @@ fun GroupsScreen(
             item {
                 // jedes Element muss in ein item (bei einer LazyColumn)
                 // ein Element: item vs. mehrere Elemente aus einer Liste: items
-                PageHeader(title = "Alle Gruppen", subtitle = "Deine Wichtelrunden auf einen Blick.")
+                PageHeader(title = stringResource(R.string.groups_title), subtitle = stringResource(R.string.groups_subtitle))
             }
             if (uiState.isLoading) {
                 item {
                     // Zeigt einen Ladekreis (von Material 3)
                     LoadingState(
-                        text = "Einen Moment, wird ausgepackt …",
+                        text = stringResource(R.string.common_loading_unpacking),
                         modifier = Modifier.fillMaxWidth().height(240.dp),
                     )
                 }
             } else if (uiState.errorMessage != null) {
                 item {
                     MessageState(
-                        title = "Fehler beim Laden",
-                        text = uiState.errorMessage,
+                        title = stringResource(R.string.common_error_loading_title),
+                        text = stringResource(uiState.errorMessage),
                         icon = Icons.Outlined.ErrorOutline,
                         isError = true,
                         fillMaxSize = false,
@@ -135,10 +138,10 @@ fun GroupsScreen(
             } else if (uiState.groups.isEmpty()) {
                 item {
                     MessageState(
-                        title = "Noch ganz schön leer hier",
-                        text = "Lege deine erste Gruppe an, dann kann der Spaß beginnen.",
+                        title = stringResource(R.string.groups_empty_title),
+                        text = stringResource(R.string.groups_empty_text),
                         icon = Icons.Filled.Redeem,
-                        actionLabel = "Erste Gruppe anlegen",
+                        actionLabel = stringResource(R.string.action_create_first_group),
                         onAction = onAddGroupClick,
                         fillMaxSize = false,
                         modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
@@ -147,9 +150,9 @@ fun GroupsScreen(
             } else {
                 item {
                     SectionHeader(
-                        title = "Gruppen",
+                        title = stringResource(R.string.groups_section),
                         count = uiState.groups.size,
-                        action = { SectionActionButton(text = "Neue Gruppe", onClick = onAddGroupClick) },
+                        action = { SectionActionButton(text = stringResource(R.string.groups_new), onClick = onAddGroupClick) },
                     )
                 }
                 items(uiState.groups, key = { it.id }) { group ->
@@ -254,7 +257,7 @@ private fun HeroGroupCard(
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Check,
-                        contentDescription = "Ausgewählt",
+                        contentDescription = stringResource(R.string.common_selected),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(16.dp),
                     )
@@ -276,7 +279,7 @@ private fun HeroGroupCard(
         ) {
             ListItemText(
                 title = group.name,
-                subtitle = "${formatCentsForInput(group.budgetCents)} € · ${group.drawType.displayName}",
+                subtitle = stringResource(R.string.groups_card_subtitle, formatCentsForInput(group.budgetCents), stringResource(group.drawType.labelRes())),
                 //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
                 // den Abstand zum Kartenrand gibt das padding der Row
                 modifier = Modifier.weight(1f),
@@ -284,8 +287,8 @@ private fun HeroGroupCard(
             // ⋮-Menü rechts mit "Gruppendetails" und "Gruppe bearbeiten"
             ItemMenu(
                 actions = listOf(
-                    MenuAction("Gruppendetails", Icons.Filled.Groups, onDetailsClick),
-                    MenuAction("Gruppe bearbeiten", Icons.Filled.Edit, onEditClick),
+                    MenuAction(stringResource(R.string.common_group_details), Icons.Filled.Groups, onDetailsClick),
+                    MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, onEditClick),
                 ),
             )
         }

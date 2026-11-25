@@ -1,11 +1,12 @@
 package com.example.wichtly.ui.wishlist
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.WishListItem
 
 /**
  * UI State für den ParticipantWishlistScreen.
  *
- * Erklärung der Zustände:
+ * Erklärung der Zustände (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
  * - `isLoading == true`: Der Bildschirm lädt aktuell noch die Daten des Teilnehmers.
  * - `isLoading == false` und `participantName == null`: Bedeutet "Teilnehmer nicht gefunden"
  *   (der Teilnehmer existiert nicht in der Datenbank oder wurde gelöscht).
@@ -39,12 +40,12 @@ data class WishlistUiState(
     val isLoading: Boolean = true,
     val participantName: String? = null,
     val items: List<WishListItem> = emptyList(),
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
     val isSaving: Boolean = false,
     val showEditor: Boolean = false,
     val editingItemId: String? = null,
     val editorText: String = "",
-    val editorError: String? = null,
+    @StringRes val editorError: Int? = null,
     val pendingDeleteItemId: String? = null,
-    val deleteError: String? = null,
+    @StringRes val deleteError: Int? = null,
 )

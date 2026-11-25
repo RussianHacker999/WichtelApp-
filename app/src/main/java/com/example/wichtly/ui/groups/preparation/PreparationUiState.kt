@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.preparation
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
 
@@ -17,7 +18,7 @@ data class PreparationUiState(
     val group: GiftGroup? = null,
     val participants: List<Participant> = emptyList(),
     val notFound: Boolean = false,
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
     val isStarting: Boolean = false,
     val canStartDraw: Boolean = false,
 )

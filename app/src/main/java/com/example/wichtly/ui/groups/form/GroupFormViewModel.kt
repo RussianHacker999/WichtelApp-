@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.form
 
+import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -98,7 +99,7 @@ class GroupFormViewModel(
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        generalError = "Fehler beim Laden der Wichtelgruppe.",
+                        generalError = R.string.error_group_load,
                     )
                 }
             }
@@ -187,7 +188,7 @@ class GroupFormViewModel(
         // Bearbeiten ohne geladene Gruppe (Ladefehler): nicht speichern, Grund nennen
         if (groupId != null && originalGroup == null) {
             _uiState.update {
-                it.copy(generalError = "Die Wichtelgruppe konnte nicht geladen werden. Speichern ist nicht möglich.")
+                it.copy(generalError = R.string.error_group_not_loaded_cannot_save)
             }
             return
         }
@@ -273,7 +274,7 @@ class GroupFormViewModel(
                 _uiState.update {
                     it.copy(
                         isSaving = false,
-                        generalError = "Fehler beim Speichern der Wichtelgruppe.",
+                        generalError = R.string.error_group_save,
                     )
                 }
             }
@@ -323,7 +324,7 @@ class GroupFormViewModel(
                 throw e
             } catch (e: Exception) {
                 Log.e("GroupFormViewModel", "Fehler beim Speichern des Gruppenfotos", e)
-                _uiState.update { it.copy(photoError = "Foto konnte nicht gespeichert werden.") }
+                _uiState.update { it.copy(photoError = R.string.error_photo_save) }
             } finally {
                 try {
                     if (tempFile.exists()) tempFile.delete()

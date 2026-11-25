@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -40,10 +42,10 @@ fun ParticipantDeleteDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
         // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
-        title = "Teilnehmer löschen",
+        title = stringResource(R.string.participant_delete),
         // Hinweis auf das Löschen des Teilnehmers samt seiner Wunschliste
-        text = "Möchtest du den Teilnehmer „$participantName“ und seine Wunschliste wirklich löschen?",
-        confirmLabel = "Löschen",
+        text = stringResource(R.string.participant_delete_text, participantName),
+        confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
         // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.

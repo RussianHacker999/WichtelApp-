@@ -1,5 +1,8 @@
 package com.example.wichtly.ui.draws
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import com.example.wichtly.ui.components.labelRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -54,30 +57,36 @@ fun DrawDetailScreen(
     val draw = state.draw
     WichtlyScaffold(
         modifier = modifier,
-        topBar = { WichtlyTopBar(title = draw?.groupName ?: "Auslosung ansehen", onBack = onBack) },
+        topBar = {
+            val title = when {
+                draw == null -> stringResource(R.string.draw_detail_title_fallback)
+                else -> draw.groupName ?: stringResource(R.string.draw_detail_group_placeholder)
+            }
+            WichtlyTopBar(title = title, onBack = onBack)
+        },
     ) { innerPadding ->
         when {
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
-            state.isLoading -> LoadingState(text = "Auslosungsdetails werden geladen...")
+            state.isLoading -> LoadingState(text = stringResource(R.string.draw_detail_loading))
             // 2. ZUSTAND: Fehler aufgetreten
             // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
-                title = "Fehler beim Laden",
-                text = state.errorMessage,
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.errorMessage),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück",
+                actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
             // 3. ZUSTAND: Auslosung nicht gefunden
             // UI-Darstellung, wenn die Auslosung nicht gefunden wurde (gemeinsamer MessageState).
             state.notFound || draw == null -> MessageState(
-                title = "Auslosung nicht gefunden",
-                text = "Dieser gespeicherte Durchlauf ist nicht mehr verfügbar.",
+                title = stringResource(R.string.draw_detail_not_found_title),
+                text = stringResource(R.string.draw_detail_not_found_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück",
+                actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
             // 4. ZUSTAND: Inhalt (Bereit)
@@ -91,21 +100,26 @@ fun DrawDetailScreen(
                 item {
                     // (1) Seitenkopf mit Eyebrow (Datum) und Titel
                     PageHeader(
-                        eyebrow = "Ausgelost am ${formatDateForInput(draw.createdAt)}",
-                        title = "Die Lose sind gefallen!",
-                        subtitle = "${draw.groupName} · ${draw.assignments.size} Teilnehmer · ${draw.drawType.displayName}",
+                        eyebrow = stringResource(R.string.draw_detail_eyebrow, formatDateForInput(draw.createdAt)),
+                        title = stringResource(R.string.draw_detail_header),
+                        subtitle = stringResource(
+                            R.string.draw_detail_subtitle,
+                            draw.groupName ?: stringResource(R.string.draw_detail_group_placeholder),
+                            draw.assignments.size,
+                            stringResource(draw.drawType.labelRes()),
+                        ),
                     )
                 }
                 // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
-                item { SectionHeader(title = "Alle Zuordnungen", count = draw.assignments.size) }
+                item { SectionHeader(title = stringResource(R.string.draw_detail_section), count = draw.assignments.size) }
                 // (3) Karten pro Zuordnung (NUR Schenker-Name & "schenkt ???", NIEMALS Beschenkten-Name!)
                 itemsIndexed(draw.assignments, key = { _, a -> a.giverId }) { index, assignment ->
                     ListItemCard(
                         title = assignment.giverName,
-                        subtitle = "schenkt ???",
+                        subtitle = stringResource(R.string.draw_detail_gives_hidden),
                         leading = { NumberAvatar(number = index + 1) },
                         trailing = {
-                            WichtlyTextButton(text = "Spicken", onClick = { onGiverClick(assignment.giverId) })
+                            WichtlyTextButton(text = stringResource(R.string.draw_detail_peek), onClick = { onGiverClick(assignment.giverId) })
                         },
                         onClick = { onGiverClick(assignment.giverId) },
                     )
@@ -195,7 +209,7 @@ private fun DrawDetailScreenLoadingPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun DrawDetailScreenErrorPreview() {
-    PreviewScreen(DrawDetailUiState(isLoading = false, errorMessage = "Fehler beim Laden des Auslosungs-Snapshots."))
+    PreviewScreen(DrawDetailUiState(isLoading = false, errorMessage = R.string.error_draw_load))
 }
 
 /**

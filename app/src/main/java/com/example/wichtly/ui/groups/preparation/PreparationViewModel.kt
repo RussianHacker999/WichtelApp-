@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.preparation
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.DrawRules
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -33,8 +34,8 @@ class PreparationViewModel(
     // die beiden Flows speichern interne Zustaende des ViewModels, die sich verwaehrendern der Laufzeit koennne
     // startingState beschreibt, ob die Auslosung gerade laeuft
     private val startingState = MutableStateFlow(false)
-    // errorState speichert den aktuellen Fehler (null, wenn es keinen Fehler gibt)
-    private val errorState = MutableStateFlow<String?>(null)
+    // errorState speichert den aktuellen Fehler als String-Ressource (null, wenn es keinen Fehler gibt)
+    private val errorState = MutableStateFlow<Int?>(null)
 
     // combine fuehrt meherere Flows zu einem Flow zusammen
     val uiState: StateFlow<PreparationUiState> = combine(
@@ -44,7 +45,7 @@ class PreparationViewModel(
             .catch { error ->
                 if (error is CancellationException) throw error
                 Log.e("PreparationViewModel", "Gruppe konnte nicht geladen werden", error)
-                errorState.update { "Die Gruppendaten konnten nicht geladen werden." }
+                errorState.update { R.string.error_groups_load }
                 // emit() sendet einen Wert (hier null) an alle die den Flow hier beobachten.
                 // hier wird satt einer giftGroup einen null zurueckgegeben
                 emit(null)
@@ -54,7 +55,7 @@ class PreparationViewModel(
             .catch { error ->
                 if (error is CancellationException) throw error
                 Log.e("PreparationViewModel", "Teilnehmer konnten nicht geladen werden", error)
-                errorState.update { "Die Teilnehmerliste konnte nicht geladen werden." }
+                errorState.update { R.string.error_participant_list_load }
                 emit(emptyList())
             },
         // liefert bool
@@ -125,7 +126,7 @@ class PreparationViewModel(
                     // dann wird im ViewModel eine error-Meldung gespeichert
                     // result ist ein ValidationError
                     is DrawResult.ValidationError -> {
-                        errorState.update { "Die Auslosung konnte nicht gestartet werden." }
+                        errorState.update { R.string.error_draw_start }
                     }
                 }
                 // Exceptions
@@ -133,7 +134,7 @@ class PreparationViewModel(
                 throw error
             } catch (error: Exception) {
                 Log.e("PreparationViewModel", "Auslosung fehlgeschlagen", error)
-                errorState.update { "Beim Starten der Auslosung ist ein Fehler aufgetreten." }
+                errorState.update { R.string.error_draw_failed }
             } finally {
                 // sagt dem ViewModel, dass die Losung vorbei ist
                 startingState.update { false }

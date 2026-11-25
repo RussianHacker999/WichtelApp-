@@ -1,5 +1,8 @@
 package com.example.wichtly.ui.draws
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import androidx.compose.runtime.remember
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,8 +33,6 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-/** Datum und Uhrzeit einer Ziehung, z. B. "01.12.2026, 18:42 Uhr". */
-private val historyDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm 'Uhr'")
 
 /**
  * Zustandsloser Composable-Screen für die Auslosungshistorie einer Wichtelgruppe.
@@ -61,32 +62,35 @@ fun DrawHistoryScreen(
     onOpenDraw: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Datum und Uhrzeit einer Ziehung, z. B. "01.12.2026, 18:42 Uhr"; das Muster steht in strings.xml
+    val dateTimePattern = stringResource(R.string.draw_history_datetime_pattern)
+    val historyDateTimeFormatter = remember(dateTimePattern) { DateTimeFormatter.ofPattern(dateTimePattern) }
     WichtlyScaffold(
         modifier = modifier,
-        topBar = { WichtlyTopBar(title = "Auslosungshistorie", onBack = onBack) },
+        topBar = { WichtlyTopBar(title = stringResource(R.string.draw_history_title), onBack = onBack) },
     ) { innerPadding ->
         when {
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
-            state.isLoading -> LoadingState(text = "Auslosungshistorie wird geladen...")
+            state.isLoading -> LoadingState(text = stringResource(R.string.draw_history_loading))
             // 2. ZUSTAND: Fehler aufgetreten
             // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
-                title = "Fehler beim Laden",
-                text = state.errorMessage,
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.errorMessage),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 3. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.groupNotFound -> MessageState(
-                title = "Diese Gruppe ist verschwunden",
-                text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
+                title = stringResource(R.string.common_group_missing_title),
+                text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 4. ZUSTAND: Inhalt (Bereit)
@@ -100,19 +104,19 @@ fun DrawHistoryScreen(
                 item {
                     // (1) Seitenkopf mit Eyebrow und Titel
                     PageHeader(
-                        eyebrow = "Alle Durchläufe",
-                        title = "Schon mal gelost",
-                        subtitle = "Jede Ziehung bleibt gespeichert und lässt sich jederzeit wieder ansehen.",
+                        eyebrow = stringResource(R.string.draw_history_eyebrow),
+                        title = stringResource(R.string.draw_history_header),
+                        subtitle = stringResource(R.string.draw_history_subtitle),
                     )
                 }
                 // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
-                item { SectionHeader(title = "Gespeicherte Auslosungen", count = state.draws.size) }
+                item { SectionHeader(title = stringResource(R.string.draw_history_section), count = state.draws.size) }
                 // (3) Auslosungs-Karten ODER Hinweis bei leerer Liste
                 if (state.draws.isEmpty()) {
                     item {
                         MessageState(
-                            title = "Hier ist noch nichts ausgelost.",
-                            text = "Sobald du einen Durchlauf abgeschlossen hast, findest du ihn hier wieder.",
+                            title = stringResource(R.string.draw_history_empty_title),
+                            text = stringResource(R.string.draw_history_empty_text),
                             icon = Icons.Filled.History,
                             fillMaxSize = false,
                             modifier = Modifier.fillMaxWidth().padding(top = Spacing.s),
@@ -132,7 +136,7 @@ fun DrawHistoryScreen(
                 item {
                     // (4) Hinweisfeld am Ende
                     NoteCard(
-                        text = "Historische Daten sind unveränderliche Snapshots. Änderungen an Teilnehmern oder Wunschlisten verändern frühere Ergebnisse nicht.",
+                        text = stringResource(R.string.draw_history_note),
                         modifier = Modifier.padding(top = Spacing.m),
                     )
                 }
@@ -205,7 +209,7 @@ private fun DrawHistoryScreenLoadingPreview() {
 private fun DrawHistoryScreenErrorPreview() {
     WichtlyTheme {
         DrawHistoryScreen(
-            state = DrawHistoryUiState(isLoading = false, errorMessage = "Fehler beim Laden der Historie aus der Datenbank."),
+            state = DrawHistoryUiState(isLoading = false, errorMessage = R.string.error_history_load),
             onBack = {}, onOpenDraw = {},
         )
     }

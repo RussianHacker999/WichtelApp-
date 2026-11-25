@@ -1,12 +1,13 @@
 package com.example.wichtly.ui.groups.form
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.DrawType
 import java.io.File
 
 /**
  * UI State für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
  *
- * Erklärung der Felder:
+ * Erklärung der Felder (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
  * @property isLoading Zeigt an, ob die Gruppendaten im Bearbeiten-Modus noch aus der Datenbank geladen werden.
  * @property isEditMode false = neue Gruppe erstellen, true = bestehende Gruppe bearbeiten.
  * @property notFound true, wenn im Bearbeiten-Modus die angeforderte Gruppe nicht existiert oder gelöscht wurde.
@@ -34,15 +35,15 @@ data class GroupFormUiState(
     val budget: String = "",
     val drawDay: String = "",
     val drawType: DrawType = DrawType.NORMAL,
-    val nameError: String? = null,
-    val budgetError: String? = null,
-    val drawDayError: String? = null,
-    val generalError: String? = null,
+    @StringRes val nameError: Int? = null,
+    @StringRes val budgetError: Int? = null,
+    @StringRes val drawDayError: Int? = null,
+    @StringRes val generalError: Int? = null,
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val photoPath: String? = null,
     val photoFile: File? = null,
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
-    val photoError: String? = null,
+    @StringRes val photoError: Int? = null,
 )

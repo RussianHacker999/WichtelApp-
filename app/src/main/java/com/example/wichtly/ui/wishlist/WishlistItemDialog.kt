@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.wishlist
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Redeem
 import androidx.compose.runtime.Composable
@@ -41,8 +43,8 @@ fun WishlistItemDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Redeem,
         // Warum dynamischer Titel: Eindeutige Kennzeichnung der Nutzer-Aktion (Neu vs. Bearbeiten).
-        title = if (isEditMode) "Wunsch bearbeiten" else "Wunsch hinzufügen",
-        confirmLabel = "Speichern",
+        title = stringResource(if (isEditMode) R.string.wishlist_edit else R.string.wishlist_add),
+        confirmLabel = stringResource(R.string.common_save),
         onConfirm = onSave,
         // Warum disabled bei isSaving: Verhindert Mehrfachklicks und unbeabsichtigte doppelte Aufrufe während des Speicherns.
         confirmEnabled = !isSaving,
@@ -53,10 +55,10 @@ fun WishlistItemDialog(
         // Einzeiliges Textfeld (WichtlyTextField, intern ein OutlinedTextField) für die Eingabe des Wunschtextes.
         // errorText setzt isError und supportingText und liefert so sofort visuelles Feedback bei Validierungsfehlern.
         WichtlyTextField(
-            label = "Wunsch",
+            label = stringResource(R.string.wishlist_item_label),
             value = text,
             onValueChange = onTextChange,
-            placeholder = "Warme Wollsocken",
+            placeholder = stringResource(R.string.wishlist_item_placeholder),
             errorText = errorMessage,
             enabled = !isSaving,
         )

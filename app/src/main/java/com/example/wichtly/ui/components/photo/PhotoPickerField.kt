@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -47,7 +49,7 @@ fun PhotoPickerField(
     enabled: Boolean = true,
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        FieldLabel(text = "Foto")
+        FieldLabel(text = stringResource(R.string.photo_label))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
             // Runder Foto-Thumbnail oder Platzhalter
             PhotoThumbnail(
@@ -60,7 +62,7 @@ fun PhotoPickerField(
             // kein eigener Titel/Hilfetext mehr: das Label "Foto" steht über der Zeile
             // Aktionsbutton (Foto hinzufügen / Foto ändern)
             WichtlyTextButton(
-                text = if (hasPhoto) "Foto ändern" else "Foto hinzufügen",
+                text = stringResource(if (hasPhoto) R.string.photo_change else R.string.photo_add),
                 onClick = onSelectClick,
                 enabled = enabled,
             )

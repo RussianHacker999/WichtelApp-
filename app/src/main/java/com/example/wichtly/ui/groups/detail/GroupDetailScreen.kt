@@ -1,5 +1,8 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
+import com.example.wichtly.ui.components.labelRes
 import com.example.wichtly.domain.model.DrawRules
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -106,11 +109,11 @@ fun GroupDetailScreen(
         modifier = modifier,
         topBar = {
             WichtlyTopBar(
-                title = "Gruppendetails",
+                title = stringResource(R.string.common_group_details),
                 onBack = onBack,
                 actions = {
                     if (ready) {
-                        ItemMenu(actions = listOf(MenuAction("Gruppe bearbeiten", Icons.Filled.Edit, onEditGroupClick)))
+                        ItemMenu(actions = listOf(MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, onEditGroupClick)))
                     }
                 },
             )
@@ -120,9 +123,9 @@ fun GroupDetailScreen(
                 // "Losen" ist die EINE Hauptaktion des Screens (wie in der Gruppenliste).
                 // Teilnehmer hinzufügen sitzt direkt am Teilnehmer-Abschnitt.
                 val canDraw = DrawRules.canDraw(state.participants.size)
-                BottomActionBar(hint = if (canDraw) null else "Mindestens ${DrawRules.MIN_PARTICIPANTS} Teilnehmer zum Losen") {
+                BottomActionBar(hint = if (canDraw) null else stringResource(R.string.group_detail_min_participants_hint, DrawRules.MIN_PARTICIPANTS)) {
                     PrimaryButton(
-                        text = "Losen",
+                        text = stringResource(R.string.common_draw),
                         onClick = onPrepareDraw,
                         icon = Icons.Filled.Redeem,
                         enabled = canDraw,
@@ -135,25 +138,25 @@ fun GroupDetailScreen(
         when {
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
-            state.isLoading -> LoadingState(text = "Gruppendetails werden geladen...")
+            state.isLoading -> LoadingState(text = stringResource(R.string.group_detail_loading))
             // 2. ZUSTAND: Fehler aufgetreten
             // UI-Darstellung im Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
-                title = "Fehler beim Laden",
-                text = state.errorMessage,
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.errorMessage),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 3. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
             state.notFound || group == null -> MessageState(
-                title = "Diese Gruppe ist verschwunden",
-                text = "Die angeforderte Wichtelgruppe existiert nicht oder wurde gelöscht.",
+                title = stringResource(R.string.common_group_missing_title),
+                text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 4. ZUSTAND: Inhalt
@@ -176,14 +179,14 @@ fun GroupDetailScreen(
         ParticipantEditorDialog(
             isEditMode = state.editingParticipantId != null,
             name = state.participantNameInput,
-            errorMessage = state.participantNameError,
+            errorMessage = state.participantNameError?.let { stringResource(it) },
             isSaving = state.isSaving,
             onNameChange = onParticipantNameChange,
             onSave = onSaveParticipant,
             onDismiss = onDismissParticipantEditor,
             photoPath = state.participantPhotoPath,
             photoFile = state.participantPhotoFile,
-            photoError = state.photoError,
+            photoError = state.photoError?.let { stringResource(it) },
             isPhotoFlowOpen = state.isPhotoFlowOpen,
             cameraDenied = state.cameraDenied,
             onPhotoSelectClick = onPhotoSelectClick,
@@ -199,7 +202,7 @@ fun GroupDetailScreen(
     if (pendingDeleteParticipant != null) {
         ParticipantDeleteDialog(
             participantName = pendingDeleteParticipant.name,
-            errorMessage = state.participantDeleteError,
+            errorMessage = state.participantDeleteError?.let { stringResource(it) },
             isSaving = state.isSaving,
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
@@ -235,7 +238,7 @@ private fun GroupDetailContent(
         item {
             // 1. Eyebrow & Titel (Gruppenname) im Seitenkopf
             PageHeader(
-                eyebrow = "Gruppe",
+                eyebrow = stringResource(R.string.common_group),
                 title = group.name,
                 // 3. Stammdaten der Gruppe: Wichteltag und Wichtelart als Zeile im Seitenkopf
                 // (das Budget steht in den Kennzahlen darunter, "Gruppe bearbeiten" im ⋮-Menü der Top-Leiste)
@@ -243,7 +246,7 @@ private fun GroupDetailContent(
                     MetaRow(
                         items = listOf(
                             MetaItem(Icons.Filled.Event, formatDateForInput(group.drawDay)),
-                            MetaItem(Icons.Filled.Redeem, group.drawType.displayName),
+                            MetaItem(Icons.Filled.Redeem, stringResource(group.drawType.labelRes())),
                         )
                     )
                 },
@@ -253,11 +256,11 @@ private fun GroupDetailContent(
             // 2. Kennzahlen (2 Stat-Karten: Teilnehmer und Budget)
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                 // Stat 1: Teilnehmer
-                StatTile(value = participants.size.toString(), label = "Teilnehmer", modifier = Modifier.weight(1f))
+                StatTile(value = participants.size.toString(), label = stringResource(R.string.common_participants), modifier = Modifier.weight(1f))
                 // Stat 2: Budget
                 StatTile(
-                    value = "${formatCentsForInput(group.budgetCents)} €",
-                    label = "Budget pro Geschenk",
+                    value = stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
+                    label = stringResource(R.string.group_detail_budget_label),
                     modifier = Modifier.weight(1.7f),
                 )
                 // keine dritte Karte für Durchläufe: die gespeicherten Durchläufe stehen in der Auslosungshistorie
@@ -268,9 +271,9 @@ private fun GroupDetailContent(
         // Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
         item {
             SectionHeader(
-                title = "Teilnehmer",
+                title = stringResource(R.string.common_participants),
                 count = participants.size,
-                action = { SectionActionButton(text = "Hinzufügen", onClick = onAddParticipantClick) },
+                action = { SectionActionButton(text = stringResource(R.string.group_detail_add), onClick = onAddParticipantClick) },
             )
         }
         // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
@@ -278,8 +281,8 @@ private fun GroupDetailContent(
             item {
                 // Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
                 MessageState(
-                    title = "Noch niemand dabei",
-                    text = "Füge die Personen hinzu, die an der Wichtelrunde teilnehmen.",
+                    title = stringResource(R.string.group_detail_empty_title),
+                    text = stringResource(R.string.group_detail_empty_text),
                     icon = Icons.Filled.Groups,
                     fillMaxSize = false,
                     modifier = Modifier.fillMaxWidth(),
@@ -293,7 +296,7 @@ private fun GroupDetailContent(
                 // Die Wunschliste öffnet sich ausschließlich per Tippen auf die Karte (nur EIN Weg).
                 ListItemCard(
                     title = participant.name,
-                    subtitle = "Wunschliste öffnen",
+                    subtitle = stringResource(R.string.group_detail_open_wishlist),
                     // Avatar mit Foto oder Initialen
                     // Die Initialen (bis zu 2 Buchstaben) berechnet initialsOf() in ui/components.
                     leading = { InitialsAvatar(name = participant.name, photoFile = participantPhotoFiles[participant.id]) },
@@ -302,10 +305,10 @@ private fun GroupDetailContent(
                     trailing = {
                         // Drei-Punkte-Aktionsmenü (⋮)
                         ItemMenu(
-                            contentDescription = "Aktionen für ${participant.name}",
+                            contentDescription = stringResource(R.string.group_detail_participant_actions, participant.name),
                             actions = listOf(
-                                MenuAction("Teilnehmer bearbeiten", Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
-                                MenuAction("Teilnehmer löschen", Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
+                                MenuAction(stringResource(R.string.participant_edit), Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
+                                MenuAction(stringResource(R.string.participant_delete), Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
                             ),
                         )
                     },
@@ -314,11 +317,11 @@ private fun GroupDetailContent(
         }
 
         // 7. Historie-Abschnitt (gelost wird nur über "Losen" in der Aktionsleiste)
-        item { SectionHeader(title = "Historie") }
+        item { SectionHeader(title = stringResource(R.string.group_detail_history_section)) }
         item {
             // Auslosungshistorie Karte
             ListItemCard(
-                title = "Auslosungshistorie",
+                title = stringResource(R.string.draw_history_title),
                 leading = { IconAvatar(icon = Icons.Filled.History) },
                 trailing = { ChevronIcon() },
                 onClick = onOpenHistory,
@@ -326,7 +329,7 @@ private fun GroupDetailContent(
         }
         item {
             // Hinweisfeld
-            NoteCard(text = "Alte Ziehungen bleiben, wie sie waren.", modifier = Modifier.padding(top = Spacing.m))
+            NoteCard(text = stringResource(R.string.group_detail_history_note), modifier = Modifier.padding(top = Spacing.m))
         }
     }
 }
@@ -394,7 +397,7 @@ private fun GroupDetailScreenNotFoundPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun GroupDetailScreenErrorPreview() {
-    PreviewScreen(GroupDetailUiState(isLoading = false, errorMessage = "Fehler beim Laden der Wichtelgruppe aus der Datenbank."))
+    PreviewScreen(GroupDetailUiState(isLoading = false, errorMessage = R.string.error_group_load))
 }
 
 /**

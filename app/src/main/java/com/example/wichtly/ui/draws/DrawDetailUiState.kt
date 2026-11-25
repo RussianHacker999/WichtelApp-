@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.draws
 
+import androidx.annotation.StringRes
+
 /**
  * UI State für die Detailansicht eines einzelnen Auslosungs-Durchlaufs (DrawDetailsScreen).
  *
@@ -17,13 +19,13 @@ package com.example.wichtly.ui.draws
  * @property isLoading Zeigt an, ob die Auslosungsdaten geladen werden.
  * @property draw Der geladene Auslosungsdurchlauf mit allen Zuordnungen (null, falls geladen wird oder fehlt).
  * @property notFound Zeigt an, dass die Auslosung nicht gefunden wurde.
- * @property errorMessage Fehlermeldung auf Screen-Ebene für Ladefehler.
+ * @property errorMessage String-Ressource der Fehlermeldung auf Screen-Ebene für Ladefehler.
  * @property revealedGiverId ID des Schenkers, für den der Geschenkanhänger geöffnet ist (null = kein Anhänger offen).
  */
 data class DrawDetailUiState(
     val isLoading: Boolean = true,
     val draw: DrawDetailUiModel? = null,
     val notFound: Boolean = false,
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
     val revealedGiverId: String? = null,
 )

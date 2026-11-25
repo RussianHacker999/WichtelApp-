@@ -1,7 +1,11 @@
 package com.example.wichtly.domain.model
 
-
-enum class DrawType (val displayName: String) {
-    NORMAL("Klassisch"),
-    JUNK("Schrottwichteln")
+/**
+ * Art der Auslosung.
+ * Anzeigetexte gehören nicht in die Domain; sie liegen in strings.xml und werden in der UI
+ * über [com.example.wichtly.ui.components.labelRes] zugeordnet.
+ */
+enum class DrawType {
+    NORMAL,
+    JUNK,
 }

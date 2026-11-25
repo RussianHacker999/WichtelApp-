@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.draws
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.GiftGroup
@@ -180,7 +181,7 @@ class DrawHistoryViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
-        assertEquals("Fehler beim Laden der Historie.", state.errorMessage)
+        assertEquals(R.string.error_history_load, state.errorMessage)
         assertEquals(false, state.groupNotFound)
     }
 
@@ -201,7 +202,7 @@ class DrawHistoryViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
-        assertEquals("Fehler beim Laden der Historie.", state.errorMessage)
+        assertEquals(R.string.error_history_load, state.errorMessage)
         assertEquals(false, state.groupNotFound)
     }
 

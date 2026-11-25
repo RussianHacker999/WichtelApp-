@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -49,21 +51,21 @@ fun PhotoSourceDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.PhotoCamera,
-        title = "Foto hinzufügen",
+        title = stringResource(R.string.photo_add),
         modifier = modifier,
         content = {
             Text(
-                text = "Das Foto wird nur auf diesem Gerät gespeichert.",
+                text = stringResource(R.string.photo_local_only_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
             // Option: Foto aufnehmen
-            PhotoOption(icon = Icons.Filled.PhotoCamera, label = "Foto aufnehmen", onClick = onTakePhoto)
+            PhotoOption(icon = Icons.Filled.PhotoCamera, label = stringResource(R.string.photo_take), onClick = onTakePhoto)
             // Option: Foto entfernen (nur sichtbar wenn hasPhoto == true)
             if (hasPhoto) {
-                PhotoOption(icon = Icons.Filled.Delete, label = "Foto entfernen", onClick = onRemovePhoto, destructive = true)
+                PhotoOption(icon = Icons.Filled.Delete, label = stringResource(R.string.photo_remove), onClick = onRemovePhoto, destructive = true)
             }
         },
         // Die Optionen sind selbst die Aktionen; unten bleibt nur "Abbrechen".

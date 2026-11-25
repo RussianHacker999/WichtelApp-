@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.start
 
+import androidx.annotation.StringRes
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.GiftGroup
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -35,9 +37,13 @@ fun startSummaryOf(groups: List<GiftGroup>, today: LocalDate): StartSummary {
     return StartSummary.NextEvent(next.name, ChronoUnit.DAYS.between(today, next.drawDay))
 }
 
-/** "heute", "morgen" oder "in N Tagen". */
-fun daysUntilText(days: Long): String = when (days) {
-    0L -> "heute"
-    1L -> "morgen"
-    else -> "in $days Tagen"
+/**
+ * String-Ressource für "heute" bzw. "morgen".
+ * null bedeutet: "in N Tagen", das die UI als Plural (R.plurals.start_days_in) anzeigt.
+ */
+@StringRes
+fun daysUntilSpecialRes(days: Long): Int? = when (days) {
+    0L -> R.string.start_days_today
+    1L -> R.string.start_days_tomorrow
+    else -> null
 }

@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.wishlist
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -82,13 +84,13 @@ fun ParticipantWishlistScreen(
     // Der übergebene modifier wird ausschließlich hier am Top-Level WichtlyScaffold angewendet.
     WichtlyScaffold(
         modifier = modifier,
-        topBar = { WichtlyTopBar(title = "Wunschliste", onBack = onBack) },
+        topBar = { WichtlyTopBar(title = stringResource(R.string.wishlist_title), onBack = onBack) },
         bottomBar = {
             if (ready) {
                 // (6) Button "Wunsch hinzufügen" über volle Breite in der Aktionsleiste unten
                 BottomActionBar {
                     PrimaryButton(
-                        text = "Wunsch hinzufügen",
+                        text = stringResource(R.string.wishlist_add),
                         onClick = onAddClick,
                         icon = Icons.Filled.Add,
                         enabled = !state.isSaving,
@@ -101,25 +103,25 @@ fun ParticipantWishlistScreen(
         when {
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
-            state.isLoading -> LoadingState(text = "Wunschliste wird geladen...")
+            state.isLoading -> LoadingState(text = stringResource(R.string.wishlist_loading))
             // 2. ZUSTAND: Fehler aufgetreten
             // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
             state.errorMessage != null -> MessageState(
-                title = "Fehler beim Laden",
-                text = state.errorMessage,
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.errorMessage),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 3. ZUSTAND: Teilnehmer nicht gefunden (isLoading == false && participantName == null)
             // UI-Darstellung, wenn der Teilnehmer nicht gefunden wurde (gemeinsamer MessageState).
             state.participantName == null -> MessageState(
-                title = "Teilnehmer nicht gefunden",
-                text = "Der angeforderte Teilnehmer existiert nicht oder wurde entfernt.",
+                title = stringResource(R.string.wishlist_participant_missing_title),
+                text = stringResource(R.string.wishlist_participant_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
                 isError = true,
-                actionLabel = "Zurück zur Übersicht",
+                actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
             // 4. ZUSTAND: Bereit (Erfolgreich geladen, unabhängig davon ob Wünsche existieren)
@@ -139,7 +141,7 @@ fun ParticipantWishlistScreen(
         WishlistItemDialog(
             isEditMode = state.editingItemId != null,
             text = state.editorText,
-            errorMessage = state.editorError,
+            errorMessage = state.editorError?.let { stringResource(it) },
             isSaving = state.isSaving,
             onTextChange = onEditorTextChange,
             onSave = onSaveClick,
@@ -151,7 +153,7 @@ fun ParticipantWishlistScreen(
     if (pendingDeleteItem != null) {
         WishlistDeleteDialog(
             itemText = pendingDeleteItem.text,
-            errorMessage = state.deleteError,
+            errorMessage = state.deleteError?.let { stringResource(it) },
             isSaving = state.isSaving,
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
@@ -180,9 +182,9 @@ private fun WishlistContent(
         item {
             // (1) Seitenkopf mit Einleitungstext
             PageHeader(
-                eyebrow = "Was wünschst du dir?",
-                title = "Her mit den Wünschen!",
-                subtitle = "Trage ein, was beim Schenken helfen könnte.",
+                eyebrow = stringResource(R.string.wishlist_eyebrow),
+                title = stringResource(R.string.wishlist_header),
+                subtitle = stringResource(R.string.wishlist_subtitle),
             )
         }
         item {
@@ -195,13 +197,13 @@ private fun WishlistContent(
         }
         // (3) Abschnittszeile
         // Die Anzahl der Wünsche steht als Zahl im goldenen Badge neben dem Titel.
-        item { SectionHeader(title = "Wünsche", count = items.size) }
+        item { SectionHeader(title = stringResource(R.string.wishlist_section), count = items.size) }
         // (4) & (5) Wunscheinträge ODER Leere-Liste-Hinweis
         if (items.isEmpty()) {
             item {
                 MessageState(
-                    title = "Noch keine Wünsche",
-                    text = "Ein paar Ideen helfen beim Schenken, die Liste darf aber auch leer bleiben.",
+                    title = stringResource(R.string.wishlist_empty_title),
+                    text = stringResource(R.string.wishlist_empty_text),
                     icon = Icons.Filled.Redeem,
                     fillMaxSize = false,
                     modifier = Modifier.fillMaxWidth().padding(top = Spacing.s),
@@ -219,10 +221,10 @@ private fun WishlistContent(
                         // Aktionen im ⋮-Menü: Wunsch bearbeiten & Wunsch löschen
                         ItemMenu(
                             enabled = !isSaving,
-                            contentDescription = "Aktionen für Wunsch ${index + 1}",
+                            contentDescription = stringResource(R.string.wishlist_item_actions, index + 1),
                             actions = listOf(
-                                MenuAction("Wunsch bearbeiten", Icons.Filled.Edit, { onEditClick(item.id) }),
-                                MenuAction("Wunsch löschen", Icons.Filled.Delete, { onDeleteClick(item.id) }, destructive = true),
+                                MenuAction(stringResource(R.string.wishlist_edit), Icons.Filled.Edit, { onEditClick(item.id) }),
+                                MenuAction(stringResource(R.string.wishlist_delete), Icons.Filled.Delete, { onDeleteClick(item.id) }, destructive = true),
                             ),
                         )
                     },
@@ -271,7 +273,7 @@ private fun ParticipantWishlistScreenNotFoundPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ParticipantWishlistScreenErrorPreview() {
-    PreviewScreen(WishlistUiState(isLoading = false, participantName = "Alex", errorMessage = "Verbindung zur Datenbank fehlgeschlagen."))
+    PreviewScreen(WishlistUiState(isLoading = false, participantName = "Alex", errorMessage = R.string.error_wishlist_load))
 }
 
 @Preview(showBackground = true, heightDp = 800)

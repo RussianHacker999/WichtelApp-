@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.wishlist
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -35,10 +37,10 @@ fun WishlistDeleteDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
         // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
-        title = "Wunsch löschen",
+        title = stringResource(R.string.wishlist_delete),
         // Warum expliziter Wunschtext in der Meldung: Beugt versehentlichem Löschen falscher Einträge vor.
-        text = "Möchtest du den Wunsch „$itemText“ wirklich löschen?",
-        confirmLabel = "Löschen",
+        text = stringResource(R.string.wishlist_delete_text, itemText),
+        confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
         // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.

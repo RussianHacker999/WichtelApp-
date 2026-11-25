@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.annotation.StringRes
+import com.example.wichtly.R
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,15 +32,15 @@ private data class GroupDetailLocalState(
     val showParticipantEditor: Boolean = false,
     val editingParticipantId: String? = null,
     val participantNameInput: String = "",
-    val participantNameError: String? = null,
-    val participantDeleteError: String? = null,
+    @StringRes val participantNameError: Int? = null,
+    @StringRes val participantDeleteError: Int? = null,
     val pendingDeleteParticipantId: String? = null,
-    val groupLoadError: String? = null,
-    val participantsLoadError: String? = null,
+    @StringRes val groupLoadError: Int? = null,
+    @StringRes val participantsLoadError: Int? = null,
     val participantPhotoPath: String? = null,
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
-    val photoError: String? = null,
+    @StringRes val photoError: Int? = null,
 )
 
 /**
@@ -66,14 +68,14 @@ class GroupDetailViewModel(
             .catch { e ->
                 if (e is CancellationException) throw e
                 Log.e("GroupDetailViewModel", "Fehler beim Laden der Wichtelgruppe", e)
-                _localState.update { it.copy(groupLoadError = "Fehler beim Laden der Wichtelgruppe.") }
+                _localState.update { it.copy(groupLoadError = R.string.error_group_load) }
                 emit(null)
             },
         participantRepository.getParticipantsByGroupId(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 Log.e("GroupDetailViewModel", "Fehler beim Laden der Teilnehmerliste", e)
-                _localState.update { it.copy(participantsLoadError = "Fehler beim Laden der Teilnehmerliste.") }
+                _localState.update { it.copy(participantsLoadError = R.string.error_participants_load) }
                 emit(emptyList())
             },
         _localState,
@@ -308,7 +310,7 @@ class GroupDetailViewModel(
             } catch (e: Exception) {
                 Log.e("GroupDetailViewModel", "Fehler beim Speichern des Teilnehmerfotos", e)
                 _localState.update {
-                    it.copy(photoError = "Foto konnte nicht gespeichert werden.")
+                    it.copy(photoError = R.string.error_photo_save)
                 }
             } finally {
                 try {
@@ -374,7 +376,7 @@ class GroupDetailViewModel(
         } else null
 
         if (editingId != null && existingParticipant == null) {
-            _localState.update { it.copy(participantNameError = "Der zu bearbeitende Teilnehmer existiert nicht mehr.") }
+            _localState.update { it.copy(participantNameError = R.string.error_participant_missing) }
             return
         }
 
@@ -437,7 +439,7 @@ class GroupDetailViewModel(
                     }
                     is ParticipantResult.ValidationError -> {
                         val translated = mapParticipantValidationErrors(result.errors)
-                        val errorMessage = translated.nameError ?: translated.generalError ?: "Fehler beim Validieren des Teilnehmers."
+                        val errorMessage = translated.nameError ?: translated.generalError ?: R.string.error_participant_validate
                         _localState.update {
                             it.copy(
                                 isSaving = false,
@@ -453,7 +455,7 @@ class GroupDetailViewModel(
                 _localState.update {
                     it.copy(
                         isSaving = false,
-                        participantNameError = "Fehler beim Speichern des Teilnehmers.",
+                        participantNameError = R.string.error_participant_save,
                     )
                 }
             }
@@ -506,7 +508,7 @@ class GroupDetailViewModel(
                 _localState.update {
                     it.copy(
                         isSaving = false,
-                        participantDeleteError = "Fehler beim Löschen des Teilnehmers. Bitte erneut versuchen.",
+                        participantDeleteError = R.string.error_participant_delete,
                     )
                 }
             }

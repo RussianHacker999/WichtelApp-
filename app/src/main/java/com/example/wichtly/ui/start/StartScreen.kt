@@ -1,5 +1,8 @@
 package com.example.wichtly.ui.start
 
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+import com.example.wichtly.R
 import com.example.wichtly.ui.theme.EyebrowStyle
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
@@ -103,13 +106,13 @@ fun StartScreen(
                 verticalArrangement = Arrangement.spacedBy(Spacing.m, Alignment.CenterVertically),
             ) {
                 Text(
-                    text = "WER BESCHENKT WEN?",
+                    text = stringResource(R.string.start_kicker),
                     style = EyebrowStyle,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 Wordmark()
                 Text(
-                    text = "Wichteln für Familie, Freunde und Büro.",
+                    text = stringResource(R.string.start_claim),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -145,7 +148,7 @@ private fun Wordmark() {
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         Box(modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 14.dp)) {
             BasicText(
-                text = "Wichtly",
+                text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
                     color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center,
@@ -185,19 +188,19 @@ private fun StartFooter(summary: StartSummary, onOpenGroups: () -> Unit, onCreat
         Spacer(modifier = Modifier.height(Spacing.xs))
         if (summary is StartSummary.NoGroups) {
             PrimaryButton(
-                text = "Erste Gruppe anlegen",
+                text = stringResource(R.string.action_create_first_group),
                 onClick = onCreateGroup,
                 icon = Icons.Filled.Add,
                 modifier = Modifier.fillMaxWidth(),
             )
         } else {
             PrimaryButton(
-                text = "Zu meinen Gruppen",
+                text = stringResource(R.string.start_to_groups),
                 onClick = onOpenGroups,
                 icon = Icons.AutoMirrored.Filled.ArrowForward,
                 modifier = Modifier.fillMaxWidth(),
             )
-            WichtlyTextButton(text = "Neue Gruppe anlegen", onClick = onCreateGroup)
+            WichtlyTextButton(text = stringResource(R.string.action_create_group), onClick = onCreateGroup)
         }
     }
 }
@@ -206,22 +209,24 @@ private fun StartFooter(summary: StartSummary, onOpenGroups: () -> Unit, onCreat
 @Composable
 private fun InfoPill(summary: StartSummary) {
     val gold = MaterialTheme.colorScheme.primary
+    // Texte vorab auflösen: buildAnnotatedString ist kein Composable-Kontext.
+    val separator = stringResource(R.string.start_info_separator)
+    val (prefix, highlight) = when (summary) {
+        StartSummary.NoGroups ->
+            stringResource(R.string.start_info_no_groups) to stringResource(R.string.start_info_no_groups_highlight)
+        is StartSummary.NextEvent ->
+            summary.groupName to daysUntilText(summary.daysUntil)
+        StartSummary.Unavailable ->
+            stringResource(R.string.start_info_unavailable) to null
+        is StartSummary.OnlyPast ->
+            pluralStringResource(R.plurals.start_info_group_count, summary.groupCount, summary.groupCount) to
+                stringResource(R.string.start_info_next_round)
+    }
     val text = buildAnnotatedString {
-        when (summary) {
-            StartSummary.NoGroups -> {
-                append("Noch keine Gruppe · ")
-                withStyle(SpanStyle(color = gold, fontWeight = FontWeight.Bold)) { append("in 1 Minute angelegt") }
-            }
-            is StartSummary.NextEvent -> {
-                append("${summary.groupName} · ")
-                withStyle(SpanStyle(color = gold, fontWeight = FontWeight.Bold)) { append(daysUntilText(summary.daysUntil)) }
-            }
-            StartSummary.Unavailable -> append("Gruppen konnten gerade nicht geladen werden")
-            is StartSummary.OnlyPast -> {
-                append(if (summary.groupCount == 1) "1 Gruppe" else "${summary.groupCount} Gruppen")
-                append(" · ")
-                withStyle(SpanStyle(color = gold, fontWeight = FontWeight.Bold)) { append("bereit für die nächste Runde") }
-            }
+        append(prefix)
+        if (highlight != null) {
+            append(separator)
+            withStyle(SpanStyle(color = gold, fontWeight = FontWeight.Bold)) { append(highlight) }
         }
     }
     Surface(shape = CircleShape, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.07f)) {
@@ -236,6 +241,12 @@ private fun InfoPill(summary: StartSummary) {
         )
     }
 }
+
+/** "heute", "morgen" oder "in N Tagen" (Texte und Plural in strings.xml). */
+@Composable
+private fun daysUntilText(days: Long): String =
+    daysUntilSpecialRes(days)?.let { stringResource(it) }
+        ?: pluralStringResource(R.plurals.start_days_in, days.toInt(), days)
 
 /** Ruhender Schnee: feste, per Seed verteilte Punkte im oberen Bereich (keine Animation). */
 @Composable

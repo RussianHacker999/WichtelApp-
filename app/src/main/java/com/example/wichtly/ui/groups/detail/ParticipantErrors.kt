@@ -1,16 +1,20 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.annotation.StringRes
+import com.example.wichtly.R
 import com.example.wichtly.domain.validation.ParticipantValidationError
 
 /**
- * Fehlermeldungen als Konstanten für Formatfehler auf UI-Ebene.
+ * Fehlermeldungen als String-Ressourcen (Texte in strings.xml) für Formatfehler auf UI-Ebene.
  *
  * Warum als Konstanten?
  * Diese Fehler entstehen im ViewModel vor dem Aufruf des Repositorys, wenn Benutzereingaben
  * direkt auf der UI-Ebene validiert werden (z. B. leeres Namensfeld oder Name länger als 50 Zeichen).
  */
-const val EMPTY_PARTICIPANT_NAME_ERROR = "Der Name des Teilnehmers darf nicht leer sein."
-const val PARTICIPANT_NAME_TOO_LONG_ERROR = "Der Name des Teilnehmers darf maximal 50 Zeichen lang sein."
+@StringRes
+val EMPTY_PARTICIPANT_NAME_ERROR: Int = R.string.error_participant_name_empty
+@StringRes
+val PARTICIPANT_NAME_TOO_LONG_ERROR: Int = R.string.error_participant_name_too_long
 
 /**
  * Datenklasse zur klaren Trennung von spezifischen Feldfehlern (für den Dialog)
@@ -20,8 +24,8 @@ const val PARTICIPANT_NAME_TOO_LONG_ERROR = "Der Name des Teilnehmers darf maxim
  * @property generalError Allgemeine Fehlermeldung (z. B. "Teilnehmer nicht gefunden").
  */
 data class ParticipantUiErrors(
-    val nameError: String? = null,
-    val generalError: String? = null
+    @StringRes val nameError: Int? = null,
+    @StringRes val generalError: Int? = null
 )
 
 /**
@@ -40,8 +44,8 @@ data class ParticipantUiErrors(
 fun mapParticipantValidationErrors(
     errors: List<ParticipantValidationError>
 ): ParticipantUiErrors {
-    var nameErr: String? = null
-    var genErr: String? = null
+    var nameErr: Int? = null
+    var genErr: Int? = null
 
     for (error in errors) {
         when (error) {
@@ -52,13 +56,13 @@ fun mapParticipantValidationErrors(
                 if (nameErr == null) nameErr = PARTICIPANT_NAME_TOO_LONG_ERROR
             }
             is ParticipantValidationError.DuplicateNameInGroup -> {
-                if (nameErr == null) nameErr = "Ein Teilnehmer mit diesem Namen existiert bereits in dieser Gruppe."
+                if (nameErr == null) nameErr = R.string.error_participant_name_duplicate
             }
             is ParticipantValidationError.ParticipantNotFound -> {
-                if (genErr == null) genErr = "Der Teilnehmer wurde nicht gefunden."
+                if (genErr == null) genErr = R.string.error_participant_not_found
             }
             is ParticipantValidationError.GroupNotFound -> {
-                if (genErr == null) genErr = "Die Wichtelgruppe wurde nicht gefunden."
+                if (genErr == null) genErr = R.string.error_group_not_found
             }
         }
     }

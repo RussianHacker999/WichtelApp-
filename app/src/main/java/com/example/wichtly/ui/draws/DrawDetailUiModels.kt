@@ -13,7 +13,8 @@ import java.time.LocalDate
  *
  * @property id Eindeutige ID der Auslosung.
  * @property groupId ID der Wichtelgruppe.
- * @property groupName Name der Wichtelgruppe zum Zeitpunkt der Auslosung (Snapshot).
+ * @property groupName Name der Wichtelgruppe; null = die UI zeigt den Platzhalter aus strings.xml
+ *   (der Gruppenname wird mit der Auslosung nicht gespeichert).
  * @property createdAt Datum der Auslosung.
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.
@@ -21,7 +22,7 @@ import java.time.LocalDate
 data class DrawDetailUiModel(
     val id: String,
     val groupId: String,
-    val groupName: String,
+    val groupName: String?,
     val createdAt: LocalDate,
     val drawType: DrawType,
     val assignments: List<DrawAssignmentUiModel>,

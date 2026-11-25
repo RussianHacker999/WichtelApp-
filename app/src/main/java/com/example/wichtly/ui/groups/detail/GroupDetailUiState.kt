@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups.detail
 
+import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.domain.model.Participant
 import java.io.File
@@ -7,7 +8,7 @@ import java.io.File
 /**
  * UI State für die Gruppen-Detailansicht (Teilnehmerliste und Gruppeninformationen).
  *
- * Erklärung der Zustände:
+ * Erklärung der Zustände (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
  * @property isLoading Zeigt an, ob die Gruppendaten und Teilnehmer aktuell geladen werden.
  * @property group Die geladene Wichtelgruppe (null, falls noch geladen wird oder die Gruppe nicht existiert).
  * @property notFound Bedeutet, dass die Wichtelgruppe nicht existiert (nicht in der Datenbank vorhanden oder gelöscht).
@@ -32,18 +33,18 @@ data class GroupDetailUiState(
     val group: GiftGroup? = null,
     val notFound: Boolean = false,
     val participants: List<Participant> = emptyList(),
-    val errorMessage: String? = null,
+    @StringRes val errorMessage: Int? = null,
     val isSaving: Boolean = false,
     val showParticipantEditor: Boolean = false,
     val editingParticipantId: String? = null,
     val participantNameInput: String = "",
-    val participantNameError: String? = null,
-    val participantDeleteError: String? = null,
+    @StringRes val participantNameError: Int? = null,
+    @StringRes val participantDeleteError: Int? = null,
     val pendingDeleteParticipantId: String? = null,
     val participantPhotoPath: String? = null,
     val participantPhotoFile: File? = null,
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
-    val photoError: String? = null,
+    @StringRes val photoError: Int? = null,
     val participantPhotoFiles: Map<String, File> = emptyMap(),
 )

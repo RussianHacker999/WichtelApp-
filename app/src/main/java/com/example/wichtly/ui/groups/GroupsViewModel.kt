@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.groups
 
+import com.example.wichtly.R
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +44,7 @@ class GroupsViewModel(
                     Log.e("GroupsViewModel", "Gruppen konnten nicht geladen werden", error)
                     uiState = uiState.copy(
                         isLoading = false,
-                        errorMessage = "Die Gruppendaten konnten nicht geladen werden.",
+                        errorMessage = R.string.error_groups_load,
                     )
                 }
                 .collect { groups ->

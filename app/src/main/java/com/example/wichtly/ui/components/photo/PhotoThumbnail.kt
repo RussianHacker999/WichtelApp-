@@ -1,5 +1,7 @@
 package com.example.wichtly.ui.components.photo
 
+import androidx.compose.ui.res.stringResource
+import com.example.wichtly.R
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -98,7 +100,7 @@ fun PhotoThumbnail(
         if (imageBitmap != null) {
             Image(
                 bitmap = imageBitmap,
-                contentDescription = "Foto-Vorschau",
+                contentDescription = stringResource(R.string.photo_preview_description),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
             )
@@ -106,7 +108,7 @@ fun PhotoThumbnail(
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = Icons.Filled.PhotoCamera,
-                    contentDescription = "Kein Foto",
+                    contentDescription = stringResource(R.string.photo_none_description),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
