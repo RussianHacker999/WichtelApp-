@@ -17,13 +17,19 @@ fun DrawDetailRoute(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Repository aus dem AppContainer holen
+    // Repositories aus dem AppContainer holen
     val context = LocalContext.current
-    val drawRepository = (context.applicationContext as WichtlyApplication).container.drawRepository
+    val container = (context.applicationContext as WichtlyApplication).container
+    val drawRepository = container.drawRepository
+    val giftGroupRepository = container.giftGroupRepository
 
-    // Factory mit drawId und Repository bauen
-    val factory = remember(drawId, drawRepository) {
-        DrawDetailViewModelFactory(drawId = drawId, drawRepository = drawRepository)
+    // Factory mit drawId und Repositories bauen
+    val factory = remember(drawId, drawRepository, giftGroupRepository) {
+        DrawDetailViewModelFactory(
+            drawId = drawId,
+            drawRepository = drawRepository,
+            giftGroupRepository = giftGroupRepository,
+        )
     }
 
     // ViewModel holen, drawId als Schlüssel, weil es pro Auslosung ein eigenes gibt

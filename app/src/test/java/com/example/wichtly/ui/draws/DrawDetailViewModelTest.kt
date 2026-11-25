@@ -5,7 +5,9 @@ import com.example.wichtly.domain.model.DrawAssignment
 import com.example.wichtly.domain.model.DrawDetail
 import com.example.wichtly.domain.model.DrawType
 import com.example.wichtly.domain.model.DrawWishListItemSnapshot
+import com.example.wichtly.domain.model.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
+import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.MainDispatcherRule
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -16,6 +18,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
+import java.time.LocalDate
 
 /**
  * Unit-Tests für [DrawDetailViewModel].
@@ -31,6 +34,11 @@ class DrawDetailViewModelTest {
 
     private val drawId = "draw-1"
     private val groupId = "group-1"
+
+    // Gruppe, zu der die Beispiel-Auslosungen gehören; liefert den angezeigten Gruppennamen
+    private val groupRepository = FakeGiftGroupRepository().apply {
+        setGroups(listOf(GiftGroup(id = groupId, name = "Büro 2026", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
+    }
 
     private fun createSampleDraw(
         id: String = drawId,
@@ -70,7 +78,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -116,7 +124,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -150,7 +158,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -167,7 +175,7 @@ class DrawDetailViewModelTest {
     fun unknownDrawId_setsNotFound() = runTest {
         val repository = FakeDrawRepository()
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -188,7 +196,7 @@ class DrawDetailViewModelTest {
             failFlows = true
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -210,7 +218,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -231,7 +239,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -252,7 +260,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -275,7 +283,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -298,7 +306,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -321,7 +329,7 @@ class DrawDetailViewModelTest {
             setDraws(listOf(draw))
         }
 
-        val viewModel = DrawDetailViewModel(drawId, repository)
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -335,5 +343,53 @@ class DrawDetailViewModelTest {
         val state = viewModel.uiState.value
         assertTrue(state.notFound)
         assertNull(state.revealedGiverId)
+    }
+
+    /**
+     * P2-1: Das Detail zeigt den echten Gruppennamen statt eines Platzhalters.
+     */
+    @Test
+    fun showsNameOfDrawnGroup() = runTest {
+        val repository = FakeDrawRepository().apply { setDraws(listOf(createSampleDraw())) }
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
+
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        assertEquals("Büro 2026", viewModel.uiState.value.draw?.groupName)
+    }
+
+    /**
+     * Ein umbenannter Gruppenname wird übernommen, weil er live nachgeladen wird.
+     */
+    @Test
+    fun renamedGroupUpdatesGroupName() = runTest {
+        val repository = FakeDrawRepository().apply { setDraws(listOf(createSampleDraw())) }
+        val viewModel = DrawDetailViewModel(drawId, repository, groupRepository)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        groupRepository.setGroups(listOf(GiftGroup(id = groupId, name = "Team 2026", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
+        testScheduler.advanceUntilIdle()
+
+        assertEquals("Team 2026", viewModel.uiState.value.draw?.groupName)
+    }
+
+    /**
+     * Scheitert nur das Laden des Gruppennamens, bleibt die Auslosung sichtbar (Platzhalter statt Fehlerbildschirm).
+     */
+    @Test
+    fun groupNameErrorKeepsDrawVisible() = runTest {
+        val repository = FakeDrawRepository().apply { setDraws(listOf(createSampleDraw())) }
+        val failingGroups = FakeGiftGroupRepository().apply { failFlows = true }
+        val viewModel = DrawDetailViewModel(drawId, repository, failingGroups)
+
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertNotNull(state.draw)
+        assertNull(state.draw?.groupName)
+        assertNull(state.errorMessage)
     }
 }

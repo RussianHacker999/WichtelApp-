@@ -4,17 +4,13 @@ import com.example.wichtly.domain.model.DrawType
 import java.time.LocalDate
 
 /**
- * TEMPORÄRER PLACEHOLDER:
- * Diese Data Class dient als vorübergehendes Datenmodell für einen Auslosungs-Durchlauf
- * während der UI-Entwicklung.
- *
- * HINWEIS:
- * Sie wird zu einem späteren Zeitpunkt durch das reale Domain-Modell aus dem Domain-Layer (Person B) ersetzt.
+ * UI-Modell eines gespeicherten Auslosungs-Durchlaufs für die Detailansicht.
  *
  * @property id Eindeutige ID der Auslosung.
  * @property groupId ID der Wichtelgruppe.
- * @property groupName Name der Wichtelgruppe; null = die UI zeigt den Platzhalter aus strings.xml
- *   (der Gruppenname wird mit der Auslosung nicht gespeichert).
+ * @property groupName Aktueller Name der Wichtelgruppe (kein Snapshot: er wird mit der Auslosung nicht
+ *   gespeichert, sondern nachgeladen). null = Name konnte nicht geladen werden; die UI zeigt dann den
+ *   Platzhalter aus strings.xml.
  * @property createdAt Datum der Auslosung.
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.
@@ -29,12 +25,8 @@ data class DrawDetailUiModel(
 )
 
 /**
- * TEMPORÄRER PLACEHOLDER:
- * Diese Data Class stellt eine einzelne Ziehungs-Zuordnung (Schenker -> Beschenkter)
- * inklusive der historischen Wunschliste des Beschenkten dar.
- *
- * HINWEIS:
- * Sie wird zu einem späteren Zeitpunkt durch das reale Domain-Modell aus dem Domain-Layer (Person B) ersetzt.
+ * UI-Modell einer einzelnen Ziehungs-Zuordnung (Schenker -> Beschenkter)
+ * inklusive der historischen Wunschliste des Beschenkten.
  *
  * @property giverId ID der schenkenden Person.
  * @property giverName Name der schenkenden Person.
