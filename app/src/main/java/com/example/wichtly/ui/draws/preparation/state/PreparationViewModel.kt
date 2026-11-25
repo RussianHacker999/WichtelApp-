@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.draws.preparation.screen.PreparationUiState
+import java.time.LocalDate
 
 private const val TAG = "PreparationViewModel"
 
@@ -33,6 +34,8 @@ class PreparationViewModel(
     private val participantRepository: ParticipantRepository,
     // prüft, ob gelost werden darf, lost aus und speichert die Auslosung
     private val performDraw: PerformDrawUseCase,
+    // liefert das heutige Datum (Wichteltag vorbei?); in Tests ersetzbar
+    private val today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
     // die beiden Flows speichern interne Zustaende des ViewModels, die sich verwaehrendern der Laufzeit koennne
@@ -74,7 +77,8 @@ class PreparationViewModel(
         // berechet, ob der Button "Jetzt losen" aktiv angezeigt wird
         // (es die Gruppe gefunden werden und min 3 Teilnehmer haben).
         // Das ist nur Anzeige; verbindlich prüft der PerformDrawUseCase beim Losen
-        val canStartDraw = (group != null && DrawRules.canDraw(participants.size))
+        val drawDayPassed = group != null && !DrawRules.isDrawDayOpen(group.drawDay, today())
+        val canStartDraw = (group != null && DrawRules.canDraw(participants.size) && !drawDayPassed)
 
         // die eben ermittelten Daten werden in einen PreparationUiState zusammengefasst
         // so muss die Ui nur den UiState und nicht die einzelen Objekte beobachten
@@ -85,6 +89,7 @@ class PreparationViewModel(
             errorMessage = errorMessage,
             isStarting = isStarting,
             canStartDraw = canStartDraw,
+            drawDayPassed = drawDayPassed,
         )
     // wandelt von Flow-Objekt in ein StateFlow-Objekt um
     }.stateIn(

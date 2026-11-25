@@ -216,6 +216,7 @@ private fun GroupFormContent(
                 placeholder = stringResource(R.string.group_form_name_placeholder),
                 errorText = state.nameError?.let { stringResource(it, GiftGroupValidator.MAX_NAME_LENGTH) },
                 enabled = enabled,
+                maxLength = GiftGroupValidator.MAX_NAME_LENGTH,
             )
         }
         item {
@@ -226,7 +227,7 @@ private fun GroupFormContent(
                 onValueChange = onBudgetChange,
                 placeholder = stringResource(R.string.group_form_budget_placeholder),
                 supportingText = stringResource(R.string.group_form_budget_support),
-                errorText = state.budgetError?.let { stringResource(it) },
+                errorText = state.budgetError?.let { stringResource(it, GiftGroupValidator.BUDGET_LIMIT_EUROS) },
                 enabled = enabled,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
@@ -238,8 +239,10 @@ private fun GroupFormContent(
                 value = state.drawDay,
                 onValueChange = onDrawDayChange,
                 placeholder = stringResource(R.string.group_form_date_placeholder),
-                supportingText = stringResource(R.string.group_form_date_support),
-                errorText = state.drawDayError?.let { stringResource(it) },
+                supportingText = stringResource(
+                    if (state.drawDayPassed) R.string.group_form_date_passed_support else R.string.group_form_date_support,
+                ),
+                errorText = state.drawDayError?.let { stringResource(it, GiftGroupValidator.MAX_YEARS_AHEAD) },
                 enabled = enabled,
                 trailingIcon = { Icon(imageVector = Icons.Filled.Event, contentDescription = null) },
             )

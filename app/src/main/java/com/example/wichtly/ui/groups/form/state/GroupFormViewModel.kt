@@ -25,6 +25,8 @@ import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.components.display.formatCentsForInput
 import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
+import com.example.wichtly.domain.model.draw.DrawRules
+import java.time.LocalDate
 
 private const val TAG = "GroupFormViewModel"
 
@@ -46,6 +48,8 @@ class GroupFormViewModel(
     private val repository: GiftGroupRepository,
     private val photoRepository: PhotoRepository,
     private val saveGiftGroup: SaveGiftGroupUseCase,
+    // liefert das heutige Datum (Wichteltag vorbei?); in Tests ersetzbar
+    private val today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
     // Geladene Gruppe im Bearbeiten-Modus; null, solange (noch) nichts geladen werden konnte
@@ -100,6 +104,7 @@ class GroupFormViewModel(
                             budget = formatCentsForInput(loadedGroup.budgetCents),
                             drawDay = formatDateForInput(loadedGroup.drawDay),
                             drawType = loadedGroup.drawType,
+                            drawDayPassed = !DrawRules.isDrawDayOpen(loadedGroup.drawDay, today()),
                         )
                     }
                 }

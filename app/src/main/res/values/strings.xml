@@ -9,6 +9,7 @@
     <string name="common_save">Speichern</string>
     <string name="common_delete">Löschen</string>
     <string name="common_draw">Losen</string>
+    <string name="common_draw_day_passed">Der Wichteltag ist vorbei. Verschiebe ihn unter „Gruppe bearbeiten“, um neu zu losen.</string>
     <string name="common_more_actions">Weitere Aktionen</string>
     <string name="common_selected">Ausgewählt</string>
     <string name="common_error_loading_title">Fehler beim Laden</string>
@@ -108,6 +109,7 @@
     <string name="group_form_date_label">Wichteltag *</string>
     <string name="group_form_date_placeholder">24.12.2026</string>
     <string name="group_form_date_support">Datum im Format TT.MM.JJJJ (z. B. 24.12.2026).</string>
+    <string name="group_form_date_passed_support">Dieser Wichteltag ist vorbei. Für eine neue Runde ein neues Datum eintragen; alles andere lässt sich auch so ändern.</string>
     <string name="group_form_type_label">Wichtelart *</string>
     <string name="error_date_format">Ungültiges Datum. Bitte verwende das Format TT.MM.JJJJ (z. B. 24.12.2026).</string>
     <string name="error_budget_format">Ungültiges Budget. Bitte gib einen Betrag wie 25,50 ein.</string>
@@ -115,7 +117,9 @@
     <string name="error_group_name_too_long">Der Gruppenname darf maximal %1$d Zeichen lang sein.</string>
     <string name="error_group_name_duplicate">Eine Wichtelgruppe mit diesem Namen existiert bereits.</string>
     <string name="error_budget_invalid">Das Budget muss größer als 0 Euro sein.</string>
+    <string name="error_budget_too_high">Das Budget muss unter %1$,d € liegen.</string>
     <string name="error_date_in_past">Der Wichteltag muss in der Zukunft liegen.</string>
+    <string name="error_date_too_far">Der Wichteltag muss weniger als %1$d Jahre in der Zukunft liegen.</string>
     <string name="error_group_requested_not_found">Die angeforderte Wichtelgruppe wurde nicht gefunden.</string>
     <string name="error_group_not_loaded_cannot_save">Die Wichtelgruppe konnte nicht geladen werden. Speichern ist nicht möglich.</string>
     <string name="error_group_save">Fehler beim Speichern der Wichtelgruppe.</string>
@@ -157,6 +161,7 @@
     <string name="wishlist_item_placeholder">Warme Wollsocken</string>
     <string name="error_wish_empty">Der Wunschtext darf nicht leer sein.</string>
     <string name="error_wish_too_long">Der Wunschtext darf maximal %1$d Zeichen lang sein.</string>
+    <string name="error_wish_duplicate">Dieser Wunsch steht schon auf der Liste.</string>
     <string name="error_participant_load">Fehler beim Laden des Teilnehmers.</string>
     <string name="error_wishlist_load">Fehler beim Laden der Wunschliste.</string>
     <string name="error_wish_missing">Der zu bearbeitende Wunsch existiert nicht mehr.</string>

@@ -74,4 +74,17 @@ class SaveWishListItemUseCaseTest {
         assertEquals(listOf(WishListValidationError.ItemNotFound), errorsOf(result))
         assertEquals(0, repository.updateCalls)
     }
+
+    @Test
+    fun doppelterWunschWirdAbgelehnt() = runTest {
+        val repository = FakeWishListRepository().apply {
+            setItems(listOf(WishListItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 0)))
+        }
+        val useCase = SaveWishListItemUseCase(repository)
+
+        val result = useCase(null, participantId, "  buch ")
+
+        assertEquals(listOf(WishListValidationError.DuplicateText), errorsOf(result))
+        assertEquals(0, repository.insertCalls)
+    }
 }

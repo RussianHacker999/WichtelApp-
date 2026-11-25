@@ -132,7 +132,11 @@ fun PreparationScreen(
                     } else {
                         StatusLine(
                             icon = Icons.Outlined.ErrorOutline,
-                            text = stringResource(R.string.preparation_min_participants, DrawRules.MIN_PARTICIPANTS),
+                            text = if (state.drawDayPassed) {
+                                stringResource(R.string.common_draw_day_passed)
+                            } else {
+                                stringResource(R.string.preparation_min_participants, DrawRules.MIN_PARTICIPANTS)
+                            },
                             color = MaterialTheme.colorScheme.error,
                         )
                     }

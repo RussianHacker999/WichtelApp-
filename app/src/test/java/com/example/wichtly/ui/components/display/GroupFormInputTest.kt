@@ -135,7 +135,8 @@ class GroupFormInputTest {
 
     @Test
     fun parseBudgetToCents_overflowAndOddFormats_returnNullWithoutCrash() {
-        assertNull(parseBudgetToCents("99999999999999999999"))
+        // Korrekt geschrieben, aber zu groß für Long: wird begrenzt, die Domain meldet "zu hoch"
+        assertEquals(Long.MAX_VALUE, parseBudgetToCents("99999999999999999999"))
         assertNull(parseBudgetToCents("1e3"))
         assertNull(parseBudgetToCents("25 €"))
         assertNull(parseBudgetToCents("5,"))

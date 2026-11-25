@@ -5,6 +5,7 @@ import com.example.wichtly.domain.model.participant.WishListItem
 sealed interface WishListValidationError {
     object EmptyText : WishListValidationError
     object TextTooLong : WishListValidationError
+    object DuplicateText : WishListValidationError
     object ItemNotFound : WishListValidationError
 }
 
@@ -32,6 +33,28 @@ class WishListValidator {
         if (text.length > MAX_TEXT_LENGTH) add(WishListValidationError.TextTooLong)
     }
 
-    /** Prüft alle Regeln für einen Wunsch. */
-    fun validate(item: WishListItem): List<WishListValidationError> = validateText(item.text)
+    /**
+     * Regel: Ein Teilnehmer hat keinen Wunsch doppelt (Groß-/Kleinschreibung egal).
+     * Der Wunsch selbst ([itemId]) zählt beim Bearbeiten nicht als Duplikat.
+     */
+    fun validateUniqueText(
+        raw: String,
+        itemId: String?,
+        existingItemsOfParticipant: List<WishListItem>,
+    ): List<WishListValidationError> = buildList {
+        val text = normalizeText(raw)
+        val isDuplicate = existingItemsOfParticipant
+            .filter { it.id != itemId }
+            .any { normalizeText(it.text).equals(text, ignoreCase = true) }
+        if (isDuplicate) add(WishListValidationError.DuplicateText)
+    }
+
+    /** Prüft alle Regeln für einen Wunsch gegen die übrigen Wünsche desselben Teilnehmers. */
+    fun validate(
+        item: WishListItem,
+        existingItemsOfParticipant: List<WishListItem>,
+    ): List<WishListValidationError> = buildList {
+        addAll(validateText(item.text))
+        addAll(validateUniqueText(item.text, item.id, existingItemsOfParticipant))
+    }
 }

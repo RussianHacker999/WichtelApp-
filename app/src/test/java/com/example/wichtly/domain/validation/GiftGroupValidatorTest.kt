@@ -90,4 +90,28 @@ class GiftGroupValidatorTest {
         val fehler = validator.validateDrawDay(heute.minusDays(1), previousDay = heute.minusDays(10), today = heute)
         assertTrue(GiftGroupValidationError.DateInPast in fehler)
     }
+
+    @Test
+    fun budgetAb999999EuroIstZuHoch() {
+        val grenze = GiftGroupValidator.BUDGET_LIMIT_EUROS * 100
+        assertTrue(validator.validateBudget(grenze - 1).isEmpty())
+        assertTrue(GiftGroupValidationError.BudgetTooHigh in validator.validateBudget(grenze))
+        assertTrue(GiftGroupValidationError.BudgetTooHigh in validator.validateBudget(Long.MAX_VALUE))
+    }
+
+    @Test
+    fun wichteltagAb100JahrenInDerZukunftIstZuWeit() {
+        val grenze = heute.plusYears(GiftGroupValidator.MAX_YEARS_AHEAD)
+        assertTrue(validator.validateDrawDay(grenze.minusDays(1), previousDay = null, today = heute).isEmpty())
+        assertTrue(GiftGroupValidationError.DateTooFarInFuture in validator.validateDrawDay(grenze, previousDay = null, today = heute))
+    }
+
+    @Test
+    fun ueberschrittenerWichteltagDarfNurAufEinenTagNachHeuteVerschobenWerden() {
+        val vorbei = heute.minusDays(30)
+        // auf heute verschieben: abgelehnt (wie beim Anlegen)
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute, previousDay = vorbei, today = heute))
+        // auf morgen verschieben: erlaubt, damit beginnt die nächste Runde
+        assertTrue(validator.validateDrawDay(heute.plusDays(1), previousDay = vorbei, today = heute).isEmpty())
+    }
 }

@@ -78,4 +78,9 @@ class WishListErrorsTest {
         val result2 = mapWishListValidationErrors(errors2)
         assertEquals(R.string.error_wish_too_long, result2)
     }
+
+    @Test
+    fun doppelterWunschErgibtDuplikatText() {
+        assertEquals(R.string.error_wish_duplicate, mapWishListValidationErrors(listOf(WishListValidationError.DuplicateText)))
+    }
 }

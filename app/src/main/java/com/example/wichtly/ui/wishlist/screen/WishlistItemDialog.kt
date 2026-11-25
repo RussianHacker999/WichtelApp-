@@ -10,6 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.domain.validation.WishListValidator
 
 /**
  * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wunschzettel-Eintrags.
@@ -61,6 +62,7 @@ fun WishlistItemDialog(
             placeholder = stringResource(R.string.wishlist_item_placeholder),
             errorText = errorMessage,
             enabled = !isSaving,
+            maxLength = WishListValidator.MAX_TEXT_LENGTH,
         )
     }
 }

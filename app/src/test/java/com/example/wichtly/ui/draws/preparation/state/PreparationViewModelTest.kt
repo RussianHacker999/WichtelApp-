@@ -30,6 +30,9 @@ class PreparationViewModelTest {
 
     private val groupId = "group-1"
 
+    // festes "heute" vor dem Wichteltag 24.12.2026, damit die Tests an jedem Tag gleich laufen
+    private var heute: LocalDate = LocalDate.of(2026, 11, 25)
+
     @Test
     fun threeParticipantsAllowDraw() = runTest {
         val groupRepository = FakeGiftGroupRepository().apply {
@@ -57,7 +60,8 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository()),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository(), today = { heute }),
+            today = { heute },
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -94,7 +98,8 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository()),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository(), today = { heute }),
+            today = { heute },
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -125,8 +130,8 @@ class PreparationViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants((1..anzahlTeilnehmer).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") })
         }
-        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), drawRepository)
-        return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw)
+        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), drawRepository, today = { heute })
+        return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw, today = { heute })
     }
 
     @Test
@@ -200,5 +205,17 @@ class PreparationViewModelTest {
 
         assertNotNull(viewModel.uiState.value.errorMessage)
         assertFalse(viewModel.uiState.value.isStarting)
+    }
+
+    @Test
+    fun nachDemWichteltagIstLosenGesperrt() = runTest {
+        heute = LocalDate.of(2026, 12, 25)
+        val drawRepository = FakeDrawRepository()
+        val viewModel = erstelleViewModel(anzahlTeilnehmer = 3, drawRepository = drawRepository)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.drawDayPassed)
+        assertFalse(viewModel.uiState.value.canStartDraw)
     }
 }

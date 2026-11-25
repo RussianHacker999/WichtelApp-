@@ -101,4 +101,14 @@ class GroupFormErrorsTest {
         assertNull(updated.drawDayError)
         assertNull(updated.generalError)
     }
+
+    @Test
+    fun obergrenzenFuerBudgetUndDatumLandenAmRichtigenFeld() {
+        val updatedState = applyDomainValidationErrors(
+            GroupFormUiState(),
+            listOf(GiftGroupValidationError.BudgetTooHigh, GiftGroupValidationError.DateTooFarInFuture),
+        )
+        assertEquals(R.string.error_budget_too_high, updatedState.budgetError)
+        assertEquals(R.string.error_date_too_far, updatedState.drawDayError)
+    }
 }

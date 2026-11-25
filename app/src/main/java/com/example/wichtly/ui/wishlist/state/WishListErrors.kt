@@ -20,6 +20,7 @@ fun mapWishListValidationErrors(
     return when (firstError) {
         is WishListValidationError.EmptyText -> R.string.error_wish_empty
         is WishListValidationError.TextTooLong -> R.string.error_wish_too_long
+        is WishListValidationError.DuplicateText -> R.string.error_wish_duplicate
         // Nur beim Bearbeiten möglich: der Wunsch wurde inzwischen gelöscht
         is WishListValidationError.ItemNotFound -> R.string.error_wish_missing
     }

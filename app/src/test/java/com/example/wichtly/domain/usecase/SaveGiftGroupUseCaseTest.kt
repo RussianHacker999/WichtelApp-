@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
+import org.junit.Assert.assertFalse
 
 /**
  * Tests für [SaveGiftGroupUseCase], die einzige Stelle, an der Wichtelgruppen geprüft werden.
@@ -110,5 +111,21 @@ class SaveGiftGroupUseCaseTest {
 
         assertEquals(listOf(GiftGroupValidationError.GroupNotFound), errorsOf(result))
         assertEquals(0, repository.updateCalls)
+    }
+
+    @Test
+    fun riesigesBudgetIstZuHochUndKeinFormatfehler() = runTest {
+        val result = useCase(FakeGiftGroupRepository())(null, input(budget = "99999999999999999999"))
+
+        val fehler = errorsOf(result)
+        assertTrue(GiftGroupValidationError.BudgetTooHigh in fehler)
+        assertFalse(GiftGroupValidationError.InvalidBudgetFormat in fehler)
+    }
+
+    @Test
+    fun wichteltagImJahr2206IstZuWeitInDerZukunft() = runTest {
+        val result = useCase(FakeGiftGroupRepository())(null, input(drawDay = "24.12.2206"))
+
+        assertTrue(GiftGroupValidationError.DateTooFarInFuture in errorsOf(result))
     }
 }

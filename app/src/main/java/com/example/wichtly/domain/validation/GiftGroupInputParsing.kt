@@ -26,7 +26,9 @@ import java.time.format.ResolverStyle
  *
  * @param input Die Benutzereingabe als String (z. B. "25", "25,5", "25.50", "0,99").
  * @return Der Cent-Wert als Long oder null, wenn die Eingabe leer, nicht-numerisch, negativ ist
- *         oder mehr als zwei Nachkommastellen aufweist (z. B. "1,234").
+ *         oder mehr als zwei Nachkommastellen aufweist (z. B. "1,234"). Ein korrekt geschriebener,
+ *         aber für Long zu großer Betrag ergibt [Long.MAX_VALUE], damit die Domain ihn als
+ *         "zu hoch" meldet statt als Formatfehler.
  */
 fun parseBudgetToCents(input: String): Long? {
     val trimmed = input.trim()
@@ -46,7 +48,7 @@ fun parseBudgetToCents(input: String): Long? {
             .multiply(BigDecimal(100))
             .longValueExact()
     } catch (_: ArithmeticException) {
-        null
+        Long.MAX_VALUE
     }
 }
 

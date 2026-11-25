@@ -7,6 +7,7 @@ import com.example.wichtly.domain.model.draw.DrawDetail
 sealed interface DrawValidationError {
     data object GroupNotFound : DrawValidationError
     data object NotEnoughParticipants : DrawValidationError
+    data object DrawDayPassed : DrawValidationError
 }
 
 

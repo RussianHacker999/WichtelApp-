@@ -15,6 +15,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import java.time.LocalDate
+import org.junit.Assert.assertTrue
 
 /**
  * Tests für [PerformDrawUseCase]: Prüfungen vor dem Losen und Aufbau des Snapshots.
@@ -22,6 +23,7 @@ import java.time.LocalDate
 class PerformDrawUseCaseTest {
 
     private val groupId = "g1"
+    private val heute = LocalDate.of(2026, 11, 25)
     private val gruppe = GiftGroup(
         id = groupId,
         name = "Familie",
@@ -50,6 +52,7 @@ class PerformDrawUseCaseTest {
             FakeParticipantRepository().apply { setParticipants(participants) },
             wishes,
             drawRepository,
+            today = { heute },
         )
 
         val draw = (useCase(groupId) as DrawResult.Success).draw
@@ -75,6 +78,7 @@ class PerformDrawUseCaseTest {
             FakeParticipantRepository().apply { setParticipants(teilnehmer(2)) },
             FakeWishListRepository(),
             drawRepository,
+            today = { heute },
         )
 
         val result = useCase(groupId)
@@ -91,11 +95,44 @@ class PerformDrawUseCaseTest {
             FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
             FakeWishListRepository(),
             drawRepository,
+            today = { heute },
         )
 
         val result = useCase(groupId)
 
         assertEquals(DrawResult.ValidationError(listOf(DrawValidationError.GroupNotFound)), result)
         assertEquals(0, drawRepository.saveDrawCalls)
+    }
+
+    @Test
+    fun nachDemWichteltagWirdNichtGelost() = runTest {
+        val drawRepository = FakeDrawRepository()
+        val useCase = PerformDrawUseCase(
+            FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
+            FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
+            FakeWishListRepository(),
+            drawRepository,
+            today = { gruppe.drawDay.plusDays(1) },
+        )
+
+        val result = useCase(groupId)
+
+        assertEquals(DrawResult.ValidationError(listOf(DrawValidationError.DrawDayPassed)), result)
+        assertEquals(0, drawRepository.saveDrawCalls)
+    }
+
+    @Test
+    fun amWichteltagSelbstDarfGelostWerden() = runTest {
+        val drawRepository = FakeDrawRepository()
+        val useCase = PerformDrawUseCase(
+            FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
+            FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
+            FakeWishListRepository(),
+            drawRepository,
+            today = { gruppe.drawDay },
+        )
+
+        assertTrue(useCase(groupId) is DrawResult.Success)
+        assertEquals(1, drawRepository.saveDrawCalls)
     }
 }

@@ -37,6 +37,16 @@ fun FieldLabel(text: String, modifier: Modifier = Modifier) {
 }
 
 /**
+ * Kürzt [text] auf höchstens [maxLength] Zeichen, ohne ein Emoji (Surrogatpaar) zu zerschneiden.
+ * Genutzt von [WichtlyTextField], damit Eingabe und Einfügen die Domain-Grenze nicht überschreiten.
+ */
+internal fun limitToLength(text: String, maxLength: Int): String {
+    if (text.length <= maxLength) return text
+    val cut = if (maxLength > 0 && Character.isHighSurrogate(text[maxLength - 1])) maxLength - 1 else maxLength
+    return text.substring(0, cut)
+}
+
+/**
  * Text field with its label above it. Errors replace the helper text.
  */
 @Composable
@@ -52,13 +62,16 @@ fun WichtlyTextField(
     singleLine: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     trailingIcon: (@Composable () -> Unit)? = null,
+    maxLength: Int? = null,
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
         FieldLabel(text = label)
         val helper = errorText ?: supportingText
         OutlinedTextField(
             value = value,
-            onValueChange = onValueChange,
+            // Mit maxLength lässt das Feld keine längere Eingabe zu (auch nicht per Einfügen);
+            // die verbindliche Prüfung bleibt trotzdem in der Domain.
+            onValueChange = { input -> onValueChange(if (maxLength != null) limitToLength(input, maxLength) else input) },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             singleLine = singleLine,
@@ -68,7 +81,17 @@ fun WichtlyTextField(
             shape = MaterialTheme.shapes.medium,
             placeholder = placeholder?.let { { Text(text = it) } },
             trailingIcon = trailingIcon,
-            supportingText = helper?.let { { Text(text = it) } },
+            supportingText = if (helper == null && maxLength == null) null else {
+                {
+                    Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
+                        Text(text = helper.orEmpty(), modifier = Modifier.weight(1f))
+                        if (maxLength != null) {
+                            // Zeichenzähler, z. B. "37/50"
+                            Text(text = "${value.length}/$maxLength")
+                        }
+                    }
+                }
+            },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,

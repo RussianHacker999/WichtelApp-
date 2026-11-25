@@ -19,6 +19,7 @@ import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
 import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
+import com.example.wichtly.domain.validation.ParticipantValidator
 
 /**
  * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wichtelgruppen-Teilnehmers
@@ -97,6 +98,7 @@ fun ParticipantEditorDialog(
                 placeholder = stringResource(R.string.participant_name_placeholder),
                 errorText = errorMessage,
                 enabled = !isSaving,
+                maxLength = ParticipantValidator.MAX_NAME_LENGTH,
             )
         }
 

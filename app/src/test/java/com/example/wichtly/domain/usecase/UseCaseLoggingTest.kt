@@ -67,6 +67,7 @@ class UseCaseLoggingTest {
             FakeParticipantRepository().apply { setParticipants(teilnehmer) },
             FakeWishListRepository(),
             FakeDrawRepository(),
+            today = { LocalDate.of(2026, 11, 25) },
         )
 
         useCase("g1")

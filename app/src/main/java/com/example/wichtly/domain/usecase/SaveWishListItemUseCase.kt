@@ -14,7 +14,7 @@ private const val TAG = "SaveWishListItem"
  * Legt einen Wunsch an oder ändert ihn. Einzige Stelle, an der Wünsche geprüft werden.
  *
  * Ablauf: Wunschliste des Teilnehmers laden → beim Bearbeiten muss der Wunsch existieren →
- * Text normalisieren und prüfen → nur bei fehlerfreiem Ergebnis schreiben.
+ * Text normalisieren und prüfen (auch gegen Duplikate) → nur bei fehlerfreiem Ergebnis schreiben.
  * Ein neuer Wunsch wird hinten angehängt (höchste sortOrder + 1); beim Bearbeiten bleiben id
  * und sortOrder erhalten.
  */
@@ -46,7 +46,7 @@ class SaveWishListItemUseCase(
                 sortOrder = (currentItems.maxOfOrNull { it.sortOrder } ?: -1) + 1,
             )
 
-        val errors = validator.validate(item)
+        val errors = validator.validate(item, currentItems)
         if (errors.isNotEmpty()) {
             AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
             return WishListItemResult.ValidationError(errors)

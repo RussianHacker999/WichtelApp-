@@ -12,8 +12,8 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
  *
  * Zuordnung der Fehler:
  * - EmptyName, NameTooLong, DuplicateName -> nameError
- * - InvalidBudgetFormat, InvalidBudget -> budgetError
- * - InvalidDateFormat, DateInPast -> drawDayError
+ * - InvalidBudgetFormat, InvalidBudget, BudgetTooHigh -> budgetError
+ * - InvalidDateFormat, DateInPast, DateTooFarInFuture -> drawDayError
  * - GroupNotFound -> generalError
  *
  * Regel bei Mehrfachfehlern auf demselben Feld:
@@ -51,11 +51,17 @@ fun applyDomainValidationErrors(
             is GiftGroupValidationError.InvalidBudget -> {
                 if (budgetErr == null) budgetErr = R.string.error_budget_invalid
             }
+            is GiftGroupValidationError.BudgetTooHigh -> {
+                if (budgetErr == null) budgetErr = R.string.error_budget_too_high
+            }
             is GiftGroupValidationError.InvalidDateFormat -> {
                 if (dateErr == null) dateErr = R.string.error_date_format
             }
             is GiftGroupValidationError.DateInPast -> {
                 if (dateErr == null) dateErr = R.string.error_date_in_past
+            }
+            is GiftGroupValidationError.DateTooFarInFuture -> {
+                if (dateErr == null) dateErr = R.string.error_date_too_far
             }
             is GiftGroupValidationError.GroupNotFound -> {
                 if (genErr == null) genErr = R.string.error_group_requested_not_found

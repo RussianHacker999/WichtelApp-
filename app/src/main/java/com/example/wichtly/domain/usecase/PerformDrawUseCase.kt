@@ -13,6 +13,7 @@ import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
 import kotlinx.coroutines.flow.first
 import java.time.Instant
+import java.time.LocalDate
 import com.example.wichtly.logging.AppLog
 
 private const val TAG = "PerformDraw"
@@ -20,11 +21,13 @@ private const val TAG = "PerformDraw"
 /**
  * Führt eine Auslosung durch. Einzige Stelle, an der geprüft wird, ob gelost werden darf.
  *
- * Ablauf: Gruppe muss existieren → mindestens [DrawRules.MIN_PARTICIPANTS] Teilnehmer →
+ * Ablauf: Gruppe muss existieren → Wichteltag darf nicht vorbei sein → mindestens
+ * [DrawRules.MIN_PARTICIPANTS] Teilnehmer →
  * Zuordnung per [SecretSantaDrawAlgorithm] → Namen und Wunschlisten der Empfänger als
  * unveränderlichen Snapshot kopieren → atomar über [DrawRepository.saveDraw] speichern.
  *
  * @param now Liefert den Zeitpunkt der Auslosung; in Tests durch einen festen Wert ersetzbar.
+ * @param today Liefert das heutige Datum für die Prüfung des Wichteltags; in Tests ersetzbar.
  */
 class PerformDrawUseCase(
     private val giftGroupRepository: GiftGroupRepository,
@@ -33,6 +36,7 @@ class PerformDrawUseCase(
     private val drawRepository: DrawRepository,
     private val algorithm: SecretSantaDrawAlgorithm = SecretSantaDrawAlgorithm(),
     private val now: () -> Instant = { Instant.now() },
+    private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     suspend operator fun invoke(groupId: String): DrawResult {
         AppLog.d(TAG) { "Auslosung für Gruppe $groupId gestartet" }
@@ -43,10 +47,14 @@ class PerformDrawUseCase(
         }
 
         val participants = participantRepository.getParticipantsByGroupId(groupId).first()
-        if (!DrawRules.canDraw(participants.size)) {
-            // Die UI sperrt "Losen" in diesem Fall; kommt der Aufruf trotzdem an, ist das auffällig
-            AppLog.w(TAG, "Auslosung abgelehnt: ${participants.size} von mindestens ${DrawRules.MIN_PARTICIPANTS} Teilnehmern")
-            return DrawResult.ValidationError(listOf(DrawValidationError.NotEnoughParticipants))
+        val errors = buildList {
+            if (!DrawRules.isDrawDayOpen(group.drawDay, today())) add(DrawValidationError.DrawDayPassed)
+            if (!DrawRules.canDraw(participants.size)) add(DrawValidationError.NotEnoughParticipants)
+        }
+        if (errors.isNotEmpty()) {
+            // Die UI sperrt "Losen" in diesen Fällen; kommt der Aufruf trotzdem an, ist das auffällig
+            AppLog.w(TAG, "Auslosung für Gruppe $groupId abgelehnt: ${errors.joinToString()} (${participants.size} Teilnehmer, Wichteltag ${group.drawDay})")
+            return DrawResult.ValidationError(errors)
         }
 
         val participantsById = participants.associateBy { it.id }

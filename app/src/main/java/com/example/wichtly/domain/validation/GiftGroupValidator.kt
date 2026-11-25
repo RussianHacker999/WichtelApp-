@@ -9,8 +9,10 @@ sealed interface GiftGroupValidationError {
     object DuplicateName : GiftGroupValidationError
     object InvalidBudgetFormat : GiftGroupValidationError
     object InvalidBudget : GiftGroupValidationError
+    object BudgetTooHigh : GiftGroupValidationError
     object InvalidDateFormat : GiftGroupValidationError
     object DateInPast : GiftGroupValidationError
+    object DateTooFarInFuture : GiftGroupValidationError
     object GroupNotFound : GiftGroupValidationError
 }
 
@@ -30,6 +32,12 @@ class GiftGroupValidator {
 
     companion object {
         const val MAX_NAME_LENGTH = 50
+
+        /** Budgets ab diesem Betrag in Euro sind nicht erlaubt (Schutz vor Tippfehlern wie zu vielen Nullen). */
+        const val BUDGET_LIMIT_EUROS = 999_999L
+
+        /** Der Wichteltag muss weniger als so viele Jahre in der Zukunft liegen. */
+        const val MAX_YEARS_AHEAD = 100L
     }
 
     /** Bringt einen eingegebenen Namen in die gespeicherte Form (heute: Leerraum am Rand entfernen). */
@@ -58,17 +66,22 @@ class GiftGroupValidator {
         if (isDuplicate) add(GiftGroupValidationError.DuplicateName)
     }
 
-    /** Regel: Budget ist strikt größer als 0. */
+    /** Regel: Budget ist größer als 0 und kleiner als [BUDGET_LIMIT_EUROS] Euro. */
     fun validateBudget(budgetCents: Long): List<GiftGroupValidationError> = buildList {
         if (budgetCents <= 0) add(GiftGroupValidationError.InvalidBudget)
+        if (budgetCents >= BUDGET_LIMIT_EUROS * 100) add(GiftGroupValidationError.BudgetTooHigh)
     }
 
     /**
-     * Regel: Der Wichteltag liegt in der Zukunft (heute ist ausgeschlossen).
+     * Regel: Der Wichteltag liegt in der Zukunft (heute ist ausgeschlossen) und weniger als
+     * [MAX_YEARS_AHEAD] Jahre entfernt (fängt Tippfehler wie 2206 statt 2026 ab).
      *
-     * Beim Bearbeiten ([previousDay] != null) gilt die Regel nur, wenn das Datum geändert wurde.
-     * So lässt sich eine Gruppe auch am oder nach ihrem Wichteltag noch umbenennen oder mit einem
-     * neuen Foto versehen, ohne das Datum verfälschen zu müssen.
+     * Fall "Wichteltag überschritten" (Bearbeiten einer Gruppe, deren Wichteltag vorbei ist):
+     * - Datum unverändert: erlaubt. Name, Foto, Budget und Wichtelart bleiben änderbar, ohne das
+     *   Datum verfälschen zu müssen; die gespeicherten Auslosungen sind ohnehin unveränderliche Snapshots.
+     * - Datum geändert: Das neue Datum muss wie beim Anlegen nach heute liegen. Ein anderer
+     *   vergangener Tag oder heute wird abgelehnt. So startet eine Gruppe die nächste Runde nur mit
+     *   einem echten neuen Termin, und erst dann ist Losen wieder möglich (DrawRules.isDrawDayOpen).
      *
      * @param previousDay Gespeichertes Datum beim Bearbeiten, null beim Neuanlegen.
      */
@@ -78,6 +91,8 @@ class GiftGroupValidator {
         today: LocalDate,
     ): List<GiftGroupValidationError> = buildList {
         val isUnchanged = previousDay != null && day == previousDay
-        if (!isUnchanged && !day.isAfter(today)) add(GiftGroupValidationError.DateInPast)
+        if (isUnchanged) return@buildList
+        if (!day.isAfter(today)) add(GiftGroupValidationError.DateInPast)
+        if (!day.isBefore(today.plusYears(MAX_YEARS_AHEAD))) add(GiftGroupValidationError.DateTooFarInFuture)
     }
 }

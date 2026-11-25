@@ -26,6 +26,8 @@ import java.io.File
  * @property isPhotoFlowOpen Steuert den Foto-Ablauf (Quelle → Berechtigung → Kamera).
  * @property cameraDenied true, wenn der Kamerazugriff abgelehnt wurde (zeigt den Hinweis unter dem Fotofeld).
  * @property photoError Fehlermeldung beim Speichern des aufgenommenen Fotos.
+ * @property drawDayPassed Beim Bearbeiten: Der gespeicherte Wichteltag ist vorbei. Das Formular erklärt
+ *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.
  */
 data class GroupFormUiState(
     val isLoading: Boolean = false,
@@ -46,4 +48,5 @@ data class GroupFormUiState(
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
     @StringRes val photoError: Int? = null,
+    val drawDayPassed: Boolean = false,
 )

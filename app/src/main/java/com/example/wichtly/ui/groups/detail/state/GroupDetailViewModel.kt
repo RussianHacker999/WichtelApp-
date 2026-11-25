@@ -26,6 +26,8 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailUiState
+import com.example.wichtly.domain.model.draw.DrawRules
+import java.time.LocalDate
 
 private const val TAG = "GroupDetailViewModel"
 
@@ -61,6 +63,7 @@ private data class GroupDetailLocalState(
  * @param photoRepository Repository für Fotofunktionen.
  * @param saveParticipant Prüft und speichert Teilnehmer (einzige Stelle der Teilnehmer-Validierung).
  * @param deleteGiftGroup Löscht die Gruppe samt Teilnehmern, Wunschlisten, Auslosungen und Fotos.
+ * @param today Liefert das heutige Datum (Wichteltag vorbei?); in Tests ersetzbar.
  */
 class GroupDetailViewModel(
     private val groupId: String,
@@ -69,6 +72,7 @@ class GroupDetailViewModel(
     private val photoRepository: PhotoRepository,
     private val saveParticipant: SaveParticipantUseCase,
     private val deleteGiftGroup: DeleteGiftGroupUseCase,
+    private val today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
     private val _localState = MutableStateFlow(GroupDetailLocalState())
@@ -141,6 +145,7 @@ class GroupDetailViewModel(
             isDeletingGroup = localState.isDeletingGroup,
             groupDeleteError = localState.groupDeleteError,
             isGroupDeleted = localState.isGroupDeleted,
+            drawDayPassed = group != null && !DrawRules.isDrawDayOpen(group.drawDay, today()),
         )
     }.stateIn(
         scope = viewModelScope,

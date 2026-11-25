@@ -31,6 +31,7 @@ import java.io.File
  * @property isDeletingGroup Gibt an, ob die Gruppe gerade gelöscht wird (deaktiviert die Dialog-Buttons).
  * @property groupDeleteError Fehlermeldung, die im Gruppen-Löschdialog angezeigt wird.
  * @property isGroupDeleted Einmal-Ereignis: Die Gruppe wurde gelöscht, die Route navigiert zurück.
+ * @property drawDayPassed Der Wichteltag ist vorbei; "Losen" ist gesperrt, bis er verschoben wird.
  */
 data class GroupDetailUiState(
     val isLoading: Boolean = true,
@@ -55,4 +56,5 @@ data class GroupDetailUiState(
     val isDeletingGroup: Boolean = false,
     @StringRes val groupDeleteError: Int? = null,
     val isGroupDeleted: Boolean = false,
+    val drawDayPassed: Boolean = false,
 )

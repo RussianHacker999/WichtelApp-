@@ -134,8 +134,14 @@ fun GroupDetailScreen(
             if (ready) {
                 // "Losen" ist die EINE Hauptaktion des Screens (wie in der Gruppenliste).
                 // Teilnehmer hinzufügen sitzt direkt am Teilnehmer-Abschnitt.
-                val canDraw = DrawRules.canDraw(state.participants.size)
-                BottomActionBar(hint = if (canDraw) null else stringResource(R.string.group_detail_min_participants_hint, DrawRules.MIN_PARTICIPANTS)) {
+                val enoughParticipants = DrawRules.canDraw(state.participants.size)
+                val canDraw = enoughParticipants && !state.drawDayPassed
+                val hint = when {
+                    state.drawDayPassed -> stringResource(R.string.common_draw_day_passed)
+                    !enoughParticipants -> stringResource(R.string.group_detail_min_participants_hint, DrawRules.MIN_PARTICIPANTS)
+                    else -> null
+                }
+                BottomActionBar(hint = hint) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
                         onClick = onPrepareDraw,
