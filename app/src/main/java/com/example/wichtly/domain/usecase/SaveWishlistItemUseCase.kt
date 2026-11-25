@@ -6,7 +6,6 @@ import com.example.wichtly.domain.validation.WishlistItemResult
 import com.example.wichtly.domain.validation.WishlistValidationError
 import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 
 private const val TAG = "SaveWishlistItemUseCase"
 
@@ -33,7 +32,7 @@ class SaveWishlistItemUseCase(
         text: String,
     ): WishlistItemResult {
         AppLog.d(TAG) { if (itemId == null) "Neuen Wunsch für Teilnehmer $participantId speichern" else "Wunsch $itemId speichern" }
-        val currentItems = repository.observeWishlistItems(participantId).first()
+        val currentItems = repository.getWishlistItems(participantId)
         val stored = itemId?.let { id ->
             currentItems.firstOrNull { it.id == id } ?: return notFound(id)
         }

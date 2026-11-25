@@ -2,8 +2,8 @@ package com.example.wichtly.ui.components.display
 
 import java.math.BigDecimal
 import java.math.RoundingMode
+import com.example.wichtly.domain.validation.DrawDayInputFormatter
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 /**
  * Formatierung gespeicherter Werte für die Anzeige im Formular (Bearbeiten-Modus).
@@ -27,12 +27,11 @@ fun formatCentsForInput(cents: Long): String {
 }
 
 /**
- * Formatiert ein LocalDate zurück in die deutsche String-Repräsentation "dd.MM.yyyy".
+ * Formatiert ein LocalDate zurück in das Eingabeformat des Wichteltags
+ * ([com.example.wichtly.domain.validation.DRAW_DAY_INPUT_PATTERN]), damit [parseDate][com.example.wichtly.domain.validation.parseDate]
+ * es unverändert wieder einlesen kann.
  *
  * @param date Das umzuwandelnde LocalDate.
- * @return Die Zeichenkette im Format "dd.MM.yyyy" (z. B. "24.12.2026").
+ * @return Die Zeichenkette, z. B. "24.12.2026".
  */
-fun formatDateForInput(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-    return date.format(formatter)
-}
+fun formatDateForInput(date: LocalDate): String = date.format(DrawDayInputFormatter)

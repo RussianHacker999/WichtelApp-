@@ -8,9 +8,8 @@ import java.time.LocalDateTime
  *
  * @property id Eindeutige ID der Auslosung.
  * @property groupId ID der Wichtelgruppe.
- * @property groupName Aktueller Name der Wichtelgruppe (kein Snapshot: er wird mit der Auslosung nicht
- *   gespeichert, sondern nachgeladen). null = Name konnte nicht geladen werden; die UI zeigt dann den
- *   Platzhalter aus strings.xml.
+ * @property groupName Aktueller Name der Wichtelgruppe (bewusst kein Snapshot, siehe DrawDetailViewModel).
+ *   null = Name konnte nicht geladen werden; die UI zeigt dann den Platzhalter aus strings.xml.
  * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.

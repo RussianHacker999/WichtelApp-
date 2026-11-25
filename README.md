@@ -1,91 +1,123 @@
 # Wichtly
 
-Geniale App für Wichteln
+Wichtly is an Android app for the person who organises a Secret Santa. It manages groups, participants and
+wishlists, performs the draw and keeps every past draw as an unchangeable record. The app works fully
+offline; all data stays on the device.
 
-von Merve Oztuerk, Viktoria Ludchenko, Diana Folz und Melissa Meyer :)
+**Team:** Merve Öztürk, Viktoria Ludchenko, Diana Folz, Melissa Meyer
 
-Wichtly ist eine Android-App für die Person, die ein Wichteln organisiert. Sie läuft komplett offline;
-alle Daten bleiben auf dem Gerät.
+**Course:** Development of Mobile Applications, DHBW Mannheim, winter semester 2026/27
 
-## Was die App kann
+## Statement of responsibility
 
-| Feature | Inhalt |
+The group answers for every line of this project, regardless of whether a team member or a coding assistant
+wrote it.
+
+## Features
+
+| Area | What it does |
 |---|---|
-| Gruppen | Wichtelgruppen mit Name, Budget, Wichteltag, Wichtel-Typ (normal oder Schrottwichteln) und Foto anlegen, bearbeiten und löschen |
-| Teilnehmer | Teilnehmer mit Name und Foto je Gruppe verwalten, je Teilnehmer eine Wunschliste |
-| Auslosung | Losen ab drei Teilnehmern bis einschließlich Wichteltag; niemand zieht sich selbst, jeder beschenkt und wird genau einmal beschenkt; erneutes Losen legt einen neuen Durchlauf an |
-| Historie | Alle Auslosungen bleiben gespeichert, mit Namen und Wünschen von damals (Snapshot) |
-| Kamera | Gruppen- und Teilnehmerfotos mit CameraX, inklusive Berechtigungsdialog |
+| Groups | Create, edit and delete groups with name, budget, draw day, draw type (classic or white elephant) and photo |
+| Participants | Manage the participants of a group, each with name and photo |
+| Wishlists | Maintain one wishlist per participant |
+| Draw | Draw from three participants on, up to and including the draw day. Nobody draws themselves; everyone gives and receives exactly once. Drawing again creates a new record |
+| History | Every draw is stored with the participant names and wishes as they were at that moment (snapshot) |
+| Camera | Group and participant photos with CameraX, behind the camera permission. If the permission is denied, the app keeps working without photos |
 
-## Bauen und testen
+## Requirements
 
-Voraussetzungen: Android Studio (aktuelle stabile Version, bringt ein passendes JDK mit), Android SDK 37. Mindestens Android 8.0 (API 26).
+- Android Studio (current stable release)
+- Android SDK Platform 37 (installed through the Android Studio SDK Manager)
+- A device or emulator with Android 8.0 (API 26) or newer
+- A JDK (17 or newer) to start the Gradle wrapper. Android Studio ships one; on the command line, `JAVA_HOME`
+  must point to a JDK. The JDK 25 used by the Gradle daemon is downloaded automatically on the first build
+  (`gradle/gradle-daemon-jvm.properties`)
+
+## Build and run
+
+From a clean checkout:
 
 ```bash
-./gradlew :app:assembleDebug        # Debug-APK bauen
-./gradlew :app:testDebugUnitTest    # Unit-Tests (JVM, ohne Gerät)
+git clone <repository-url>
+cd <repository-folder>
+./gradlew :app:assembleDebug        # build the debug APK (Windows: gradlew.bat)
+./gradlew :app:installDebug         # install it on a connected device or running emulator
+```
+
+Alternatively, open the project folder in Android Studio, wait for the Gradle sync and run the `app`
+configuration. Android Studio creates `local.properties` with the SDK path; outside Android Studio, set
+`ANDROID_HOME` or create `local.properties` with `sdk.dir=<path to the Android SDK>`.
+
+## Tests and checks
+
+```bash
+./gradlew :app:testDebugUnitTest    # unit tests on the JVM, no device needed
 ./gradlew :app:lintDebug            # Android Lint
 ```
 
-Nach größeren Umbenennungen (z. B. nur Groß-/Kleinschreibung von Dateinamen) einmal `./gradlew clean`
-ausführen; sonst kann der inkrementelle Build veraltete Klassen verwenden.
+The unit tests cover the draw algorithm, the business rules and validators, all use cases, all ViewModels,
+the error mappers, the routes and the logging facade. Repositories are replaced by in-memory fakes
+(`app/src/test/.../testutil`); time and randomness are injected so the tests are deterministic.
 
-## Architektur
+## Architecture
 
-Ein Gradle-Modul, Kotlin, Jetpack Compose mit Material 3, MVVM und Clean Architecture.
+One Gradle module, Kotlin, Jetpack Compose with Material 3, MVVM and Clean Architecture.
 
 ```
-ui (Compose-Screens, ViewModels)  ──►  domain (Modelle, Regeln, Use Cases)  ◄──  data (Room, Dateien)
+ui (Compose screens, ViewModels)  ──►  domain (models, rules, use cases)  ◄──  data (Room, files)
 ```
 
-- **domain** kennt weder Android-UI noch Room. Hier liegen die Modelle, die Fachregeln (`DrawRules`,
-  Validatoren), der Los-Algorithmus und die Use Cases.
-- **Use Cases sind die einzige Stelle für Validierung.** Schreiben läuft immer über einen Use Case
+- **domain** has no dependency on Android UI or Room. It contains the models, the business rules
+  (`DrawRules`, validators), the draw algorithm and the use cases.
+- **Use cases are the only place for validation.** Every write goes through a use case
   (`SaveGiftGroupUseCase`, `SaveParticipantUseCase`, `SaveWishlistItemUseCase`, `PerformDrawUseCase`,
-  `DeleteGiftGroupUseCase`). Sie liefern ein `…Result` mit Erfolg oder einer Liste fachlicher Fehler.
-- **Repositories sind reine Persistenz.** Lesende Methoden heißen `observe…` und liefern einen `Flow`;
-  sie prüfen keine Fachregeln.
-- **ViewModels** übersetzen Fehler in Texte (`…Errors.kt`) und halten den Zustand als `StateFlow`
-  (`combine` + `stateIn(WhileSubscribed(5_000))`). Einmal-Ereignisse wie „gespeichert“ stehen im UiState
-  und werden von der Route nach der Navigation quittiert.
-- **Dependency Injection** von Hand: `di/AppContainer` erzeugt Repositories und Use Cases; jedes ViewModel
-  hat eine `factory(container, …)`, die Routes rufen sie über `appContainer()` auf.
+  `DeleteGiftGroupUseCase`, `DeleteParticipantUseCase`). They return a result type with either success or a
+  list of business errors. The only exception is deleting a single wish, which has no rules and no file.
+- **Repositories are pure persistence.** `observe…` methods return a `Flow` for screens that show live data;
+  `get…` methods read the current state once (use cases, loading a form).
+- **ViewModels** own the screen state as a `StateFlow` (`combine` + `stateIn(WhileSubscribed(5_000))`) and
+  translate business errors into string resources. One-off events such as "saved" are part of the UI state
+  and are acknowledged by the route after navigating.
+- **Dependency injection** is done by hand: `di/AppContainer` creates repositories and use cases, each
+  ViewModel has a `factory(container, …)` and the routes obtain the container through `appContainer()`.
 
-### Paketregeln
+### Package rules
 
-- Ein Paket enthält entweder Dateien oder Unterpakete, nie beides.
-- Jeder Screen hat `screen/` (zustandsloser Screen, Dialoge, UiState, UI-Modelle, Actions) und
-  `state/` (Route, ViewModel, Fehler-Übersetzung). `screen/` importiert nie aus `state/`.
-- Gemeinsame Bausteine liegen in `ui/components/{layout,controls,display,photo}`, Hilfsfunktionen für
-  ViewModels und Routes in `ui/common`, Farben, Typografie und Abstände (`Spacing`) in `ui/theme`.
-- Tests spiegeln die Paketstruktur von `main`.
+- A package contains either files or sub-packages, never both.
+- Every screen has `screen/` (stateless screen, dialogs, UI state, UI models, actions) and `state/`
+  (route, ViewModel, error mapping). `screen/` never imports from `state/`.
+- Shared building blocks live in `ui/components/{layout,controls,display,photo}`, helpers for ViewModels
+  and routes in `ui/common`, colours, typography and spacing in `ui/theme`.
+- Tests mirror the package structure of `main`.
 
-## Entscheidungen
+## Design decisions
 
-- **Snapshot-Historie:** Eine Auslosung speichert Namen und Wünsche der Empfänger als Kopie. Spätere
-  Änderungen an Teilnehmern oder Wunschlisten verfälschen alte Ergebnisse nicht.
-- **Auslosung in einer Transaktion:** `PerformDrawUseCase` liest Gruppe, Teilnehmer und Wünsche mit einer
-  einzigen Room-Abfrage (`DrawDao.getDrawSource`) und speichert das Ergebnis atomar.
-- **Wichteltag:** Losen ist bis einschließlich Wichteltag erlaubt. Gruppen bleiben auch danach
-  bearbeitbar (z. B. Tippfehler im Namen); ein geändertes Datum muss in der Zukunft liegen.
-- **Grenzen:** Namen bis 50 Zeichen, Wünsche bis 200 Zeichen, Budget unter 999 999 €, Wichteltag
-  höchstens 100 Jahre in der Zukunft. Keine doppelten Gruppennamen, Teilnehmernamen je Gruppe oder
-  Wünsche je Teilnehmer (Groß-/Kleinschreibung zählt nicht).
-- **Datenbank:** Room mit exportiertem Schema (`app/schemas`). Ab Version 4 werden Änderungen als
-  `AutoMigration` ergänzt; Versionen 1 bis 3 stammen aus der Entwicklung und werden verworfen.
-- **Fotos** liegen im privaten App-Speicher (`filesDir/photos`), die Datenbank speichert nur relative
-  Pfade. Pfade außerhalb dieses Ordners werden abgelehnt. Fotos ohne Verweis räumt die App beim Start auf.
-- **Prozesstod:** Formular- und Editor-Eingaben liegen im `SavedStateHandle` und überstehen es, wenn
-  Android die App im Hintergrund beendet.
-- **Logging** über `AppLog` mit den Stufen DEBUG, INFO, WARN und ERROR; Tag ist der Klassenname mit dem
-  Präfix `Wichtly/`. Release-Builds loggen ab INFO. Namen, Wünsche und Zuordnungen werden nie geloggt.
-- **Coroutines:** In `try`/`catch` innerhalb von Coroutines wird `CancellationException` zuerst gefangen
-  und weitergeworfen; in `Flow.catch` mit `if (e is CancellationException) throw e`; in normalen
-  Funktionen nicht.
-- **Backup:** `allowBackup="false"`. Die Regeln für die Gerät-zu-Gerät-Übertragung (Android 12+) sind noch
-  nicht angepasst, siehe Gesamtreview (G-01).
+- **Snapshot history:** A draw stores the participant names, the assignments, the receivers' wishes and the
+  draw type as a copy. Later changes to participants or wishlists do not alter past results. Deleting a
+  group deletes its draws as well.
+- **Atomic draw:** `PerformDrawUseCase` reads group, participants and wishes in one Room transaction
+  (`DrawDao.getDrawSource`) and stores draw, assignments and wish snapshots in a second one
+  (`DrawDao.insertCompleteDraw`).
+- **Draw day:** Drawing is allowed up to and including the draw day. Groups stay editable afterwards; a
+  changed date must lie in the future.
+- **Limits:** Names up to 50 characters, wishes up to 200 characters, budget below €999,999, draw day less
+  than 100 years ahead. Group names, participant names within a group and wishes of a participant must be
+  unique (case-insensitive).
+- **Database:** Room with exported schema (`app/schemas`). From version 4 on, schema changes are added as
+  `AutoMigration`; versions 1 to 3 were development versions and are discarded.
+- **Photos** are stored in private app storage (`filesDir/photos`); the database keeps relative paths only.
+  Paths outside this folder are rejected. Photos without a reference are removed on app start after
+  24 hours.
+- **Process death:** Form and editor input is kept in the `SavedStateHandle` and survives Android stopping
+  the app in the background.
+- **Privacy:** Backups and device-to-device transfer are disabled (`allowBackup="false"`,
+  `data_extraction_rules.xml`). Logging goes through `AppLog` (levels DEBUG, INFO, WARN, ERROR; tag prefix
+  `Wichtly/`; release builds log from INFO on). Names, wishes and assignments are never logged.
+- **Coroutines:** Inside coroutines, `CancellationException` is caught first and rethrown; in `Flow.catch`
+  via `if (e is CancellationException) throw e`.
 
-## Bekannte Grenzen
+## Working with coding assistants
 
-Offene Punkte stehen mit Priorität im Gesamtreview unter `docs/review/Wichtly_Gesamtreview_2026-11-25.html`.
-Formatierungsregeln für Android Studio stehen in `.editorconfig`.
+- `AI_USAGE.md` is the log book: setup, every prompt and what was done with the result.
+- `app/AGENTS.md` is the instruction file given to the assistants (architecture rules and conventions).
+- `.editorconfig` holds the shared formatting rules for Android Studio.

@@ -25,6 +25,12 @@ class ParticipantRepositoryImpl(
         return participantDao.observeParticipantById(id).map { it?.toDomainModel() }
     }
 
+    override suspend fun getParticipantsByGroupId(groupId: String): List<Participant> =
+        participantDao.getParticipantsByGroupId(groupId).toDomainModels()
+
+    override suspend fun getParticipantById(id: String): Participant? =
+        participantDao.getParticipantById(id)?.toDomainModel()
+
     override suspend fun getAllPhotoPaths(): List<String> = participantDao.getAllPhotoPaths()
 
     override suspend fun insertParticipant(participant: Participant) {

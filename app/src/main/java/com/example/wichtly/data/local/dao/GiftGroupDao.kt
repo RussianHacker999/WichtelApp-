@@ -17,6 +17,15 @@ interface GiftGroupDao {
     @Query("SELECT * FROM gift_groups WHERE id = :id")
     fun observeGiftGroupById(id: String): Flow<GiftGroupEntity?>
 
+    @Query("SELECT * FROM gift_groups ORDER BY drawDay ASC, name COLLATE NOCASE ASC")
+    suspend fun getGiftGroups(): List<GiftGroupEntity>
+
+    @Query("SELECT * FROM gift_groups WHERE id = :id")
+    suspend fun getGiftGroupById(id: String): GiftGroupEntity?
+
+    @Query("SELECT photoPath FROM gift_groups WHERE photoPath IS NOT NULL")
+    suspend fun getAllPhotoPaths(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertGiftGroup(group: GiftGroupEntity)
 

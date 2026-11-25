@@ -43,6 +43,11 @@ class FakeWishlistRepository : WishlistRepository {
         return itemsFlow.map { list -> list.filter { it.participantId == participantId }.sortedBy { it.sortOrder } }
     }
 
+    override suspend fun getWishlistItems(participantId: String): List<WishlistItem> {
+        if (failFlows) throw RuntimeException("Fehler beim Lesen der Wunschliste")
+        return itemsFlow.value.filter { it.participantId == participantId }.sortedBy { it.sortOrder }
+    }
+
     override suspend fun insertWishlistItem(item: WishlistItem) {
         insertCalls++
         if (shouldThrow) {

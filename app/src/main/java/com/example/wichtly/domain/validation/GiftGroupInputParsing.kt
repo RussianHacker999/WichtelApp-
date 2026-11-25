@@ -53,7 +53,18 @@ fun parseBudgetToCents(input: String): Long? {
 }
 
 /**
- * Parst eine Datumseingabe im deutschen Format "dd.MM.yyyy" in ein LocalDate.
+ * Eingabeformat des Wichteltags, z. B. "24.12.2026". Einzige Stelle dieses Musters:
+ * [parseDate] liest damit, die UI (formatDateForInput, Datumsauswahl) schreibt damit.
+ */
+const val DRAW_DAY_INPUT_PATTERN = "dd.MM.uuuu"
+
+/** Formatter zu [DRAW_DAY_INPUT_PATTERN]; STRICT, siehe [parseDate]. */
+val DrawDayInputFormatter: DateTimeFormatter = DateTimeFormatter
+    .ofPattern(DRAW_DAY_INPUT_PATTERN)
+    .withResolverStyle(ResolverStyle.STRICT)
+
+/**
+ * Parst eine Datumseingabe im Format [DRAW_DAY_INPUT_PATTERN] in ein LocalDate.
  *
  * Warum ResolverStyle.STRICT und "uuuu"?
  * Bei der Standard-Datumsanalyse korrigiert Java ungültige Datumsangaben automatisch
@@ -68,12 +79,8 @@ fun parseDate(input: String): LocalDate? {
     val trimmed = input.trim()
     if (trimmed.isEmpty()) return null
 
-    val formatter = DateTimeFormatter
-        .ofPattern("dd.MM.uuuu")
-        .withResolverStyle(ResolverStyle.STRICT)
-
     return try {
-        LocalDate.parse(trimmed, formatter)
+        LocalDate.parse(trimmed, DrawDayInputFormatter)
     } catch (e: DateTimeParseException) {
         null
     }

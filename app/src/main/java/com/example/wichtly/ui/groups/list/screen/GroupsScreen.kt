@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -190,8 +191,6 @@ fun GroupsScreen(
 // Kamera-Abfrage und der Hinweis bei abgelehntem Kamerazugriff laufen jetzt im Gruppenformular
 // (GroupFormScreen) ueber PhotoCaptureFlow, genau wie beim Teilnehmerfoto.
 
-private val chipDateFormatter = DateTimeFormatter.ofPattern("dd.MM.")
-
 /**
  * Gruppenkarte mit farbigem Bildbereich (Gruppenfoto oder Verlauf mit Sternchen),
  * darunter Name, Budget und Wichtelart sowie das ⋮-Menü.
@@ -206,6 +205,8 @@ private fun HeroGroupCard(
     onEditClick: () -> Unit,
 ) {
     val shape = MaterialTheme.shapes.large
+    val chipDatePattern = stringResource(R.string.common_date_short_pattern)
+    val chipDateFormatter = remember(chipDatePattern) { DateTimeFormatter.ofPattern(chipDatePattern) }
     Card(
         onClick = onClick,
         modifier = Modifier

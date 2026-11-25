@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -100,14 +99,13 @@ class GroupFormViewModel(
     }
 
     /**
-     * Lädt die Wichtelgruppe zum Bearbeiten genau einmal mit repository.observeGiftGroupById(id).first().
+     * Lädt die Wichtelgruppe zum Bearbeiten genau einmal (repository.getGiftGroupById), ohne sie danach zu beobachten.
      */
     private fun loadGroup(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, generalError = null) }
             try {
-                // Einmaliges Auslesen des ersten Flow-Werts (keine dauerhafte Beobachtung)
-                val loadedGroup = repository.observeGiftGroupById(id).first()
+                val loadedGroup = repository.getGiftGroupById(id)
                 if (loadedGroup == null) {
                     AppLog.w(TAG, "Gruppe $id zum Bearbeiten nicht gefunden")
                     _uiState.update {

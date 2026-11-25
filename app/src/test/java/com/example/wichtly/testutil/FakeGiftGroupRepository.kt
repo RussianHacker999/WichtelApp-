@@ -57,6 +57,19 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         return groupsFlow.map { list -> list.find { it.id == id } }
     }
 
+    override suspend fun getGiftGroups(): List<GiftGroup> {
+        if (failFlows) throw RuntimeException("Fehler beim Lesen der Wichtelgruppen")
+        return groupsFlow.value
+    }
+
+    override suspend fun getGiftGroupById(id: String): GiftGroup? {
+        if (failFlows) throw RuntimeException("Fehler beim Lesen der Wichtelgruppe")
+        return groupsFlow.value.find { it.id == id }
+    }
+
+    override suspend fun getAllPhotoPaths(): List<String> =
+        groupsFlow.value.mapNotNull { it.photoPath }
+
     override suspend fun insertGiftGroup(group: GiftGroup) {
         insertCalls++
         if (shouldThrow) {

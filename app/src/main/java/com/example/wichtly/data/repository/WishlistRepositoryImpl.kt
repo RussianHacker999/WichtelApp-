@@ -21,6 +21,9 @@ class WishlistRepositoryImpl(
             .map { it.toDomainModels() }
     }
 
+    override suspend fun getWishlistItems(participantId: String): List<WishlistItem> =
+        wishlistItemDao.getWishlistItemsByParticipantId(participantId).toDomainModels()
+
     override suspend fun insertWishlistItem(item: WishlistItem) {
         wishlistItemDao.insertWishlistItem(item.toEntity())
     }

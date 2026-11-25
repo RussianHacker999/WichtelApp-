@@ -25,6 +25,14 @@ class GiftGroupRepositoryImpl(
         return giftGroupDao.observeGiftGroupById(id).map { it?.toDomainModel() }
     }
 
+    override suspend fun getGiftGroups(): List<GiftGroup> =
+        giftGroupDao.getGiftGroups().toDomainModels()
+
+    override suspend fun getGiftGroupById(id: String): GiftGroup? =
+        giftGroupDao.getGiftGroupById(id)?.toDomainModel()
+
+    override suspend fun getAllPhotoPaths(): List<String> = giftGroupDao.getAllPhotoPaths()
+
     override suspend fun insertGiftGroup(group: GiftGroup) {
         giftGroupDao.insertGiftGroup(group.toEntity())
     }

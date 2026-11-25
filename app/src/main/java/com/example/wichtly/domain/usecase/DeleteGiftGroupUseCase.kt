@@ -5,7 +5,6 @@ import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 
 private const val TAG = "DeleteGiftGroupUseCase"
 
@@ -30,14 +29,14 @@ class DeleteGiftGroupUseCase(
      */
     suspend operator fun invoke(groupId: String): DeleteResult {
         AppLog.d(TAG) { "Gruppe $groupId löschen" }
-        val group = giftGroupRepository.observeGiftGroupById(groupId).first()
+        val group = giftGroupRepository.getGiftGroupById(groupId)
         if (group == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gelöscht")
             return DeleteResult.NotFound
         }
 
         // Fotopfade vor dem Löschen einsammeln, danach sind die Teilnehmer nicht mehr lesbar
-        val participants = participantRepository.observeParticipantsByGroupId(groupId).first()
+        val participants = participantRepository.getParticipantsByGroupId(groupId)
         val photoPaths = listOfNotNull(group.photoPath) + participants.mapNotNull { it.photoPath }
 
         giftGroupRepository.deleteGiftGroup(groupId)

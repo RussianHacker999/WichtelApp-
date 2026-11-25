@@ -9,7 +9,6 @@ import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.parseBudgetToCents
 import com.example.wichtly.domain.validation.parseDate
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 private const val TAG = "SaveGiftGroupUseCase"
@@ -48,7 +47,7 @@ class SaveGiftGroupUseCase(
      */
     suspend operator fun invoke(groupId: String?, input: GiftGroupInput): GiftGroupResult {
         AppLog.d(TAG) { if (groupId == null) "Neue Gruppe speichern" else "Gruppe $groupId speichern" }
-        val existingGroups = repository.observeGiftGroups().first()
+        val existingGroups = repository.getGiftGroups()
         val stored = groupId?.let { id ->
             existingGroups.firstOrNull { it.id == id } ?: return notFound(id)
         }

@@ -176,6 +176,7 @@
     <string name="draw_history_note">Historische Daten sind unveränderliche Snapshots. Änderungen an Teilnehmern oder Wunschlisten verändern frühere Ergebnisse nicht.</string>
     <!-- DateTimeFormatter-Muster, z. B. "01.12.2026, 18:42 Uhr" -->
     <string name="common_datetime_pattern">dd.MM.yyyy, HH:mm \'Uhr\'</string>
+    <string name="common_date_short_pattern" translatable="false">dd.MM.</string>
     <string name="error_history_load">Fehler beim Laden der Historie.</string>
 
     <!-- Auslosungsdetail und Ergebnis-Anhänger -->

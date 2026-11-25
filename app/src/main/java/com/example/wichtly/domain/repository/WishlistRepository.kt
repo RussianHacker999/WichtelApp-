@@ -14,6 +14,11 @@ interface WishlistRepository {
     fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>>
 
     /**
+     * Reads the wishlist of a participant once (sorted by sortOrder), e.g. for validation in a use case.
+     */
+    suspend fun getWishlistItems(participantId: String): List<WishlistItem>
+
+    /**
      * Stores a new, already validated wishlist item.
      */
     suspend fun insertWishlistItem(item: WishlistItem)

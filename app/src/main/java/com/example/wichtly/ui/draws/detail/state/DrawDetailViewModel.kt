@@ -65,9 +65,11 @@ class DrawDetailViewModel(
     /**
      * Auslosung zusammen mit dem Namen ihrer Gruppe.
      *
-     * Der Name wird mit der Auslosung nicht gespeichert (eine neue Spalte würde wegen der
-     * destruktiven Migration alle Daten löschen). Deshalb wird der aktuelle Name der Gruppe
-     * nachgeladen; wird die Gruppe umbenannt, zeigt auch die Auslosung den neuen Namen.
+     * Bewusst kein Snapshot: Eine Auslosung gehört immer zu ihrer Gruppe und wird mit ihr gelöscht
+     * (Fremdschlüssel mit CASCADE). Eingefroren werden die Daten, die sich auf das Ergebnis auswirken
+     * (Namen der Teilnehmer, Zuordnungen, Wünsche, Wichtelart). Der Gruppenname dient nur als Überschrift
+     * und wird deshalb aktuell nachgeladen; wird die Gruppe umbenannt, zeigt auch die Auslosung den neuen Namen.
+     * Soll er später eingefroren werden: Spalte in DrawEntity plus AutoMigration (siehe AppDatabase).
      * Scheitert nur das Laden des Namens, bleibt die Auslosung sichtbar und die UI zeigt den Platzhalter.
      */
     @OptIn(ExperimentalCoroutinesApi::class)

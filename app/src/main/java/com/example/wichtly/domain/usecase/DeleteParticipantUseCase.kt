@@ -4,7 +4,6 @@ import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 
 private const val TAG = "DeleteParticipantUseCase"
 
@@ -24,7 +23,7 @@ class DeleteParticipantUseCase(
 ) {
     suspend operator fun invoke(participantId: String): DeleteResult {
         AppLog.d(TAG) { "Teilnehmer $participantId löschen" }
-        val participant = participantRepository.observeParticipantById(participantId).first()
+        val participant = participantRepository.getParticipantById(participantId)
         if (participant == null) {
             AppLog.w(TAG, "Teilnehmer $participantId nicht gefunden, nichts gelöscht")
             return DeleteResult.NotFound

@@ -5,7 +5,6 @@ import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 import java.time.Duration
 import java.time.Instant
 
@@ -35,7 +34,7 @@ class CleanUpOrphanPhotosUseCase(
         if (candidates.isEmpty()) return 0
 
         val referenced = buildSet {
-            giftGroupRepository.observeGiftGroups().first().mapNotNullTo(this) { it.photoPath }
+            addAll(giftGroupRepository.getAllPhotoPaths())
             addAll(participantRepository.getAllPhotoPaths())
         }
         val orphans = candidates.filterNot { it in referenced }

@@ -7,7 +7,6 @@ import com.example.wichtly.domain.validation.ParticipantResult
 import com.example.wichtly.domain.validation.ParticipantValidationError
 import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.flow.first
 
 private const val TAG = "SaveParticipantUseCase"
 
@@ -35,12 +34,12 @@ class SaveParticipantUseCase(
         photoPath: String?,
     ): ParticipantResult {
         AppLog.d(TAG) { if (participantId == null) "Neuen Teilnehmer in Gruppe $groupId speichern" else "Teilnehmer $participantId speichern" }
-        if (giftGroupRepository.observeGiftGroupById(groupId).first() == null) {
+        if (giftGroupRepository.getGiftGroupById(groupId) == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, Teilnehmer nicht gespeichert")
             return error(ParticipantValidationError.GroupNotFound)
         }
 
-        val participantsInGroup = participantRepository.observeParticipantsByGroupId(groupId).first()
+        val participantsInGroup = participantRepository.getParticipantsByGroupId(groupId)
         val stored = participantId?.let { id ->
             participantsInGroup.firstOrNull { it.id == id } ?: return participantNotFound(id)
         }

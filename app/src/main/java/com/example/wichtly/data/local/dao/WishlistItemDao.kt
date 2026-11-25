@@ -14,6 +14,9 @@ interface WishlistItemDao {
     @Query("SELECT * FROM wishlist_items WHERE participantId = :participantId ORDER BY sortOrder ASC")
     fun observeWishlistItemsByParticipantId(participantId: String): Flow<List<WishlistItemEntity>>
 
+    @Query("SELECT * FROM wishlist_items WHERE participantId = :participantId ORDER BY sortOrder ASC")
+    suspend fun getWishlistItemsByParticipantId(participantId: String): List<WishlistItemEntity>
+
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertWishlistItem(item: WishlistItemEntity)
 

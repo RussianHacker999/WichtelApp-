@@ -57,6 +57,16 @@ class FakeParticipantRepository : ParticipantRepository {
         return participantsFlow.map { list -> list.find { it.id == id } }
     }
 
+    override suspend fun getParticipantsByGroupId(groupId: String): List<Participant> {
+        if (failFlows) throw RuntimeException("Fehler beim Lesen der Teilnehmer")
+        return participantsFlow.value.filter { it.groupId == groupId }
+    }
+
+    override suspend fun getParticipantById(id: String): Participant? {
+        if (failFlows) throw RuntimeException("Fehler beim Lesen des Teilnehmers")
+        return participantsFlow.value.find { it.id == id }
+    }
+
     override suspend fun getAllPhotoPaths(): List<String> =
         participantsFlow.value.mapNotNull { it.photoPath }
 
