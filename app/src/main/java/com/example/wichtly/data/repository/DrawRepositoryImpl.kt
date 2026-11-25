@@ -2,8 +2,8 @@ package com.example.wichtly.data.repository
 
 import com.example.wichtly.data.local.dao.DrawDao
 import com.example.wichtly.data.mapper.toDomainModel
-import com.example.wichtly.data.mapper.toDomainModels
 import com.example.wichtly.data.mapper.toEntities
+import com.example.wichtly.data.mapper.toSummaries
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawSource
 import com.example.wichtly.domain.model.draw.DrawSummary
@@ -19,8 +19,8 @@ class DrawRepositoryImpl(
     private val drawDao: DrawDao,
 ) : DrawRepository {
     override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> {
-        return drawDao.observeDrawSummariesByGroupId(groupId)
-            .map { it.toDomainModels() }
+        return drawDao.observeDrawsByGroupId(groupId)
+            .map { it.toSummaries() }
     }
 
     override fun observeDrawDetailById(drawId: String): Flow<DrawDetail?> {

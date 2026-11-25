@@ -72,8 +72,6 @@ class DrawHistoryViewModel(
         return DrawHistoryItemUiModel(
             id = summary.id,
             drawnAt = summary.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
-            drawType = summary.drawType,
-            assignmentCount = summary.assignmentCount,
         )
     }
 

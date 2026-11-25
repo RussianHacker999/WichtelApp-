@@ -81,8 +81,6 @@ class FakeDrawRepository : DrawRepository {
                         id = draw.id,
                         groupId = draw.groupId,
                         drawnAt = draw.drawnAt,
-                        drawType = draw.drawType,
-                        assignmentCount = draw.assignments.size,
                     )
                 }
         }

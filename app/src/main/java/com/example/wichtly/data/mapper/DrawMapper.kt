@@ -4,7 +4,6 @@ import com.example.wichtly.data.local.entity.DrawAssignmentEntity
 import com.example.wichtly.data.local.entity.DrawEntity
 import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.relation.DrawAssignmentWithWishlist
-import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
 import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import com.example.wichtly.domain.model.draw.DrawAssignment
@@ -48,19 +47,14 @@ fun DrawWishlistItemSnapshotEntity.toDomainModel(): DrawWishlistItemSnapshot {
 }
 
 
-fun DrawSummaryTuple.toDomainModel(): DrawSummary {
-    return DrawSummary(
-        id = id,
-        groupId = groupId,
-        drawnAt = drawnAt,
-        drawType = drawType,
-        assignmentCount = assignmentCount,
-    )
-}
+/** Kurzfassung einer Auslosung für die Historienliste: nur ID, Gruppe und Zeitpunkt. */
+fun DrawEntity.toSummary(): DrawSummary = DrawSummary(
+    id = id,
+    groupId = groupId,
+    drawnAt = drawnAt,
+)
 
-fun List<DrawSummaryTuple>.toDomainModels(): List<DrawSummary> {
-    return map { it.toDomainModel() }
-}
+fun List<DrawEntity>.toSummaries(): List<DrawSummary> = map { it.toSummary() }
 
 
 fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List<DrawWishlistItemSnapshotEntity>> {

@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.R
-import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.ui.components.display.ChevronIcon
 import com.example.wichtly.ui.components.display.IconAvatar
 import com.example.wichtly.ui.components.display.ListItemCard
@@ -158,9 +157,9 @@ fun DrawHistoryScreen(
 @Composable
 private fun DrawHistoryScreenWithThreeDrawsPreview() {
     val draws = listOf(
-        DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42), drawType = DrawType.NORMAL, assignmentCount = 6),
-        DrawHistoryItemUiModel(id = "d2", drawnAt = LocalDateTime.of(2026, 11, 28, 20, 5), drawType = DrawType.NORMAL, assignmentCount = 5),
-        DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30), drawType = DrawType.JUNK, assignmentCount = 8),
+        DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42)),
+        DrawHistoryItemUiModel(id = "d2", drawnAt = LocalDateTime.of(2026, 11, 28, 20, 5)),
+        DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30)),
     )
     WichtlyTheme {
         DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
@@ -173,7 +172,7 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 @Preview(showBackground = true, heightDp = 700)
 @Composable
 private fun DrawHistoryScreenWithSingleDrawPreview() {
-    val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42), drawType = DrawType.NORMAL, assignmentCount = 6))
+    val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42)))
     WichtlyTheme {
         DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
     }

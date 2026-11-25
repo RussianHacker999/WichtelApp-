@@ -8,26 +8,14 @@ import androidx.room.Transaction
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
 import com.example.wichtly.data.local.entity.DrawEntity
 import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
-import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
 import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import kotlinx.coroutines.flow.Flow
 @Dao
 interface DrawDao {
-    @Query(
-        """
-        SELECT 
-            d.id AS id, 
-            d.groupId AS groupId, 
-            d.drawnAt AS drawnAt, 
-            d.drawType AS drawType, 
-            (SELECT COUNT(*) FROM draw_assignments a WHERE a.drawId = d.id) AS assignmentCount
-        FROM draws d
-        WHERE d.groupId = :groupId
-        ORDER BY d.drawnAt DESC
-        """
-    )
-    fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummaryTuple>>
+    /** Alle Auslosungen einer Gruppe, neueste zuerst. Für die Historienliste (nur Datum und Uhrzeit). */
+    @Query("SELECT * FROM draws WHERE groupId = :groupId ORDER BY drawnAt DESC")
+    fun observeDrawsByGroupId(groupId: String): Flow<List<DrawEntity>>
 
     /**
      * Lädt Gruppe, Teilnehmer und Wünsche für eine Auslosung in einer Transaktion.

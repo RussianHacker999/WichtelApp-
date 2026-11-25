@@ -113,8 +113,6 @@ class DrawHistoryViewModelTest {
         // Neueste zuerst
         assertEquals("d-new", state.draws[0].id)
         assertEquals(newerDate, state.draws[0].drawnAt)
-        assertEquals(DrawType.NORMAL, state.draws[0].drawType)
-        assertEquals(0, state.draws[0].assignmentCount)
 
         assertEquals("d-old", state.draws[1].id)
         assertEquals(olderDate, state.draws[1].drawnAt)

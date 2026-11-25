@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.draws.history.screen
 
 import androidx.annotation.StringRes
-import com.example.wichtly.domain.model.group.DrawType
 import java.time.LocalDateTime
 
 /**
@@ -9,14 +8,10 @@ import java.time.LocalDateTime
  *
  * @property id Eindeutige ID des Auslosungsdurchlaufs.
  * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
- * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
- * @property assignmentCount Anzahl der Personen/Zuordnungen in diesem Durchlauf.
  */
 data class DrawHistoryItemUiModel(
     val id: String,
     val drawnAt: LocalDateTime,
-    val drawType: DrawType,
-    val assignmentCount: Int,
 )
 
 /**
