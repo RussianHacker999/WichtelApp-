@@ -34,6 +34,10 @@ import com.example.wichtly.domain.validation.WishlistValidator
  * oder Datenbank und Fotodateien gemeinsam geändert werden (Gruppe oder Teilnehmer löschen).
  * Einzige Ausnahme ist das Löschen eines Wunsches: Es ist eine einzelne Zeile ohne Regeln und ohne
  * Datei, deshalb ruft das ViewModel dafür direkt das WishlistRepository auf.
+ *
+ * Fotodateien sind davon getrennt: Entwurfsfotos speichern, auflösen und verwerfen die Foto-ViewModels
+ * (Gruppenformular, Gruppendetail) direkt über das PhotoRepository; ein Foto wird erst mit dem Speichern
+ * der Gruppe bzw. des Teilnehmers (über den Use Case) in der Datenbank eingetragen.
  */
 interface AppContainer {
     val giftGroupRepository: GiftGroupRepository

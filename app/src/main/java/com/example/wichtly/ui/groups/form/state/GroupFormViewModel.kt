@@ -317,7 +317,7 @@ class GroupFormViewModel(
     }
 
     /**
-     * Übernimmt ein neu aufgenommenes Foto ins Formular. Es wird sofort in den App-Speicher kopiert,
+     * Übernimmt ein neu aufgenommenes Foto ins Formular. Es wird sofort in den App-Speicher verschoben (notfalls kopiert),
      * aber erst beim Speichern der Gruppe in der Datenbank eingetragen.
      */
     fun onPhotoCaptured(tempFile: File) {

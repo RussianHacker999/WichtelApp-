@@ -7,19 +7,20 @@ import kotlin.random.Random
 private const val TAG = "SecretSantaDrawAlgorithm"
 
 /**
- * Pure domain component implementing the Secret Santa derangement algorithm.
- * Generates valid assignment pairs where no participant is matched with themselves,
- * and every participant gives to exactly one recipient and receives from exactly one giver.
+ * Reine Domain-Komponente für den Los-Algorithmus (Derangement).
+ * Erzeugt gültige Zuordnungen: Niemand zieht sich selbst, jeder Teilnehmer beschenkt genau eine Person
+ * und wird von genau einer Person beschenkt.
  */
 class SecretSantaDrawAlgorithm(
     private val random: Random = Random.Default,
     private val maxAttempts: Int = 100,
 ) {
     /**
-     * Generates a random derangement (giverId -> receiverId) for the given list of participant IDs.
-     * Uses rejection sampling up to [maxAttempts] to generate ANY valid derangement.
-     * Falls back to a deterministic ring-shift derangement if [maxAttempts] is exceeded.
-     * Returns an empty map if [participantIds] has fewer than [DrawRules.MIN_PARTICIPANTS] elements.
+     * Erzeugt ein zufälliges Derangement (giverId -> receiverId) für die übergebenen Teilnehmer-IDs.
+     * Verfahren: Rejection Sampling mit bis zu [maxAttempts] Versuchen; jedes gültige Derangement ist gleich
+     * wahrscheinlich. Gelingt das nicht, folgt ein Ring über eine zufällig gemischte Reihenfolge
+     * (gültig, aber nicht gleichverteilt).
+     * Liefert eine leere Map, wenn [participantIds] weniger als [DrawRules.MIN_PARTICIPANTS] Einträge hat.
      */
     fun generateDerangement(participantIds: List<String>): Map<String, String> {
         if (!DrawRules.canDraw(participantIds.size)) return emptyMap()
@@ -40,8 +41,9 @@ class SecretSantaDrawAlgorithm(
             }
         }
 
-        // Fallback: Guaranteed Ring-Shift Derangement
-        // Practically never reached (see review); if it is, the result is valid but not uniformly distributed.
+        // Notfall-Plan: Ring über eine gemischte Reihenfolge, immer gültig.
+        // Praktisch nie erreicht (rund 37 % aller Mischungen sind gültig, 100 Fehlversuche in Folge haben eine
+        // Wahrscheinlichkeit von etwa 10^-20); falls doch, ist das Ergebnis gültig, aber nicht gleichverteilt.
         AppLog.w(TAG, "Kein Zufalls-Derangement nach $maxAttempts Versuchen, Ring-Fallback für ${participantIds.size} Teilnehmer")
         val shuffled = participantIds.shuffled(random)
         val size = shuffled.size

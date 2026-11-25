@@ -8,9 +8,9 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 /**
- * The one Wichtly color scheme ("Evergreen Night").
- * Dynamic color is off on purpose: the festive palette should look the same on every device,
- * and the app uses this scheme in both light and dark system mode.
+ * Das einzige Farbschema von Wichtly („Evergreen Night“).
+ * Dynamic Color ist bewusst aus: Die festliche Palette soll auf jedem Gerät gleich aussehen, und die App
+ * verwendet dieses Schema sowohl im hellen als auch im dunklen Systemmodus.
  */
 private val EvergreenColorScheme = darkColorScheme(
     primary = Gold,
@@ -75,7 +75,7 @@ fun WichtlyTheme(content: @Composable () -> Unit) {
     }
 }
 
-/** Access to the Wichtly-specific theme values that Material 3 has no slot for. */
+/** Zugriff auf Wichtly-eigene Theme-Werte, für die Material 3 keinen Platz vorsieht. */
 object WichtlyTheme {
     val extendedColors: ExtendedColors
         @Composable @ReadOnlyComposable

@@ -25,7 +25,8 @@ import java.time.LocalDate
  *
  * Verifiziert das reaktive Laden von Auslosungsdetails, das Sortieren von Schenkern
  * (ohne Groß-/Kleinschreibung) und Wünschen (nach sortOrder), das Fehler- und Nicht-Gefunden-Verhalten,
- * die Steuerung der Sicherheits- und Ergebnisdialoge sowie reaktive Updates.
+ * das Öffnen, Wechseln und Schließen des Geschenkanhängers (inklusive ON_STOP) sowie reaktive Updates
+ * und das Nachladen des Gruppennamens.
  */
 class DrawDetailViewModelTest {
 

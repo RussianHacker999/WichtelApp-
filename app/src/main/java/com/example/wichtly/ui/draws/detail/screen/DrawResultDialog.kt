@@ -79,7 +79,7 @@ private val TagPaddingBottom = 22.dp
  *
  * Warum zustandslos?
  * Gemäß Unidirectional Data Flow (UDF) nimmt die Komponente die fertigen Zuordnungsdaten entgegen
- * und löst über den Button "Schließen" lediglich [onDismiss] aus. Nur ob der Anhänger schon geöffnet
+ * und löst über „Schließen“, „Nicht ich“ oder Tippen außerhalb lediglich [onDismiss] aus. Nur ob der Anhänger schon geöffnet
  * ist, merkt sich die Komponente selbst (rememberSaveable).
  *
  * @param assignment Die anzuzeigende Ziehungs-Zuordnung mit Schenker, Beschenktem und Wunschliste.

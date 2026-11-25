@@ -62,7 +62,7 @@ private val HeroSidePadding = 28.dp
  * Startseite (Mockup-Option A "Nachthimmel"): großer Wichtly-Schriftzug mittig auf einem
  * leuchtenden Nachthimmel mit Schnee, darunter eine Infozeile und eine Hauptaktion.
  *
- * Der große Schriftzug gibt es NUR hier; die Gruppenliste behält ihre kleine Marken-Leiste.
+ * Den großen Schriftzug gibt es NUR hier; die Gruppenliste behält ihre kleine Marken-Leiste (BrandTopBar).
  *
  * Zustandslos: [summary] kommt aus der Route, Aktionen laufen über Callbacks.
  *
@@ -140,7 +140,7 @@ private val NightSkyBrush = Brush.verticalGradient(
 )
 
 /**
- * Der große Schriftzug. Er darf NIE abgeschnitten werden:
+ * Der große Schriftzug. Er soll nicht abgeschnitten werden:
  * - autoSize verkleinert die Schrift schrittweise (72sp → 36sp), bis "Wichtly" in eine Zeile passt,
  *   auch bei schmalen Geräten oder großer Systemschrift.
  * - Die Sternchen sitzen in einem eigenen, reservierten Rand rechts/oben (padding), nicht über dem Text,
@@ -252,7 +252,7 @@ private fun daysUntilText(days: Long): String =
     daysUntilSpecialRes(days)?.let { stringResource(it) }
         ?: pluralStringResource(R.plurals.start_days_in, days.toInt(), days)
 
-/** Ruhender Schnee: feste, per Seed verteilte Punkte im oberen Bereich (keine Animation). */
+/** Ruhender Schnee: 70 feste, per Seed verteilte Punkte in den oberen 80 % der Fläche (keine Animation). */
 @Composable
 private fun SnowLayer(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {

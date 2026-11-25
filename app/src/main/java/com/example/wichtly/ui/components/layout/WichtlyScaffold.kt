@@ -40,8 +40,8 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * The screen skeleton every Wichtly screen uses:
- * 1. top bar, 2. page header + 3. content (inside [content]), 4. optional bottom action bar.
+ * Das Grundgerüst aller Screens außer der Startseite (die ein eigenes Vollbild-Layout hat):
+ * 1. Top-Leiste, 2. Seitenkopf und 3. Inhalt (beide in [content]), 4. optionale Aktionsleiste unten.
  */
 @Composable
 fun WichtlyScaffold(
@@ -61,7 +61,8 @@ fun WichtlyScaffold(
 }
 
 /**
- * Content padding for the scrolling list of a screen: Scaffold insets plus the screen gutter.
+ * Innenabstand für die scrollende Liste eines Screens: Abstände des Scaffolds (Top- und Aktionsleiste)
+ * plus seitlicher Rand ([Spacing.screen]) und etwas Luft unten ([Spacing.xl]).
  */
 fun screenContentPadding(innerPadding: PaddingValues): PaddingValues = PaddingValues(
     start = Spacing.screen,
@@ -71,7 +72,7 @@ fun screenContentPadding(innerPadding: PaddingValues): PaddingValues = PaddingVa
 )
 
 /**
- * Top bar with a back arrow (when [onBack] is set), a one-line title and optional actions on the right.
+ * Top-Leiste mit Zurück-Pfeil (wenn [onBack] gesetzt ist), einzeiligem Titel und optionalen Aktionen rechts.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -108,7 +109,7 @@ fun WichtlyTopBar(
     )
 }
 
-/** Top bar of the start screen: the "Wichtly" word mark with a sparkle, no back arrow. */
+/** Top-Leiste der Gruppenliste: Schriftzug „Wichtly“ mit Sternchen, ohne Zurück-Pfeil. (Die Startseite hat keine Top-Leiste.) */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BrandTopBar(
@@ -134,10 +135,10 @@ fun BrandTopBar(
 }
 
 /**
- * Fixed action bar at the bottom of a screen. Put a [SecondaryButton] and a [PrimaryButton] (both weight 1f, so
- * neither label gets clipped) inside, or a single [PrimaryButton] with weight 1f.
+ * Feste Aktionsleiste am unteren Rand eines Screens. Darin entweder ein [SecondaryButton] und ein [PrimaryButton]
+ * (beide mit weight 1f, damit keine Beschriftung abgeschnitten wird) oder ein einzelner [PrimaryButton] mit weight 1f.
  *
- * @param hint Optional short line above the buttons, e.g. why the main button is disabled.
+ * @param hint Optionale kurze Zeile über den Buttons, z. B. warum der Hauptbutton deaktiviert ist.
  */
 @Composable
 fun BottomActionBar(

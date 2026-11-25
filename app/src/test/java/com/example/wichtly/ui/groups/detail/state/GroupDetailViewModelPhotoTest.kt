@@ -25,7 +25,8 @@ import java.io.File
 import java.time.LocalDate
 
 /**
- * Ein in-Memory Gated Participant Repository Wrapper für Tests zur Simulation von Sperren/Warten.
+ * Hülle um [FakeParticipantRepository], die Speichern (insert/update) anhält, bis [gate] geöffnet wird.
+ * Damit lässt sich ein noch laufender Speichervorgang (isSaving = true) im Test festhalten.
  */
 class GatedParticipantRepository(
     private val delegate: FakeParticipantRepository,
@@ -47,7 +48,8 @@ class GatedParticipantRepository(
  *
  * Verifiziert das Aufnehmen, Ersetzen, Entfernen und Verwerfen von Teilnehmerfotos,
  * die fehlerfreie Bereinigung temporärer oder veralteter Bilddateien im [FakePhotoRepository],
- * das Transaktionsverhalten beim Speichern/Löschen von Teilnehmern sowie Berechtigungs- und UI-States.
+ * das Verhalten beim Speichern und Löschen von Teilnehmern, abgelehnte Kamera, den Foto-Ablauf im Editor
+ * sowie die Wiederherstellung nach Prozesstod.
  */
 class GroupDetailViewModelPhotoTest {
 
@@ -530,7 +532,8 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 17: participantPhotoFile und participantPhotoFiles liefern korrekte Datei-Auflösungen über echte Temp-Dateien.
+     * Test 17: participantPhotoFiles enthält nur Teilnehmer, deren Fotodatei vorhanden ist (p1), nicht p2,
+     * dessen Pfad in der Datenbank steht, dessen Datei aber fehlt.
      */
     @Test
     fun photoFileResolved() = runTest {

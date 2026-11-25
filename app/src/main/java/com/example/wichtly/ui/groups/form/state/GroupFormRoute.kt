@@ -21,7 +21,7 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormScreen
  *   (DI / AppContainer, ViewModel, Lifecycle) und dem zustandslosen [GroupFormScreen].
  * - Der [GroupFormScreen] bleibt dadurch zu 100 % zustandslos und frei von ViewModel- und Repository-Wissen,
  *   was die Testbarkeit und Previews erheblich vereinfacht.
- * - Die Repositories (Gruppen und Fotos) werden direkt aus der [WichtlyApplication] bezogen.
+ * - Repositories und Use Case kommen über [appContainer] aus dem AppContainer der WichtlyApplication (manuelle DI).
  * - Beim Verlassen ohne Speichern (Zurück-Pfeil, Abbrechen, System-Zurück) verwirft das ViewModel ein
  *   neu aufgenommenes, noch nicht gespeichertes Gruppenfoto.
  * - Das ViewModel entsteht über [GroupFormViewModel.factory] mit der Inhalts-ID als Key (`groupId ?: "new"`).

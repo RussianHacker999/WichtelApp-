@@ -3,7 +3,7 @@ package com.example.wichtly.ui.draws.detail.screen
 import androidx.annotation.StringRes
 
 /**
- * UI State für die Detailansicht eines einzelnen Auslosungs-Durchlaufs (DrawDetailsScreen).
+ * UI State für die Detailansicht eines einzelnen Auslosungs-Durchlaufs (DrawDetailScreen).
  *
  * Erklärung der Zustände:
  * - `isLoading == true`: Der Auslosungs-Snapshot wird geladen.

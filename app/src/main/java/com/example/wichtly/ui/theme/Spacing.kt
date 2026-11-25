@@ -30,15 +30,15 @@ object Spacing {
     val xl = 24.dp
     val xxl = 32.dp
 
-    /** Left/right padding of every screen. */
+    /** Seitlicher Rand (links/rechts) der Listen-Screens. */
     val screen = 16.dp
 
-    /** Gap between two sections of a screen. */
+    /** Abstand zwischen zwei Abschnitten eines Screens. */
     val section = 24.dp
 
-    /** Gap between two cards in a list. */
+    /** Abstand zwischen zwei Karten in einer Liste. */
     val cardGap = 12.dp
 
-    /** Inner padding of a card. */
+    /** Innenabstand einer Karte. */
     val cardPadding = 16.dp
 }

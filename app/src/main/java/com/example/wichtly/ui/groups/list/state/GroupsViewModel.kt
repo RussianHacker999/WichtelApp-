@@ -35,9 +35,9 @@ private data class GroupsLocalState(
 /**
  * ViewModel der Gruppenliste; die Startseite nutzt es als Datenquelle für ihre Infozeile.
  *
- * Aufbau wie in allen anderen ViewModels:
+ * Aufbau wie in den übrigen ViewModels, die die Datenbank beobachten (das Gruppenformular lädt dagegen einmalig):
  * - Der Room-Flow der Gruppen liefert jede Änderung der Datenbank sofort (neue Gruppe, gelöschte Gruppe).
- * - [combine] verbindet ihn mit dem lokalen Zustand (ausgewählte Karte, Ladefehler).
+ * - [combine] verbindet ihn mit dem lokalen Zustand (ausgewählte Karte). Ladefehler kommen über asResult aus dem Flow.
  * - [stateIn] mit [SharingStarted.WhileSubscribed] (5 Sekunden) beobachtet die Datenbank nur, solange
  *   ein Screen den Zustand anzeigt, und übersteht eine Drehung ohne neue Abfrage.
  *
@@ -78,13 +78,13 @@ class GroupsViewModel(
         initialValue = GroupsUiState(isLoading = true),
     )
 
-    /** Merkt sich die angetippte Gruppenkarte für den späteren "Losen"-Klick. */
     /** Nur Gruppen, deren Fotodatei existiert, bekommen ein Bild; alle anderen zeigen Initialen. */
     private suspend fun resolvePhotoFiles(groups: List<GiftGroup>): Map<String, File> =
         groups.mapNotNull { group ->
             photoRepository.getFileForRelativePath(group.photoPath)?.let { file -> group.id to file }
         }.toMap()
 
+    /** Merkt sich die angetippte Gruppenkarte für den späteren "Losen"-Klick. */
     fun onGroupClick(groupId: String) {
         _localState.update { it.copy(selectedGroupId = groupId) }
     }

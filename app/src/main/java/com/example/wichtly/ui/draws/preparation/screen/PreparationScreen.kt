@@ -71,7 +71,7 @@ fun PreparationScreen(
                 // Die unteren Aktionen bleiben beim Scrollen sichtbar.
                 BottomActionBar {
                     SecondaryButton(text = stringResource(R.string.common_back), onClick = onBack, modifier = Modifier.weight(1f))
-                    // Der goldene Button "Jetzt losen" ist immer sichtbar, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
+                    // Der goldene Button "Jetzt losen" ist sichtbar, sobald der Inhalt geladen ist, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
                     PrimaryButton(
                         text = stringResource(if (state.isDrawing) R.string.preparation_drawing else R.string.preparation_draw_now),
                         onClick = onStartDrawClick,

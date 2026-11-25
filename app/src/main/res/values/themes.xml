@@ -5,7 +5,7 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <!-- Splash screen shown on app launch (androidx.core:core-splashscreen, works on API 26+). -->
+    <!-- Splashscreen beim App-Start (androidx.core:core-splashscreen; deckt alle unterstützten Versionen ab API 26 ab). -->
     <style name="Theme.Wichtly.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon</item>

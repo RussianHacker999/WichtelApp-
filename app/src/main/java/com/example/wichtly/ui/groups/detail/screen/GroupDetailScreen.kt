@@ -230,7 +230,7 @@ private fun GroupDetailContent(
             PageHeader(
                 eyebrow = stringResource(R.string.common_group),
                 title = group.name,
-                // 3. Stammdaten der Gruppe: Wichteltag und Wichtelart als Zeile im Seitenkopf
+                // Teil des Seitenkopfs: Stammdaten der Gruppe (Wichteltag und Wichtelart) als Zeile
                 // (das Budget steht in den Kennzahlen darunter, "Gruppe bearbeiten" im ⋮-Menü der Top-Leiste)
                 meta = {
                     MetaRow(
@@ -257,7 +257,7 @@ private fun GroupDetailContent(
             }
         }
 
-        // 4. Kopfbereich des Teilnehmer-Abschnitts
+        // 3. Kopfbereich des Teilnehmer-Abschnitts
         // Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
         item {
             SectionHeader(
@@ -266,7 +266,7 @@ private fun GroupDetailContent(
                 action = { SectionActionButton(text = stringResource(R.string.group_detail_add), onClick = onAddParticipantClick) },
             )
         }
-        // 5. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
+        // 4. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
         if (participants.isEmpty()) {
             item {
                 // Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
@@ -306,7 +306,7 @@ private fun GroupDetailContent(
             }
         }
 
-        // 7. Historie-Abschnitt (gelost wird nur über "Losen" in der Aktionsleiste)
+        // 5. Historie-Abschnitt (gelost wird nur über "Losen" in der Aktionsleiste)
         item { SectionHeader(title = stringResource(R.string.group_detail_history_section)) }
         item {
             // Auslosungshistorie Karte
@@ -413,7 +413,7 @@ private fun GroupDetailScreenErrorPreview() {
 }
 
 /**
- * Preview 7: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
+ * Preview 6: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -427,7 +427,7 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
 }
 
 /**
- * Preview 8: Screen mit geöffnetem Teilnehmer-Löschdialog.
+ * Preview 7: Screen mit geöffnetem Teilnehmer-Löschdialog.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -441,7 +441,7 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
 }
 
 /**
- * Preview 6: Inhalt mit 12 Teilnehmern.
+ * Preview 8: Inhalt mit 12 Teilnehmern.
  */
 @Preview(showBackground = true, heightDp = 1600)
 @Composable

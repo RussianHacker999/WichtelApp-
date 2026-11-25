@@ -35,10 +35,11 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Page header below the top bar: optional eyebrow, large serif title with hard shadow,
- * optional subtitle and an optional [meta] row. Gold sparkles are scattered on the right.
+ * Seitenkopf unter der Top-Leiste: optionale Eyebrow, großer Serifentitel mit hartem Schatten,
+ * optionaler Untertitel und optionale [meta]-Zeile. Rechts werden goldene Sternchen verteilt.
  *
- * Without an eyebrow the same space stays empty, so the title sits at the same height on every screen.
+ * Ohne Eyebrow hält ein Platzhalter (14 dp) etwa denselben Raum frei, damit der Titel auf allen Screens
+ * ungefähr auf derselben Höhe steht.
  */
 @Composable
 fun PageHeader(
@@ -69,7 +70,7 @@ fun PageHeader(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            // the right strip stays free for the sparkles (see headerSparkles)
+            // der rechte Streifen bleibt für die Sternchen frei (siehe headerSparkles)
             modifier = Modifier.padding(end = SparkleStripWidth),
         )
         if (subtitle != null) {
@@ -83,10 +84,10 @@ fun PageHeader(
     }
 }
 
-/** One entry of a [MetaRow]: an icon followed by a short text. */
+/** Ein Eintrag einer [MetaRow]: ein Icon, gefolgt von einem kurzen Text. */
 data class MetaItem(val icon: ImageVector, val text: String)
 
-/** Small row of icon + text pairs (e.g. date and draw type). Wraps instead of running off screen. */
+/** Kleine Zeile aus Icon-Text-Paaren (z. B. Datum und Wichtelart). Bricht um, statt über den Rand zu laufen. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
@@ -115,11 +116,12 @@ fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
 }
 
 /**
- * Section title with the item count as a gold badge right next to it.
- * The top padding creates the 24dp gap between sections.
+ * Abschnittstitel mit der Anzahl der Einträge als goldenes Badge direkt daneben.
+ * Der obere Innenabstand (12 dp) ergibt zusammen mit dem Listenabstand der LazyColumn
+ * ([com.example.wichtly.ui.theme.Spacing.cardGap], 12 dp) die 24 dp Abstand zwischen Abschnitten.
  *
- * @param action Optional action on the right edge (e.g. [SectionActionButton] "Hinzufügen"),
- *   so adding something sits right next to the list it changes.
+ * @param action Optionale Aktion am rechten Rand (z. B. [SectionActionButton] „Hinzufügen“),
+ *   damit das Hinzufügen direkt neben der Liste sitzt, die es verändert.
  */
 @Composable
 fun SectionHeader(

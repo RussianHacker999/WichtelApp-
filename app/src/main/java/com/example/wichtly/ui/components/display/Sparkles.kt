@@ -23,10 +23,10 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import kotlin.random.Random
 
 /**
- * Draws one four-pointed sparkle (the gold "Sternchen") centered at [center].
+ * Zeichnet ein vierzackiges Sternchen (das goldene „Sternchen“) mit Mittelpunkt [center].
  *
- * @param radius Half of the sparkle's width in pixels.
- * @param withRays Adds a smaller, 45° rotated sparkle behind it (an eight-pointed variant).
+ * @param radius Halbe Breite des Sternchens in Pixeln.
+ * @param withRays Legt ein kleineres, um 45° gedrehtes Sternchen dahinter (achtzackige Variante).
  */
 fun DrawScope.drawSparkle(
     center: Offset,
@@ -46,7 +46,7 @@ fun DrawScope.drawSparkle(
     }
 }
 
-/** Same curve as the mockup: M12 0 C13 7 17 11 24 12 ... on a 24×24 grid. */
+/** Dieselbe Kurve wie im Mockup: M12 0 C13 7 17 11 24 12 … auf einem 24×24-Raster. */
 private fun sparklePath(center: Offset, radius: Float): Path {
     val s = radius / 12f
     val x0 = center.x - radius
@@ -63,15 +63,16 @@ private fun sparklePath(center: Offset, radius: Float): Path {
     }
 }
 
-/** Width of the strip on the right of a header that is kept free for the sparkles. */
+/** Breite des Streifens rechts im Seitenkopf, der für die Sternchen frei bleibt. */
 val SparkleStripWidth: Dp = 64.dp
 
 /**
- * Scatters 1–3 sparkles in the upper right strip ([SparkleStripWidth]) of the element, like in the mockup.
- * Every sparkle stays fully inside the element, so the top bar can never cover it and it never
- * runs into the title (the title keeps the strip free with its end padding).
- * The layout comes from [seed], so the same title always gets the same sparkles,
- * but two different titles never look alike.
+ * Verteilt 1–3 Sternchen im oberen rechten Streifen ([SparkleStripWidth]) des Elements, wie im Mockup,
+ * und mit 35 % Wahrscheinlichkeit ein weiteres kleines Sternchen unten rechts (insgesamt also 1–4).
+ * Jedes Sternchen liegt vollständig im Element, damit die Top-Leiste es nie verdeckt und es nie in den
+ * Titel ragt (der Titel hält den Streifen mit seinem rechten Innenabstand frei).
+ * Die Anordnung ergibt sich aus [seed]: derselbe Titel bekommt immer dieselben Sternchen, verschiedene
+ * Titel sehen in der Regel unterschiedlich aus (gleiche Hashwerte ergäben dasselbe Muster).
  */
 fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = OnGoldContainer): Modifier =
     drawWithContent {
@@ -86,7 +87,7 @@ fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = O
             val radius = sizeDp.dp.toPx() / 2f
             // Zu schmales Element: kein Platz für den Funkel, coerceIn würde sonst mit leerem Bereich abstürzen
             if (size.width < 2 * radius) return@repeat
-            // x and y are clamped so the whole sparkle lies inside the element
+            // x und y werden begrenzt, damit das ganze Sternchen im Element liegt
             val x = (stripStart + (size.width - stripStart) * between(0.15f, 0.85f))
                 .coerceIn(radius, size.width - radius)
             val y = (if (big) between(2f, 14f) else between(0f, 30f)).dp.toPx() + radius
@@ -115,7 +116,7 @@ fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = O
     }
 
 /**
- * Scatters 1–3 sparkles over the middle of an area (used on the colored group cards).
+ * Verteilt 1–3 Sternchen über die Mitte einer Fläche (verwendet auf den farbigen Gruppenkarten ohne Foto).
  */
 fun Modifier.areaSparkles(seed: Int, color: Color = Color.White): Modifier =
     drawWithContent {
@@ -136,7 +137,7 @@ fun Modifier.areaSparkles(seed: Int, color: Color = Color.White): Modifier =
         }
     }
 
-/** A single standalone sparkle, e.g. next to the "Wichtly" brand text. */
+/** Ein einzelnes, frei platziertes Sternchen, z. B. neben dem Schriftzug „Wichtly“. */
 @Composable
 fun Sparkle(
     size: Dp,

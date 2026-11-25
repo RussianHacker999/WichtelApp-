@@ -92,7 +92,7 @@ fun GroupsScreen(
     modifier: Modifier = Modifier,
 ) {
     WichtlyScaffold(
-        // WichtlyScaffold ist das gemeinsame Geruest jedes Screens (Top-Leiste, Inhalt, Aktionsleiste unten)
+        // WichtlyScaffold ist das gemeinsame Gerüst aller Screens außer der Startseite (Top-Leiste, Inhalt, Aktionsleiste unten)
         modifier = modifier,
         topBar = { BrandTopBar() },
         bottomBar = {
@@ -170,12 +170,12 @@ fun GroupsScreen(
                     )
                 }
                 items(state.groups, key = { it.id }) { group ->
-                    // fuer jede Gruppe in state.groups wird eine HeroGroupCard erstellt
+                    // für jede Gruppe in state.groups wird eine HeroGroupCard erstellt
                     HeroGroupCard(
                         group = group,
-                        // holt den Pfad des Gruppenbildes aus dem UiState (null, wenn kein Foto hinterlegt ist)
+                        // holt die Fotodatei der Gruppe aus dem UiState (null, wenn kein Foto hinterlegt ist oder die Datei fehlt)
                         photoFile = state.photoFiles[group.id],
-                        // die ausgewaehlte Karte bekommt einen goldenen Rahmen und ein Haekchen
+                        // die ausgewählte Karte bekommt einen goldenen Rahmen und ein Häkchen
                         selected = state.selectedGroupId == group.id,
                         onClick = { onGroupClick(group.id) },
                         onDetailsClick = { onDetailsClick(group.id) },
@@ -189,7 +189,7 @@ fun GroupsScreen(
 
 // Das Gruppenfoto wird nicht mehr in der Liste aufgenommen. Auswahl (Foto aufnehmen / entfernen),
 // Kamera-Abfrage und der Hinweis bei abgelehntem Kamerazugriff laufen jetzt im Gruppenformular
-// (GroupFormScreen) ueber PhotoCaptureFlow, genau wie beim Teilnehmerfoto.
+// (GroupFormScreen) über PhotoCaptureFlow, genau wie beim Teilnehmerfoto.
 
 /**
  * Gruppenkarte mit farbigem Bildbereich (Gruppenfoto oder Verlauf mit Sternchen),
@@ -213,8 +213,8 @@ private fun HeroGroupCard(
             .fillMaxWidth()
             .then(if (selected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.primary), shape) else Modifier),
         shape = shape,
-        // Hintergrundfarbe fuer die Karten bestimmen
-        // Material 3 bietet verschiedene Frabrschemata an (Vorteil: automatische anpassung an hell und dunkelModus)
+        // Hintergrundfarbe der Karte aus dem Farbschema (surfaceContainer) statt als feste Farbe im Code.
+        // Die App hat nur das eine dunkle Evergreen-Schema; so sehen alle Karten gleich aus und Farben ändert man an einer Stelle.
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(
@@ -222,20 +222,20 @@ private fun HeroGroupCard(
                 .fillMaxWidth()
                 .height(92.dp),
         ) {
-            // wenn ein Pfad zum zum Gruppenbild dieser Gruppe hinterlegt ist,
+            // wenn die Fotodatei dieser Gruppe existiert,
             // dann zeige das Bild an
             if (photoFile != null) {
                 // PhotoThumbnail ist ein verkleinertes Bild des Originalbildes
-                // es fuellt den oberen Bildbereich der Karte komplett aus
+                // es füllt den oberen Bildbereich der Karte komplett aus
                 PhotoThumbnail(
                     // Pfad zum Foto
                     file = photoFile,
-                    // Groesse des Fotos: ganzer Bildbereich
+                    // Größe des Fotos: ganzer Bildbereich
                     modifier = Modifier.fillMaxSize(),
                     // Form des Fotos: eckig, die runden Ecken entstehen durch die Karte
                     shape = RectangleShape,
                 )
-            // Wenn kein Fotopfad hinterlegt wurde, werden ein Farbverlauf mit Sternchen und die Initialen angezeigt
+            // Ohne Fotodatei (kein Foto hinterlegt oder Datei fehlt) werden ein Farbverlauf mit Sternchen und die Initialen angezeigt
             } else {
                 Box(
                     modifier = Modifier
@@ -294,7 +294,7 @@ private fun HeroGroupCard(
             ListItemText(
                 title = group.name,
                 subtitle = stringResource(R.string.groups_card_subtitle, formatCentsForInput(group.budgetCents), stringResource(group.drawType.labelRes())),
-                //weight(1f) sorgt dafuer, dass der Text den gesamten Platz einnimmt, der zur Verfuegung steht
+                // weight(1f) sorgt dafür, dass der Text den gesamten Platz einnimmt, der zur Verfügung steht
                 // den Abstand zum Kartenrand gibt das padding der Row
                 modifier = Modifier.weight(1f),
             )
@@ -309,10 +309,8 @@ private fun HeroGroupCard(
     }
 }
 
-//Methode um den Screen als Vorschau anschauen zukoennen,
-//ohne den Emulator und die App laufen zu lassen
-//oeffen:   im Editor - da wo am die geoeffeneten Dateien wecheln kann
-//          Code | Spilt | Design -> Waehle Split aus
+// Previews: zeigen den Screen als Vorschau in Android Studio, ohne Emulator und ohne die App zu starten.
+// Öffnen: im Editor oben rechts zwischen Code | Split | Design umschalten und Split oder Design wählen.
 @Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun GroupsScreenPreview() {

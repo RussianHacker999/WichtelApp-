@@ -63,7 +63,7 @@ fun PhotoThumbnail(
                     val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeFile(file.absolutePath, options)
 
-                    // 2. inSampleSize für Downsampling auf ca. 160dp / 300px berechnen
+                    // 2. inSampleSize berechnen: so oft halbieren, wie beide Seiten danach noch mindestens 300 px haben
                     val targetSize = 300
                     var sampleSize = 1
                     while (options.outWidth / (sampleSize * 2) >= targetSize &&
@@ -121,7 +121,7 @@ fun PhotoThumbnail(
 
 /**
  * Liest die EXIF-Ausrichtung der Datei und dreht das [Bitmap] bei Bedarf speicherschonend.
- * Altes Zwischen-Bitmap wird recycelt, falls ein neues roteriertes Bitmap erzeugt wurde.
+ * Altes Zwischen-Bitmap wird recycelt, falls ein neues rotiertes Bitmap erzeugt wurde.
  */
 private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
     return try {

@@ -24,10 +24,10 @@ import com.example.wichtly.ui.components.photo.PhotoThumbnail
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
-/** Default avatar size inside list cards. */
+/** Standardgröße eines Avatars in Listenkarten. */
 val AvatarSize = 42.dp
 
-/** Initials for an avatar: first letters of the first two words ("Anna Ludwig" → "AL"). */
+/** Initialen für einen Avatar: Anfangsbuchstaben der ersten beiden Wörter („Anna Ludwig“ → „AL“), ohne Namen „?“. */
 fun initialsOf(name: String?): String {
     val parts = name.orEmpty().trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
     return when {
@@ -48,7 +48,7 @@ private fun AvatarCircle(size: Dp, modifier: Modifier, content: @Composable () -
     ) { content() }
 }
 
-/** Round avatar: the photo if there is one, otherwise the initials of [name]. */
+/** Runder Avatar: das Foto, falls vorhanden, sonst die Initialen von [name]. */
 @Composable
 fun InitialsAvatar(
     name: String?,
@@ -69,7 +69,7 @@ fun InitialsAvatar(
     }
 }
 
-/** Round avatar showing a position number (wishes, givers). */
+/** Runder Avatar mit einer Positionsnummer (Wünsche, Schenker einer Auslosung). */
 @Composable
 fun NumberAvatar(number: Int, modifier: Modifier = Modifier, size: Dp = AvatarSize) {
     AvatarCircle(size, modifier) {
@@ -81,7 +81,7 @@ fun NumberAvatar(number: Int, modifier: Modifier = Modifier, size: Dp = AvatarSi
     }
 }
 
-/** Round avatar showing an icon (draws, history). */
+/** Runder Avatar mit einem Icon (Auslosungen, Historie). */
 @Composable
 fun IconAvatar(icon: ImageVector, modifier: Modifier = Modifier, size: Dp = AvatarSize) {
     AvatarCircle(size, modifier) {

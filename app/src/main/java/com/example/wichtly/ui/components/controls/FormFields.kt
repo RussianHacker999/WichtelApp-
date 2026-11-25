@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-/** Small label above a form field. */
+/** Kleine Beschriftung über einem Formularfeld. */
 @Composable
 fun FieldLabel(text: String, modifier: Modifier = Modifier) {
     Text(text = text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground, modifier = modifier)
@@ -47,7 +47,8 @@ internal fun limitToLength(text: String, maxLength: Int): String {
 }
 
 /**
- * Text field with its label above it. Errors replace the helper text.
+ * Textfeld mit Beschriftung darüber. Ein Fehlertext ersetzt den Hilfetext; mit [maxLength] erscheint
+ * zusätzlich ein Zeichenzähler.
  */
 @Composable
 fun WichtlyTextField(
@@ -105,7 +106,7 @@ fun WichtlyTextField(
     }
 }
 
-/** Full-width option card with a radio button (e.g. Wichtelart). */
+/** Auswahlkarte über die volle Breite mit Radiobutton (z. B. Wichtelart). */
 @Composable
 fun ChoiceCard(
     title: String,
@@ -150,7 +151,7 @@ fun ChoiceCard(
 }
 
 /**
- * Inline hint with an icon, a text and an optional action link (e.g. camera access denied).
+ * Hinweisleiste mit Icon, Text und optionalem Aktions-Link (z. B. Kamerazugriff abgelehnt).
  */
 @Composable
 fun HintBar(

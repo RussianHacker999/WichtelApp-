@@ -5,12 +5,13 @@ import androidx.compose.material3.Shapes
 import androidx.compose.ui.unit.dp
 
 /**
- * Corner radii of the whole app.
- * - small: chips, small tiles
- * - medium: text fields, option cards, menus
- * - large: every card (24dp)
- * - extraLarge: dialogs
- * Buttons are pills ([androidx.compose.foundation.shape.CircleShape]).
+ * Eckenradien der ganzen App.
+ * - extraSmall (8 dp): kleinste Elemente
+ * - small (12 dp): Chips, kleine Kacheln
+ * - medium (16 dp): Textfelder, Auswahlkarten, Menüs
+ * - large (24 dp): alle Karten
+ * - extraLarge (28 dp): Dialoge
+ * Buttons sind Pillen ([androidx.compose.foundation.shape.CircleShape]).
  */
 val WichtlyShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),

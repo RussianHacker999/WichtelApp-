@@ -5,8 +5,9 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.validation.ParticipantValidationError
 
 /**
- * Datenklasse zur klaren Trennung von spezifischen Feldfehlern (für den Dialog)
- * und allgemeinen Fehlern (auf Screen-Ebene).
+ * Datenklasse zur klaren Trennung von Fehlern des Namensfeldes und allgemeinen Fehlern
+ * (Teilnehmer oder Gruppe nicht mehr vorhanden). Das GroupDetailViewModel zeigt beide im Editor-Dialog
+ * am Namensfeld an; ein Feldfehler hat Vorrang.
  *
  * @property nameError Spezifische Fehlermeldung für das Namenseingabefeld im Dialog.
  * @property generalError Allgemeine Fehlermeldung (z. B. "Teilnehmer nicht gefunden").

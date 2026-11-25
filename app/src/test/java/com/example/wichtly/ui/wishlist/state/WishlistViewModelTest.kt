@@ -382,7 +382,7 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         val items = viewModel.uiState.value.items
-        assertEquals(3, items.size) // w1 (0), w3 (2), new (3)
+        assertEquals(3, items.size) // w1 (0), w3 (2), neu (3)
         val newItem = items.find { it.text == "Neuer Wunsch 4" }
         assertNotNull(newItem)
         assertEquals(3, newItem?.sortOrder) // Höchstes sortOrder (2) + 1 = 3

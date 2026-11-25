@@ -221,7 +221,7 @@ fun CameraCaptureScreen(
         ) {}
     }
 
-    // Beim Verlassen der Screen die Kamera unbinden
+    // Beim Verlassen des Screens die Kamera freigeben (unbindAll)
     DisposableEffect(lifecycleOwner) {
         onDispose {
             isDisposed[0] = true

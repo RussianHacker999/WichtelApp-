@@ -32,8 +32,9 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * The one list card of the app (groups, participants, wishes, draws):
- * leading avatar, title + subtitle, trailing chip or menu.
+ * Die einheitliche Listenkarte der App (Teilnehmer, Wünsche, Zuordnungen einer Auslosung, Historie,
+ * Vorbereitung); Gruppen haben eine eigene Karte (HeroGroupCard in GroupsScreen):
+ * Avatar links, Titel und Untertitel, rechts Chip, Button oder ⋮-Menü.
  */
 @Composable
 fun ListItemCard(
@@ -74,7 +75,7 @@ fun ListItemCard(
     }
 }
 
-/** Title + optional subtitle as used inside [ListItemCard] and the hero group card. */
+/** Titel und optionaler Untertitel, wie in [ListItemCard] und der Gruppenkarte (HeroGroupCard) verwendet. */
 @Composable
 fun ListItemText(title: String, subtitle: String?, titleMaxLines: Int = 1, modifier: Modifier = Modifier) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -97,7 +98,7 @@ fun ListItemText(title: String, subtitle: String?, titleMaxLines: Int = 1, modif
     }
 }
 
-/** Trailing chevron for cards that open another screen. */
+/** Pfeil am rechten Rand für Karten, die einen anderen Screen öffnen. */
 @Composable
 fun ChevronIcon() {
     Icon(
@@ -108,7 +109,7 @@ fun ChevronIcon() {
     )
 }
 
-/** Small number tile (e.g. "6 Teilnehmer", "25,00 € Budget pro Geschenk"). */
+/** Kleine Kennzahl-Kachel (z. B. „6 Teilnehmer“, „25,00 € Budget pro Geschenk“). */
 @Composable
 fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     Card(
@@ -123,7 +124,7 @@ fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Outlined hint card with an icon, used for short explanations at the end of a screen. */
+/** Umrandete Hinweiskarte mit Icon für kurze Erklärungen, z. B. am Ende eines Screens. */
 @Composable
 fun NoteCard(text: String, modifier: Modifier = Modifier, icon: ImageVector = Icons.Outlined.Info) {
     Row(
@@ -143,7 +144,7 @@ fun NoteCard(text: String, modifier: Modifier = Modifier, icon: ImageVector = Ic
     }
 }
 
-/** Card with label/value rows (e.g. the summary before the draw). */
+/** Karte mit Zeilen aus Bezeichnung und Wert (z. B. die Übersicht vor der Auslosung). */
 @Composable
 fun InfoRowsCard(rows: List<Pair<String, String>>, modifier: Modifier = Modifier) {
     Card(

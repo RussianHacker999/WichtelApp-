@@ -23,7 +23,8 @@ import java.time.ZoneId
  *
  * Verifiziert das reaktive Laden der Wichtelgruppe und der Auslosungshistorie,
  * die korrekte absteigende Sortierung (neueste zuerst), das Mapping von Summary-Daten
- * (inkl. Zeitzonen-unabhängiger Datumsberechnung), das Verhalten bei leerer Historie,
+ * (Datum und Uhrzeit in der Zeitzone des Geräts; der Test berechnet den Erwartungswert genauso und läuft
+ * deshalb in jeder Zeitzone), das Verhalten bei leerer Historie,
  * unbekannter Gruppe sowie Ladefehlern und reaktiven Updates.
  */
 class DrawHistoryViewModelTest {

@@ -29,7 +29,8 @@ private enum class PhotoFlowStep {
 }
 
 /**
- * Zustandsloser Ablauf-Baustein (Composer) für den gesamten Foto-Aufnahme- und Berechtigungs-Workflow.
+ * Ablauf-Baustein für den gesamten Foto-Aufnahme- und Berechtigungs-Workflow. Ob er offen ist, steuert der
+ * Aufrufer ([isOpen]); selbst merkt er sich nur den aktuellen Schritt.
  *
  * Architektur- & Design-Hinweise:
  * - Steuert den internen Ablauf (Quell-Auswahl -> Aufklärungsdialog -> Systemberechtigung -> Kameravorschau)

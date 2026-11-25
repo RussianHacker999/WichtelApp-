@@ -53,8 +53,9 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(Spacing.xs))
     }
-    // Die Beschriftung wird nie abgeschnitten: autoSize verkleinert sie schrittweise bis 11sp,
-    // falls der Button schmal ist (zwei gleich breite Buttons, große Systemschrift).
+    // Damit die Beschriftung möglichst nicht abgeschnitten wird, verkleinert autoSize sie schrittweise bis 11sp,
+    // falls der Button schmal ist (zwei gleich breite Buttons, große Systemschrift). Reicht auch das nicht,
+    // wird sie mit „…“ gekürzt (TextOverflow.Ellipsis).
     val labelStyle = MaterialTheme.typography.labelLarge
     BasicText(
         text = text,
@@ -66,7 +67,7 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
     )
 }
 
-/** Gold pill button for the main action of a screen or dialog. */
+/** Goldener Pillen-Button für die Hauptaktion eines Screens oder Dialogs. */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -88,7 +89,7 @@ fun PrimaryButton(
     }
 }
 
-/** Outlined pill button for the secondary action next to [PrimaryButton]. */
+/** Umrandeter Pillen-Button für die Nebenaktion neben dem [PrimaryButton]. */
 @Composable
 fun SecondaryButton(
     text: String,
@@ -111,7 +112,7 @@ fun SecondaryButton(
     }
 }
 
-/** Red pill button for confirming a delete. */
+/** Roter Pillen-Button zum Bestätigen eines Löschvorgangs. */
 @Composable
 fun DangerButton(
     text: String,
@@ -136,7 +137,7 @@ fun DangerButton(
     }
 }
 
-/** Gold text button, used for "Abbrechen" in dialogs and for inline links. */
+/** Goldener Text-Button, z. B. für „Abbrechen“ in Dialogen und für Links im Text. */
 @Composable
 fun WichtlyTextButton(
     text: String,
@@ -157,8 +158,8 @@ fun WichtlyTextButton(
 }
 
 /**
- * Small gold outlined pill for an action that belongs to a section (e.g. "+ Hinzufügen" next to
- * the participant list). Keeps the bottom bar free for the one main action of the screen.
+ * Kleine, gold umrandete Pille für eine Aktion, die zu einem Abschnitt gehört (z. B. „+ Hinzufügen“ neben
+ * der Teilnehmerliste). Hält die Aktionsleiste unten frei für die eine Hauptaktion des Screens.
  */
 @Composable
 fun SectionActionButton(

@@ -4,7 +4,7 @@ import java.time.LocalDate
 
 /**
  * Fachliche Regeln für die Auslosung, an EINER Stelle definiert.
- * Algorithmus, Repository, ViewModels und Screens lesen die Mindestzahl von hier,
+ * Algorithmus, PerformDrawUseCase, ViewModels und Screens lesen die Mindestzahl von hier,
  * damit sie überall gleich ist.
  */
 object DrawRules {

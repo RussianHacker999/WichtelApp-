@@ -168,7 +168,7 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 }
 
 /**
- * Preview 2: Historie mit genau einem gespeicherten Durchlauf (Einzahl).
+ * Preview 2: Historie mit genau einem gespeicherten Durchlauf (der Zähler zeigt 1).
  */
 @Preview(showBackground = true, heightDp = 700)
 @Composable

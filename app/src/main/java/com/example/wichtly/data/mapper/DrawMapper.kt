@@ -95,7 +95,8 @@ fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List
 
 /**
  * Lesemodell der Auslosung in das Domain-Modell. Sortiert wie die übrigen Abfragen:
- * Teilnehmer nach Name (ohne Groß-/Kleinschreibung), Wünsche nach sortOrder.
+ * Teilnehmer nach Name (ohne Groß-/Kleinschreibung), Wünsche nach sortOrder. Anders als COLLATE NOCASE
+ * in den DAO-Abfragen berücksichtigt lowercase() auch Umlaute; die Reihenfolge kann sich dort minimal unterscheiden.
  */
 fun GiftGroupWithParticipants.toDomainModel(): DrawSource = DrawSource(
     group = group.toDomainModel(),

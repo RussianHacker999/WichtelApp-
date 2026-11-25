@@ -21,7 +21,7 @@ import java.io.File
  * @property generalError Allgemeine Fehlermeldung auf Formular-Ebene (z. B. "Gruppe nicht gefunden").
  * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
  * @property savedGroupId Einmal-Ereignis: ID der gespeicherten Gruppe; die Route navigiert und quittiert
- *   mit onSavedHandled()..
+ *   mit onSavedHandled().
  * @property photoPath Relativer Pfad des Gruppenfotos im Formular (null = kein Foto). Wird erst beim Speichern übernommen.
  * @property photoFile Aufgelöste Bilddatei zur Vorschau im Fotofeld.
  * @property isPhotoFlowOpen Steuert den Foto-Ablauf (Quelle → Berechtigung → Kamera).

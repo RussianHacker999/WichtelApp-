@@ -8,31 +8,33 @@ import java.io.File
 import java.time.Instant
 
 /**
- * Domain repository interface for photo storage and resolution operations.
+ * Repository für Fotodateien: speichern, auflösen, löschen und auflisten.
  */
 interface PhotoRepository {
     /**
-     * Resolves a relative photo path (e.g. "photos/groups/groups_123.jpg") to an absolute File
-     * in private internal storage. Returns null if relativePath is null/blank or file does not exist.
-     * Suspends because it touches the file system; implementations switch to an I/O thread.
+     * Löst einen relativen Fotopfad (z. B. "photos/groups/groups_123.jpg") in eine Datei im privaten
+     * internen Speicher auf. Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt
+     * oder die Datei nicht existiert.
+     * suspend, weil auf das Dateisystem zugegriffen wird; Implementierungen wechseln auf einen I/O-Thread.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File?
 
     /**
-     * Copies/saves a temporary captured photo file into private internal storage
+     * Verschiebt (notfalls kopiert) eine temporär aufgenommene Fotodatei in den privaten internen Speicher
      * ("photos/<ownerType.value>/<ownerType.value>_<uuid>.jpg")
-     * and returns the relative path string (e.g. "photos/groups/groups_uuid.jpg").
+     * und liefert den relativen Pfad (z. B. "photos/groups/groups_uuid.jpg").
      */
     suspend fun savePhoto(sourceFile: File, ownerType: PhotoOwnerType): String
 
     /**
-     * Removes a photo file from internal storage when deleted or replaced.
+     * Löscht eine Fotodatei aus dem internen Speicher (beim Löschen oder Ersetzen eines Fotos).
+     * Pfade außerhalb des Fotoordners werden ignoriert. Aufrufer verwenden [deletePhotoQuietly].
      */
     suspend fun deletePhoto(relativePath: String?)
 
     /**
-     * Relative paths of all stored photos last modified before [olderThan].
-     * Used by: CleanUpOrphanPhotosUseCase.
+     * Relative Pfade aller gespeicherten Fotos, die zuletzt vor [olderThan] geändert wurden.
+     * Verwendet von: CleanUpOrphanPhotosUseCase.
      */
     suspend fun listPhotoPaths(olderThan: Instant): List<String>
 }

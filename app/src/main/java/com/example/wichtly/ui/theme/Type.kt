@@ -11,12 +11,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.wichtly.R
 
-/** Headline font: Young Serif (one weight). Used for display, headline and titleLarge. */
+/** Überschriften-Schrift: Young Serif (eine Strichstärke). Für display-, headline- und titleLarge-Stile. */
 val YoungSerif = FontFamily(
     Font(R.font.young_serif_regular, FontWeight.Normal),
 )
 
-/** Text font: Instrument Sans (variable font, weight axis 400 to 700). Used for everything else. */
+/** Text-Schrift: Instrument Sans (variable Schrift, hier mit den Gewichten 400 bis 700 genutzt). Für alle übrigen Stile. */
 val InstrumentSans = FontFamily(
     instrumentSans(FontWeight.Normal),
     instrumentSans(FontWeight.Medium),
@@ -30,7 +30,7 @@ private fun instrumentSans(weight: FontWeight) = Font(
     variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
 )
 
-/** Hard, dark offset shadow behind every Young Serif title. */
+/** Harter, dunkler, versetzter Schatten hinter jedem Young-Serif-Titel. */
 val TitleShadow = Shadow(
     color = PineShadow,
     offset = Offset(4f, 6f),

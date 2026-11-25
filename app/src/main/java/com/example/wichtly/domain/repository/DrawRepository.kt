@@ -6,32 +6,32 @@ import com.example.wichtly.domain.model.draw.DrawSummary
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Repository interface for managing Secret Santa draw executions and immutable draw snapshots.
+ * Repository für durchgeführte Auslosungen und ihre unveränderlichen Snapshots.
  */
 interface DrawRepository {
 
     /**
-     * Observes all draw summaries for a given group, ordered newest to oldest.
-     * Used by: DrawHistory Screen.
+     * Beobachtet die Kurzfassungen aller Auslosungen einer Gruppe, neueste zuerst.
+     * Verwendet von: Historie (DrawHistoryViewModel).
      */
     fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>>
 
     /**
-     * Observes full details of a specific draw by ID (including assignments and snapshot wishlists).
-     * Used by: DrawDetail Screen.
+     * Beobachtet eine Auslosung vollständig (inklusive Zuordnungen und Wunsch-Snapshots).
+     * Verwendet von: Auslosungsdetail (DrawDetailViewModel).
      */
     fun observeDrawDetailById(drawId: String): Flow<DrawDetail?>
 
     /**
-     * Loads the group with all participants and their wishlists in one transaction, or null if the
-     * group does not exist. Used by: PerformDrawUseCase.
+     * Lädt die Gruppe mit allen Teilnehmern und deren Wunschlisten in einer Transaktion; null, wenn es die
+     * Gruppe nicht gibt. Verwendet von: PerformDrawUseCase.
      */
     suspend fun getDrawSource(groupId: String): DrawSource?
 
     /**
-     * Persists a complete, already validated draw (draw, assignments and wishlist snapshots)
-     * atomically as an immutable snapshot.
-     * Used by: PerformDrawUseCase.
+     * Speichert eine vollständige, bereits geprüfte Auslosung (Auslosung, Zuordnungen und Wunsch-Snapshots)
+     * atomar als unveränderlichen Snapshot.
+     * Verwendet von: PerformDrawUseCase.
      */
     suspend fun insertDraw(draw: DrawDetail)
 }

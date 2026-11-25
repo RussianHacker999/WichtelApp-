@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
  * Ein In-Memory-Fake für [WishlistRepository] zu Testzwecken.
  *
  * Reine Persistenz wie das echte Repository (geprüft wird im SaveWishlistItemUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lese-Flows sowie Zähler für Schreibzugriffe
+ * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lesezugriffe (Flows und get…-Methoden) sowie Zähler für Schreibzugriffe
  * und Hilfsmethoden zum direkten Befüllen von Wunschlisten-Einträgen.
  */
 class FakeWishlistRepository : WishlistRepository {

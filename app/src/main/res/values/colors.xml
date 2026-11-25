@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Only colors that Android reads before Compose runs (launcher icon, splash screen, window).
-    All app colors live in ui/theme/Color.kt; do not add Compose colors here.
+    Nur Farben, die Android liest, bevor Compose läuft (Launcher-Icon, Splashscreen, Fenster).
+    Alle App-Farben stehen in ui/theme/Color.kt; hier keine Compose-Farben ergänzen.
 -->
 <resources>
-    <!-- Cream from the app logo -->
+    <!-- Cremeweiß aus dem App-Logo -->
     <color name="ic_launcher_background">#FFFBF5E8</color>
     <color name="splash_background">@color/ic_launcher_background</color>
 
-    <!-- Same as Pine900 in Color.kt, avoids a white flash before Compose draws -->
+    <!-- Gleich wie Pine900 in Color.kt; verhindert ein weißes Aufblitzen, bevor Compose zeichnet -->
     <color name="window_background">#FF0E2A22</color>
 </resources>

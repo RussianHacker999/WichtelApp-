@@ -13,7 +13,7 @@ import java.util.UUID
 private const val TAG = "LocalPhotoStorageManager"
 
 /**
- * Handles private internal storage operations for photos in `filesDir/photos/groups/` and `filesDir/photos/participants/`.
+ * Verwaltet Fotodateien im privaten internen Speicher unter `filesDir/photos/groups/` und `filesDir/photos/participants/`.
  */
 class LocalPhotoStorageManager(
     private val filesDir: File,
@@ -47,8 +47,8 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Resolves a relative path string (e.g. "photos/groups/groups_123.jpg") to an absolute File.
-     * Returns null if relativePath is null, blank, outside the photos folder or points to a non-existent file.
+     * Löst einen relativen Pfad (z. B. "photos/groups/groups_123.jpg") in eine absolute Datei auf.
+     * Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt oder auf keine vorhandene Datei zeigt.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File? = withContext(Dispatchers.IO) {
         val file = resolveInsidePhotos(relativePath)
@@ -56,7 +56,7 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Relative paths of all photo files whose last modification is before [olderThan].
+     * Relative Pfade aller Fotodateien, deren letzte Änderung vor [olderThan] liegt.
      */
     suspend fun listPhotoPaths(olderThan: Instant): List<String> = withContext(Dispatchers.IO) {
         PhotoOwnerType.entries.flatMap { ownerType ->
@@ -68,9 +68,10 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Moves a temporary source photo file into private internal storage ("photos/<value>/<value>_<uuid>.jpg")
-     * and returns the relative path string (e.g. "photos/groups/groups_abc123.jpg").
-     * Moving (renameTo) avoids a second copy of the image; it falls back to copying when moving fails.
+     * Verschiebt eine temporäre Fotodatei in den privaten internen Speicher ("photos/<value>/<value>_<uuid>.jpg")
+     * und liefert den relativen Pfad (z. B. "photos/groups/groups_abc123.jpg").
+     * Verschieben (renameTo) vermeidet eine zweite Kopie des Bildes; scheitert es, wird stattdessen kopiert
+     * (die Quelldatei löscht dann der Aufrufer).
      */
     suspend fun savePhotoFile(sourceFile: File, ownerType: PhotoOwnerType): String = withContext(Dispatchers.IO) {
         if (!sourceFile.exists()) {
@@ -88,7 +89,7 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Removes a photo file from internal storage if it exists.
+     * Löscht eine Fotodatei aus dem internen Speicher, falls sie existiert und im Fotoordner liegt.
      */
     suspend fun deletePhotoFile(relativePath: String?) {
         withContext(Dispatchers.IO) {

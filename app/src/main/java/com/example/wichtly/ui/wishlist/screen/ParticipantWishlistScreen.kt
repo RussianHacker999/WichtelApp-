@@ -53,7 +53,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  *     mit Avatar (Initialen).
  *   - Nummernfelder (1, 2, ...) neben jedem Wunsch; Bearbeiten und Löschen im ⋮-Menü der Karte.
  *   - Leerer Zustand zeigt einen Hinweis (MessageState) innerhalb der Liste.
- *   - Hinweisfeld am Ende der Liste, "Wunsch hinzufügen" fest in der Aktionsleiste unten.
+ *   - "Wunsch hinzufügen" steht fest in der Aktionsleiste unten.
  *
  * @param state Der aktuelle UI-Zustand des Bildschirms.
  * @param onBack Callback für die Zurück-Navigation.
@@ -328,7 +328,7 @@ private fun ParticipantWishlistScreenWithDeleteDialogPreview() {
 }
 
 /**
- * Preview mit genau 1 Wunsch (Einzahl "1 Wunsch", "1 Eintrag").
+ * Preview mit genau 1 Wunsch (der Zähler im Abschnittskopf zeigt 1).
  */
 @Preview(showBackground = true, heightDp = 800)
 @Composable

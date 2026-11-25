@@ -17,7 +17,7 @@ import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
  * Zustandstragende (stateful) Route-Komponente für die Gruppen-Detailansicht.
  *
  * @param groupId Die eindeutige ID der anzuzeigenden Wichtelgruppe.
- * @param onBack Callback für die Zurück-Navigation zur Gruppenübersicht.
+ * @param onBack Callback für die Zurück-Navigation zum vorherigen Screen (meist Gruppenliste oder Startseite).
  * @param onEditGroup Callback zum Navigieren zum Formular für die Gruppenbearbeitung (erhält groupId).
  * @param onOpenWishlist Callback zum Navigieren zur Wunschliste eines Teilnehmers (erhält participantId).
  * @param onPrepareDraw Callback zum Öffnen der Auslosungs-Vorbereitung für diese Gruppe (erhält groupId).

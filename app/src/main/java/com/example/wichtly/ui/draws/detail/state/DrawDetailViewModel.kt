@@ -34,7 +34,8 @@ import java.time.ZoneId
 private const val TAG = "DrawDetailViewModel"
 
 /**
- * Lokaler interner Zustand für Dialoge und Ladefehler der Auslosungs-Detailansicht.
+ * Lokaler Zustand der Auslosungs-Detailansicht: welcher Geschenkanhänger gerade geöffnet ist.
+ * Ladefehler stehen nicht hier, sie kommen über asResult aus dem Flow.
  */
 private data class DrawDetailLocalState(
     val revealedGiverId: String? = null,
@@ -48,7 +49,7 @@ private data class DrawDetailLocalState(
  *   (ergänzt um den Gruppennamen aus dem [GiftGroupRepository]) und dem lokalen UI-Zustand erzeugt.
  * - [SharingStarted.WhileSubscribed(5_000)] hält den Flow bei Konfigurationsänderungen (z. B. Rotation) 5 Sekunden aktiv.
  * - Der Geschenkanhänger (Ergebnis-Popup) übersteht Bildschirmdrehungen,
- *   da ihr Zustand im ViewModel verwaltet wird.
+ *   da sein Zustand im ViewModel verwaltet wird.
  *
  * @param drawId Die ID des gespeicherten Auslosungsdurchlaufs.
  * @param drawRepository Repository für Auslosungsdaten.

@@ -9,7 +9,7 @@ import java.time.LocalDate
 
 /**
  * Unit-Tests für die Umwandlung der Formulartexte: Parsen (domain/validation/GiftGroupInputParsing.kt)
- * und Formatieren für die Anzeige (ui/groups/form/GroupFormInput.kt).
+ * und Formatieren für die Anzeige (ui/components/display/GroupFormInput.kt).
  *
  * Warum diese Tests wichtig sind:
  * Stellt sicher, dass Texteingaben für Budget und Datum korrekt geparst und formatiert werden
@@ -72,7 +72,7 @@ class GroupFormInputTest {
     // =========================================================================
 
     /**
-     * Testet das korrekte parsen eines gültigen Datums im Format dd.MM.yyyy.
+     * Testet das korrekte Parsen eines gültigen Datums im Format TT.MM.JJJJ (DRAW_DAY_INPUT_PATTERN).
      */
     @Test
     fun parseDate_validDate_returnsLocalDate() {
@@ -90,7 +90,7 @@ class GroupFormInputTest {
         // Ungültiger Kalendertag (31. Februar existiert nicht)
         assertNull(parseDate("31.02.2026"))
 
-        // Falsches Datumsformat (ISO-Format YYYY-MM-DD statt dd.MM.yyyy)
+        // Falsches Datumsformat (ISO-Format JJJJ-MM-TT statt TT.MM.JJJJ)
         assertNull(parseDate("2026-12-24"))
 
         // Leere oder ungültige Strings
