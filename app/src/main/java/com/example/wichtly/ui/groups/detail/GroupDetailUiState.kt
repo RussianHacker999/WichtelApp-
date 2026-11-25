@@ -27,6 +27,10 @@ import java.io.File
  * @property cameraDenied Zeigt an, ob der Kamerazugriff für Teilnehmerfotos abgelehnt wurde.
  * @property photoError Fehlermeldung speziell für Fehler beim Speichern/Aufnehmen des Teilnehmerfotos.
  * @property participantPhotoFiles Map von Teilnehmer-IDs auf deren aufgelöste Bilddateien (nur für Teilnehmer mit vorhandener Bilddatei).
+ * @property showGroupDeleteDialog Steuert die Sichtbarkeit des Dialogs zum Löschen der ganzen Gruppe.
+ * @property isDeletingGroup Gibt an, ob die Gruppe gerade gelöscht wird (deaktiviert die Dialog-Buttons).
+ * @property groupDeleteError Fehlermeldung, die im Gruppen-Löschdialog angezeigt wird.
+ * @property isGroupDeleted Einmal-Ereignis: Die Gruppe wurde gelöscht, die Route navigiert zurück.
  */
 data class GroupDetailUiState(
     val isLoading: Boolean = true,
@@ -47,4 +51,8 @@ data class GroupDetailUiState(
     val cameraDenied: Boolean = false,
     @StringRes val photoError: Int? = null,
     val participantPhotoFiles: Map<String, File> = emptyMap(),
+    val showGroupDeleteDialog: Boolean = false,
+    val isDeletingGroup: Boolean = false,
+    @StringRes val groupDeleteError: Int? = null,
+    val isGroupDeleted: Boolean = false,
 )

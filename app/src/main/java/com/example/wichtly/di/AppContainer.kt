@@ -14,6 +14,7 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
@@ -36,6 +37,7 @@ interface AppContainer {
     val photoRepository: PhotoRepository
 
     val saveGiftGroupUseCase: SaveGiftGroupUseCase
+    val deleteGiftGroupUseCase: DeleteGiftGroupUseCase
     val saveParticipantUseCase: SaveParticipantUseCase
     val saveWishListItemUseCase: SaveWishListItemUseCase
     val performDrawUseCase: PerformDrawUseCase
@@ -79,6 +81,13 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
         SaveGiftGroupUseCase(
             repository = giftGroupRepository,
             validator = GiftGroupValidator(),
+        )
+    }
+    override val deleteGiftGroupUseCase: DeleteGiftGroupUseCase by lazy {
+        DeleteGiftGroupUseCase(
+            giftGroupRepository = giftGroupRepository,
+            participantRepository = participantRepository,
+            photoRepository = photoRepository,
         )
     }
     override val saveParticipantUseCase: SaveParticipantUseCase by lazy {

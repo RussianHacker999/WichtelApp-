@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import kotlinx.coroutines.CancellationException
  * @param onOpenWishlist Callback zum Navigieren zur Wunschliste eines Teilnehmers (erhält participantId).
  * @param onPrepareDraw Callback zum Öffnen der Auslosungs-Vorbereitung für diese Gruppe (erhält groupId).
  * @param onOpenHistory Callback zum Öffnen der Auslosungshistorie für diese Gruppe (erhält groupId).
+ * @param onGroupDeleted Callback nach dem Löschen der Gruppe (Navigation weg von der gelöschten Gruppe).
  * @param modifier Äußerer Modifier für das Top-Level-Element.
  */
 @Composable
@@ -34,6 +36,7 @@ fun GroupDetailRoute(
     onOpenWishlist: (participantId: String) -> Unit,
     onPrepareDraw: (groupId: String) -> Unit,
     onOpenHistory: (groupId: String) -> Unit,
+    onGroupDeleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -42,19 +45,27 @@ fun GroupDetailRoute(
     val participantRepository = container.participantRepository
     val photoRepository = container.photoRepository
     val saveParticipant = container.saveParticipantUseCase
+    val deleteGiftGroup = container.deleteGiftGroupUseCase
 
-    val factory = remember(groupId, giftGroupRepository, participantRepository, photoRepository, saveParticipant) {
+    val factory = remember(groupId, giftGroupRepository, participantRepository, photoRepository, saveParticipant, deleteGiftGroup) {
         GroupDetailViewModelFactory(
             groupId = groupId,
             giftGroupRepository = giftGroupRepository,
             participantRepository = participantRepository,
             photoRepository = photoRepository,
             saveParticipant = saveParticipant,
+            deleteGiftGroup = deleteGiftGroup,
         )
     }
 
     val viewModel: GroupDetailViewModel = viewModel(key = groupId, factory = factory)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    // Nach dem Löschen genau einmal zurücknavigieren. Ein Zurücksetzen des Signals ist nicht nötig:
+    // Mit dem Verlassen des Back-Stack-Eintrags wird auch das ViewModel verworfen.
+    LaunchedEffect(state.isGroupDeleted) {
+        if (state.isGroupDeleted) onGroupDeleted()
+    }
 
     val onOpenAppSettings = {
         try {
@@ -92,6 +103,9 @@ fun GroupDetailRoute(
         onOpenAppSettings = onOpenAppSettings,
         onPrepareDraw = { onPrepareDraw(groupId) },
         onOpenHistory = { onOpenHistory(groupId) },
+        onDeleteGroupClick = viewModel::onDeleteGroupClick,
+        onConfirmGroupDelete = viewModel::onConfirmGroupDelete,
+        onDismissGroupDelete = viewModel::onDismissGroupDelete,
         modifier = modifier,
     )
 }

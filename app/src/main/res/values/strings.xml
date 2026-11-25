@@ -74,6 +74,9 @@
     <string name="group_detail_history_note">Alte Ziehungen bleiben, wie sie waren.</string>
     <string name="participant_add">Teilnehmer hinzufügen</string>
     <string name="participant_edit">Teilnehmer bearbeiten</string>
+    <string name="group_delete">Gruppe löschen</string>
+    <string name="group_delete_text">Möchtest du die Gruppe „%1$s“ wirklich löschen? Alle Teilnehmer, Wunschlisten und gespeicherten Auslosungen dieser Gruppe werden ebenfalls gelöscht.</string>
+    <string name="error_group_delete">Fehler beim Löschen der Gruppe. Bitte erneut versuchen.</string>
     <string name="participant_delete">Teilnehmer löschen</string>
     <string name="participant_delete_text">Möchtest du den Teilnehmer „%1$s“ und seine Wunschliste wirklich löschen?</string>
     <string name="participant_name_label">Name</string>

@@ -9,7 +9,9 @@ import com.example.wichtly.domain.model.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
+import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
+import com.example.wichtly.domain.validation.GiftGroupResult
 import com.example.wichtly.domain.validation.ParticipantResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -41,6 +43,10 @@ private data class GroupDetailLocalState(
     val isPhotoFlowOpen: Boolean = false,
     val cameraDenied: Boolean = false,
     @StringRes val photoError: Int? = null,
+    val showGroupDeleteDialog: Boolean = false,
+    val isDeletingGroup: Boolean = false,
+    @StringRes val groupDeleteError: Int? = null,
+    val isGroupDeleted: Boolean = false,
 )
 
 /**
@@ -51,6 +57,7 @@ private data class GroupDetailLocalState(
  * @param participantRepository Repository für Teilnehmer.
  * @param photoRepository Repository für Fotofunktionen.
  * @param saveParticipant Prüft und speichert Teilnehmer (einzige Stelle der Teilnehmer-Validierung).
+ * @param deleteGiftGroup Löscht die Gruppe samt Teilnehmern, Wunschlisten, Auslosungen und Fotos.
  */
 class GroupDetailViewModel(
     private val groupId: String,
@@ -58,6 +65,7 @@ class GroupDetailViewModel(
     private val participantRepository: ParticipantRepository,
     private val photoRepository: PhotoRepository,
     private val saveParticipant: SaveParticipantUseCase,
+    private val deleteGiftGroup: DeleteGiftGroupUseCase,
 ) : ViewModel() {
 
     private val _localState = MutableStateFlow(GroupDetailLocalState())
@@ -82,7 +90,8 @@ class GroupDetailViewModel(
             },
         _localState,
     ) { group, participants, localState ->
-        val isGroupNotFound = group == null && localState.groupLoadError == null
+        // Nach dem eigenen Löschen ist die Gruppe gewollt weg: kein "nicht gefunden" bis zur Navigation
+        val isGroupNotFound = group == null && localState.groupLoadError == null && !localState.isGroupDeleted
         val combinedErrorMessage = localState.groupLoadError ?: localState.participantsLoadError
 
         val isEditingParticipantPresent = localState.editingParticipantId == null ||
@@ -125,6 +134,10 @@ class GroupDetailViewModel(
             cameraDenied = if (!isEditingParticipantPresent) false else localState.cameraDenied,
             photoError = if (!isEditingParticipantPresent) null else localState.photoError,
             participantPhotoFiles = photoFilesMap,
+            showGroupDeleteDialog = localState.showGroupDeleteDialog && group != null,
+            isDeletingGroup = localState.isDeletingGroup,
+            groupDeleteError = localState.groupDeleteError,
+            isGroupDeleted = localState.isGroupDeleted,
         )
     }.stateIn(
         scope = viewModelScope,
@@ -487,6 +500,58 @@ class GroupDetailViewModel(
                     it.copy(
                         isSaving = false,
                         participantDeleteError = R.string.error_participant_delete,
+                    )
+                }
+            }
+        }
+    }
+
+    // =========================================================================
+    // GRUPPE LÖSCHEN
+    // =========================================================================
+
+    /** Öffnet den Bestätigungsdialog zum Löschen der Gruppe. */
+    fun onDeleteGroupClick() {
+        if (_localState.value.isSaving || _localState.value.isDeletingGroup) return
+        _localState.update { it.copy(showGroupDeleteDialog = true, groupDeleteError = null) }
+    }
+
+    /** Schließt den Gruppen-Löschdialog, solange nicht gerade gelöscht wird. */
+    fun onDismissGroupDelete() {
+        if (_localState.value.isDeletingGroup) return
+        _localState.update { it.copy(showGroupDeleteDialog = false, groupDeleteError = null) }
+    }
+
+    /**
+     * Löscht die Gruppe über den [DeleteGiftGroupUseCase].
+     * Danach signalisiert isGroupDeleted der Route, dass sie zurücknavigieren soll.
+     */
+    fun onConfirmGroupDelete() {
+        if (_localState.value.isDeletingGroup) return
+        _localState.update { it.copy(isDeletingGroup = true, groupDeleteError = null) }
+
+        viewModelScope.launch {
+            try {
+                when (deleteGiftGroup(groupId)) {
+                    // GroupNotFound heißt: schon von anderer Stelle gelöscht. Für den Nutzer ist das Ziel erreicht.
+                    is GiftGroupResult.Success, is GiftGroupResult.ValidationError -> {
+                        _localState.update {
+                            it.copy(
+                                isDeletingGroup = false,
+                                showGroupDeleteDialog = false,
+                                isGroupDeleted = true,
+                            )
+                        }
+                    }
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("GroupDetailViewModel", "Fehler beim Löschen der Wichtelgruppe", e)
+                _localState.update {
+                    it.copy(
+                        isDeletingGroup = false,
+                        groupDeleteError = R.string.error_group_delete,
                     )
                 }
             }

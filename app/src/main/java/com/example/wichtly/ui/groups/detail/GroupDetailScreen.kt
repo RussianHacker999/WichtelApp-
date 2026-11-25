@@ -77,6 +77,9 @@ import com.example.wichtly.domain.validation.ParticipantValidator
  * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
  * @param onPrepareDraw Auslosungs-Vorbereitung für diese Gruppe öffnen.
  * @param onOpenHistory Historie dieser Gruppe öffnen.
+ * @param onDeleteGroupClick Öffnet den Dialog zum Löschen der Gruppe.
+ * @param onConfirmGroupDelete Bestätigt das Löschen der Gruppe.
+ * @param onDismissGroupDelete Schließt den Gruppen-Löschdialog.
  * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
@@ -101,6 +104,9 @@ fun GroupDetailScreen(
     onOpenAppSettings: () -> Unit,
     onPrepareDraw: () -> Unit,
     onOpenHistory: () -> Unit,
+    onDeleteGroupClick: () -> Unit,
+    onConfirmGroupDelete: () -> Unit,
+    onDismissGroupDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val group = state.group
@@ -114,7 +120,12 @@ fun GroupDetailScreen(
                 onBack = onBack,
                 actions = {
                     if (ready) {
-                        ItemMenu(actions = listOf(MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, onEditGroupClick)))
+                        ItemMenu(
+                            actions = listOf(
+                                MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, onEditGroupClick),
+                                MenuAction(stringResource(R.string.group_delete), Icons.Filled.Delete, onDeleteGroupClick, destructive = true),
+                            ),
+                        )
                     }
                 },
             )
@@ -137,6 +148,8 @@ fun GroupDetailScreen(
         },
     ) { innerPadding ->
         when {
+            // 0. ZUSTAND: Gruppe wurde gerade gelöscht, die Route navigiert zurück -> nichts mehr anzeigen
+            state.isGroupDeleted -> Unit
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
             state.isLoading -> LoadingState(text = stringResource(R.string.group_detail_loading))
@@ -207,6 +220,16 @@ fun GroupDetailScreen(
             isSaving = state.isSaving,
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
+        )
+    }
+
+    if (state.showGroupDeleteDialog && group != null) {
+        GroupDeleteDialog(
+            groupName = group.name,
+            errorMessage = state.groupDeleteError?.let { stringResource(it) },
+            isDeleting = state.isDeletingGroup,
+            onConfirm = onConfirmGroupDelete,
+            onDismiss = onDismissGroupDelete,
         )
     }
 }
@@ -352,6 +375,7 @@ private fun PreviewScreen(state: GroupDetailUiState) {
             onSaveParticipant = {}, onDismissParticipantEditor = {}, onConfirmDelete = {}, onDismissDelete = {},
             onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
             onCameraDenied = {}, onOpenAppSettings = {}, onPrepareDraw = {}, onOpenHistory = {},
+            onDeleteGroupClick = {}, onConfirmGroupDelete = {}, onDismissGroupDelete = {},
         )
     }
 }

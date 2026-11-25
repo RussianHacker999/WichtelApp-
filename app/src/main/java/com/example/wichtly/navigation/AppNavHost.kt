@@ -111,6 +111,8 @@ fun AppNavHost(
                 },
                 onPrepareDraw = { id -> navController.navigate(Routes.preparation(id)) }, // Auslosungs-Vorbereitung navigieren
                 onOpenHistory = { id -> navController.navigate(Routes.drawHistory(id)) }, // zur Historie der Gruppe navigieren
+                // Gruppe gelöscht: zurück dorthin, woher man kam (Gruppenliste oder Startseite)
+                onGroupDeleted = { navController.popBackStack() },
             )
         }
 

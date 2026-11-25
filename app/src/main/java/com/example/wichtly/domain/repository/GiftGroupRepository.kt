@@ -14,5 +14,10 @@ interface GiftGroupRepository {
 
     /** @return false, wenn es keine Gruppe mit dieser ID (mehr) gibt. */
     suspend fun updateGiftGroup(group: GiftGroup): Boolean
+
+    /**
+     * Löscht die Gruppe. Teilnehmer, Wunschlisten und Auslosungen der Gruppe werden per CASCADE
+     * mitgelöscht; Fotodateien räumt der DeleteGiftGroupUseCase auf.
+     */
     suspend fun deleteGiftGroup(id: String)
 }
