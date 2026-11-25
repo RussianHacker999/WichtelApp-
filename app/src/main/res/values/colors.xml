@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Only colors that Android reads before Compose runs (launcher icon, splash screen, window).
+    All app colors live in ui/theme/Color.kt; do not add Compose colors here.
+-->
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-
-    <!-- Wichtly brand colors (from the app logo) -->
+    <!-- Cream from the app logo -->
     <color name="ic_launcher_background">#FFFBF5E8</color>
-    <color name="splash_background">#FFFBF5E8</color>
+    <color name="splash_background">@color/ic_launcher_background</color>
 
-    <!-- App window background (Evergreen Night), avoids a white flash before Compose draws -->
+    <!-- Same as Pine900 in Color.kt, avoids a white flash before Compose draws -->
     <color name="window_background">#FF0E2A22</color>
 </resources>

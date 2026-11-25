@@ -7,11 +7,16 @@ import androidx.compose.ui.graphics.Color
 /*
  * Palette "Evergreen Night": deep pine background, warm gold as the main action color,
  * cranberry red as the festive accent. The app always uses this one dark scheme.
+ *
+ * This file is the single source of truth for app colors. Only res/values/colors.xml exists
+ * besides it, for the few colors Android reads before Compose runs (launcher icon, splash
+ * screen, window background). Keep those values in sync with the constants named there.
  */
 
 // Pine (backgrounds and surfaces, darkest to lightest)
+val PineShadow = Color(0xFF03100C)
 val Pine950 = Color(0xFF08211A)
-val Pine900 = Color(0xFF0E2A22)
+val Pine900 = Color(0xFF0E2A22) // mirrored in colors.xml as window_background
 val Pine850 = Color(0xFF12332A)
 val Pine800 = Color(0xFF15392E)
 val Pine750 = Color(0xFF194235)

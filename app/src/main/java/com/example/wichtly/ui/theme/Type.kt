@@ -2,7 +2,6 @@ package com.example.wichtly.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -33,7 +32,7 @@ private fun instrumentSans(weight: FontWeight) = Font(
 
 /** Hard, dark offset shadow behind every Young Serif title. */
 val TitleShadow = Shadow(
-    color = Color(0xFF03100C),
+    color = PineShadow,
     offset = Offset(4f, 6f),
     blurRadius = 0f,
 )
