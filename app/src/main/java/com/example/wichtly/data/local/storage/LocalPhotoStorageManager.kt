@@ -7,6 +7,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.util.UUID
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "PhotoStorage"
 
 /**
  * Handles private internal storage operations for photos in `filesDir/photos/groups/` and `filesDir/photos/participants/`.
@@ -46,7 +49,9 @@ class LocalPhotoStorageManager(
         val filename = "${ownerType.value}_${UUID.randomUUID()}.jpg"
         val destFile = File(targetDir, filename)
         sourceFile.copyTo(destFile, overwrite = true)
-        "photos/${ownerType.value}/$filename"
+        val relativePath = "photos/${ownerType.value}/$filename"
+        AppLog.d(TAG) { "Foto gespeichert: $relativePath (${destFile.length() / 1024} KB)" }
+        relativePath
     }
 
     /**
@@ -57,7 +62,13 @@ class LocalPhotoStorageManager(
             if (!relativePath.isNullOrBlank()) {
                 val file = File(filesDir, relativePath)
                 if (file.exists()) {
-                    file.delete()
+                    if (file.delete()) {
+                        AppLog.d(TAG) { "Foto gelöscht: $relativePath" }
+                    } else {
+                        AppLog.w(TAG, "Foto konnte nicht gelöscht werden: $relativePath")
+                    }
+                } else {
+                    AppLog.d(TAG) { "Foto zum Löschen nicht vorhanden: $relativePath" }
                 }
             }
         }

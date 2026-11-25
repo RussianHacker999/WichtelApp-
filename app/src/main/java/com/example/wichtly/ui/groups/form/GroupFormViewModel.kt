@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.groups.form
 
 import com.example.wichtly.R
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.DrawType
@@ -22,6 +21,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "GroupFormViewModel"
 
 /**
  * ViewModel für das Formular zum Erstellen und Bearbeiten einer Wichtelgruppe.
@@ -75,6 +77,7 @@ class GroupFormViewModel(
                 // Einmaliges Auslesen des ersten Flow-Werts (keine dauerhafte Beobachtung)
                 val loadedGroup = repository.getGiftGroupById(id).first()
                 if (loadedGroup == null) {
+                    AppLog.w(TAG, "Gruppe $id zum Bearbeiten nicht gefunden")
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -100,7 +103,7 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Laden der Wichtelgruppe", e)
+                AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -241,7 +244,7 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Speichern der Wichtelgruppe", e)
+                AppLog.e(TAG, "Fehler beim Speichern der Wichtelgruppe", e)
                 _uiState.update {
                     it.copy(
                         isSaving = false,
@@ -294,13 +297,13 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Speichern des Gruppenfotos", e)
+                AppLog.e(TAG, "Fehler beim Speichern des Gruppenfotos", e)
                 _uiState.update { it.copy(photoError = R.string.error_photo_save) }
             } finally {
                 try {
                     if (tempFile.exists()) tempFile.delete()
                 } catch (e: Exception) {
-                    Log.e("GroupFormViewModel", "Fehler beim Löschen der temporären Fotodatei", e)
+                    AppLog.w(TAG, "Fehler beim Löschen der temporären Fotodatei", e)
                 }
             }
         }
@@ -332,7 +335,7 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupFormViewModel", "Fehler beim Löschen eines Gruppenfotos", e)
+                AppLog.w(TAG, "Fehler beim Löschen eines Gruppenfotos", e)
             }
         }
     }

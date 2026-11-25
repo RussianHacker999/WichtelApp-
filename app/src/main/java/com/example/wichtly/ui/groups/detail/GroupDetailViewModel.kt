@@ -2,7 +2,6 @@ package com.example.wichtly.ui.groups.detail
 
 import androidx.annotation.StringRes
 import com.example.wichtly.R
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.PhotoOwnerType
@@ -25,6 +24,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "GroupDetailViewModel"
 
 /**
  * Lokaler interner Zustand für Dialoge, Eingabefelder und Fehler der Gruppen-Detailansicht.
@@ -77,14 +79,14 @@ class GroupDetailViewModel(
         giftGroupRepository.getGiftGroupById(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("GroupDetailViewModel", "Fehler beim Laden der Wichtelgruppe", e)
+                AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe", e)
                 _localState.update { it.copy(groupLoadError = R.string.error_group_load) }
                 emit(null)
             },
         participantRepository.getParticipantsByGroupId(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("GroupDetailViewModel", "Fehler beim Laden der Teilnehmerliste", e)
+                AppLog.e(TAG, "Fehler beim Laden der Teilnehmerliste", e)
                 _localState.update { it.copy(participantsLoadError = R.string.error_participants_load) }
                 emit(emptyList())
             },
@@ -219,7 +221,7 @@ class GroupDetailViewModel(
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        Log.e("GroupDetailViewModel", "Fehler beim Verwerfen des ungespeicherten Teilnehmerfotos", e)
+                        AppLog.w(TAG, "Fehler beim Verwerfen des ungespeicherten Teilnehmerfotos", e)
                     }
                 }
             }
@@ -310,7 +312,7 @@ class GroupDetailViewModel(
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        Log.e("GroupDetailViewModel", "Fehler beim Löschen des vorherigen ungespeicherten Teilnehmerfotos", e)
+                        AppLog.w(TAG, "Fehler beim Löschen des vorherigen ungespeicherten Teilnehmerfotos", e)
                     }
                 }
 
@@ -323,7 +325,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupDetailViewModel", "Fehler beim Speichern des Teilnehmerfotos", e)
+                AppLog.e(TAG, "Fehler beim Speichern des Teilnehmerfotos", e)
                 _localState.update {
                     it.copy(photoError = R.string.error_photo_save)
                 }
@@ -335,7 +337,7 @@ class GroupDetailViewModel(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    Log.e("GroupDetailViewModel", "Fehler beim Löschen der temporären Fotodatei", e)
+                    AppLog.w(TAG, "Fehler beim Löschen der temporären Fotodatei", e)
                 }
             }
         }
@@ -351,7 +353,7 @@ class GroupDetailViewModel(
                     } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
-                        Log.e("GroupDetailViewModel", "Fehler beim Löschen des ungespeicherten Teilnehmerfotos", e)
+                        AppLog.w(TAG, "Fehler beim Löschen des ungespeicherten Teilnehmerfotos", e)
                     }
                 }
             }
@@ -408,7 +410,7 @@ class GroupDetailViewModel(
                                 } catch (e: CancellationException) {
                                     throw e
                                 } catch (e: Exception) {
-                                    Log.e("GroupDetailViewModel", "Fehler beim Löschen des alten Teilnehmerfotos", e)
+                                    AppLog.w(TAG, "Fehler beim Löschen des alten Teilnehmerfotos", e)
                                 }
                             }
                         }
@@ -442,7 +444,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupDetailViewModel", "Fehler beim Speichern des Teilnehmers", e)
+                AppLog.e(TAG, "Fehler beim Speichern des Teilnehmers", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -473,6 +475,7 @@ class GroupDetailViewModel(
         viewModelScope.launch {
             try {
                 participantRepository.deleteParticipant(pendingId)
+                AppLog.i(TAG, "Teilnehmer $pendingId gelöscht")
                 if (participantToDelete?.photoPath != null) {
                     withContext(NonCancellable) {
                         try {
@@ -480,7 +483,7 @@ class GroupDetailViewModel(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
-                            Log.e("GroupDetailViewModel", "Fehler beim Löschen des Teilnehmerfotos beim Löschen des Teilnehmers", e)
+                            AppLog.w(TAG, "Fehler beim Löschen des Teilnehmerfotos beim Löschen des Teilnehmers", e)
                         }
                     }
                 }
@@ -495,7 +498,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupDetailViewModel", "Fehler beim Löschen des Teilnehmers", e)
+                AppLog.e(TAG, "Fehler beim Löschen des Teilnehmers", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -547,7 +550,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GroupDetailViewModel", "Fehler beim Löschen der Wichtelgruppe", e)
+                AppLog.e(TAG, "Fehler beim Löschen der Wichtelgruppe", e)
                 _localState.update {
                     it.copy(
                         isDeletingGroup = false,

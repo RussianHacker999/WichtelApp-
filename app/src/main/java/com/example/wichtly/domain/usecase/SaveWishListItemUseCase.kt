@@ -6,6 +6,9 @@ import com.example.wichtly.domain.validation.WishListItemResult
 import com.example.wichtly.domain.validation.WishListValidationError
 import com.example.wichtly.domain.validation.WishListValidator
 import kotlinx.coroutines.flow.first
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "SaveWishListItem"
 
 /**
  * Legt einen Wunsch an oder ändert ihn. Einzige Stelle, an der Wünsche geprüft werden.
@@ -29,9 +32,10 @@ class SaveWishListItemUseCase(
         participantId: String,
         text: String,
     ): WishListItemResult {
+        AppLog.d(TAG) { if (itemId == null) "Neuen Wunsch für Teilnehmer $participantId speichern" else "Wunsch $itemId speichern" }
         val currentItems = repository.observeWishlistItems(participantId).first()
         val stored = itemId?.let { id ->
-            currentItems.firstOrNull { it.id == id } ?: return notFound()
+            currentItems.firstOrNull { it.id == id } ?: return notFound(id)
         }
 
         val normalizedText = validator.normalizeText(text)
@@ -43,15 +47,24 @@ class SaveWishListItemUseCase(
             )
 
         val errors = validator.validate(item)
-        if (errors.isNotEmpty()) return WishListItemResult.ValidationError(errors)
+        if (errors.isNotEmpty()) {
+            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
+            return WishListItemResult.ValidationError(errors)
+        }
 
         if (stored == null) {
             repository.insertWishListItem(item)
+            AppLog.i(TAG, "Wunsch ${item.id} für Teilnehmer $participantId angelegt")
         } else if (!repository.updateWishListItem(item)) {
-            return notFound()
+            return notFound(item.id)
+        } else {
+            AppLog.i(TAG, "Wunsch ${item.id} geändert")
         }
         return WishListItemResult.Success(item)
     }
 
-    private fun notFound() = WishListItemResult.ValidationError(listOf(WishListValidationError.ItemNotFound))
+    private fun notFound(itemId: String): WishListItemResult {
+        AppLog.w(TAG, "Wunsch $itemId nicht gefunden, nichts gespeichert")
+        return WishListItemResult.ValidationError(listOf(WishListValidationError.ItemNotFound))
+    }
 }

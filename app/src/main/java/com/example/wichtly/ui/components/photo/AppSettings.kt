@@ -5,7 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "AppSettings"
 
 /**
  * Öffnet die System-Einstellungen dieser App (z. B. um den Kamerazugriff doch noch zu erlauben).
@@ -17,6 +19,6 @@ fun openAppSettings(context: Context) {
         }
         context.startActivity(intent)
     } catch (e: ActivityNotFoundException) {
-        Log.e("AppSettings", "Einstellungen-App konnte nicht geöffnet werden", e)
+        AppLog.w(TAG, "Einstellungen-App konnte nicht geöffnet werden", e)
     }
 }

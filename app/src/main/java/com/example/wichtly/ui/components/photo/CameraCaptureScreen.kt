@@ -2,7 +2,6 @@ package com.example.wichtly.ui.components.photo
 
 import androidx.compose.ui.res.stringResource
 import com.example.wichtly.R
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -43,6 +42,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CancellationException
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "CameraCaptureScreen"
 
 /**
  * Vollbild-Kameravorschau mit CameraX zur Aufnahme eines Gruppen- oder Teilnehmerfotos.
@@ -107,9 +109,10 @@ fun CameraCaptureScreen(
                             preview,
                             capture
                         )
+                        AppLog.d(TAG) { "Kamera gebunden" }
                     } catch (e: Exception) {
                         if (e is CancellationException) throw e
-                        Log.e("CameraCaptureScreen", "Fehler beim Binden der Kamera", e)
+                        AppLog.e(TAG, "Fehler beim Binden der Kamera", e)
                         onError(captureErrorText)
                     }
                 }, executor)
@@ -146,7 +149,7 @@ fun CameraCaptureScreen(
                     File.createTempFile("photo_", ".jpg", context.cacheDir)
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    Log.e("CameraCaptureScreen", "Fehler beim Erstellen der temporären Datei", e)
+                    AppLog.e(TAG, "Fehler beim Erstellen der temporären Datei", e)
                     onError(captureErrorText)
                     return@FloatingActionButton
                 }
@@ -159,11 +162,12 @@ fun CameraCaptureScreen(
                     mainExecutor,
                     object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                            AppLog.d(TAG) { "Foto aufgenommen (${photoFile.length() / 1024} KB)" }
                             onPhotoCaptured(photoFile)
                         }
 
                         override fun onError(exception: ImageCaptureException) {
-                            Log.e("CameraCaptureScreen", "Fehler beim Speichern des Fotos", exception)
+                            AppLog.e(TAG, "Fehler beim Speichern des Fotos", exception)
                             onError(captureErrorText)
                         }
                     }
@@ -192,7 +196,7 @@ fun CameraCaptureScreen(
                 }
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                Log.e("CameraCaptureScreen", "Fehler beim Unbinden der Kamera", e)
+                AppLog.w(TAG, "Fehler beim Unbinden der Kamera", e)
             }
         }
     }

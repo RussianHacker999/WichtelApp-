@@ -1,10 +1,12 @@
 package com.example.wichtly.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,6 +21,9 @@ import com.example.wichtly.ui.draws.DrawDetailRoute
 import com.example.wichtly.ui.draws.DrawHistoryRoute
 import com.example.wichtly.ui.groups.preparation.PreparationRoute
 import com.example.wichtly.ui.start.StartRoute
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "Navigation"
 
 
 object Routes {
@@ -62,6 +67,15 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
+    // Jeden Zielwechsel protokollieren (nur das Routen-Muster, keine Argumente)
+    DisposableEffect(navController) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            AppLog.d(TAG) { "Ziel: ${destination.route}" }
+        }
+        navController.addOnDestinationChangedListener(listener)
+        onDispose { navController.removeOnDestinationChangedListener(listener) }
+    }
+
     NavHost(
         navController = navController,
         startDestination = Routes.START,

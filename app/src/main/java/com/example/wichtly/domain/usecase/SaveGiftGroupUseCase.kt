@@ -10,6 +10,9 @@ import com.example.wichtly.domain.validation.parseBudgetToCents
 import com.example.wichtly.domain.validation.parseDate
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "SaveGiftGroup"
 
 /**
  * Rohe Formulareingaben einer Wichtelgruppe, so wie der Nutzer sie getippt hat.
@@ -41,9 +44,10 @@ class SaveGiftGroupUseCase(
      * @param groupId null legt eine neue Gruppe an, sonst wird die Gruppe mit dieser ID geändert.
      */
     suspend operator fun invoke(groupId: String?, input: GiftGroupInput): GiftGroupResult {
+        AppLog.d(TAG) { if (groupId == null) "Neue Gruppe speichern" else "Gruppe $groupId speichern" }
         val existingGroups = repository.getGiftGroups().first()
         val stored = groupId?.let { id ->
-            existingGroups.firstOrNull { it.id == id } ?: return notFound()
+            existingGroups.firstOrNull { it.id == id } ?: return notFound(id)
         }
 
         val name = validator.normalizeName(input.name)
@@ -65,6 +69,7 @@ class SaveGiftGroupUseCase(
             }
         }
         if (errors.isNotEmpty() || budgetCents == null || drawDay == null) {
+            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
             return GiftGroupResult.ValidationError(errors)
         }
 
@@ -78,6 +83,7 @@ class SaveGiftGroupUseCase(
                 photoPath = input.photoPath,
             )
             repository.insertGiftGroup(group)
+            AppLog.i(TAG, "Gruppe ${group.id} angelegt")
             GiftGroupResult.Success(group)
         } else {
             // Bearbeiten: id bleibt über copy() erhalten
@@ -89,10 +95,14 @@ class SaveGiftGroupUseCase(
                 photoPath = input.photoPath,
             )
             // Zwischen Laden und Schreiben gelöscht: nichts geändert, also kein Erfolg melden
-            if (!repository.updateGiftGroup(group)) return notFound()
+            if (!repository.updateGiftGroup(group)) return notFound(group.id)
+            AppLog.i(TAG, "Gruppe ${group.id} geändert")
             GiftGroupResult.Success(group)
         }
     }
 
-    private fun notFound() = GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+    private fun notFound(groupId: String): GiftGroupResult {
+        AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gespeichert")
+        return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+    }
 }

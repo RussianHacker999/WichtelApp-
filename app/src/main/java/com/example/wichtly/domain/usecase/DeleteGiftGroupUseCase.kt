@@ -9,6 +9,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "DeleteGiftGroup"
 
 /**
  * Löscht eine Wichtelgruppe samt allem, was zu ihr gehört.
@@ -31,14 +34,19 @@ class DeleteGiftGroupUseCase(
      *         wenn es die Gruppe nicht (mehr) gibt.
      */
     suspend operator fun invoke(groupId: String): GiftGroupResult {
+        AppLog.d(TAG) { "Gruppe $groupId löschen" }
         val group = giftGroupRepository.getGiftGroupById(groupId).first()
-            ?: return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+        if (group == null) {
+            AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gelöscht")
+            return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+        }
 
         // Fotopfade vor dem Löschen einsammeln, danach sind die Teilnehmer nicht mehr lesbar
         val participants = participantRepository.getParticipantsByGroupId(groupId).first()
         val photoPaths = listOfNotNull(group.photoPath) + participants.mapNotNull { it.photoPath }
 
         giftGroupRepository.deleteGiftGroup(groupId)
+        AppLog.i(TAG, "Gruppe $groupId gelöscht (${participants.size} Teilnehmer, ${photoPaths.size} Fotos)")
 
         // Aufräumen darf nicht abbrechen, auch wenn der Nutzer den Screen schon verlässt
         withContext(NonCancellable) {
@@ -47,8 +55,9 @@ class DeleteGiftGroupUseCase(
                     photoRepository.deletePhoto(path)
                 } catch (e: CancellationException) {
                     throw e
-                } catch (_: Exception) {
+                } catch (e: Exception) {
                     // Best Effort: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
+                    AppLog.w(TAG, "Foto $path konnte nicht gelöscht werden", e)
                 }
             }
         }

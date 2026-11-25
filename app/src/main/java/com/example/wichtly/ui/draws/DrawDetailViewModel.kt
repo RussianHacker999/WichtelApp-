@@ -2,7 +2,6 @@ package com.example.wichtly.ui.draws
 
 import androidx.annotation.StringRes
 import com.example.wichtly.R
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.DrawAssignment
@@ -23,6 +22,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.time.ZoneId
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "DrawDetailViewModel"
 
 /**
  * Lokaler interner Zustand für Dialoge und Ladefehler der Auslosungs-Detailansicht.
@@ -66,7 +68,7 @@ class DrawDetailViewModel(
     private val drawWithGroupName: Flow<Pair<DrawDetail?, String?>> = drawRepository.observeDrawDetailById(drawId)
         .catch { e ->
             if (e is CancellationException) throw e
-            Log.e("DrawDetailViewModel", "Fehler beim Laden der Auslosung.", e)
+            AppLog.e(TAG, "Fehler beim Laden der Auslosung.", e)
             _localState.update { it.copy(loadError = R.string.error_draw_load) }
             emit(null)
         }
@@ -78,7 +80,7 @@ class DrawDetailViewModel(
                     .map<_, String?> { group -> group?.name }
                     .catch { e ->
                         if (e is CancellationException) throw e
-                        Log.e("DrawDetailViewModel", "Fehler beim Laden des Gruppennamens.", e)
+                        AppLog.w(TAG, "Fehler beim Laden des Gruppennamens.", e)
                         emit(null)
                     }
                     .map { name -> draw to name }

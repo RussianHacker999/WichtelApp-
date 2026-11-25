@@ -2,7 +2,6 @@ package com.example.wichtly.ui.groups.preparation
 
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.DrawRules
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.repository.GiftGroupRepository
@@ -18,6 +17,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "PreparationViewModel"
 
 /**
  * Verbindet die ausgewählte Gruppe mit ihren Repository-Daten.
@@ -45,7 +47,7 @@ class PreparationViewModel(
             // Fehlerbehandung
             .catch { error ->
                 if (error is CancellationException) throw error
-                Log.e("PreparationViewModel", "Gruppe konnte nicht geladen werden", error)
+                AppLog.e(TAG, "Gruppe konnte nicht geladen werden", error)
                 errorState.update { R.string.error_groups_load }
                 // emit() sendet einen Wert (hier null) an alle die den Flow hier beobachten.
                 // hier wird satt einer giftGroup einen null zurueckgegeben
@@ -55,7 +57,7 @@ class PreparationViewModel(
         participantRepository.getParticipantsByGroupId(groupId)
             .catch { error ->
                 if (error is CancellationException) throw error
-                Log.e("PreparationViewModel", "Teilnehmer konnten nicht geladen werden", error)
+                AppLog.e(TAG, "Teilnehmer konnten nicht geladen werden", error)
                 errorState.update { R.string.error_participant_list_load }
                 emit(emptyList())
             },
@@ -125,6 +127,8 @@ class PreparationViewModel(
                     // dann wird im ViewModel eine error-Meldung gespeichert
                     // result ist ein ValidationError
                     is DrawResult.ValidationError -> {
+                        // Details hat der PerformDrawUseCase bereits geloggt
+                        AppLog.d(TAG) { "Auslosung für Gruppe $groupId nicht gestartet: ${result.errors.joinToString { it::class.simpleName.orEmpty() }}" }
                         errorState.update { R.string.error_draw_start }
                     }
                 }
@@ -132,7 +136,7 @@ class PreparationViewModel(
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                Log.e("PreparationViewModel", "Auslosung fehlgeschlagen", error)
+                AppLog.e(TAG, "Auslosung fehlgeschlagen", error)
                 errorState.update { R.string.error_draw_failed }
             } finally {
                 // sagt dem ViewModel, dass die Losung vorbei ist

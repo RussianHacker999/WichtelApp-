@@ -4,7 +4,6 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -15,6 +14,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.WichtlyApplication
 import kotlinx.coroutines.CancellationException
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "GroupDetailRoute"
 
 /**
  * Zustandstragende (stateful) Route-Komponente für die Gruppen-Detailansicht.
@@ -74,10 +76,10 @@ fun GroupDetailRoute(
             }
             context.startActivity(intent)
         } catch (e: ActivityNotFoundException) {
-            Log.e("GroupDetailRoute", "Einstellungen-App konnte nicht geöffnet werden", e)
+            AppLog.w(TAG, "Einstellungen-App konnte nicht geöffnet werden", e)
         } catch (e: Exception) {
             if (e is CancellationException) throw e
-            Log.e("GroupDetailRoute", "Fehler beim Öffnen der Einstellungen", e)
+            AppLog.w(TAG, "Fehler beim Öffnen der Einstellungen", e)
         }
         Unit
     }

@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.groups
 
 import com.example.wichtly.R
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,6 +12,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "GroupsViewModel"
 
 class GroupsViewModel(
     private val repository: GiftGroupRepository,
@@ -40,7 +42,7 @@ class GroupsViewModel(
                 //da Flow verwendet, werden Aenderungen in der Datenbanken die neuen Werte gesendet
                 .catch { error ->
                     if (error is CancellationException) throw error
-                    Log.e("GroupsViewModel", "Gruppen konnten nicht geladen werden", error)
+                    AppLog.e(TAG, "Gruppen konnten nicht geladen werden", error)
                     uiState = uiState.copy(
                         isLoading = false,
                         errorMessage = R.string.error_groups_load,

@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.wichtly.data.local.dao.DrawDao
 import com.example.wichtly.data.local.dao.GiftGroupDao
 import com.example.wichtly.data.local.dao.ParticipantDao
@@ -15,6 +16,9 @@ import com.example.wichtly.data.local.entity.DrawWishListItemSnapshotEntity
 import com.example.wichtly.data.local.entity.GiftGroupEntity
 import com.example.wichtly.data.local.entity.ParticipantEntity
 import com.example.wichtly.data.local.entity.WishListItemEntity
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "AppDatabase"
 
 /**
  * Room-Datenbank der App.
@@ -67,6 +71,21 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun drawDao(): DrawDao
 
     companion object {
+        /** Protokolliert Lebenszyklus-Ereignisse der Datenbank; eine destruktive Neuanlage ist immer eine Warnung. */
+        private object LoggingCallback : Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                AppLog.i(TAG, "Datenbank neu angelegt (Version ${db.version})")
+            }
+
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                AppLog.d(TAG) { "Datenbank geöffnet (Version ${db.version})" }
+            }
+
+            override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
+                AppLog.w(TAG, "Datenbank destruktiv neu angelegt (Version ohne Schema oder Downgrade): alle Daten gelöscht")
+            }
+        }
+
         fun create(context: Context): AppDatabase {
             return Room.databaseBuilder(
                 context.applicationContext,
@@ -77,6 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
                 .fallbackToDestructiveMigrationFrom(true, 1, 2, 3)
                 // Rückwärts gibt es keine Migration
                 .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
+                .addCallback(LoggingCallback)
                 .build()
         }
     }

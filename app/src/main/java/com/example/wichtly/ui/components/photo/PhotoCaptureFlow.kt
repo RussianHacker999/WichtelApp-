@@ -2,7 +2,6 @@ package com.example.wichtly.ui.components.photo
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -16,6 +15,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "PhotoCaptureFlow"
 
 /**
  * Interner Schritt-Zustand des Foto-Aufnahmeablaufs.
@@ -67,8 +69,10 @@ fun PhotoCaptureFlow(
         contract = ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
         if (isGranted) {
+            AppLog.i(TAG, "Kamera-Berechtigung erteilt")
             currentStep = PhotoFlowStep.CAMERA_SCREEN
         } else {
+            AppLog.i(TAG, "Kamera-Berechtigung vom System-Dialog verweigert")
             onCameraDenied()
             onClose()
         }
@@ -106,6 +110,7 @@ fun PhotoCaptureFlow(
                     permissionLauncher.launch(Manifest.permission.CAMERA)
                 },
                 onDeny = {
+                    AppLog.d(TAG) { "Kamera-Hinweis ohne Berechtigungsanfrage geschlossen" }
                     onCameraDenied()
                     onClose()
                 },
@@ -128,7 +133,8 @@ fun PhotoCaptureFlow(
                     },
                     onCancel = onClose,
                     onError = { error ->
-                        Log.e("PhotoCaptureFlow", "Fehler bei Kameraaufnahme: $error")
+                        // Ursache hat CameraCaptureScreen bereits als ERROR geloggt
+                        AppLog.w(TAG, "Kamera-Ablauf nach Fehler geschlossen")
                         onClose()
                     },
                     modifier = modifier,

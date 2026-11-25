@@ -2,7 +2,6 @@ package com.example.wichtly.ui.draws
 
 import androidx.annotation.StringRes
 import com.example.wichtly.R
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.model.DrawSummary
@@ -17,6 +16,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import java.time.ZoneId
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "DrawHistoryViewModel"
 
 /**
  * Lokaler interner Zustand für Ladefehler der Auslosungshistorie.
@@ -50,14 +52,14 @@ class DrawHistoryViewModel(
         giftGroupRepository.getGiftGroupById(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("DrawHistoryViewModel", "Fehler beim Laden der Wichtelgruppe.", e)
+                AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe.", e)
                 _localState.update { it.copy(loadError = R.string.error_history_load) }
                 emit(null)
             },
         drawRepository.observeDrawSummariesByGroupId(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("DrawHistoryViewModel", "Fehler beim Laden der Auslosungshistorie.", e)
+                AppLog.e(TAG, "Fehler beim Laden der Auslosungshistorie.", e)
                 _localState.update { it.copy(loadError = R.string.error_history_load) }
                 emit(emptyList())
             },

@@ -2,6 +2,9 @@ package com.example.wichtly.domain.algorithm
 
 import com.example.wichtly.domain.model.DrawRules
 import kotlin.random.Random
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "DrawAlgorithm"
 
 /**
  * Pure domain component implementing the Secret Santa derangement algorithm.
@@ -38,6 +41,8 @@ class SecretSantaDrawAlgorithm(
         }
 
         // Fallback: Guaranteed Ring-Shift Derangement
+        // Practically never reached (see review); if it is, the result is valid but not uniformly distributed.
+        AppLog.w(TAG, "Kein Zufalls-Derangement nach $maxAttempts Versuchen, Ring-Fallback für ${participantIds.size} Teilnehmer")
         val shuffled = participantIds.shuffled(random)
         val size = shuffled.size
         return shuffled.mapIndexed { index, giverId ->

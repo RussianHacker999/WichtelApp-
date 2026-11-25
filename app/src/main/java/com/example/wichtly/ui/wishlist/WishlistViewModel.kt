@@ -2,7 +2,6 @@ package com.example.wichtly.ui.wishlist
 
 import androidx.annotation.StringRes
 import com.example.wichtly.R
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.repository.ParticipantRepository
@@ -18,6 +17,9 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "WishlistViewModel"
 
 /**
  * Lokaler interner Zustand für Dialoge, Eingabefelder und Fehler der Wunschliste.
@@ -60,14 +62,14 @@ class WishlistViewModel(
         participantRepository.getParticipantById(participantId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("WishlistViewModel", "Fehler beim Laden des Teilnehmers", e)
+                AppLog.e(TAG, "Fehler beim Laden des Teilnehmers", e)
                 _localState.update { it.copy(participantLoadError = R.string.error_participant_load) }
                 emit(null)
             },
         wishListRepository.observeWishlistItems(participantId)
             .catch { e ->
                 if (e is CancellationException) throw e
-                Log.e("WishlistViewModel", "Fehler beim Laden der Wunschliste", e)
+                AppLog.e(TAG, "Fehler beim Laden der Wunschliste", e)
                 _localState.update { it.copy(wishlistLoadError = R.string.error_wishlist_load) }
                 emit(emptyList())
             },
@@ -254,7 +256,7 @@ class WishlistViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("WishlistViewModel", "Fehler beim Speichern des Wunsches", e)
+                AppLog.e(TAG, "Fehler beim Speichern des Wunsches", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -293,6 +295,7 @@ class WishlistViewModel(
         viewModelScope.launch {
             try {
                 wishListRepository.deleteWishListItem(pendingId)
+                AppLog.i(TAG, "Wunsch $pendingId gelöscht")
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -303,7 +306,7 @@ class WishlistViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("WishlistViewModel", "Fehler beim Löschen des Wunsches", e)
+                AppLog.e(TAG, "Fehler beim Löschen des Wunsches", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,

@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +31,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import com.example.wichtly.logging.AppLog
+
+private const val TAG = "PhotoThumbnail"
 
 /**
  * Zustandsloser UI-Baustein zur Vorschau-Darstellung eines Bildes aus einer Datei.
@@ -83,7 +85,7 @@ fun PhotoThumbnail(
                     }
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    Log.e("PhotoThumbnail", "Fehler beim Dekodieren des Fotos: ${file.absolutePath}", e)
+                    AppLog.w(TAG, "Foto konnte nicht dekodiert werden, Platzhalter wird angezeigt: ${file.name}", e)
                     null
                 }
             }
@@ -155,7 +157,7 @@ private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
         }
     } catch (e: Exception) {
         if (e is CancellationException) throw e
-        Log.e("PhotoThumbnail", "Fehler beim Lesen der EXIF-Daten: $filePath", e)
+        AppLog.w(TAG, "EXIF-Ausrichtung nicht lesbar, Foto wird ungedreht angezeigt: ${filePath.substringAfterLast('/')}", e)
         bitmap
     }
 }
