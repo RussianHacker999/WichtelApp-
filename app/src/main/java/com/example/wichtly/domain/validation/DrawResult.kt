@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawDetail
 
 
 

@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.repository
 
-import com.example.wichtly.domain.model.WishListItem
+import com.example.wichtly.domain.model.participant.WishListItem
 import kotlinx.coroutines.flow.Flow
 
 /**

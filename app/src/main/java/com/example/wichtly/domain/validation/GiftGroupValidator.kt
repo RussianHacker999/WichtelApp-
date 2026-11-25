@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.domain.model.group.GiftGroup
 import java.time.LocalDate
 
 sealed interface GiftGroupValidationError {

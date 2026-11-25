@@ -1,7 +1,7 @@
 package com.example.wichtly.data.mapper
 
 import com.example.wichtly.data.local.entity.GiftGroupEntity
-import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.domain.model.group.GiftGroup
 
 
 fun GiftGroupEntity.toDomainModel(): GiftGroup = GiftGroup(

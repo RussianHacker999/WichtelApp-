@@ -7,14 +7,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.components.HintBar
+import com.example.wichtly.ui.components.controls.HintBar
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
  * Zustandsloser (stateless) Hinweis bei abgelehnter Kameraberechtigung, direkt unter dem Fotofeld.
  *
  * Warum zustandslos?
- * Zeigt einen verständlichen Warnhinweis als Hinweisleiste ([com.example.wichtly.ui.components.HintBar])
+ * Zeigt einen verständlichen Warnhinweis als Hinweisleiste ([com.example.wichtly.ui.components.controls.HintBar])
  * mit Kamera-Symbol und bietet optional
  * den Link "Einstellungen öffnen" zum Öffnen der Systemeinstellungen an.
  *

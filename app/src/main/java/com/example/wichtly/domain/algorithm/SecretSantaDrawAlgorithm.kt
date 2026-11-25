@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.algorithm
 
-import com.example.wichtly.domain.model.DrawRules
+import com.example.wichtly.domain.model.draw.DrawRules
 import kotlin.random.Random
 import com.example.wichtly.logging.AppLog
 

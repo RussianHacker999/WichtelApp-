@@ -4,7 +4,7 @@ import com.example.wichtly.data.local.dao.GiftGroupDao
 import com.example.wichtly.data.mapper.toDomainModel
 import com.example.wichtly.data.mapper.toDomainModelList
 import com.example.wichtly.data.mapper.toEntity
-import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.wichtly.domain.model.DrawType
+import com.example.wichtly.domain.model.group.DrawType
 import java.time.Instant
 
 @Entity(

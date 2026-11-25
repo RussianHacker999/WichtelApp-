@@ -1,8 +1,8 @@
 package com.example.wichtly.domain.usecase
 
-import com.example.wichtly.domain.model.DrawType
-import com.example.wichtly.domain.model.GiftGroup
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.group.DrawType
+import com.example.wichtly.domain.model.group.GiftGroup
+import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.logging.LogLevel
 import com.example.wichtly.testutil.FakeDrawRepository

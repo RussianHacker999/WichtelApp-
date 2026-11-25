@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.repository
 
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 import kotlinx.coroutines.flow.Flow
 
 /**

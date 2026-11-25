@@ -1,10 +1,10 @@
 package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.algorithm.SecretSantaDrawAlgorithm
-import com.example.wichtly.domain.model.DrawAssignment
-import com.example.wichtly.domain.model.DrawDetail
-import com.example.wichtly.domain.model.DrawRules
-import com.example.wichtly.domain.model.DrawWishListItemSnapshot
+import com.example.wichtly.domain.model.draw.DrawAssignment
+import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawRules
+import com.example.wichtly.domain.model.draw.DrawWishListItemSnapshot
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository

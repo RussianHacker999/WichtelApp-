@@ -1,7 +1,7 @@
 package com.example.wichtly.data.repository
 
 import com.example.wichtly.data.local.storage.LocalPhotoStorageManager
-import com.example.wichtly.domain.model.PhotoOwnerType
+import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.PhotoRepository
 import java.io.File
 

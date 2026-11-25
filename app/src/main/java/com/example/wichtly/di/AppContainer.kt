@@ -1,7 +1,7 @@
 package com.example.wichtly.di
 
 import android.content.Context
-import com.example.wichtly.data.local.AppDatabase
+import com.example.wichtly.data.local.database.AppDatabase
 import com.example.wichtly.data.local.storage.LocalPhotoStorageManager
 import com.example.wichtly.data.repository.DrawRepositoryImpl
 import com.example.wichtly.data.repository.GiftGroupRepositoryImpl

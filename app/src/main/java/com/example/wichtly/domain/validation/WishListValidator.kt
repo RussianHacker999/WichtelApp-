@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.WishListItem
+import com.example.wichtly.domain.model.participant.WishListItem
 
 sealed interface WishListValidationError {
     object EmptyText : WishListValidationError

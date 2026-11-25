@@ -1,7 +1,7 @@
 package com.example.wichtly.data.mapper
 
 import com.example.wichtly.data.local.relation.GroupDrawOverviewTuple
-import com.example.wichtly.domain.model.GroupDrawOverview
+import com.example.wichtly.domain.model.draw.GroupDrawOverview
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
 import com.example.wichtly.data.local.entity.DrawEntity
 import com.example.wichtly.data.local.entity.DrawWishListItemSnapshotEntity
@@ -9,11 +9,11 @@ import com.example.wichtly.data.local.relation.DrawAssignmentWithWishlist
 import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
 import com.example.wichtly.data.local.relation.ParticipantPreviewTuple
-import com.example.wichtly.domain.model.DrawAssignment
-import com.example.wichtly.domain.model.DrawDetail
-import com.example.wichtly.domain.model.DrawSummary
-import com.example.wichtly.domain.model.DrawWishListItemSnapshot
-import com.example.wichtly.domain.model.ParticipantPreview
+import com.example.wichtly.domain.model.draw.DrawAssignment
+import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSummary
+import com.example.wichtly.domain.model.draw.DrawWishListItemSnapshot
+import com.example.wichtly.domain.model.draw.ParticipantPreview
 
 
 fun DrawWithDetails.toDomainModel(): DrawDetail {

@@ -1,7 +1,7 @@
 package com.example.wichtly.data.mapper
 
 import com.example.wichtly.data.local.entity.WishListItemEntity
-import com.example.wichtly.domain.model.WishListItem
+import com.example.wichtly.domain.model.participant.WishListItem
 
 fun WishListItemEntity.toDomainModel(): WishListItem = WishListItem(
     id = id,

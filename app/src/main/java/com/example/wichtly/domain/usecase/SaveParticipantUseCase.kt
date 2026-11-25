@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.usecase
 
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.validation.ParticipantResult

@@ -1,6 +1,6 @@
 package com.example.wichtly.testutil
 
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

@@ -1,7 +1,7 @@
 package com.example.wichtly.domain.usecase
 
-import com.example.wichtly.domain.model.DrawType
-import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.domain.model.group.DrawType
+import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.validation.GiftGroupResult
 import com.example.wichtly.domain.validation.GiftGroupValidationError

@@ -2,7 +2,7 @@ package com.example.wichtly.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.wichtly.domain.model.DrawType
+import com.example.wichtly.domain.model.group.DrawType
 import java.time.LocalDate
 
 @Entity(tableName = "gift_groups")

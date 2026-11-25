@@ -17,8 +17,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.components.FieldLabel
-import com.example.wichtly.ui.components.WichtlyTextButton
+import com.example.wichtly.ui.components.controls.FieldLabel
+import com.example.wichtly.ui.components.controls.WichtlyTextButton
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File

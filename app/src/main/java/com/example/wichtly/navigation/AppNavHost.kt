@@ -13,42 +13,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.wichtly.ui.groups.GroupsRoute
-import com.example.wichtly.ui.groups.detail.GroupDetailRoute
-import com.example.wichtly.ui.groups.form.GroupFormRoute
-import com.example.wichtly.ui.wishlist.ParticipantWishlistRoute
-import com.example.wichtly.ui.draws.DrawDetailRoute
-import com.example.wichtly.ui.draws.DrawHistoryRoute
-import com.example.wichtly.ui.groups.preparation.PreparationRoute
-import com.example.wichtly.ui.start.StartRoute
+import com.example.wichtly.ui.groups.list.state.GroupsRoute
+import com.example.wichtly.ui.groups.detail.state.GroupDetailRoute
+import com.example.wichtly.ui.groups.form.state.GroupFormRoute
+import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
+import com.example.wichtly.ui.draws.detail.state.DrawDetailRoute
+import com.example.wichtly.ui.draws.history.state.DrawHistoryRoute
+import com.example.wichtly.ui.draws.preparation.state.PreparationRoute
+import com.example.wichtly.ui.start.state.StartRoute
 import com.example.wichtly.logging.AppLog
 
 private const val TAG = "Navigation"
-
-
-object Routes {
-    const val ARG_GROUP_ID = "groupId"
-    const val ARG_DRAW_ID = "drawId"
-    const val ARG_PARTICIPANT_ID = "participantId"
-    const val START = "start"
-    const val GROUPS = "groups"
-    const val GROUP_CREATE = "group-form"
-    const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}"
-    const val GROUP_DETAIL = "group-detail/{$ARG_GROUP_ID}"
-    const val WISHLIST = "wishlist/{$ARG_PARTICIPANT_ID}"
-    const val DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}"
-    const val DRAW_HISTORY = "draw-history/{$ARG_GROUP_ID}"
-    const val PREPARATION = "preparation/{$ARG_GROUP_ID}"
-
-
-    fun groupEdit(groupId: String) = "group-form/$groupId"
-    fun groupDetail(groupId: String) = "group-detail/$groupId"
-    fun wishlist(participantId: String) = "wishlist/$participantId"
-
-    fun drawDetail(drawId: String) = "draw-detail/$drawId"
-    fun drawHistory(groupId: String) = "draw-history/$groupId"
-    fun preparation(groupId: String) = "preparation/$groupId"
-}
 
 /**
  * Navigation der App.

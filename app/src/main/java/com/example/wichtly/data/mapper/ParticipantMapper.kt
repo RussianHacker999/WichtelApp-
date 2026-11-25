@@ -1,7 +1,7 @@
 package com.example.wichtly.data.mapper
 
 import com.example.wichtly.data.local.entity.ParticipantEntity
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 
 fun ParticipantEntity.toDomainModel(): Participant = Participant(
     id = id,

@@ -1,9 +1,9 @@
 package com.example.wichtly.testutil
 
-import com.example.wichtly.domain.model.DrawDetail
-import com.example.wichtly.domain.model.DrawSummary
-import com.example.wichtly.domain.model.GroupDrawOverview
-import com.example.wichtly.domain.model.ParticipantPreview
+import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSummary
+import com.example.wichtly.domain.model.draw.GroupDrawOverview
+import com.example.wichtly.domain.model.draw.ParticipantPreview
 import com.example.wichtly.domain.repository.DrawRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow

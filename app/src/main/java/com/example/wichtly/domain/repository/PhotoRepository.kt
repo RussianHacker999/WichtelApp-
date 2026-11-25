@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.repository
 
-import com.example.wichtly.domain.model.PhotoOwnerType
+import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import java.io.File
 
 /**

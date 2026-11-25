@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.GiftGroup
+import com.example.wichtly.domain.model.group.GiftGroup
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

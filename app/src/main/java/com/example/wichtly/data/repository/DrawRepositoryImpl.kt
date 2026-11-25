@@ -4,10 +4,10 @@ import com.example.wichtly.data.local.dao.DrawDao
 import com.example.wichtly.data.mapper.toDomainModel
 import com.example.wichtly.data.mapper.toDomainModelSummaryList
 import com.example.wichtly.data.mapper.toEntities
-import com.example.wichtly.domain.model.DrawDetail
-import com.example.wichtly.domain.model.DrawSummary
-import com.example.wichtly.domain.model.GroupDrawOverview
-import com.example.wichtly.domain.model.ParticipantPreview
+import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.DrawSummary
+import com.example.wichtly.domain.model.draw.GroupDrawOverview
+import com.example.wichtly.domain.model.draw.ParticipantPreview
 import com.example.wichtly.domain.repository.DrawRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

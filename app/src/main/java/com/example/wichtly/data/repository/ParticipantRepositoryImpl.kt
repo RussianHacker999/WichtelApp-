@@ -4,7 +4,7 @@ import com.example.wichtly.data.local.dao.ParticipantDao
 import com.example.wichtly.data.mapper.toDomainModel
 import com.example.wichtly.data.mapper.toDomainModelList
 import com.example.wichtly.data.mapper.toEntity
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

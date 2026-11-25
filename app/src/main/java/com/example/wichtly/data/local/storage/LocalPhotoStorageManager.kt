@@ -1,7 +1,7 @@
 package com.example.wichtly.data.local.storage
 
 import android.content.Context
-import com.example.wichtly.domain.model.PhotoOwnerType
+import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

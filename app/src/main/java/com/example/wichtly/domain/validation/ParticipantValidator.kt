@@ -1,6 +1,6 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.Participant
+import com.example.wichtly.domain.model.participant.Participant
 
 sealed interface ParticipantValidationError {
     object EmptyName : ParticipantValidationError

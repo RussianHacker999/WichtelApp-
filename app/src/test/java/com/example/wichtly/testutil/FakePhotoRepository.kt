@@ -1,6 +1,6 @@
 package com.example.wichtly.testutil
 
-import com.example.wichtly.domain.model.PhotoOwnerType
+import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.PhotoRepository
 import java.io.File
 

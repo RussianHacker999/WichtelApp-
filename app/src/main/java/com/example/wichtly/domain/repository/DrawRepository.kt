@@ -1,10 +1,10 @@
 package com.example.wichtly.domain.repository
 
-import com.example.wichtly.domain.model.DrawDetail
-import com.example.wichtly.domain.model.GroupDrawOverview
+import com.example.wichtly.domain.model.draw.DrawDetail
+import com.example.wichtly.domain.model.draw.GroupDrawOverview
 
-import com.example.wichtly.domain.model.DrawSummary
-import com.example.wichtly.domain.model.ParticipantPreview
+import com.example.wichtly.domain.model.draw.DrawSummary
+import com.example.wichtly.domain.model.draw.ParticipantPreview
 import kotlinx.coroutines.flow.Flow
 
 /**
