@@ -1,23 +1,11 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.participant.WishListItem
-
-sealed interface WishListValidationError {
-    object EmptyText : WishListValidationError
-    object TextTooLong : WishListValidationError
-    object DuplicateText : WishListValidationError
-    object ItemNotFound : WishListValidationError
-}
-
-sealed interface WishListItemResult {
-    data class Success(val item: WishListItem) : WishListItemResult
-    data class ValidationError(val errors: List<WishListValidationError>) : WishListItemResult
-}
+import com.example.wichtly.domain.model.participant.WishlistItem
 
 /**
- * Einzige Quelle aller Fachregeln für Wünsche. Aufgerufen vom SaveWishListItemUseCase.
+ * Einzige Quelle aller Fachregeln für Wünsche. Aufgerufen vom SaveWishlistItemUseCase.
  */
-class WishListValidator {
+class WishlistValidator {
 
     companion object {
         const val MAX_TEXT_LENGTH = 200
@@ -27,10 +15,10 @@ class WishListValidator {
     fun normalizeText(raw: String): String = raw.trim()
 
     /** Regel: Text ist nicht leer und höchstens [MAX_TEXT_LENGTH] Zeichen lang. */
-    fun validateText(raw: String): List<WishListValidationError> = buildList {
+    fun validateText(raw: String): List<WishlistValidationError> = buildList {
         val text = normalizeText(raw)
-        if (text.isEmpty()) add(WishListValidationError.EmptyText)
-        if (text.length > MAX_TEXT_LENGTH) add(WishListValidationError.TextTooLong)
+        if (text.isEmpty()) add(WishlistValidationError.EmptyText)
+        if (text.length > MAX_TEXT_LENGTH) add(WishlistValidationError.TextTooLong)
     }
 
     /**
@@ -40,20 +28,20 @@ class WishListValidator {
     fun validateUniqueText(
         raw: String,
         itemId: String?,
-        existingItemsOfParticipant: List<WishListItem>,
-    ): List<WishListValidationError> = buildList {
+        existingItemsOfParticipant: List<WishlistItem>,
+    ): List<WishlistValidationError> = buildList {
         val text = normalizeText(raw)
         val isDuplicate = existingItemsOfParticipant
             .filter { it.id != itemId }
             .any { normalizeText(it.text).equals(text, ignoreCase = true) }
-        if (isDuplicate) add(WishListValidationError.DuplicateText)
+        if (isDuplicate) add(WishlistValidationError.DuplicateText)
     }
 
     /** Prüft alle Regeln für einen Wunsch gegen die übrigen Wünsche desselben Teilnehmers. */
     fun validate(
-        item: WishListItem,
-        existingItemsOfParticipant: List<WishListItem>,
-    ): List<WishListValidationError> = buildList {
+        item: WishlistItem,
+        existingItemsOfParticipant: List<WishlistItem>,
+    ): List<WishlistValidationError> = buildList {
         addAll(validateText(item.text))
         addAll(validateUniqueText(item.text, item.id, existingItemsOfParticipant))
     }

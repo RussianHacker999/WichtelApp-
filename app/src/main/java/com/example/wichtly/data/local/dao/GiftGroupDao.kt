@@ -12,17 +12,17 @@ import kotlinx.coroutines.flow.Flow
 interface GiftGroupDao {
 
     @Query("SELECT * FROM gift_groups ORDER BY drawDay ASC, name COLLATE NOCASE ASC")
-    fun getAllGiftGroups(): Flow<List<GiftGroupEntity>>
+    fun observeGiftGroups(): Flow<List<GiftGroupEntity>>
 
     @Query("SELECT * FROM gift_groups WHERE id = :id")
-    fun getGiftGroupById(id: String): Flow<GiftGroupEntity?>
+    fun observeGiftGroupById(id: String): Flow<GiftGroupEntity?>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertGroup(group: GiftGroupEntity)
+    suspend fun insertGiftGroup(group: GiftGroupEntity)
 
     @Update
-    suspend fun updateGroup(group: GiftGroupEntity): Int
+    suspend fun updateGiftGroup(group: GiftGroupEntity): Int
 
     @Query("DELETE FROM gift_groups WHERE id = :id")
-    suspend fun deleteGroupById(id: String)
+    suspend fun deleteGiftGroupById(id: String)
 }

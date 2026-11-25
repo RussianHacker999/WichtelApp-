@@ -1,15 +1,14 @@
 package com.example.wichtly.ui.wishlist.screen
 
 import androidx.annotation.StringRes
-import com.example.wichtly.domain.model.participant.WishListItem
+import com.example.wichtly.domain.model.participant.WishlistItem
 
 /**
  * UI State für den ParticipantWishlistScreen.
  *
  * Erklärung der Zustände (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
  * - `isLoading == true`: Der Bildschirm lädt aktuell noch die Daten des Teilnehmers.
- * - `isLoading == false` und `participantName == null`: Bedeutet "Teilnehmer nicht gefunden"
- *   (der Teilnehmer existiert nicht in der Datenbank oder wurde gelöscht).
+ * - `notFound == true`: Der Teilnehmer existiert nicht in der Datenbank oder wurde gelöscht.
  * - `items`: Eine leere Liste (`items.isEmpty()`) ist ein VOLLSTÄNDIG GÜLTIGER ZUSTAND
  *   (der Teilnehmer hat bisher noch keine Wünsche eingetragen) und stellt KEINEN Fehler dar!
  * - `errorMessage`: Enthält einen Fehlertext, falls beim Datenabruf ein Fehler aufgetreten ist.
@@ -26,6 +25,7 @@ import com.example.wichtly.domain.model.participant.WishListItem
  *
  * @property isLoading Zeigt an, ob die Erstdaten geladen werden.
  * @property participantName Name des Teilnehmers für die Überschrift (null, falls nicht vorhanden/gefunden).
+ * @property notFound Der Teilnehmer existiert nicht (mehr).
  * @property items Liste der Wünsche des Teilnehmers.
  * @property errorMessage Fehlermeldung auf Screen-Ebene für Ladefehler.
  * @property isSaving Zeigt einen laufenden Speicher-/Löschvorgang an.
@@ -39,7 +39,8 @@ import com.example.wichtly.domain.model.participant.WishListItem
 data class WishlistUiState(
     val isLoading: Boolean = true,
     val participantName: String? = null,
-    val items: List<WishListItem> = emptyList(),
+    val notFound: Boolean = false,
+    val items: List<WishlistItem> = emptyList(),
     @StringRes val errorMessage: Int? = null,
     val isSaving: Boolean = false,
     val showEditor: Boolean = false,

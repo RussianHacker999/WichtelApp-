@@ -170,7 +170,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onPhotoCaptured(File("new.jpg"))
         testScheduler.advanceUntilIdle()
 
-        viewModel.onSaveParticipant()
+        viewModel.onSaveParticipantClick()
         testScheduler.advanceUntilIdle()
 
         assertTrue(photoRepo.deletedPaths.contains(oldPath))
@@ -198,13 +198,13 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onEditParticipantClick(participantId)
         testScheduler.advanceUntilIdle()
 
-        viewModel.onPhotoRemove()
+        viewModel.onRemovePhoto()
         testScheduler.advanceUntilIdle()
 
         assertNull(viewModel.uiState.value.participantPhotoPath)
         assertTrue(!photoRepo.deletedPaths.contains(oldPath))
 
-        viewModel.onSaveParticipant()
+        viewModel.onSaveParticipantClick()
         testScheduler.advanceUntilIdle()
 
         assertTrue(photoRepo.deletedPaths.contains(oldPath))
@@ -231,7 +231,7 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
         val path = viewModel.uiState.value.participantPhotoPath
 
-        viewModel.onPhotoRemove()
+        viewModel.onRemovePhoto()
         testScheduler.advanceUntilIdle()
 
         assertNull(viewModel.uiState.value.participantPhotoPath)
@@ -325,7 +325,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onPhotoCaptured(File("new.jpg"))
         testScheduler.advanceUntilIdle()
 
-        viewModel.onSaveParticipant()
+        viewModel.onSaveParticipantClick()
         testScheduler.advanceUntilIdle()
 
         assertTrue(photoRepo.deletedPaths.isEmpty())
@@ -353,7 +353,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onDeleteParticipantClick(participantId)
         testScheduler.advanceUntilIdle()
 
-        viewModel.onConfirmDelete()
+        viewModel.onConfirmParticipantDelete()
         testScheduler.advanceUntilIdle()
 
         assertTrue(photoRepo.deletedPaths.contains(photoPath))
@@ -378,7 +378,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onDeleteParticipantClick(participantId)
         testScheduler.advanceUntilIdle()
 
-        viewModel.onConfirmDelete()
+        viewModel.onConfirmParticipantDelete()
         testScheduler.advanceUntilIdle()
 
         assertTrue(photoRepo.deletedPaths.isEmpty())
@@ -508,7 +508,7 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         viewModel.onParticipantNameChange("Test")
-        viewModel.onSaveParticipant() // hängt am Gate -> isSaving bleibt true
+        viewModel.onSaveParticipantClick() // hängt am Gate -> isSaving bleibt true
 
         val stateDuringSave = viewModel.uiState.value
         assertEquals(true, stateDuringSave.isSaving)

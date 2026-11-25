@@ -1,14 +1,14 @@
 package com.example.wichtly.domain.usecase
 
-import com.example.wichtly.domain.model.participant.WishListItem
-import com.example.wichtly.domain.repository.WishListRepository
-import com.example.wichtly.domain.validation.WishListItemResult
-import com.example.wichtly.domain.validation.WishListValidationError
-import com.example.wichtly.domain.validation.WishListValidator
+import com.example.wichtly.domain.model.participant.WishlistItem
+import com.example.wichtly.domain.repository.WishlistRepository
+import com.example.wichtly.domain.validation.WishlistItemResult
+import com.example.wichtly.domain.validation.WishlistValidationError
+import com.example.wichtly.domain.validation.WishlistValidator
 import kotlinx.coroutines.flow.first
 import com.example.wichtly.logging.AppLog
 
-private const val TAG = "SaveWishListItem"
+private const val TAG = "SaveWishlistItem"
 
 /**
  * Legt einen Wunsch an oder ändert ihn. Einzige Stelle, an der Wünsche geprüft werden.
@@ -18,9 +18,9 @@ private const val TAG = "SaveWishListItem"
  * Ein neuer Wunsch wird hinten angehängt (höchste sortOrder + 1); beim Bearbeiten bleiben id
  * und sortOrder erhalten.
  */
-class SaveWishListItemUseCase(
-    private val repository: WishListRepository,
-    private val validator: WishListValidator = WishListValidator(),
+class SaveWishlistItemUseCase(
+    private val repository: WishlistRepository,
+    private val validator: WishlistValidator = WishlistValidator(),
 ) {
     /**
      * @param itemId null legt einen neuen Wunsch an, sonst wird dieser Wunsch geändert.
@@ -31,7 +31,7 @@ class SaveWishListItemUseCase(
         itemId: String?,
         participantId: String,
         text: String,
-    ): WishListItemResult {
+    ): WishlistItemResult {
         AppLog.d(TAG) { if (itemId == null) "Neuen Wunsch für Teilnehmer $participantId speichern" else "Wunsch $itemId speichern" }
         val currentItems = repository.observeWishlistItems(participantId).first()
         val stored = itemId?.let { id ->
@@ -40,7 +40,7 @@ class SaveWishListItemUseCase(
 
         val normalizedText = validator.normalizeText(text)
         val item = stored?.copy(text = normalizedText)
-            ?: WishListItem(
+            ?: WishlistItem(
                 participantId = participantId,
                 text = normalizedText,
                 sortOrder = (currentItems.maxOfOrNull { it.sortOrder } ?: -1) + 1,
@@ -48,23 +48,23 @@ class SaveWishListItemUseCase(
 
         val errors = validator.validate(item, currentItems)
         if (errors.isNotEmpty()) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
-            return WishListItemResult.ValidationError(errors)
+            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
+            return WishlistItemResult.ValidationError(errors)
         }
 
         if (stored == null) {
-            repository.insertWishListItem(item)
+            repository.insertWishlistItem(item)
             AppLog.i(TAG, "Wunsch ${item.id} für Teilnehmer $participantId angelegt")
-        } else if (!repository.updateWishListItem(item)) {
+        } else if (!repository.updateWishlistItem(item)) {
             return notFound(item.id)
         } else {
             AppLog.i(TAG, "Wunsch ${item.id} geändert")
         }
-        return WishListItemResult.Success(item)
+        return WishlistItemResult.Success(item)
     }
 
-    private fun notFound(itemId: String): WishListItemResult {
+    private fun notFound(itemId: String): WishlistItemResult {
         AppLog.w(TAG, "Wunsch $itemId nicht gefunden, nichts gespeichert")
-        return WishListItemResult.ValidationError(listOf(WishListValidationError.ItemNotFound))
+        return WishlistItemResult.ValidationError(listOf(WishlistValidationError.WishNotFound))
     }
 }

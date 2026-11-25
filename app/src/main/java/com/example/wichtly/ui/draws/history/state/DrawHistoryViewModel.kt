@@ -51,7 +51,7 @@ class DrawHistoryViewModel(
     private val _localState = MutableStateFlow(DrawHistoryLocalState())
 
     val uiState: StateFlow<DrawHistoryUiState> = combine(
-        giftGroupRepository.getGiftGroupById(groupId)
+        giftGroupRepository.observeGiftGroupById(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe.", e)
@@ -76,7 +76,7 @@ class DrawHistoryViewModel(
         DrawHistoryUiState(
             isLoading = false,
             groupName = group?.name,
-            groupNotFound = isGroupNotFound,
+            notFound = isGroupNotFound,
             draws = uiItems,
             errorMessage = localState.loadError,
         )

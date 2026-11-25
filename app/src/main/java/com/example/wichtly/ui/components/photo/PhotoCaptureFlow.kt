@@ -37,7 +37,6 @@ private enum class PhotoFlowStep {
  * - Speichert selbst KEIN Foto dauerhaft ab und ruft KEIN Repository auf.
  * - Bei erfolgreicher Fotoaufnahme wird die erzeugte [File] an [onPhotoCaptured] übergeben und [onClose] aufgerufen.
  *
- * @param area Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
  * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist (für "Foto entfernen").
  * @param isOpen Steuert die Sichtbarkeit des gesamten Workflows (State Hoisting).
  * @param onClose Callback zum Schließen des Workflows.
@@ -48,7 +47,6 @@ private enum class PhotoFlowStep {
  */
 @Composable
 fun PhotoCaptureFlow(
-    area: PhotoArea,
     hasPhoto: Boolean,
     isOpen: Boolean,
     onClose: () -> Unit,
@@ -81,7 +79,6 @@ fun PhotoCaptureFlow(
     when (currentStep) {
         PhotoFlowStep.SOURCE_SELECTION -> {
             PhotoSourceDialog(
-                area = area,
                 hasPhoto = hasPhoto,
                 onTakePhoto = {
                     val permissionGranted = ContextCompat.checkSelfPermission(

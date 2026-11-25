@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.ui.theme.Spacing
 
 private val ButtonHeight = 48.dp
 private val CompactButtonHeight = 40.dp
@@ -47,10 +48,10 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
             strokeWidth = 2.dp,
             color = loadingColor,
         )
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(Spacing.s))
     } else if (icon != null) {
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(Spacing.xs))
     }
     // Die Beschriftung wird nie abgeschnitten: autoSize verkleinert sie schrittweise bis 11sp,
     // falls der Button schmal ist (zwei gleich breite Buttons, große Systemschrift).

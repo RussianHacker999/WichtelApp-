@@ -7,21 +7,21 @@ import com.example.wichtly.data.repository.DrawRepositoryImpl
 import com.example.wichtly.data.repository.GiftGroupRepositoryImpl
 import com.example.wichtly.data.repository.ParticipantRepositoryImpl
 import com.example.wichtly.data.repository.PhotoRepositoryImpl
-import com.example.wichtly.data.repository.WishListRepositoryImpl
+import com.example.wichtly.data.repository.WishlistRepositoryImpl
 import com.example.wichtly.domain.algorithm.SecretSantaDrawAlgorithm
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
-import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
-import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
+import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.ParticipantValidator
-import com.example.wichtly.domain.validation.WishListValidator
+import com.example.wichtly.domain.validation.WishlistValidator
 
 /**
  * Composition Root der App.
@@ -32,14 +32,14 @@ import com.example.wichtly.domain.validation.WishListValidator
 interface AppContainer {
     val giftGroupRepository: GiftGroupRepository
     val participantRepository: ParticipantRepository
-    val wishListRepository: WishListRepository
+    val wishlistRepository: WishlistRepository
     val drawRepository: DrawRepository
     val photoRepository: PhotoRepository
 
     val saveGiftGroupUseCase: SaveGiftGroupUseCase
     val deleteGiftGroupUseCase: DeleteGiftGroupUseCase
     val saveParticipantUseCase: SaveParticipantUseCase
-    val saveWishListItemUseCase: SaveWishListItemUseCase
+    val saveWishlistItemUseCase: SaveWishlistItemUseCase
     val performDrawUseCase: PerformDrawUseCase
 }
 
@@ -61,8 +61,8 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     override val participantRepository: ParticipantRepository by lazy {
         ParticipantRepositoryImpl(participantDao = database.participantDao())
     }
-    override val wishListRepository: WishListRepository by lazy {
-        WishListRepositoryImpl(wishListItemDao = database.wishListItemDao())
+    override val wishlistRepository: WishlistRepository by lazy {
+        WishlistRepositoryImpl(wishlistItemDao = database.wishlistItemDao())
     }
     override val drawRepository: DrawRepository by lazy {
         DrawRepositoryImpl(drawDao = database.drawDao())
@@ -97,17 +97,17 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
             validator = ParticipantValidator(),
         )
     }
-    override val saveWishListItemUseCase: SaveWishListItemUseCase by lazy {
-        SaveWishListItemUseCase(
-            repository = wishListRepository,
-            validator = WishListValidator(),
+    override val saveWishlistItemUseCase: SaveWishlistItemUseCase by lazy {
+        SaveWishlistItemUseCase(
+            repository = wishlistRepository,
+            validator = WishlistValidator(),
         )
     }
     override val performDrawUseCase: PerformDrawUseCase by lazy {
         PerformDrawUseCase(
             giftGroupRepository = giftGroupRepository,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
+            wishlistRepository = wishlistRepository,
             drawRepository = drawRepository,
             algorithm = SecretSantaDrawAlgorithm(),
         )

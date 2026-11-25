@@ -64,6 +64,12 @@ class GroupDetailViewModelGroupDeleteTest {
         // Kein "Gruppe nicht gefunden"-Zustand, solange die Route zurücknavigiert
         assertFalse(state.notFound)
         assertEquals(1, groupRepo.deleteCalls)
+
+        // Nach der Quittung ist das Ereignis weg, ein "nicht gefunden" erscheint trotzdem nicht
+        viewModel.onGroupDeletedHandled()
+        testScheduler.advanceUntilIdle()
+        assertFalse(viewModel.uiState.value.isGroupDeleted)
+        assertFalse(viewModel.uiState.value.notFound)
     }
 
     @Test

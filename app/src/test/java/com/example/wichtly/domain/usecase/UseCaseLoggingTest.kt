@@ -9,7 +9,7 @@ import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
-import com.example.wichtly.testutil.FakeWishListRepository
+import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.RecordingLogSink
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -65,7 +65,7 @@ class UseCaseLoggingTest {
         val useCase = PerformDrawUseCase(
             FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
             FakeParticipantRepository().apply { setParticipants(teilnehmer) },
-            FakeWishListRepository(),
+            FakeWishlistRepository(),
             FakeDrawRepository(),
             today = { LocalDate.of(2026, 11, 25) },
         )

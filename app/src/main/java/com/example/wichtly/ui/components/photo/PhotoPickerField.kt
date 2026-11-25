@@ -30,25 +30,21 @@ import java.io.File
  * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]), die optionale Datei ([photoFile])
  * und Interaktions-Callbacks ([onSelectClick]) vollständig von der übergeordneten Ebene.
  *
- * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]). Das Feld sieht für
- *   beide gleich aus; der Parameter bleibt für die Kennzeichnung erhalten.
  * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist.
  * @param onSelectClick Callback beim Klick auf das Foto oder auf "Foto hinzufügen" bzw. "Foto ändern".
  * @param modifier Optionaler Layout-Modifier.
  * @param photoFile Optionale Bilddatei zur Anzeige im [PhotoThumbnail].
  * @param enabled Deaktiviert das Feld, z. B. während gespeichert wird.
  */
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun PhotoPickerField(
-    area: PhotoArea,
     hasPhoto: Boolean,
     onSelectClick: () -> Unit,
     modifier: Modifier = Modifier,
     photoFile: File? = null,
     enabled: Boolean = true,
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.tight)) {
         FieldLabel(text = stringResource(R.string.photo_label))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
             // Runder Foto-Thumbnail oder Platzhalter
@@ -81,7 +77,7 @@ fun PhotoPickerField(
 @Composable
 private fun PhotoPickerFieldGroupEmptyPreview() {
     WichtlyTheme {
-        PhotoPickerField(area = PhotoArea.GROUP, hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
+        PhotoPickerField(hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }
 
@@ -92,7 +88,7 @@ private fun PhotoPickerFieldGroupEmptyPreview() {
 @Composable
 private fun PhotoPickerFieldParticipantEmptyPreview() {
     WichtlyTheme {
-        PhotoPickerField(area = PhotoArea.PARTICIPANT, hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
+        PhotoPickerField(hasPhoto = false, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }
 
@@ -103,6 +99,6 @@ private fun PhotoPickerFieldParticipantEmptyPreview() {
 @Composable
 private fun PhotoPickerFieldParticipantWithPhotoPreview() {
     WichtlyTheme {
-        PhotoPickerField(area = PhotoArea.PARTICIPANT, hasPhoto = true, onSelectClick = {}, modifier = Modifier.padding(16.dp))
+        PhotoPickerField(hasPhoto = true, onSelectClick = {}, modifier = Modifier.padding(16.dp))
     }
 }

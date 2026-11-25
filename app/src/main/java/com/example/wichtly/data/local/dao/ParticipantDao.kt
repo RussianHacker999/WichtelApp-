@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 interface ParticipantDao {
 
     @Query("SELECT * FROM participants WHERE groupId = :groupId ORDER BY name COLLATE NOCASE ASC")
-    fun getParticipantsByGroupId(groupId: String): Flow<List<ParticipantEntity>>
+    fun observeParticipantsByGroupId(groupId: String): Flow<List<ParticipantEntity>>
 
     @Query("SELECT * FROM participants WHERE id = :id")
-    fun getParticipantById(id: String): Flow<ParticipantEntity?>
+    fun observeParticipantById(id: String): Flow<ParticipantEntity?>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertParticipant(participant: ParticipantEntity)

@@ -65,21 +65,30 @@ import java.io.File
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-// hier wurden die Schachteln onAddGroupClick, onGroupClick(groupId), onEditGroupClick(groupId) eingefügt
-// die später in AppNavHost verdrahtet und dann jeweils zu "Formular neu", "Gruppendetail" und "Formular bearbeiten" geführt werden
-
-// Startscreen mit allen Gruppen; die Bausteine (Top-Leiste, Karten, Buttons) kommen aus ui/components
+/**
+ * Zustandsloser Screen der Gruppenliste; die Bausteine (Top-Leiste, Karten, Buttons) kommen aus ui/components.
+ *
+ * Die Callbacks sind "Event-Handler": Funktionen, die von außen hereingereicht werden. Die Route verdrahtet
+ * sie mit dem ViewModel bzw. der Navigation (Formular neu, Gruppendetails, Formular bearbeiten, Vorbereitung).
+ * Die Annotation @Composable kennzeichnet eine Funktion, die UI beschreibt (früher: XML-Layouts).
+ *
+ * @param state Aktueller Zustand der Gruppenliste.
+ * @param onAddGroupClick "Neue Gruppe" angetippt.
+ * @param onGroupClick Gruppenkarte angetippt (wählt sie für "Losen" aus).
+ * @param onDetailsClick "Gruppendetails" im Kartenmenü.
+ * @param onEditGroupClick "Gruppe bearbeiten" im Kartenmenü.
+ * @param onPrepareDrawClick "Losen" für die ausgewählte Gruppe.
+ * @param modifier Äußerer Modifier.
+ */
 @Composable
-//die Annotation bescheibt, dass die Fkt. UI-Elemente bescheibt - frueher Arbeit mit XML
 fun GroupsScreen(
-    uiState: GroupsUiState,
-    modifier: Modifier = Modifier,
-    // Callbacks/Event-Handler (Funktionen die von aussen in das Composable reingereicht werden)
+    state: GroupsUiState,
     onAddGroupClick: () -> Unit,
     onGroupClick: (groupId: String) -> Unit,
     onDetailsClick: (groupId: String) -> Unit,
     onEditGroupClick: (groupId: String) -> Unit,
     onPrepareDrawClick: (groupId: String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     WichtlyScaffold(
         // WichtlyScaffold ist das gemeinsame Geruest jedes Screens (Top-Leiste, Inhalt, Aktionsleiste unten)
@@ -88,14 +97,14 @@ fun GroupsScreen(
         bottomBar = {
             // "Losen" ist die EINE Hauptaktion; "Neue Gruppe" sitzt am Abschnitt "Gruppen".
             // Ohne Gruppen (oder beim Laden/Fehler) gibt es nichts zu losen, also keine Aktionsleiste.
-            if (!uiState.isLoading && uiState.errorMessage == null && uiState.groups.isNotEmpty()) {
-                val hasSelection = uiState.selectedGroupId != null
+            if (!state.isLoading && state.errorMessage == null && state.groups.isNotEmpty()) {
+                val hasSelection = state.selectedGroupId != null
                 BottomActionBar(hint = if (hasSelection) null else stringResource(R.string.groups_select_hint)) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
                         // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
                         enabled = hasSelection,
-                        onClick = { uiState.selectedGroupId?.let(onPrepareDrawClick) },
+                        onClick = { state.selectedGroupId?.let(onPrepareDrawClick) },
                         icon = Icons.Filled.Redeem,
                         modifier = Modifier.weight(1f),
                     )
@@ -115,7 +124,7 @@ fun GroupsScreen(
                 // ein Element: item vs. mehrere Elemente aus einer Liste: items
                 PageHeader(title = stringResource(R.string.groups_title), subtitle = stringResource(R.string.groups_subtitle))
             }
-            if (uiState.isLoading) {
+            if (state.isLoading) {
                 item {
                     // Zeigt einen Ladekreis (von Material 3)
                     LoadingState(
@@ -123,18 +132,18 @@ fun GroupsScreen(
                         modifier = Modifier.fillMaxWidth().height(240.dp),
                     )
                 }
-            } else if (uiState.errorMessage != null) {
+            } else if (state.errorMessage != null) {
                 item {
                     MessageState(
                         title = stringResource(R.string.common_error_loading_title),
-                        text = stringResource(uiState.errorMessage),
+                        text = stringResource(state.errorMessage),
                         icon = Icons.Outlined.ErrorOutline,
                         isError = true,
                         fillMaxSize = false,
                         modifier = Modifier.fillMaxWidth().padding(top = Spacing.xl),
                     )
                 }
-            } else if (uiState.groups.isEmpty()) {
+            } else if (state.groups.isEmpty()) {
                 item {
                     MessageState(
                         title = stringResource(R.string.groups_empty_title),
@@ -150,18 +159,18 @@ fun GroupsScreen(
                 item {
                     SectionHeader(
                         title = stringResource(R.string.groups_section),
-                        count = uiState.groups.size,
+                        count = state.groups.size,
                         action = { SectionActionButton(text = stringResource(R.string.groups_new), onClick = onAddGroupClick) },
                     )
                 }
-                items(uiState.groups, key = { it.id }) { group ->
-                    // fuer jede Gruppe in uiState.groups wird eine HeroGroupCard erstellt
+                items(state.groups, key = { it.id }) { group ->
+                    // fuer jede Gruppe in state.groups wird eine HeroGroupCard erstellt
                     HeroGroupCard(
                         group = group,
                         // holt den Pfad des Gruppenbildes aus dem UiState (null, wenn kein Foto hinterlegt ist)
-                        photoFile = uiState.photoFiles[group.id],
+                        photoFile = state.photoFiles[group.id],
                         // die ausgewaehlte Karte bekommt einen goldenen Rahmen und ein Haekchen
-                        selected = uiState.selectedGroupId == group.id,
+                        selected = state.selectedGroupId == group.id,
                         onClick = { onGroupClick(group.id) },
                         onDetailsClick = { onDetailsClick(group.id) },
                         onEditClick = { onEditGroupClick(group.id) },
@@ -272,7 +281,7 @@ private fun HeroGroupCard(
         }
         Row(
             // untere Zeile der Karte: Name, Budget und Wichtelart, rechts das ⋮-Menü
-            modifier = Modifier.padding(start = Spacing.l, end = 6.dp, top = 10.dp, bottom = 10.dp),
+            modifier = Modifier.padding(start = Spacing.l, end = Spacing.tight, top = Spacing.inline, bottom = Spacing.inline),
             verticalAlignment = Alignment.CenterVertically,
             // Text und Menü vertikal mittig
         ) {
@@ -308,7 +317,7 @@ private fun GroupsScreenPreview() {
     )
     WichtlyTheme {
         GroupsScreen(
-            uiState = GroupsUiState(groups = groups, selectedGroupId = "1"),
+            state = GroupsUiState(groups = groups, selectedGroupId = "1"),
             onAddGroupClick = {},
             onGroupClick = {},
             onDetailsClick = {},
@@ -323,7 +332,7 @@ private fun GroupsScreenPreview() {
 private fun GroupsScreenEmptyPreview() {
     WichtlyTheme {
         GroupsScreen(
-            uiState = GroupsUiState(),
+            state = GroupsUiState(),
             onAddGroupClick = {},
             onGroupClick = {},
             onDetailsClick = {},

@@ -43,14 +43,14 @@ class FakeParticipantRepository : ParticipantRepository {
         participantsFlow.value = participantsFlow.value.filter { it.id != id }
     }
 
-    override fun getParticipantsByGroupId(groupId: String): Flow<List<Participant>> {
+    override fun observeParticipantsByGroupId(groupId: String): Flow<List<Participant>> {
         if (failFlows) {
             return flow { throw RuntimeException("Flow-Fehler beim Laden der Teilnehmer") }
         }
         return participantsFlow.map { list -> list.filter { it.groupId == groupId } }
     }
 
-    override fun getParticipantById(id: String): Flow<Participant?> {
+    override fun observeParticipantById(id: String): Flow<Participant?> {
         if (failFlows) {
             return flow { throw RuntimeException("Flow-Fehler beim Laden des Teilnehmers") }
         }

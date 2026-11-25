@@ -43,7 +43,7 @@ class DeleteGiftGroupUseCaseTest {
 
         assertTrue(result is GiftGroupResult.Success)
         assertEquals(1, groupRepository.deleteCalls)
-        assertNull(groupRepository.getGiftGroupById("g1").first())
+        assertNull(groupRepository.observeGiftGroupById("g1").first())
         assertEquals(
             setOf("photos/groups/familie.jpg", "photos/participants/anna.jpg"),
             photoRepository.deletedPaths.toSet(),
@@ -59,7 +59,7 @@ class DeleteGiftGroupUseCaseTest {
         val result = useCase("g1")
 
         assertTrue(result is GiftGroupResult.Success)
-        assertNull(groupRepository.getGiftGroupById("g1").first())
+        assertNull(groupRepository.observeGiftGroupById("g1").first())
     }
 
     @Test

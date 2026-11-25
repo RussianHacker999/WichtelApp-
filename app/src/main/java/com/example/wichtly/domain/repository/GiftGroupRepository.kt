@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
  * SaveGiftGroupUseCase; geschrieben werden nur bereits geprüfte Gruppen.
  */
 interface GiftGroupRepository {
-    fun getGiftGroups(): Flow<List<GiftGroup>>
-    fun getGiftGroupById(id: String): Flow<GiftGroup?>
+    fun observeGiftGroups(): Flow<List<GiftGroup>>
+    fun observeGiftGroupById(id: String): Flow<GiftGroup?>
     suspend fun insertGiftGroup(group: GiftGroup)
 
     /** @return false, wenn es keine Gruppe mit dieser ID (mehr) gibt. */

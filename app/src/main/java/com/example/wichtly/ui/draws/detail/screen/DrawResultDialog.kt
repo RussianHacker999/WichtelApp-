@@ -67,6 +67,11 @@ import com.example.wichtly.ui.components.display.Sparkle
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
+// Formgebundene Innenabstände des Geschenkanhängers: oben Platz für das Loch mit Band, unten für die Kante
+private val TagPaddingHorizontal = 20.dp
+private val TagPaddingTop = 52.dp
+private val TagPaddingBottom = 22.dp
+
 /**
  * Zustandsloser (stateless) Vollbild-Dialog, der die gezogene Zuordnung (Schenker -> Beschenkter) als
  * Geschenkanhänger zeigt: erst geschlossen ("Tippen zum Öffnen"), nach dem Antippen geöffnet
@@ -144,7 +149,7 @@ private fun GiftTagReveal(
                             indication = null,
                         ) { opened = true }
                         .verticalScroll(rememberScrollState())
-                        .padding(start = 20.dp, end = 20.dp, top = 52.dp, bottom = 22.dp),
+                        .padding(start = TagPaddingHorizontal, end = TagPaddingHorizontal, top = TagPaddingTop, bottom = TagPaddingBottom),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     AnimatedContent(
@@ -174,7 +179,7 @@ private fun GiftTagReveal(
  */
 @Composable
 private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.inline)) {
         // Der geschlossene Anhänger ersetzt die frühere Sicherheitsabfrage ("Nur für deine Augen").
         TagLabel(text = stringResource(R.string.draw_result_only_for_you), color = contentColor)
         Icon(imageVector = Icons.Filled.Redeem, contentDescription = null, tint = contentColor, modifier = Modifier.size(54.dp))
@@ -207,7 +212,7 @@ private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> U
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, onDismiss: () -> Unit) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.inline)) {
         TagLabel(text = stringResource(R.string.draw_result_you_gift, assignment.giverName), color = contentColor)
         Text(
             text = assignment.receiverName,
@@ -229,8 +234,8 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
             )
         } else {
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(6.dp, Alignment.CenterHorizontally),
-                verticalArrangement = Arrangement.spacedBy(6.dp),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.tight, Alignment.CenterHorizontally),
+                verticalArrangement = Arrangement.spacedBy(Spacing.tight),
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 assignment.wishes.forEach { wish ->
@@ -238,7 +243,7 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
                         Text(
                             text = wish,
                             style = MaterialTheme.typography.labelMedium,
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = Spacing.inline, vertical = Spacing.tight),
                         )
                     }
                 }

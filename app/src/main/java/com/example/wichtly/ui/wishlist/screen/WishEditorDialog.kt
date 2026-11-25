@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.theme.WichtlyTheme
-import com.example.wichtly.domain.validation.WishListValidator
+import com.example.wichtly.domain.validation.WishlistValidator
 
 /**
  * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wunschzettel-Eintrags.
@@ -23,18 +23,18 @@ import com.example.wichtly.domain.validation.WishListValidator
  * @param isEditMode Steuert den Dialogtitel: false = "Wunsch hinzufügen", true = "Wunsch bearbeiten".
  * @param text Aktueller Inhalt des Textfeldes.
  * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Eingabefeld.
- * @param isSaving Deaktiviert Interaktionen (wie den Speichern-Button) während eines aktiven Speichervorgangs.
+ * @param isBusy Deaktiviert Interaktionen (wie den Speichern-Button) während eines aktiven Speichervorgangs.
  * @param onTextChange Callback bei Texteingaben im Textfeld.
  * @param onSave Callback beim Bestätigen/Speichern.
  * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
-fun WishlistItemDialog(
+fun WishEditorDialog(
     isEditMode: Boolean,
     text: String,
     errorMessage: String?,
-    isSaving: Boolean,
+    isBusy: Boolean,
     onTextChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
@@ -47,10 +47,10 @@ fun WishlistItemDialog(
         title = stringResource(if (isEditMode) R.string.wishlist_edit else R.string.wishlist_add),
         confirmLabel = stringResource(R.string.common_save),
         onConfirm = onSave,
-        // Warum disabled bei isSaving: Verhindert Mehrfachklicks und unbeabsichtigte doppelte Aufrufe während des Speicherns.
-        confirmEnabled = !isSaving,
-        confirmLoading = isSaving,
-        dismissEnabled = !isSaving,
+        // Warum disabled bei isBusy: Verhindert Mehrfachklicks und unbeabsichtigte doppelte Aufrufe während des Speicherns.
+        confirmEnabled = !isBusy,
+        confirmLoading = isBusy,
+        dismissEnabled = !isBusy,
         modifier = modifier,
     ) {
         // Einzeiliges Textfeld (WichtlyTextField, intern ein OutlinedTextField) für die Eingabe des Wunschtextes.
@@ -61,8 +61,8 @@ fun WishlistItemDialog(
             onValueChange = onTextChange,
             placeholder = stringResource(R.string.wishlist_item_placeholder),
             errorText = errorMessage,
-            enabled = !isSaving,
-            maxLength = WishListValidator.MAX_TEXT_LENGTH,
+            enabled = !isBusy,
+            maxLength = WishlistValidator.MAX_TEXT_LENGTH,
         )
     }
 }
@@ -79,9 +79,9 @@ fun WishlistItemDialog(
  */
 @Preview
 @Composable
-private fun WishlistItemDialogAddEmptyPreview() {
+private fun WishEditorDialogAddEmptyPreview() {
     WichtlyTheme {
-        WishlistItemDialog(isEditMode = false, text = "", errorMessage = null, isSaving = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = false, text = "", errorMessage = null, isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
     }
 }
 
@@ -91,9 +91,9 @@ private fun WishlistItemDialogAddEmptyPreview() {
  */
 @Preview
 @Composable
-private fun WishlistItemDialogEditWithTextPreview() {
+private fun WishEditorDialogEditWithTextPreview() {
     WichtlyTheme {
-        WishlistItemDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isSaving = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
     }
 }
 
@@ -103,20 +103,20 @@ private fun WishlistItemDialogEditWithTextPreview() {
  */
 @Preview
 @Composable
-private fun WishlistItemDialogWithErrorPreview() {
+private fun WishEditorDialogWithErrorPreview() {
     WichtlyTheme {
-        WishlistItemDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isSaving = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
     }
 }
 
 /**
- * Preview 4: Dialog während des aktiven Speichervorgangs (isSaving = true).
+ * Preview 4: Dialog während des aktiven Speichervorgangs (isBusy = true).
  * Warum: Überprüft das Deaktivieren der Interaktionsbuttons und des Eingabefeldes bei laufendem Ladevorgang.
  */
 @Preview
 @Composable
-private fun WishlistItemDialogSavingPreview() {
+private fun WishEditorDialogSavingPreview() {
     WichtlyTheme {
-        WishlistItemDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isSaving = true, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isBusy = true, onTextChange = {}, onSave = {}, onDismiss = {})
     }
 }

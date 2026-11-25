@@ -2,8 +2,6 @@ package com.example.wichtly.testutil
 
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawSummary
-import com.example.wichtly.domain.model.draw.GroupDrawOverview
-import com.example.wichtly.domain.model.draw.ParticipantPreview
 import com.example.wichtly.domain.repository.DrawRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +24,7 @@ class FakeDrawRepository : DrawRepository {
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
-    var saveDrawCalls: Int = 0
+    var insertDrawCalls: Int = 0
         private set
 
     /**
@@ -48,20 +46,6 @@ class FakeDrawRepository : DrawRepository {
      */
     fun removeDraw(id: String) {
         drawsFlow.value = drawsFlow.value.filter { it.id != id }
-    }
-
-    override fun observeGroupDrawOverview(): Flow<List<GroupDrawOverview>> {
-        if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden der Gruppen-Auslosungs-Übersicht") }
-        }
-        return flow { emit(emptyList()) }
-    }
-
-    override fun observeParticipantPreview(groupId: String): Flow<List<ParticipantPreview>> {
-        if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden der Teilnehmer-Vorschau") }
-        }
-        return flow { emit(emptyList()) }
     }
 
     override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> {
@@ -90,18 +74,8 @@ class FakeDrawRepository : DrawRepository {
         return drawsFlow.map { list -> list.find { it.id == drawId } }
     }
 
-    override fun observeLatestDrawDetail(groupId: String): Flow<DrawDetail?> {
-        if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden des neuesten Durchlaufs") }
-        }
-        return drawsFlow.map { list ->
-            list.filter { it.groupId == groupId }
-                .maxByOrNull { it.drawnAt }
-        }
-    }
-
-    override suspend fun saveDraw(draw: DrawDetail) {
-        saveDrawCalls++
+    override suspend fun insertDraw(draw: DrawDetail) {
+        insertDrawCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Fehler beim Speichern der Auslosung")
         }

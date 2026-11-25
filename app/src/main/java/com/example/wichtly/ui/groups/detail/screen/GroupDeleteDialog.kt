@@ -1,14 +1,10 @@
 package com.example.wichtly.ui.groups.detail.screen
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.R
 import com.example.wichtly.ui.components.controls.WichtlyDialog
@@ -23,7 +19,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  *
  * @param groupName Name der zu löschenden Gruppe.
  * @param errorMessage Optionale Fehlermeldung, falls das Löschen fehlgeschlagen ist.
- * @param isDeleting Deaktiviert die Buttons während des laufenden Löschvorgangs.
+ * @param isBusy Deaktiviert die Buttons während des laufenden Löschvorgangs.
  * @param onConfirm Callback beim Bestätigen der Löschung.
  * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
@@ -32,7 +28,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 fun GroupDeleteDialog(
     groupName: String,
     errorMessage: String?,
-    isDeleting: Boolean,
+    isBusy: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
@@ -46,28 +42,19 @@ fun GroupDeleteDialog(
         onConfirm = onConfirm,
         destructive = true,
         // Verhindert Mehrfachklicks und Schließen während des Löschens
-        confirmEnabled = !isDeleting,
-        confirmLoading = isDeleting,
-        dismissEnabled = !isDeleting,
+        confirmEnabled = !isBusy,
+        confirmLoading = isBusy,
+        dismissEnabled = !isBusy,
+        errorMessage = errorMessage,
         modifier = modifier,
-    ) {
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    )
 }
 
 @Preview
 @Composable
 private fun GroupDeleteDialogPreview() {
     WichtlyTheme {
-        GroupDeleteDialog(groupName = "Familie", errorMessage = null, isDeleting = false, onConfirm = {}, onDismiss = {})
+        GroupDeleteDialog(groupName = "Familie", errorMessage = null, isBusy = false, onConfirm = {}, onDismiss = {})
     }
 }
 
@@ -78,7 +65,7 @@ private fun GroupDeleteDialogErrorPreview() {
         GroupDeleteDialog(
             groupName = "Familie",
             errorMessage = "Fehler beim Löschen der Gruppe. Bitte erneut versuchen.",
-            isDeleting = false,
+            isBusy = false,
             onConfirm = {},
             onDismiss = {},
         )

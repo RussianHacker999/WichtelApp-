@@ -1,19 +1,15 @@
 package com.example.wichtly.data.mapper
 
-import com.example.wichtly.data.local.relation.GroupDrawOverviewTuple
-import com.example.wichtly.domain.model.draw.GroupDrawOverview
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
 import com.example.wichtly.data.local.entity.DrawEntity
-import com.example.wichtly.data.local.entity.DrawWishListItemSnapshotEntity
+import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.relation.DrawAssignmentWithWishlist
 import com.example.wichtly.data.local.relation.DrawSummaryTuple
 import com.example.wichtly.data.local.relation.DrawWithDetails
-import com.example.wichtly.data.local.relation.ParticipantPreviewTuple
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawSummary
-import com.example.wichtly.domain.model.draw.DrawWishListItemSnapshot
-import com.example.wichtly.domain.model.draw.ParticipantPreview
+import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 
 
 fun DrawWithDetails.toDomainModel(): DrawDetail {
@@ -40,20 +36,13 @@ fun DrawAssignmentWithWishlist.toDomainModel(): DrawAssignment {
 }
 
 
-fun DrawWishListItemSnapshotEntity.toDomainModel(): DrawWishListItemSnapshot {
-    return DrawWishListItemSnapshot(
+fun DrawWishlistItemSnapshotEntity.toDomainModel(): DrawWishlistItemSnapshot {
+    return DrawWishlistItemSnapshot(
         id = id,
         text = text,
         sortOrder = sortOrder,
     )
 }
-
-
-fun ParticipantPreviewTuple.toDomainModel(): ParticipantPreview = ParticipantPreview(
-    participantId = participantId,
-    name = name,
-    wishCount = wishCount,
-)
 
 
 fun DrawSummaryTuple.toDomainModel(): DrawSummary {
@@ -66,18 +55,12 @@ fun DrawSummaryTuple.toDomainModel(): DrawSummary {
     )
 }
 
-fun List<DrawSummaryTuple>.toDomainModelSummaryList(): List<DrawSummary> {
+fun List<DrawSummaryTuple>.toDomainModels(): List<DrawSummary> {
     return map { it.toDomainModel() }
 }
 
 
-fun GroupDrawOverviewTuple.toDomainModel(): GroupDrawOverview = GroupDrawOverview(
-    groupId = groupId,
-    participantCount = participantCount,
-    drawCount = drawCount,
-)
-
-fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List<DrawWishListItemSnapshotEntity>> {
+fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List<DrawWishlistItemSnapshotEntity>> {
     val drawEntity = DrawEntity(
         id = id,
         groupId = groupId,
@@ -96,7 +79,7 @@ fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List
     }
     val wishlistEntities = assignments.flatMap { assignment ->
         assignment.receiverWishlistItems.map { item ->
-            DrawWishListItemSnapshotEntity(
+            DrawWishlistItemSnapshotEntity(
                 id = item.id,
                 assignmentId = assignment.id,
                 text = item.text,

@@ -2,14 +2,10 @@ package com.example.wichtly.ui.groups.detail.screen
 
 import androidx.compose.ui.res.stringResource
 import com.example.wichtly.R
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -24,7 +20,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  *
  * @param participantName Der Name des zu löschenden Teilnehmers.
  * @param errorMessage Optionale Fehlermeldung, die sichtbar im Dialog angezeigt wird, falls das Löschen fehlschlägt.
- * @param isSaving Deaktiviert die Buttons während des laufenden Löschvorgangs.
+ * @param isBusy Deaktiviert die Buttons während des laufenden Löschvorgangs.
  * @param onConfirm Callback beim Bestätigen der Löschung.
  * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
@@ -33,7 +29,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 fun ParticipantDeleteDialog(
     participantName: String,
     errorMessage: String?,
-    isSaving: Boolean,
+    isBusy: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
@@ -48,22 +44,13 @@ fun ParticipantDeleteDialog(
         confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
-        // Warum disabled bei isSaving: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
-        confirmEnabled = !isSaving,
-        confirmLoading = isSaving,
-        dismissEnabled = !isSaving,
+        // Warum disabled bei isBusy: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
+        confirmEnabled = !isBusy,
+        confirmLoading = isBusy,
+        dismissEnabled = !isBusy,
+        errorMessage = errorMessage,
         modifier = modifier,
-    ) {
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
+    )
 }
 
 /* ============================================================================
@@ -80,7 +67,7 @@ fun ParticipantDeleteDialog(
 @Composable
 private fun ParticipantDeleteDialogPreview() {
     WichtlyTheme {
-        ParticipantDeleteDialog(participantName = "Alex", errorMessage = null, isSaving = false, onConfirm = {}, onDismiss = {})
+        ParticipantDeleteDialog(participantName = "Alex", errorMessage = null, isBusy = false, onConfirm = {}, onDismiss = {})
     }
 }
 
@@ -95,7 +82,7 @@ private fun ParticipantDeleteDialogErrorPreview() {
         ParticipantDeleteDialog(
             participantName = "Alex",
             errorMessage = "Fehler beim Löschen des Teilnehmers. Bitte erneut versuchen.",
-            isSaving = false,
+            isBusy = false,
             onConfirm = {},
             onDismiss = {},
         )

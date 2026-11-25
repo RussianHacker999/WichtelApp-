@@ -8,5 +8,5 @@ data class DrawAssignment(
     val giverId: String,
     val receiverName: String,
     val receiverId: String,
-    val receiverWishlistItems: List<DrawWishListItemSnapshot>,
+    val receiverWishlistItems: List<DrawWishlistItemSnapshot>,
 )

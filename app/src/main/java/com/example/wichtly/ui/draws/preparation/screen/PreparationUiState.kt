@@ -7,20 +7,26 @@ import com.example.wichtly.domain.model.participant.Participant
 /**
  * Alle Daten, die der Vorbereitungsscreen anzeigen soll.
  *
- * [canStartDraw] ist nur true, wenn die Gruppe in der Datenbank gefunden wurde,
- * der Wichteltag nicht vorbei ist und mindestens drei Teilnehmer vorhanden sind.
- *
- * @param notFound ob die GiftGruoup in der Datenbank gefunden wurde
- * @param isStarting ob gerade verscuht wird eine Losung durchzufueheren
- * @param canStartDraw ob die Bedingungen erfuellt sind die Losung zu starten (Gruppe wurde in DB gefunden & min 3 Teilnehmer)
- * @param drawDayPassed ob der Wichteltag vorbei ist (dann ist Losen gesperrt)
+ * @property isLoading Gruppe und Teilnehmer werden noch geladen.
+ * @property group Die ausgewählte Gruppe; null, solange geladen wird oder wenn sie nicht existiert.
+ * @property participants Aktuelle Teilnehmer der Gruppe.
+ * @property notFound Die Gruppe existiert nicht (mehr) in der Datenbank.
+ * @property errorMessage Fehler als String-Ressource (null = kein Fehler).
+ * @property isDrawing Die Auslosung läuft gerade (Button zeigt Ladezustand, Doppelklick wird ignoriert).
+ * @property canStartDraw "Jetzt losen" ist aktiv: Gruppe gefunden, Wichteltag nicht vorbei, mindestens
+ *   drei Teilnehmer. Nur Anzeige; verbindlich prüft der PerformDrawUseCase.
+ * @property drawDayPassed Der Wichteltag ist vorbei; Losen ist gesperrt, bis er verschoben wird.
+ * @property completedDrawId Einmal-Ereignis: Die Auslosung mit dieser ID wurde gespeichert, die Route
+ *   navigiert zum Ergebnis und quittiert mit onDrawHandled().
  */
 data class PreparationUiState(
+    val isLoading: Boolean = true,
     val group: GiftGroup? = null,
     val participants: List<Participant> = emptyList(),
     val notFound: Boolean = false,
     @StringRes val errorMessage: Int? = null,
-    val isStarting: Boolean = false,
+    val isDrawing: Boolean = false,
     val canStartDraw: Boolean = false,
     val drawDayPassed: Boolean = false,
+    val completedDrawId: String? = null,
 )

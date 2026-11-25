@@ -64,10 +64,12 @@ fun GroupDetailRoute(
     val viewModel: GroupDetailViewModel = viewModel(key = groupId, factory = factory)
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Nach dem Löschen genau einmal zurücknavigieren. Ein Zurücksetzen des Signals ist nicht nötig:
-    // Mit dem Verlassen des Back-Stack-Eintrags wird auch das ViewModel verworfen.
+    // Nach dem Löschen genau einmal zurücknavigieren und das Ereignis quittieren
     LaunchedEffect(state.isGroupDeleted) {
-        if (state.isGroupDeleted) onGroupDeleted()
+        if (state.isGroupDeleted) {
+            onGroupDeleted()
+            viewModel.onGroupDeletedHandled()
+        }
     }
 
     val onOpenAppSettings = {
@@ -89,23 +91,23 @@ fun GroupDetailRoute(
         state = state,
         onBack = onBack,
         onEditGroupClick = { onEditGroup(groupId) },
-        onOpenWishlist = onOpenWishlist,
+        onWishlistClick = onOpenWishlist,
         onAddParticipantClick = viewModel::onAddParticipantClick,
         onEditParticipantClick = viewModel::onEditParticipantClick,
         onDeleteParticipantClick = viewModel::onDeleteParticipantClick,
         onParticipantNameChange = viewModel::onParticipantNameChange,
-        onSaveParticipant = viewModel::onSaveParticipant,
+        onSaveParticipantClick = viewModel::onSaveParticipantClick,
         onDismissParticipantEditor = viewModel::onDismissParticipantEditor,
-        onConfirmDelete = viewModel::onConfirmDelete,
-        onDismissDelete = viewModel::onDismissDelete,
+        onConfirmParticipantDelete = viewModel::onConfirmParticipantDelete,
+        onDismissParticipantDelete = viewModel::onDismissParticipantDelete,
         onPhotoSelectClick = viewModel::onPhotoSelectClick,
         onPhotoFlowClose = viewModel::onPhotoFlowClose,
         onPhotoCaptured = viewModel::onPhotoCaptured,
-        onRemovePhoto = viewModel::onPhotoRemove,
+        onRemovePhoto = viewModel::onRemovePhoto,
         onCameraDenied = viewModel::onCameraDenied,
         onOpenAppSettings = onOpenAppSettings,
-        onPrepareDraw = { onPrepareDraw(groupId) },
-        onOpenHistory = { onOpenHistory(groupId) },
+        onPrepareDrawClick = { onPrepareDraw(groupId) },
+        onHistoryClick = { onOpenHistory(groupId) },
         onDeleteGroupClick = viewModel::onDeleteGroupClick,
         onConfirmGroupDelete = viewModel::onConfirmGroupDelete,
         onDismissGroupDelete = viewModel::onDismissGroupDelete,

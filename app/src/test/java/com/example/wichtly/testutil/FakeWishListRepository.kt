@@ -1,22 +1,22 @@
 package com.example.wichtly.testutil
 
-import com.example.wichtly.domain.model.participant.WishListItem
-import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.model.participant.WishlistItem
+import com.example.wichtly.domain.repository.WishlistRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [WishListRepository] zu Testzwecken.
+ * Ein In-Memory-Fake für [WishlistRepository] zu Testzwecken.
  *
- * Reine Persistenz wie das echte Repository (geprüft wird im SaveWishListItemUseCase).
+ * Reine Persistenz wie das echte Repository (geprüft wird im SaveWishlistItemUseCase).
  * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lese-Flows sowie Zähler für Schreibzugriffe
  * und Hilfsmethoden zum direkten Befüllen von Wunschlisten-Einträgen.
  */
-class FakeWishListRepository : WishListRepository {
+class FakeWishlistRepository : WishlistRepository {
 
-    private val itemsFlow = MutableStateFlow<List<WishListItem>>(emptyList())
+    private val itemsFlow = MutableStateFlow<List<WishlistItem>>(emptyList())
 
     // Test-Schalter und Zähler
     var shouldThrow: Boolean = false
@@ -32,25 +32,18 @@ class FakeWishListRepository : WishListRepository {
     /**
      * Setzt die Liste der Wunschlisten-Einträge im Speicher direkt.
      */
-    fun setItems(items: List<WishListItem>) {
+    fun setItems(items: List<WishlistItem>) {
         itemsFlow.value = items
     }
 
-    override fun observeWishlistItems(participantId: String): Flow<List<WishListItem>> {
+    override fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>> {
         if (failFlows) {
             return flow { throw RuntimeException("Flow-Fehler beim Laden der Wunschliste") }
         }
         return itemsFlow.map { list -> list.filter { it.participantId == participantId }.sortedBy { it.sortOrder } }
     }
 
-    override fun getWishListItemById(id: String): Flow<WishListItem?> {
-        if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden des Wunsches") }
-        }
-        return itemsFlow.map { list -> list.find { it.id == id } }
-    }
-
-    override suspend fun insertWishListItem(item: WishListItem) {
+    override suspend fun insertWishlistItem(item: WishlistItem) {
         insertCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Erstellen des Wunsches")
@@ -58,7 +51,7 @@ class FakeWishListRepository : WishListRepository {
         itemsFlow.value = itemsFlow.value + item
     }
 
-    override suspend fun updateWishListItem(item: WishListItem): Boolean {
+    override suspend fun updateWishlistItem(item: WishlistItem): Boolean {
         updateCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Aktualisieren des Wunsches")
@@ -71,7 +64,7 @@ class FakeWishListRepository : WishListRepository {
         return true
     }
 
-    override suspend fun deleteWishListItem(id: String) {
+    override suspend fun deleteWishlistItem(id: String) {
         deleteCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Löschen des Wunsches")

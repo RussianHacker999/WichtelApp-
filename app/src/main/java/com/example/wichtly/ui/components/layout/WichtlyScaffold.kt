@@ -120,7 +120,7 @@ fun BrandTopBar(
         title = {
             Row(verticalAlignment = Alignment.Top) {
                 Text(text = stringResource(R.string.app_name), style = MaterialTheme.typography.headlineSmall)
-                Spacer(modifier = Modifier.width(3.dp))
+                Spacer(modifier = Modifier.width(Spacing.xxs))
                 Sparkle(size = 13.dp, rotationDegrees = 12f)
             }
         },
@@ -163,7 +163,7 @@ fun BottomActionBar(
                 .fillMaxWidth()
                 .navigationBarsPadding()
                 .padding(start = Spacing.l, end = Spacing.l, top = Spacing.m, bottom = Spacing.l),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.inline),
             verticalAlignment = Alignment.CenterVertically,
             content = content,
         )

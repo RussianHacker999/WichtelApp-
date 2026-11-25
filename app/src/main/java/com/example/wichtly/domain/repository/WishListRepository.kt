@@ -1,36 +1,31 @@
 package com.example.wichtly.domain.repository
 
-import com.example.wichtly.domain.model.participant.WishListItem
+import com.example.wichtly.domain.model.participant.WishlistItem
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Repository interface for managing [WishListItem] domain entities.
- * Pure persistence: business rules are checked beforehand in the SaveWishListItemUseCase.
+ * Repository interface for managing [WishlistItem] domain entities.
+ * Pure persistence: business rules are checked beforehand in the SaveWishlistItemUseCase.
  */
-interface WishListRepository {
+interface WishlistRepository {
     /**
      * Observes the list of wishlist items for a given participant.
      */
-    fun observeWishlistItems(participantId: String): Flow<List<WishListItem>>
-
-    /**
-     * Observes a single wishlist item by its unique ID.
-     */
-    fun getWishListItemById(id: String): Flow<WishListItem?>
+    fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>>
 
     /**
      * Stores a new, already validated wishlist item.
      */
-    suspend fun insertWishListItem(item: WishListItem)
+    suspend fun insertWishlistItem(item: WishlistItem)
 
     /**
      * Updates an existing, already validated wishlist item.
      * @return false if no item with this ID exists (anymore).
      */
-    suspend fun updateWishListItem(item: WishListItem): Boolean
+    suspend fun updateWishlistItem(item: WishlistItem): Boolean
 
     /**
      * Deletes a wishlist item by its unique ID.
      */
-    suspend fun deleteWishListItem(id: String)
+    suspend fun deleteWishlistItem(id: String)
 }

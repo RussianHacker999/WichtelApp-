@@ -5,24 +5,21 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
-import com.example.wichtly.data.local.entity.WishListItemEntity
+import com.example.wichtly.data.local.entity.WishlistItemEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface WishListItemDao {
+interface WishlistItemDao {
 
     @Query("SELECT * FROM wishlist_items WHERE participantId = :participantId ORDER BY sortOrder ASC")
-    fun observeWishlistItemsByParticipantId(participantId: String): Flow<List<WishListItemEntity>>
-
-    @Query("SELECT * FROM wishlist_items WHERE id = :id")
-    fun getWishListItemById(id: String): Flow<WishListItemEntity?>
+    fun observeWishlistItemsByParticipantId(participantId: String): Flow<List<WishlistItemEntity>>
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertWishListItem(item: WishListItemEntity)
+    suspend fun insertWishlistItem(item: WishlistItemEntity)
 
     @Update
-    suspend fun updateWishListItem(item: WishListItemEntity): Int
+    suspend fun updateWishlistItem(item: WishlistItemEntity): Int
 
     @Query("DELETE FROM wishlist_items WHERE id = :id")
-    suspend fun deleteWishListItemById(id: String)
+    suspend fun deleteWishlistItemById(id: String)
 }

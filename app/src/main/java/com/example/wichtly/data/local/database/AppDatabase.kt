@@ -9,13 +9,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.wichtly.data.local.dao.DrawDao
 import com.example.wichtly.data.local.dao.GiftGroupDao
 import com.example.wichtly.data.local.dao.ParticipantDao
-import com.example.wichtly.data.local.dao.WishListItemDao
+import com.example.wichtly.data.local.dao.WishlistItemDao
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
 import com.example.wichtly.data.local.entity.DrawEntity
-import com.example.wichtly.data.local.entity.DrawWishListItemSnapshotEntity
+import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.entity.GiftGroupEntity
 import com.example.wichtly.data.local.entity.ParticipantEntity
-import com.example.wichtly.data.local.entity.WishListItemEntity
+import com.example.wichtly.data.local.entity.WishlistItemEntity
 import com.example.wichtly.logging.AppLog
 
 private const val TAG = "AppDatabase"
@@ -51,10 +51,10 @@ private const val TAG = "AppDatabase"
     entities = [
         GiftGroupEntity::class,
         ParticipantEntity::class,
-        WishListItemEntity::class,
+        WishlistItemEntity::class,
         DrawEntity::class,
         DrawAssignmentEntity::class,
-        DrawWishListItemSnapshotEntity::class,
+        DrawWishlistItemSnapshotEntity::class,
     ],
     version = 4,
     exportSchema = true,
@@ -67,7 +67,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun giftGroupDao(): GiftGroupDao
     abstract fun participantDao(): ParticipantDao
-    abstract fun wishListItemDao(): WishListItemDao
+    abstract fun wishlistItemDao(): WishlistItemDao
     abstract fun drawDao(): DrawDao
 
     companion object {

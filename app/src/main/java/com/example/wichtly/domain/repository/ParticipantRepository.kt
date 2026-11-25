@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
  * SaveParticipantUseCase; geschrieben werden nur bereits geprüfte Teilnehmer.
  */
 interface ParticipantRepository {
-    fun getParticipantsByGroupId(groupId: String): Flow<List<Participant>>
-    fun getParticipantById(id: String): Flow<Participant?>
+    fun observeParticipantsByGroupId(groupId: String): Flow<List<Participant>>
+    fun observeParticipantById(id: String): Flow<Participant?>
     suspend fun insertParticipant(participant: Participant)
 
     /** @return false, wenn es keinen Teilnehmer mit dieser ID (mehr) gibt. */

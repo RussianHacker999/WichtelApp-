@@ -3,24 +3,6 @@ package com.example.wichtly.domain.validation
 import com.example.wichtly.domain.model.group.GiftGroup
 import java.time.LocalDate
 
-sealed interface GiftGroupValidationError {
-    object EmptyName : GiftGroupValidationError
-    object NameTooLong : GiftGroupValidationError
-    object DuplicateName : GiftGroupValidationError
-    object InvalidBudgetFormat : GiftGroupValidationError
-    object InvalidBudget : GiftGroupValidationError
-    object BudgetTooHigh : GiftGroupValidationError
-    object InvalidDateFormat : GiftGroupValidationError
-    object DateInPast : GiftGroupValidationError
-    object DateTooFarInFuture : GiftGroupValidationError
-    object GroupNotFound : GiftGroupValidationError
-}
-
-sealed interface GiftGroupResult {
-    data class Success(val giftGroup: GiftGroup) : GiftGroupResult
-    data class ValidationError(val errors: List<GiftGroupValidationError>) : GiftGroupResult
-}
-
 /**
  * Einzige Quelle aller Fachregeln für Wichtelgruppen.
  *

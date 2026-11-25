@@ -4,7 +4,7 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.group.DrawType
-import com.example.wichtly.domain.model.draw.DrawWishListItemSnapshot
+import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
@@ -140,9 +140,9 @@ class DrawDetailViewModelTest {
     @Test
     fun wishesSortedBySortOrderAsPlainText() = runTest {
         val wishes = listOf(
-            DrawWishListItemSnapshot(text = "Zweiter Wunsch", sortOrder = 2),
-            DrawWishListItemSnapshot(text = "Erster Wunsch", sortOrder = 0),
-            DrawWishListItemSnapshot(text = "Mittlerer Wunsch", sortOrder = 1),
+            DrawWishlistItemSnapshot(text = "Zweiter Wunsch", sortOrder = 2),
+            DrawWishlistItemSnapshot(text = "Erster Wunsch", sortOrder = 0),
+            DrawWishlistItemSnapshot(text = "Mittlerer Wunsch", sortOrder = 1),
         )
         val assignments = listOf(
             DrawAssignment(

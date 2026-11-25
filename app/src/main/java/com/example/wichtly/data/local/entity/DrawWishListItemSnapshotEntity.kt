@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index(value = ["assignmentId"])],
 )
-data class DrawWishListItemSnapshotEntity(
+data class DrawWishlistItemSnapshotEntity(
     @PrimaryKey
     val id: String,
     val assignmentId: String,

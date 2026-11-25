@@ -35,12 +35,12 @@ class SaveParticipantUseCase(
         photoPath: String?,
     ): ParticipantResult {
         AppLog.d(TAG) { if (participantId == null) "Neuen Teilnehmer in Gruppe $groupId speichern" else "Teilnehmer $participantId speichern" }
-        if (giftGroupRepository.getGiftGroupById(groupId).first() == null) {
+        if (giftGroupRepository.observeGiftGroupById(groupId).first() == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, Teilnehmer nicht gespeichert")
             return error(ParticipantValidationError.GroupNotFound)
         }
 
-        val participantsInGroup = participantRepository.getParticipantsByGroupId(groupId).first()
+        val participantsInGroup = participantRepository.observeParticipantsByGroupId(groupId).first()
         val stored = participantId?.let { id ->
             participantsInGroup.firstOrNull { it.id == id } ?: return participantNotFound(id)
         }
@@ -51,7 +51,7 @@ class SaveParticipantUseCase(
 
         val errors = validator.validate(participant, participantsInGroup)
         if (errors.isNotEmpty()) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
+            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
             return ParticipantResult.ValidationError(errors)
         }
 

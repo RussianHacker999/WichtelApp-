@@ -5,9 +5,9 @@ import com.example.wichtly.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.wichtly.domain.repository.ParticipantRepository
-import com.example.wichtly.domain.repository.WishListRepository
-import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
-import com.example.wichtly.domain.validation.WishListItemResult
+import com.example.wichtly.domain.repository.WishlistRepository
+import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
+import com.example.wichtly.domain.validation.WishlistItemResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -47,27 +47,27 @@ private data class WishlistLocalState(
  *
  * @param participantId Die ID des Teilnehmers.
  * @param participantRepository Repository für Teilnehmer.
- * @param wishListRepository Repository für Wunschlisten-Einträge (Lesen und Löschen).
- * @param saveWishListItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
+ * @param wishlistRepository Repository für Wunschlisten-Einträge (Lesen und Löschen).
+ * @param saveWishlistItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
  */
 class WishlistViewModel(
     private val participantId: String,
     private val participantRepository: ParticipantRepository,
-    private val wishListRepository: WishListRepository,
-    private val saveWishListItem: SaveWishListItemUseCase,
+    private val wishlistRepository: WishlistRepository,
+    private val saveWishlistItem: SaveWishlistItemUseCase,
 ) : ViewModel() {
 
     private val _localState = MutableStateFlow(WishlistLocalState())
 
     val uiState: StateFlow<WishlistUiState> = combine(
-        participantRepository.getParticipantById(participantId)
+        participantRepository.observeParticipantById(participantId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 AppLog.e(TAG, "Fehler beim Laden des Teilnehmers", e)
                 _localState.update { it.copy(participantLoadError = R.string.error_participant_load) }
                 emit(null)
             },
-        wishListRepository.observeWishlistItems(participantId)
+        wishlistRepository.observeWishlistItems(participantId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 AppLog.e(TAG, "Fehler beim Laden der Wunschliste", e)
@@ -93,6 +93,7 @@ class WishlistViewModel(
         WishlistUiState(
             isLoading = false,
             participantName = participant?.name,
+            notFound = isParticipantNotFound,
             items = items,
             errorMessage = combinedErrorMessage,
             isSaving = localState.isSaving,
@@ -206,7 +207,7 @@ class WishlistViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Text unverändert an den [SaveWishListItemUseCase] übergeben. Er prüft den Text und die
+     * 2. Text unverändert an den [SaveWishlistItemUseCase] übergeben. Er prüft den Text und die
      *    Existenz des Wunsches, vergibt beim Anlegen die nächste sortOrder und speichert.
      * 3. Fehler des Use Cases in einen Text für den Editor übersetzen.
      */
@@ -225,14 +226,14 @@ class WishlistViewModel(
 
         viewModelScope.launch {
             try {
-                val result = saveWishListItem(
+                val result = saveWishlistItem(
                     itemId = localState.editingItemId,
                     participantId = participantId,
                     text = localState.editorText,
                 )
 
                 when (result) {
-                    is WishListItemResult.Success -> {
+                    is WishlistItemResult.Success -> {
                         _localState.update {
                             it.copy(
                                 isSaving = false,
@@ -243,8 +244,8 @@ class WishlistViewModel(
                             )
                         }
                     }
-                    is WishListItemResult.ValidationError -> {
-                        val mappedError = mapWishListValidationErrors(result.errors)
+                    is WishlistItemResult.ValidationError -> {
+                        val mappedError = mapWishlistValidationErrors(result.errors)
                             ?: R.string.error_wish_validate
                         _localState.update {
                             it.copy(
@@ -277,7 +278,7 @@ class WishlistViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Aufruf von deleteWishListItem(pendingId).
+     * 2. Aufruf von deleteWishlistItem(pendingId).
      * 3. Bei Fehlern bleibt der Dialog geöffnet und zeigt deleteError.
      */
     fun onConfirmDelete() {
@@ -295,7 +296,7 @@ class WishlistViewModel(
 
         viewModelScope.launch {
             try {
-                wishListRepository.deleteWishListItem(pendingId)
+                wishlistRepository.deleteWishlistItem(pendingId)
                 AppLog.i(TAG, "Wunsch $pendingId gelöscht")
                 _localState.update {
                     it.copy(

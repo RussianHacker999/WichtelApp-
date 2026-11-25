@@ -59,7 +59,7 @@ class SaveParticipantUseCaseTest {
 
         val result = useCase(null, groupId, "Anna", null)
 
-        assertTrue(ParticipantValidationError.DuplicateNameInGroup in errorsOf(result))
+        assertTrue(ParticipantValidationError.DuplicateName in errorsOf(result))
     }
 
     @Test

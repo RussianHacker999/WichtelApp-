@@ -1,35 +1,35 @@
 package com.example.wichtly.domain.usecase
 
-import com.example.wichtly.domain.model.participant.WishListItem
-import com.example.wichtly.domain.validation.WishListItemResult
-import com.example.wichtly.domain.validation.WishListValidationError
-import com.example.wichtly.domain.validation.WishListValidator
-import com.example.wichtly.testutil.FakeWishListRepository
+import com.example.wichtly.domain.model.participant.WishlistItem
+import com.example.wichtly.domain.validation.WishlistItemResult
+import com.example.wichtly.domain.validation.WishlistValidationError
+import com.example.wichtly.domain.validation.WishlistValidator
+import com.example.wichtly.testutil.FakeWishlistRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests für [SaveWishListItemUseCase], die einzige Stelle, an der Wünsche geprüft werden.
+ * Tests für [SaveWishlistItemUseCase], die einzige Stelle, an der Wünsche geprüft werden.
  */
-class SaveWishListItemUseCaseTest {
+class SaveWishlistItemUseCaseTest {
 
     private val participantId = "p1"
 
-    private fun errorsOf(result: WishListItemResult): List<WishListValidationError> =
-        (result as WishListItemResult.ValidationError).errors
+    private fun errorsOf(result: WishlistItemResult): List<WishlistValidationError> =
+        (result as WishlistItemResult.ValidationError).errors
 
     @Test
     fun neuerWunschWirdHintenAngehaengt() = runTest {
-        val repository = FakeWishListRepository().apply {
-            setItems(listOf(WishListItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 4)))
+        val repository = FakeWishlistRepository().apply {
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 4)))
         }
-        val useCase = SaveWishListItemUseCase(repository)
+        val useCase = SaveWishlistItemUseCase(repository)
 
         val result = useCase(itemId = null, participantId = participantId, text = "  Schal ")
 
-        val item = (result as WishListItemResult.Success).item
+        val item = (result as WishlistItemResult.Success).item
         assertEquals("Schal", item.text)
         assertEquals(5, item.sortOrder)
         assertEquals(1, repository.insertCalls)
@@ -37,54 +37,54 @@ class SaveWishListItemUseCaseTest {
 
     @Test
     fun erlaubteLaengeUndEinZeichenZuViel() = runTest {
-        val repository = FakeWishListRepository()
-        val useCase = SaveWishListItemUseCase(repository)
-        val max = WishListValidator.MAX_TEXT_LENGTH
+        val repository = FakeWishlistRepository()
+        val useCase = SaveWishlistItemUseCase(repository)
+        val max = WishlistValidator.MAX_TEXT_LENGTH
 
         val genau = useCase(null, participantId, "x".repeat(max))
         val zuLang = useCase(null, participantId, "x".repeat(max + 1))
 
-        assertTrue(genau is WishListItemResult.Success)
-        assertTrue(WishListValidationError.TextTooLong in errorsOf(zuLang))
+        assertTrue(genau is WishlistItemResult.Success)
+        assertTrue(WishlistValidationError.TextTooLong in errorsOf(zuLang))
         assertEquals(1, repository.insertCalls)
     }
 
     @Test
     fun bearbeitenBehaeltIdUndSortOrder() = runTest {
-        val repository = FakeWishListRepository().apply {
-            setItems(listOf(WishListItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 2)))
+        val repository = FakeWishlistRepository().apply {
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 2)))
         }
-        val useCase = SaveWishListItemUseCase(repository)
+        val useCase = SaveWishlistItemUseCase(repository)
 
         val result = useCase("w1", participantId, "Hörbuch")
 
-        val item = (result as WishListItemResult.Success).item
+        val item = (result as WishlistItemResult.Success).item
         assertEquals("w1", item.id)
         assertEquals(2, item.sortOrder)
         assertEquals(1, repository.updateCalls)
     }
 
     @Test
-    fun verschwundenerWunschMeldetItemNotFound() = runTest {
-        val repository = FakeWishListRepository()
-        val useCase = SaveWishListItemUseCase(repository)
+    fun verschwundenerWunschMeldetWishNotFound() = runTest {
+        val repository = FakeWishlistRepository()
+        val useCase = SaveWishlistItemUseCase(repository)
 
         val result = useCase("w-weg", participantId, "Buch")
 
-        assertEquals(listOf(WishListValidationError.ItemNotFound), errorsOf(result))
+        assertEquals(listOf(WishlistValidationError.WishNotFound), errorsOf(result))
         assertEquals(0, repository.updateCalls)
     }
 
     @Test
     fun doppelterWunschWirdAbgelehnt() = runTest {
-        val repository = FakeWishListRepository().apply {
-            setItems(listOf(WishListItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 0)))
+        val repository = FakeWishlistRepository().apply {
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 0)))
         }
-        val useCase = SaveWishListItemUseCase(repository)
+        val useCase = SaveWishlistItemUseCase(repository)
 
         val result = useCase(null, participantId, "  buch ")
 
-        assertEquals(listOf(WishListValidationError.DuplicateText), errorsOf(result))
+        assertEquals(listOf(WishlistValidationError.DuplicateText), errorsOf(result))
         assertEquals(0, repository.insertCalls)
     }
 }

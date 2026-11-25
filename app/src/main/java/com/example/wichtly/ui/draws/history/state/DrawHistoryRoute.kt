@@ -42,7 +42,7 @@ fun DrawHistoryRoute(
     DrawHistoryScreen(
         state = state,
         onBack = onBack,
-        onOpenDraw = onOpenDraw,
+        onDrawClick = onOpenDraw,
         modifier = modifier,
     )
 }

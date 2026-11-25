@@ -2,7 +2,7 @@ package com.example.wichtly.data.repository
 
 import com.example.wichtly.data.local.dao.ParticipantDao
 import com.example.wichtly.data.mapper.toDomainModel
-import com.example.wichtly.data.mapper.toDomainModelList
+import com.example.wichtly.data.mapper.toDomainModels
 import com.example.wichtly.data.mapper.toEntity
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
@@ -17,12 +17,12 @@ class ParticipantRepositoryImpl(
     private val participantDao: ParticipantDao,
 ) : ParticipantRepository {
 
-    override fun getParticipantsByGroupId(groupId: String): Flow<List<Participant>> {
-        return participantDao.getParticipantsByGroupId(groupId).map { it.toDomainModelList() }
+    override fun observeParticipantsByGroupId(groupId: String): Flow<List<Participant>> {
+        return participantDao.observeParticipantsByGroupId(groupId).map { it.toDomainModels() }
     }
 
-    override fun getParticipantById(id: String): Flow<Participant?> {
-        return participantDao.getParticipantById(id).map { it?.toDomainModel() }
+    override fun observeParticipantById(id: String): Flow<Participant?> {
+        return participantDao.observeParticipantById(id).map { it?.toDomainModel() }
     }
 
     override suspend fun insertParticipant(participant: Participant) {

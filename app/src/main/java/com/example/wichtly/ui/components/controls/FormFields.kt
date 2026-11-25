@@ -64,7 +64,7 @@ fun WichtlyTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     maxLength: Int? = null,
 ) {
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.tight)) {
         FieldLabel(text = label)
         val helper = errorText ?: supportingText
         OutlinedTextField(
@@ -142,7 +142,7 @@ fun ChoiceCard(
                 unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ),
         )
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
             Text(text = title, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onSurface)
             Text(text = description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -165,8 +165,8 @@ fun HintBar(
             .fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(start = 14.dp, end = Spacing.s, top = Spacing.m, bottom = Spacing.s),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+            .padding(start = Spacing.relaxed, end = Spacing.s, top = Spacing.m, bottom = Spacing.s),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.inline),
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.error)
         Column(modifier = Modifier.weight(1f)) {

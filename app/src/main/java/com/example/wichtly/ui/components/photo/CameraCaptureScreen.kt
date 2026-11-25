@@ -43,6 +43,7 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CancellationException
 import java.io.File
 import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.theme.Spacing
 
 private const val TAG = "CameraCaptureScreen"
 
@@ -127,7 +128,7 @@ fun CameraCaptureScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 8.dp, vertical = 8.dp)
+                .padding(horizontal = Spacing.s, vertical = Spacing.s)
                 .align(Alignment.TopStart),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -177,10 +178,10 @@ fun CameraCaptureScreen(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 32.dp)
+                .padding(bottom = Spacing.xxl)
                 .size(80.dp)
                 .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                .padding(8.dp),
+                .padding(Spacing.s),
             shape = CircleShape,
             containerColor = Color.White,
             contentColor = Color.White,

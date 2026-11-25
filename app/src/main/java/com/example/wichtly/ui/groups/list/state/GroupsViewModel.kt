@@ -1,90 +1,79 @@
 package com.example.wichtly.ui.groups.list.state
 
-import com.example.wichtly.R
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.wichtly.R
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
-import java.io.File
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.groups.list.screen.GroupsUiState
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 
 private const val TAG = "GroupsViewModel"
 
+/**
+ * Lokaler Zustand der Gruppenliste, der nicht aus der Datenbank kommt.
+ */
+private data class GroupsLocalState(
+    val selectedGroupId: String? = null,
+    @StringRes val loadError: Int? = null,
+)
+
+/**
+ * ViewModel der Gruppenliste; die Startseite nutzt es als Datenquelle für ihre Infozeile.
+ *
+ * Aufbau wie in allen anderen ViewModels:
+ * - Der Room-Flow der Gruppen liefert jede Änderung der Datenbank sofort (neue Gruppe, gelöschte Gruppe).
+ * - [combine] verbindet ihn mit dem lokalen Zustand (ausgewählte Karte, Ladefehler).
+ * - [stateIn] mit [SharingStarted.WhileSubscribed] (5 Sekunden) beobachtet die Datenbank nur, solange
+ *   ein Screen den Zustand anzeigt, und übersteht eine Drehung ohne neue Abfrage.
+ *
+ * @param repository Liefert die Gruppen.
+ * @param photoRepository Löst die relativen Fotopfade in Dateien auf.
+ */
 class GroupsViewModel(
     private val repository: GiftGroupRepository,
     private val photoRepository: PhotoRepository,
 ) : ViewModel() {
-    var uiState by mutableStateOf(
-        GroupsUiState()
+
+    private val _localState = MutableStateFlow(GroupsLocalState())
+
+    val uiState: StateFlow<GroupsUiState> = combine(
+        repository.observeGiftGroups()
+            .catch { e ->
+                if (e is CancellationException) throw e
+                AppLog.e(TAG, "Gruppen konnten nicht geladen werden", e)
+                _localState.update { it.copy(loadError = R.string.error_groups_load) }
+                emit(emptyList())
+            },
+        _localState,
+    ) { groups, localState ->
+        GroupsUiState(
+            isLoading = false,
+            groups = groups,
+            // Nur Gruppen, deren Fotodatei existiert, bekommen ein Bild; alle anderen zeigen Initialen
+            photoFiles = groups.mapNotNull { group ->
+                photoRepository.getFileForRelativePath(group.photoPath)?.let { file -> group.id to file }
+            }.toMap(),
+            selectedGroupId = localState.selectedGroupId,
+            errorMessage = localState.loadError,
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = GroupsUiState(isLoading = true),
     )
-        private set
-        //durch diese Zeile kann das Composable den State lesen, aber nicht veraendern
 
-    init {
-        uiState = uiState.copy(
-            isLoading = true,
-            errorMessage = null,
-        )
-
-        // Der init-Block wird automatisch ausgeführt, sobald das ViewModel erstellt wird.
-        viewModelScope.launch {
-            // lauch stsartet eine nebenlaeufigen Prozess (sodass der Flow auf die Aenderunge in der Datenbank hiehren kann)
-            // Das Repository liefert einen Flow mit allen Gruppen aus der Datenbank.
-            // Ein Flow sendet nicht nur den ersten Wert, sondern auch jede spätere Änderung.
-            repository.getGiftGroups()
-                //das Repository liefert Flow<List<GiftGroup>>
-                //da Flow verwendet, werden Aenderungen in der Datenbanken die neuen Werte gesendet
-                .catch { error ->
-                    if (error is CancellationException) throw error
-                    AppLog.e(TAG, "Gruppen konnten nicht geladen werden", error)
-                    uiState = uiState.copy(
-                        isLoading = false,
-                        errorMessage = R.string.error_groups_load,
-                    )
-                }
-                .collect { groups ->
-                    //Immer wenn neue Daten aus der Datenbank kommen, wird dieser Block ausgefuehrt
-                    //gibte eine aktuelle Liste der GiftGroup aus der Datenbank zurueck
-                    //(wenn die gruppen in UiState sich veraendern, wird eine neuer UiState erstellt, bei dem allte Werte kopiert werden auser die geaendertetn Werte (in diem Fall groups)
-                    uiState = uiState.copy(
-                        isLoading = false,
-                        errorMessage = null,
-                        groups = groups,
-                        // Verknüpft jede Gruppe mit ihren zugehörigen Foto-Dateien
-                        // associate: Erstellt ein Map, wobei der Schlüssel die Gruppen-ID ist und der Wert die zugehörige Foto-Datei
-                        photoFiles = groups.associate { group ->
-                            group.id to (group.photoPath?.let { photoRepository.getFileForRelativePath(it) } ?: File(""))
-                        }.filterValues { it.exists() },
-                        // filterValues etntfernt alle Eintäge der Map, wo der Pfad "" entspricht
-                    )
-                }
-        }
-    }
-
-    // Speichert die ausgewhlte Gruppenkarte (fuer den spaeteren "Losen"-Klick)
-    fun selectGroup(groupId: String) {
-        uiState = uiState.copy(selectedGroupId = groupId)
-    }
-
-    fun openPhotoFlow(groupId: String) {
-        uiState = uiState.copy(photoFlowGroupId = groupId, cameraDeniedGroupId = null)
-    }
-
-    fun closePhotoFlow() {
-        uiState = uiState.copy(photoFlowGroupId = null)
-    }
-
-    fun onCameraDenied(groupId: String) {
-        uiState = uiState.copy(
-            photoFlowGroupId = null,
-            cameraDeniedGroupId = groupId,
-        )
+    /** Merkt sich die angetippte Gruppenkarte für den späteren "Losen"-Klick. */
+    fun onGroupClick(groupId: String) {
+        _localState.update { it.copy(selectedGroupId = groupId) }
     }
 }

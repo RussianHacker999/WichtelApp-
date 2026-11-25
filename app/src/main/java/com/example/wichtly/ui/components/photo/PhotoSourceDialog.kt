@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -31,17 +30,14 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * Die Anzeige und Steuerung erfolgt rein über Parameter und Lambda-Callbacks. Es gibt keine Galerieauswahl;
  * ausschließlich die Kameraaufzeichnung wird angeboten.
  *
- * @param area Der Anwendungsbereich ([PhotoArea.GROUP] oder [PhotoArea.PARTICIPANT]).
  * @param hasPhoto Zeigt die "Foto entfernen"-Aktion an, wenn `hasPhoto == true`.
  * @param onTakePhoto Callback zum Auslösen der Kameraaufnahme.
  * @param onRemovePhoto Callback zum Entfernen des vorhandenen Fotos.
  * @param onDismiss Callback beim Schließen oder Abbrechen des Dialogs.
  * @param modifier Optionaler Layout-Modifier.
  */
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun PhotoSourceDialog(
-    area: PhotoArea,
     hasPhoto: Boolean,
     onTakePhoto: () -> Unit,
     onRemovePhoto: () -> Unit,
@@ -84,7 +80,7 @@ private fun PhotoOption(icon: ImageVector, label: String, onClick: () -> Unit, d
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = Spacing.m),
+            modifier = Modifier.padding(horizontal = Spacing.relaxed, vertical = Spacing.m),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
@@ -110,7 +106,6 @@ private fun PhotoOption(icon: ImageVector, label: String, onClick: () -> Unit, d
 private fun PhotoSourceDialogGroupEmptyPreview() {
     WichtlyTheme {
         PhotoSourceDialog(
-            area = PhotoArea.GROUP,
             hasPhoto = false,
             onTakePhoto = {},
             onRemovePhoto = {},
@@ -127,7 +122,6 @@ private fun PhotoSourceDialogGroupEmptyPreview() {
 private fun PhotoSourceDialogParticipantWithPhotoPreview() {
     WichtlyTheme {
         PhotoSourceDialog(
-            area = PhotoArea.PARTICIPANT,
             hasPhoto = true,
             onTakePhoto = {},
             onRemovePhoto = {},

@@ -46,20 +46,23 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
-/** Screen zur Kontrolle vor dem Start der Auslosung */
+/**
+ * Zustandsloser Screen zur Kontrolle vor dem Start der Auslosung.
+ *
+ * @param state Aktueller Zustand der Vorbereitung.
+ * @param onBack "Zurück" (Pfeil in der Top-Leiste und Button in der Aktionsleiste).
+ * @param onStartDrawClick Button "Jetzt losen".
+ * @param modifier Äußerer Modifier.
+ */
 @Composable
 fun PreparationScreen(
     state: PreparationUiState,
-    // Methode fuer "Zurück" (Pfeil in der Top-Leiste und Button in der Aktionsleiste)
     onBack: () -> Unit,
-    // Methode fuer Button "jetzt losen"
-    onStartDraw: () -> Unit,
+    onStartDrawClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val group = state.group
-    // Solange weder Gruppe noch Fehler noch "nicht gefunden" vorliegen, wird noch geladen.
-    val isLoading = group == null && state.errorMessage == null && !state.notFound
-    val showContent = state.errorMessage == null && !state.notFound && group != null
+    val showContent = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
     WichtlyScaffold(
         modifier = modifier,
         topBar = { WichtlyTopBar(title = stringResource(R.string.preparation_title), onBack = onBack) },
@@ -70,11 +73,11 @@ fun PreparationScreen(
                     SecondaryButton(text = stringResource(R.string.common_back), onClick = onBack, modifier = Modifier.weight(1f))
                     // Der goldene Button "Jetzt losen" ist immer sichtbar, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
                     PrimaryButton(
-                        text = stringResource(if (state.isStarting) R.string.preparation_drawing else R.string.preparation_draw_now),
-                        onClick = onStartDraw,
+                        text = stringResource(if (state.isDrawing) R.string.preparation_drawing else R.string.preparation_draw_now),
+                        onClick = onStartDrawClick,
                         icon = Icons.Filled.Redeem,
                         enabled = state.canStartDraw,
-                        loading = state.isStarting,
+                        loading = state.isDrawing,
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -82,7 +85,7 @@ fun PreparationScreen(
         },
     ) { innerPadding ->
         when {
-            isLoading -> LoadingState(text = stringResource(R.string.common_loading_unpacking))
+            state.isLoading -> LoadingState(text = stringResource(R.string.common_loading_unpacking))
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -174,8 +177,8 @@ private val previewParticipants = listOf("Mara", "Jonas", "Leonie", "Emil").mapI
 private fun PreparationScreenReadyPreview() {
     WichtlyTheme {
         PreparationScreen(
-            state = PreparationUiState(group = previewGroup, participants = previewParticipants, canStartDraw = true),
-            onBack = {}, onStartDraw = {},
+            state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants, canStartDraw = true),
+            onBack = {}, onStartDrawClick = {},
         )
     }
 }
@@ -185,8 +188,8 @@ private fun PreparationScreenReadyPreview() {
 private fun PreparationScreenTooFewPreview() {
     WichtlyTheme {
         PreparationScreen(
-            state = PreparationUiState(group = previewGroup, participants = previewParticipants.take(2), canStartDraw = false),
-            onBack = {}, onStartDraw = {},
+            state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants.take(2), canStartDraw = false),
+            onBack = {}, onStartDrawClick = {},
         )
     }
 }
@@ -195,7 +198,7 @@ private fun PreparationScreenTooFewPreview() {
 @Composable
 private fun PreparationScreenLoadingPreview() {
     WichtlyTheme {
-        PreparationScreen(state = PreparationUiState(), onBack = {}, onStartDraw = {})
+        PreparationScreen(state = PreparationUiState(), onBack = {}, onStartDrawClick = {})
     }
 }
 
@@ -203,6 +206,6 @@ private fun PreparationScreenLoadingPreview() {
 @Composable
 private fun PreparationScreenNotFoundPreview() {
     WichtlyTheme {
-        PreparationScreen(state = PreparationUiState(notFound = true), onBack = {}, onStartDraw = {})
+        PreparationScreen(state = PreparationUiState(isLoading = false, notFound = true), onBack = {}, onStartDrawClick = {})
     }
 }

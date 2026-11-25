@@ -2,11 +2,11 @@ package com.example.wichtly.ui.wishlist.state
 
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.domain.model.participant.WishListItem
-import com.example.wichtly.domain.usecase.SaveWishListItemUseCase
-import com.example.wichtly.domain.validation.WishListValidator
+import com.example.wichtly.domain.model.participant.WishlistItem
+import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
+import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.testutil.FakeParticipantRepository
-import com.example.wichtly.testutil.FakeWishListRepository
+import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -50,13 +50,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -74,13 +74,13 @@ class WishlistViewModelTest {
     @Test
     fun unknownParticipant_resultsInNullNameAndNoErrorMessage() = runTest {
         val participantRepository = FakeParticipantRepository()
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -89,6 +89,7 @@ class WishlistViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
         assertNull(state.participantName)
+        assertEquals(true, state.notFound)
         assertNull(state.errorMessage)
     }
 
@@ -100,13 +101,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -119,7 +120,7 @@ class WishlistViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(R.string.error_wish_empty, state.editorError)
-        assertEquals(0, wishListRepository.insertCalls)
+        assertEquals(0, wishlistRepository.insertCalls)
     }
 
     /**
@@ -130,13 +131,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -165,7 +166,7 @@ class WishlistViewModelTest {
         assertEquals("Wunsch B", items[1].text)
         assertEquals(2, items[2].sortOrder)
         assertEquals("Wunsch C", items[2].text)
-        assertEquals(3, wishListRepository.insertCalls)
+        assertEquals(3, wishlistRepository.insertCalls)
     }
 
     /**
@@ -176,21 +177,21 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val initialItem = WishListItem(
+        val initialItem = WishlistItem(
             id = "wish-uuid-123",
             participantId = participantId,
             text = "Altem Text",
             sortOrder = 5
         )
-        val wishListRepository = FakeWishListRepository().apply {
+        val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
         }
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -206,7 +207,7 @@ class WishlistViewModelTest {
         assertEquals("wish-uuid-123", items[0].id)
         assertEquals(5, items[0].sortOrder)
         assertEquals("Aktualisierter Text", items[0].text)
-        assertEquals(1, wishListRepository.updateCalls)
+        assertEquals(1, wishlistRepository.updateCalls)
     }
 
     // =========================================================================
@@ -221,13 +222,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             failFlows = true
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -247,27 +248,27 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("x".repeat(WishListValidator.MAX_TEXT_LENGTH + 1))
+        viewModel.onEditorTextChange("x".repeat(WishlistValidator.MAX_TEXT_LENGTH + 1))
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(true, state.showEditor)
         assertEquals(R.string.error_wish_too_long, state.editorError)
-        assertEquals(0, wishListRepository.insertCalls)
+        assertEquals(0, wishlistRepository.insertCalls)
     }
 
     /**
@@ -278,35 +279,35 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val initialItem = WishListItem(
+        val initialItem = WishlistItem(
             id = "wish-delete-me",
             participantId = participantId,
             text = "Kaffeebohnen",
             sortOrder = 0
         )
-        val wishListRepository = FakeWishListRepository().apply {
+        val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
         }
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
         viewModel.onDeleteClick("wish-delete-me")
-        wishListRepository.shouldThrow = true
+        wishlistRepository.shouldThrow = true
         viewModel.onConfirmDelete()
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals("wish-delete-me", state.pendingDeleteItemId)
         assertEquals(R.string.error_wish_delete, state.deleteError)
-        assertEquals(1, wishListRepository.deleteCalls)
+        assertEquals(1, wishlistRepository.deleteCalls)
     }
 
     /**
@@ -317,13 +318,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -350,19 +351,19 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val item1 = WishListItem(id = "w1", participantId = participantId, text = "Wunsch 1", sortOrder = 0)
-        val item2 = WishListItem(id = "w2", participantId = participantId, text = "Wunsch 2", sortOrder = 1)
-        val item3 = WishListItem(id = "w3", participantId = participantId, text = "Wunsch 3", sortOrder = 2)
+        val item1 = WishlistItem(id = "w1", participantId = participantId, text = "Wunsch 1", sortOrder = 0)
+        val item2 = WishlistItem(id = "w2", participantId = participantId, text = "Wunsch 2", sortOrder = 1)
+        val item3 = WishlistItem(id = "w3", participantId = participantId, text = "Wunsch 3", sortOrder = 2)
 
-        val wishListRepository = FakeWishListRepository().apply {
+        val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(item1, item2, item3))
         }
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -394,13 +395,13 @@ class WishlistViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val wishListRepository = FakeWishListRepository()
+        val wishlistRepository = FakeWishlistRepository()
 
         val viewModel = WishlistViewModel(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = SaveWishListItemUseCase(wishListRepository),
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -414,6 +415,6 @@ class WishlistViewModelTest {
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
-        assertEquals(1, wishListRepository.insertCalls)
+        assertEquals(1, wishlistRepository.insertCalls)
     }
 }

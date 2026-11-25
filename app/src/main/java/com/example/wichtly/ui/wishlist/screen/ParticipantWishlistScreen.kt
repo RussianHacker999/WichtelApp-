@@ -18,7 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.domain.model.participant.WishListItem
+import com.example.wichtly.domain.model.participant.WishlistItem
 import com.example.wichtly.ui.components.layout.BottomActionBar
 import com.example.wichtly.ui.components.display.InitialsAvatar
 import com.example.wichtly.ui.components.controls.ItemMenu
@@ -35,7 +35,7 @@ import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
-import com.example.wichtly.domain.validation.WishListValidator
+import com.example.wichtly.domain.validation.WishlistValidator
 
 /**
  * Zustandsloser Composable-Screen für die Wunschliste eines Teilnehmers.
@@ -81,7 +81,8 @@ fun ParticipantWishlistScreen(
     onDismissDelete: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ready = !state.isLoading && state.errorMessage == null && state.participantName != null
+    val participantName = state.participantName
+    val ready = !state.isLoading && state.errorMessage == null && !state.notFound && participantName != null
     // Der übergebene modifier wird ausschließlich hier am Top-Level WichtlyScaffold angewendet.
     WichtlyScaffold(
         modifier = modifier,
@@ -115,9 +116,9 @@ fun ParticipantWishlistScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
-            // 3. ZUSTAND: Teilnehmer nicht gefunden (isLoading == false && participantName == null)
+            // 3. ZUSTAND: Teilnehmer nicht gefunden
             // UI-Darstellung, wenn der Teilnehmer nicht gefunden wurde (gemeinsamer MessageState).
-            state.participantName == null -> MessageState(
+            state.notFound -> MessageState(
                 title = stringResource(R.string.wishlist_participant_missing_title),
                 text = stringResource(R.string.wishlist_participant_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
@@ -125,9 +126,10 @@ fun ParticipantWishlistScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+            participantName == null -> Unit
             // 4. ZUSTAND: Bereit (Erfolgreich geladen, unabhängig davon ob Wünsche existieren)
             else -> WishlistContent(
-                participantName = state.participantName,
+                participantName = participantName,
                 items = state.items,
                 isSaving = state.isSaving,
                 innerPadding = innerPadding,
@@ -139,11 +141,11 @@ fun ParticipantWishlistScreen(
 
     // Dialoge als Overlay über dem Inhalt
     if (state.showEditor) {
-        WishlistItemDialog(
+        WishEditorDialog(
             isEditMode = state.editingItemId != null,
             text = state.editorText,
-            errorMessage = state.editorError?.let { stringResource(it, WishListValidator.MAX_TEXT_LENGTH) },
-            isSaving = state.isSaving,
+            errorMessage = state.editorError?.let { stringResource(it, WishlistValidator.MAX_TEXT_LENGTH) },
+            isBusy = state.isSaving,
             onTextChange = onEditorTextChange,
             onSave = onSaveClick,
             onDismiss = onDismissEditor,
@@ -152,10 +154,10 @@ fun ParticipantWishlistScreen(
 
     val pendingDeleteItem = state.pendingDeleteItemId?.let { pendingId -> state.items.find { it.id == pendingId } }
     if (pendingDeleteItem != null) {
-        WishlistDeleteDialog(
+        WishDeleteDialog(
             itemText = pendingDeleteItem.text,
             errorMessage = state.deleteError?.let { stringResource(it) },
-            isSaving = state.isSaving,
+            isBusy = state.isSaving,
             onConfirm = onConfirmDelete,
             onDismiss = onDismissDelete,
         )
@@ -169,7 +171,7 @@ fun ParticipantWishlistScreen(
 @Composable
 private fun WishlistContent(
     participantName: String,
-    items: List<WishListItem>,
+    items: List<WishlistItem>,
     isSaving: Boolean,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onEditClick: (itemId: String) -> Unit,
@@ -242,9 +244,9 @@ private fun WishlistContent(
 // -----------------------------------------------------------------------------
 
 private val sampleItems = listOf(
-    WishListItem(id = "1", participantId = "p1", text = "Ein gutes Notizbuch", sortOrder = 0),
-    WishListItem(id = "2", participantId = "p1", text = "Tee aus einer kleinen Manufaktur", sortOrder = 1),
-    WishListItem(id = "3", participantId = "p1", text = "Kaffeemaschine (Espresso)", sortOrder = 2),
+    WishlistItem(id = "1", participantId = "p1", text = "Ein gutes Notizbuch", sortOrder = 0),
+    WishlistItem(id = "2", participantId = "p1", text = "Tee aus einer kleinen Manufaktur", sortOrder = 1),
+    WishlistItem(id = "3", participantId = "p1", text = "Kaffeemaschine (Espresso)", sortOrder = 2),
 )
 
 @Composable
@@ -268,7 +270,7 @@ private fun ParticipantWishlistScreenLoadingPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ParticipantWishlistScreenNotFoundPreview() {
-    PreviewScreen(WishlistUiState(isLoading = false, participantName = null))
+    PreviewScreen(WishlistUiState(isLoading = false, notFound = true))
 }
 
 @Preview(showBackground = true)
@@ -300,7 +302,7 @@ private fun ParticipantWishlistScreenLongTextPreview() {
             isLoading = false,
             participantName = "Mara",
             items = listOf(
-                WishListItem(
+                WishlistItem(
                     id = "1",
                     participantId = "p1",
                     text = "Sehr langer Wunschtext über mehrere Zeilen: Ein handgebundenes Skizzenbuch im Format A4 mit festem Einband und einem dunkelgrünen Lesezeichenband.",
@@ -340,6 +342,6 @@ private fun ParticipantWishlistScreenSingleItemPreview() {
 @Preview(showBackground = true, heightDp = 1400)
 @Composable
 private fun ParticipantWishlistScreenTwelveItemsPreview() {
-    val items = (1..12).map { WishListItem(id = "$it", participantId = "p1", text = "Wunschidee Nummer $it zum Verschenken", sortOrder = it) }
+    val items = (1..12).map { WishlistItem(id = "$it", participantId = "p1", text = "Wunschidee Nummer $it zum Verschenken", sortOrder = it) }
     PreviewScreen(WishlistUiState(isLoading = false, participantName = "Mara", items = items))
 }

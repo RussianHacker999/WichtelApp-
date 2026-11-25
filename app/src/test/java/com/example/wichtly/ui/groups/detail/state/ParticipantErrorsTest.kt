@@ -52,11 +52,11 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von DuplicateNameInGroup in den entsprechenden nameError.
+     * Testet die Übersetzung von DuplicateName in den entsprechenden nameError.
      */
     @Test
     fun mapParticipantValidationErrors_duplicateNameInGroup_returnsCorrectNameError() {
-        val errors = listOf(ParticipantValidationError.DuplicateNameInGroup)
+        val errors = listOf(ParticipantValidationError.DuplicateName)
         val result = mapParticipantValidationErrors(errors)
 
         assertEquals(R.string.error_participant_name_duplicate, result.nameError)

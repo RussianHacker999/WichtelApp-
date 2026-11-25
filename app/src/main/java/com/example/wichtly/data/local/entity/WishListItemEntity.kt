@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
     ],
     indices = [Index(value = ["participantId"])]
 )
-data class WishListItemEntity(
+data class WishlistItemEntity(
     @PrimaryKey
     val id: String,
     val participantId: String,

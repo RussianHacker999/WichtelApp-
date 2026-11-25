@@ -1,9 +1,11 @@
 package com.example.wichtly.ui.start.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.WichtlyApplication
 import com.example.wichtly.ui.groups.list.state.GroupsViewModel
@@ -27,12 +29,16 @@ fun StartRoute(
     onCreateGroup: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val container = (LocalContext.current.applicationContext as WichtlyApplication).container
-    val factory = remember(container) {
-        GroupsViewModelFactory(container.giftGroupRepository, container.photoRepository)
+    val context = LocalContext.current
+    val container = (context.applicationContext as WichtlyApplication).container
+    val giftGroupRepository = container.giftGroupRepository
+    val photoRepository = container.photoRepository
+
+    val factory = remember(giftGroupRepository, photoRepository) {
+        GroupsViewModelFactory(repository = giftGroupRepository, photoRepository = photoRepository)
     }
     val viewModel: GroupsViewModel = viewModel(factory = factory)
-    val state = viewModel.uiState
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     // Während des Ladens bleibt der Fuß leer, damit nicht kurz "Noch keine Gruppe" aufblitzt.
     // Bei einem Ladefehler nicht fälschlich "Noch keine Gruppe" zeigen.

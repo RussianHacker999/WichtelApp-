@@ -75,14 +75,14 @@ class GroupFormViewModel(
     }
 
     /**
-     * Lädt die Wichtelgruppe zum Bearbeiten genau einmal mit repository.getGiftGroupById(id).first().
+     * Lädt die Wichtelgruppe zum Bearbeiten genau einmal mit repository.observeGiftGroupById(id).first().
      */
     private fun loadGroup(id: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, generalError = null) }
             try {
                 // Einmaliges Auslesen des ersten Flow-Werts (keine dauerhafte Beobachtung)
-                val loadedGroup = repository.getGiftGroupById(id).first()
+                val loadedGroup = repository.observeGiftGroupById(id).first()
                 if (loadedGroup == null) {
                     AppLog.w(TAG, "Gruppe $id zum Bearbeiten nicht gefunden")
                     _uiState.update {
@@ -318,7 +318,7 @@ class GroupFormViewModel(
     }
 
     /** Entfernt das Foto aus dem Formular. Ein gespeichertes Foto wird erst beim Speichern gelöscht. */
-    fun onPhotoRemove() {
+    fun onRemovePhoto() {
         val currentPath = _uiState.value.photoPath
         if (currentPath != null && currentPath != committedPhotoPath) {
             viewModelScope.launch { deletePhotoQuietly(currentPath) }

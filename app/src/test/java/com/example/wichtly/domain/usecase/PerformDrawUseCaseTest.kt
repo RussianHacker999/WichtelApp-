@@ -3,13 +3,13 @@ package com.example.wichtly.domain.usecase
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.domain.model.participant.WishListItem
+import com.example.wichtly.domain.model.participant.WishlistItem
 import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
-import com.example.wichtly.testutil.FakeWishListRepository
+import com.example.wichtly.testutil.FakeWishlistRepository
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -38,11 +38,11 @@ class PerformDrawUseCaseTest {
     @Test
     fun auslosungKopiertNamenUndWuenscheUndSpeichert() = runTest {
         val participants = teilnehmer(3)
-        val wishes = FakeWishListRepository().apply {
+        val wishes = FakeWishlistRepository().apply {
             setItems(
                 listOf(
-                    WishListItem(id = "w2", participantId = "p1", text = "Schal", sortOrder = 1),
-                    WishListItem(id = "w1", participantId = "p1", text = "Buch", sortOrder = 0),
+                    WishlistItem(id = "w2", participantId = "p1", text = "Schal", sortOrder = 1),
+                    WishlistItem(id = "w1", participantId = "p1", text = "Buch", sortOrder = 0),
                 )
             )
         }
@@ -57,7 +57,7 @@ class PerformDrawUseCaseTest {
 
         val draw = (useCase(groupId) as DrawResult.Success).draw
 
-        assertEquals(1, drawRepository.saveDrawCalls)
+        assertEquals(1, drawRepository.insertDrawCalls)
         assertEquals(DrawType.JUNK, draw.drawType)
         assertEquals(3, draw.assignments.size)
         // Gültiges Derangement: jeder schenkt genau einmal, niemand sich selbst
@@ -76,7 +76,7 @@ class PerformDrawUseCaseTest {
         val useCase = PerformDrawUseCase(
             FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
             FakeParticipantRepository().apply { setParticipants(teilnehmer(2)) },
-            FakeWishListRepository(),
+            FakeWishlistRepository(),
             drawRepository,
             today = { heute },
         )
@@ -84,7 +84,7 @@ class PerformDrawUseCaseTest {
         val result = useCase(groupId)
 
         assertEquals(DrawResult.ValidationError(listOf(DrawValidationError.NotEnoughParticipants)), result)
-        assertEquals(0, drawRepository.saveDrawCalls)
+        assertEquals(0, drawRepository.insertDrawCalls)
     }
 
     @Test
@@ -93,7 +93,7 @@ class PerformDrawUseCaseTest {
         val useCase = PerformDrawUseCase(
             FakeGiftGroupRepository(),
             FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
-            FakeWishListRepository(),
+            FakeWishlistRepository(),
             drawRepository,
             today = { heute },
         )
@@ -101,7 +101,7 @@ class PerformDrawUseCaseTest {
         val result = useCase(groupId)
 
         assertEquals(DrawResult.ValidationError(listOf(DrawValidationError.GroupNotFound)), result)
-        assertEquals(0, drawRepository.saveDrawCalls)
+        assertEquals(0, drawRepository.insertDrawCalls)
     }
 
     @Test
@@ -110,7 +110,7 @@ class PerformDrawUseCaseTest {
         val useCase = PerformDrawUseCase(
             FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
             FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
-            FakeWishListRepository(),
+            FakeWishlistRepository(),
             drawRepository,
             today = { gruppe.drawDay.plusDays(1) },
         )
@@ -118,7 +118,7 @@ class PerformDrawUseCaseTest {
         val result = useCase(groupId)
 
         assertEquals(DrawResult.ValidationError(listOf(DrawValidationError.DrawDayPassed)), result)
-        assertEquals(0, drawRepository.saveDrawCalls)
+        assertEquals(0, drawRepository.insertDrawCalls)
     }
 
     @Test
@@ -127,12 +127,12 @@ class PerformDrawUseCaseTest {
         val useCase = PerformDrawUseCase(
             FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) },
             FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
-            FakeWishListRepository(),
+            FakeWishlistRepository(),
             drawRepository,
             today = { gruppe.drawDay },
         )
 
         assertTrue(useCase(groupId) is DrawResult.Success)
-        assertEquals(1, drawRepository.saveDrawCalls)
+        assertEquals(1, drawRepository.insertDrawCalls)
     }
 }

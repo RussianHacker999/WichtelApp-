@@ -1,27 +1,27 @@
 package com.example.wichtly.ui.wishlist.state
 
 import com.example.wichtly.R
-import com.example.wichtly.domain.validation.WishListValidationError
+import com.example.wichtly.domain.validation.WishlistValidationError
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Unit-Tests für WishListErrors.kt.
+ * Unit-Tests für WishlistErrors.kt.
  *
  * Warum diese Tests wichtig sind:
- * Verifiziert die korrekte Übersetzung aller [WishListValidationError]-Typen in nutzerfreundliche
+ * Verifiziert die korrekte Übersetzung aller [WishlistValidationError]-Typen in nutzerfreundliche
  * deutsche Fehlertexte sowie die Beachtung der Prioritätsregel (der erste Fehler gewinnt).
  */
-class WishListErrorsTest {
+class WishlistErrorsTest {
 
     /**
      * Testet, dass bei einer leeren Fehlerliste null zurückgegeben wird.
      */
     @Test
-    fun mapWishListValidationErrors_emptyList_returnsNull() {
-        val errors = emptyList<WishListValidationError>()
-        val result = mapWishListValidationErrors(errors)
+    fun mapWishlistValidationErrors_emptyList_returnsNull() {
+        val errors = emptyList<WishlistValidationError>()
+        val result = mapWishlistValidationErrors(errors)
 
         assertNull(result)
     }
@@ -30,9 +30,9 @@ class WishListErrorsTest {
      * Testet die Übersetzung von EmptyText in den entsprechenden Fehlertext.
      */
     @Test
-    fun mapWishListValidationErrors_emptyText_returnsCorrectError() {
-        val errors = listOf(WishListValidationError.EmptyText)
-        val result = mapWishListValidationErrors(errors)
+    fun mapWishlistValidationErrors_emptyText_returnsCorrectError() {
+        val errors = listOf(WishlistValidationError.EmptyText)
+        val result = mapWishlistValidationErrors(errors)
 
         assertEquals(R.string.error_wish_empty, result)
     }
@@ -41,20 +41,20 @@ class WishListErrorsTest {
      * Testet die Übersetzung von TextTooLong in den entsprechenden Fehlertext.
      */
     @Test
-    fun mapWishListValidationErrors_textTooLong_returnsCorrectError() {
-        val errors = listOf(WishListValidationError.TextTooLong)
-        val result = mapWishListValidationErrors(errors)
+    fun mapWishlistValidationErrors_textTooLong_returnsCorrectError() {
+        val errors = listOf(WishlistValidationError.TextTooLong)
+        val result = mapWishlistValidationErrors(errors)
 
         assertEquals(R.string.error_wish_too_long, result)
     }
 
     /**
-     * Testet die Übersetzung von ItemNotFound in den entsprechenden Fehlertext.
+     * Testet die Übersetzung von WishNotFound in den entsprechenden Fehlertext.
      */
     @Test
-    fun mapWishListValidationErrors_itemNotFound_returnsCorrectError() {
-        val errors = listOf(WishListValidationError.ItemNotFound)
-        val result = mapWishListValidationErrors(errors)
+    fun mapWishlistValidationErrors_itemNotFound_returnsCorrectError() {
+        val errors = listOf(WishlistValidationError.WishNotFound)
+        val result = mapWishlistValidationErrors(errors)
 
         assertEquals(R.string.error_wish_missing, result)
     }
@@ -63,24 +63,24 @@ class WishListErrorsTest {
      * Testet, dass bei mehreren Fehlern in der Liste stets der erste Fehler gewinnt.
      */
     @Test
-    fun mapWishListValidationErrors_multipleErrors_returnsFirstError() {
+    fun mapWishlistValidationErrors_multipleErrors_returnsFirstError() {
         val errors1 = listOf(
-            WishListValidationError.EmptyText,
-            WishListValidationError.TextTooLong,
+            WishlistValidationError.EmptyText,
+            WishlistValidationError.TextTooLong,
         )
-        val result1 = mapWishListValidationErrors(errors1)
+        val result1 = mapWishlistValidationErrors(errors1)
         assertEquals(R.string.error_wish_empty, result1)
 
         val errors2 = listOf(
-            WishListValidationError.TextTooLong,
-            WishListValidationError.EmptyText,
+            WishlistValidationError.TextTooLong,
+            WishlistValidationError.EmptyText,
         )
-        val result2 = mapWishListValidationErrors(errors2)
+        val result2 = mapWishlistValidationErrors(errors2)
         assertEquals(R.string.error_wish_too_long, result2)
     }
 
     @Test
     fun doppelterWunschErgibtDuplikatText() {
-        assertEquals(R.string.error_wish_duplicate, mapWishListValidationErrors(listOf(WishListValidationError.DuplicateText)))
+        assertEquals(R.string.error_wish_duplicate, mapWishlistValidationErrors(listOf(WishlistValidationError.DuplicateText)))
     }
 }

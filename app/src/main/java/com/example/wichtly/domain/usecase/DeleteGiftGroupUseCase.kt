@@ -35,14 +35,14 @@ class DeleteGiftGroupUseCase(
      */
     suspend operator fun invoke(groupId: String): GiftGroupResult {
         AppLog.d(TAG) { "Gruppe $groupId löschen" }
-        val group = giftGroupRepository.getGiftGroupById(groupId).first()
+        val group = giftGroupRepository.observeGiftGroupById(groupId).first()
         if (group == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gelöscht")
             return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
         }
 
         // Fotopfade vor dem Löschen einsammeln, danach sind die Teilnehmer nicht mehr lesbar
-        val participants = participantRepository.getParticipantsByGroupId(groupId).first()
+        val participants = participantRepository.observeParticipantsByGroupId(groupId).first()
         val photoPaths = listOfNotNull(group.photoPath) + participants.mapNotNull { it.photoPath }
 
         giftGroupRepository.deleteGiftGroup(groupId)

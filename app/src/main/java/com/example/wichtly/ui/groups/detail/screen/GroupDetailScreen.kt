@@ -60,23 +60,23 @@ import com.example.wichtly.domain.validation.ParticipantValidator
  * @param state Der aktuelle UI-Zustand des Bildschirms.
  * @param onBack Callback für die Zurück-Navigation.
  * @param onEditGroupClick Callback zum Bearbeiten der Stammdaten der Gruppe.
- * @param onOpenWishlist Callback zum Öffnen der Wunschliste eines Teilnehmers.
+ * @param onWishlistClick Callback zum Öffnen der Wunschliste eines Teilnehmers.
  * @param onAddParticipantClick Callback zum Hinzufügen eines neuen Teilnehmers.
  * @param onEditParticipantClick Callback zum Bearbeiten eines Teilnehmers (erhält participantId).
  * @param onDeleteParticipantClick Callback zum Löschen eines Teilnehmers (erhält participantId).
  * @param onParticipantNameChange Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog.
- * @param onSaveParticipant Callback zum Speichern eines Teilnehmers.
+ * @param onSaveParticipantClick Callback zum Speichern eines Teilnehmers.
  * @param onDismissParticipantEditor Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs.
- * @param onConfirmDelete Callback zum Bestätigen der Teilnehmer-Löschung.
- * @param onDismissDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
+ * @param onConfirmParticipantDelete Callback zum Bestätigen der Teilnehmer-Löschung.
+ * @param onDismissParticipantDelete Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs.
  * @param onPhotoSelectClick Callback zum Starten der Foto-Auswahl für Teilnehmer.
  * @param onPhotoFlowClose Callback zum Schließen des Foto-Workflows.
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme.
  * @param onRemovePhoto Callback zum Entfernen des Teilnehmerfotos.
  * @param onCameraDenied Callback bei verweigerter Kameraberechtigung.
  * @param onOpenAppSettings Callback zum Öffnen der Systemeinstellungen.
- * @param onPrepareDraw Auslosungs-Vorbereitung für diese Gruppe öffnen.
- * @param onOpenHistory Historie dieser Gruppe öffnen.
+ * @param onPrepareDrawClick Auslosungs-Vorbereitung für diese Gruppe öffnen.
+ * @param onHistoryClick Historie dieser Gruppe öffnen.
  * @param onDeleteGroupClick Öffnet den Dialog zum Löschen der Gruppe.
  * @param onConfirmGroupDelete Bestätigt das Löschen der Gruppe.
  * @param onDismissGroupDelete Schließt den Gruppen-Löschdialog.
@@ -87,23 +87,23 @@ fun GroupDetailScreen(
     state: GroupDetailUiState,
     onBack: () -> Unit,
     onEditGroupClick: () -> Unit,
-    onOpenWishlist: (participantId: String) -> Unit,
+    onWishlistClick: (participantId: String) -> Unit,
     onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
     onDeleteParticipantClick: (participantId: String) -> Unit,
     onParticipantNameChange: (String) -> Unit,
-    onSaveParticipant: () -> Unit,
+    onSaveParticipantClick: () -> Unit,
     onDismissParticipantEditor: () -> Unit,
-    onConfirmDelete: () -> Unit,
-    onDismissDelete: () -> Unit,
+    onConfirmParticipantDelete: () -> Unit,
+    onDismissParticipantDelete: () -> Unit,
     onPhotoSelectClick: () -> Unit,
     onPhotoFlowClose: () -> Unit,
     onPhotoCaptured: (File) -> Unit,
     onRemovePhoto: () -> Unit,
     onCameraDenied: () -> Unit,
     onOpenAppSettings: () -> Unit,
-    onPrepareDraw: () -> Unit,
-    onOpenHistory: () -> Unit,
+    onPrepareDrawClick: () -> Unit,
+    onHistoryClick: () -> Unit,
     onDeleteGroupClick: () -> Unit,
     onConfirmGroupDelete: () -> Unit,
     onDismissGroupDelete: () -> Unit,
@@ -144,7 +144,7 @@ fun GroupDetailScreen(
                 BottomActionBar(hint = hint) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
-                        onClick = onPrepareDraw,
+                        onClick = onPrepareDrawClick,
                         icon = Icons.Filled.Redeem,
                         enabled = canDraw,
                         modifier = Modifier.weight(1f),
@@ -154,8 +154,6 @@ fun GroupDetailScreen(
         },
     ) { innerPadding ->
         when {
-            // 0. ZUSTAND: Gruppe wurde gerade gelöscht, die Route navigiert zurück -> nichts mehr anzeigen
-            state.isGroupDeleted -> Unit
             // 1. ZUSTAND: Laden
             // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
             state.isLoading -> LoadingState(text = stringResource(R.string.group_detail_loading))
@@ -171,7 +169,7 @@ fun GroupDetailScreen(
             )
             // 3. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
-            state.notFound || group == null -> MessageState(
+            state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
@@ -179,17 +177,19 @@ fun GroupDetailScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+            // Gruppe wurde gerade hier gelöscht, die Route navigiert zurück: nichts mehr anzeigen
+            group == null -> Unit
             // 4. ZUSTAND: Inhalt
             else -> GroupDetailContent(
                 group = group,
                 participants = state.participants,
                 participantPhotoFiles = state.participantPhotoFiles,
                 innerPadding = innerPadding,
-                onOpenWishlist = onOpenWishlist,
+                onWishlistClick = onWishlistClick,
                 onAddParticipantClick = onAddParticipantClick,
                 onEditParticipantClick = onEditParticipantClick,
                 onDeleteParticipantClick = onDeleteParticipantClick,
-                onOpenHistory = onOpenHistory,
+                onHistoryClick = onHistoryClick,
             )
         }
     }
@@ -200,9 +200,9 @@ fun GroupDetailScreen(
             isEditMode = state.editingParticipantId != null,
             name = state.participantNameInput,
             errorMessage = state.participantNameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
-            isSaving = state.isSaving,
+            isBusy = state.isSaving,
             onNameChange = onParticipantNameChange,
-            onSave = onSaveParticipant,
+            onSave = onSaveParticipantClick,
             onDismiss = onDismissParticipantEditor,
             photoPath = state.participantPhotoPath,
             photoFile = state.participantPhotoFile,
@@ -223,9 +223,9 @@ fun GroupDetailScreen(
         ParticipantDeleteDialog(
             participantName = pendingDeleteParticipant.name,
             errorMessage = state.participantDeleteError?.let { stringResource(it) },
-            isSaving = state.isSaving,
-            onConfirm = onConfirmDelete,
-            onDismiss = onDismissDelete,
+            isBusy = state.isSaving,
+            onConfirm = onConfirmParticipantDelete,
+            onDismiss = onDismissParticipantDelete,
         )
     }
 
@@ -233,7 +233,7 @@ fun GroupDetailScreen(
         GroupDeleteDialog(
             groupName = group.name,
             errorMessage = state.groupDeleteError?.let { stringResource(it) },
-            isDeleting = state.isDeletingGroup,
+            isBusy = state.isDeletingGroup,
             onConfirm = onConfirmGroupDelete,
             onDismiss = onDismissGroupDelete,
         )
@@ -246,7 +246,7 @@ fun GroupDetailScreen(
  * Gelost wird ausschließlich über den Button "Losen" in der Aktionsleiste.
  *
  * @param onAddParticipantClick Teilnehmer-Dialog zum Hinzufügen öffnen.
- * @param onOpenHistory Historie öffnen.
+ * @param onHistoryClick Historie öffnen.
  */
 @Composable
 private fun GroupDetailContent(
@@ -254,11 +254,11 @@ private fun GroupDetailContent(
     participants: List<Participant>,
     participantPhotoFiles: Map<String, File>,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
-    onOpenWishlist: (participantId: String) -> Unit,
+    onWishlistClick: (participantId: String) -> Unit,
     onAddParticipantClick: () -> Unit,
     onEditParticipantClick: (participantId: String) -> Unit,
     onDeleteParticipantClick: (participantId: String) -> Unit,
-    onOpenHistory: () -> Unit,
+    onHistoryClick: () -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -331,7 +331,7 @@ private fun GroupDetailContent(
                     // Die Initialen (bis zu 2 Buchstaben) berechnet initialsOf() in ui/components.
                     leading = { InitialsAvatar(name = participant.name, photoFile = participantPhotoFiles[participant.id]) },
                     // Klick auf die ganze Karte öffnet die Wunschliste
-                    onClick = { onOpenWishlist(participant.id) },
+                    onClick = { onWishlistClick(participant.id) },
                     trailing = {
                         // Drei-Punkte-Aktionsmenü (⋮)
                         ItemMenu(
@@ -354,7 +354,7 @@ private fun GroupDetailContent(
                 title = stringResource(R.string.draw_history_title),
                 leading = { IconAvatar(icon = Icons.Filled.History) },
                 trailing = { ChevronIcon() },
-                onClick = onOpenHistory,
+                onClick = onHistoryClick,
             )
         }
         item {
@@ -376,11 +376,11 @@ private fun PreviewScreen(state: GroupDetailUiState) {
     WichtlyTheme {
         GroupDetailScreen(
             state = state,
-            onBack = {}, onEditGroupClick = {}, onOpenWishlist = {}, onAddParticipantClick = {},
+            onBack = {}, onEditGroupClick = {}, onWishlistClick = {}, onAddParticipantClick = {},
             onEditParticipantClick = {}, onDeleteParticipantClick = {}, onParticipantNameChange = {},
-            onSaveParticipant = {}, onDismissParticipantEditor = {}, onConfirmDelete = {}, onDismissDelete = {},
+            onSaveParticipantClick = {}, onDismissParticipantEditor = {}, onConfirmParticipantDelete = {}, onDismissParticipantDelete = {},
             onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
-            onCameraDenied = {}, onOpenAppSettings = {}, onPrepareDraw = {}, onOpenHistory = {},
+            onCameraDenied = {}, onOpenAppSettings = {}, onPrepareDrawClick = {}, onHistoryClick = {},
             onDeleteGroupClick = {}, onConfirmGroupDelete = {}, onDismissGroupDelete = {},
         )
     }

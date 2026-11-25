@@ -30,7 +30,8 @@ import java.io.File
  * @property showGroupDeleteDialog Steuert die Sichtbarkeit des Dialogs zum Löschen der ganzen Gruppe.
  * @property isDeletingGroup Gibt an, ob die Gruppe gerade gelöscht wird (deaktiviert die Dialog-Buttons).
  * @property groupDeleteError Fehlermeldung, die im Gruppen-Löschdialog angezeigt wird.
- * @property isGroupDeleted Einmal-Ereignis: Die Gruppe wurde gelöscht, die Route navigiert zurück.
+ * @property isGroupDeleted Einmal-Ereignis: Die Gruppe wurde gelöscht, die Route navigiert zurück und
+ *   quittiert mit onGroupDeletedHandled().
  * @property drawDayPassed Der Wichteltag ist vorbei; "Losen" ist gesperrt, bis er verschoben wird.
  */
 data class GroupDetailUiState(

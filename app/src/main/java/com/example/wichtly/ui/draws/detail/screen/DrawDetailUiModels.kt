@@ -1,7 +1,7 @@
 package com.example.wichtly.ui.draws.detail.screen
 
 import com.example.wichtly.domain.model.group.DrawType
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * UI-Modell eines gespeicherten Auslosungs-Durchlaufs für die Detailansicht.
@@ -11,7 +11,7 @@ import java.time.LocalDate
  * @property groupName Aktueller Name der Wichtelgruppe (kein Snapshot: er wird mit der Auslosung nicht
  *   gespeichert, sondern nachgeladen). null = Name konnte nicht geladen werden; die UI zeigt dann den
  *   Platzhalter aus strings.xml.
- * @property createdAt Datum der Auslosung.
+ * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
  * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
  * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.
  */
@@ -19,7 +19,7 @@ data class DrawDetailUiModel(
     val id: String,
     val groupId: String,
     val groupName: String?,
-    val createdAt: LocalDate,
+    val drawnAt: LocalDateTime,
     val drawType: DrawType,
     val assignments: List<DrawAssignmentUiModel>,
 )

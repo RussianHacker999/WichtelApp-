@@ -11,16 +11,3 @@ data class DrawSummaryTuple(
     val assignmentCount: Int,
 )
 
-
-data class ParticipantPreviewTuple(
-    val participantId: String,
-    val name: String,
-    val wishCount: Int,
-)
-
-
-data class GroupDrawOverviewTuple(
-    val groupId: String,
-    val participantCount: Int,
-    val drawCount: Int,
-)

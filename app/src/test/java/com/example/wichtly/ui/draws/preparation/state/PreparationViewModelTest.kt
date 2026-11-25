@@ -17,7 +17,7 @@ import java.time.LocalDate
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
-import com.example.wichtly.testutil.FakeWishListRepository
+import com.example.wichtly.testutil.FakeWishlistRepository
 
 
 /**
@@ -60,7 +60,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository(), today = { heute }),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), FakeDrawRepository(), today = { heute }),
             today = { heute },
         )
 
@@ -98,7 +98,7 @@ class PreparationViewModelTest {
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), FakeDrawRepository(), today = { heute }),
+            PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), FakeDrawRepository(), today = { heute }),
             today = { heute },
         )
 
@@ -130,7 +130,7 @@ class PreparationViewModelTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants((1..anzahlTeilnehmer).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") })
         }
-        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishListRepository(), drawRepository, today = { heute })
+        val performDraw = PerformDrawUseCase(groupRepository, participantRepository, FakeWishlistRepository(), drawRepository, today = { heute })
         return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw, today = { heute })
     }
 
@@ -152,13 +152,13 @@ class PreparationViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        var erhalteneDrawId: String? = null
-        viewModel.startDraw { drawId -> erhalteneDrawId = drawId }
+        viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
+        val erhalteneDrawId = viewModel.uiState.value.completedDrawId
 
-        assertEquals(1, drawRepository.saveDrawCalls)
+        assertEquals(1, drawRepository.insertDrawCalls)
         assertNotNull(erhalteneDrawId)
-        assertFalse(viewModel.uiState.value.isStarting)
+        assertFalse(viewModel.uiState.value.isDrawing)
     }
 
     @Test
@@ -168,11 +168,11 @@ class PreparationViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        var erhalteneDrawId: String? = null
-        viewModel.startDraw { drawId -> erhalteneDrawId = drawId }
+        viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
+        val erhalteneDrawId = viewModel.uiState.value.completedDrawId
 
-        assertEquals(0, drawRepository.saveDrawCalls)
+        assertEquals(0, drawRepository.insertDrawCalls)
         assertNull(erhalteneDrawId)
     }
 
@@ -184,12 +184,12 @@ class PreparationViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        var erhalteneDrawId: String? = null
-        viewModel.startDraw { drawId -> erhalteneDrawId = drawId }
+        viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
+        val erhalteneDrawId = viewModel.uiState.value.completedDrawId
 
         assertNull(erhalteneDrawId)
-        assertEquals(0, drawRepository.saveDrawCalls)
+        assertEquals(0, drawRepository.insertDrawCalls)
         assertNotNull(viewModel.uiState.value.errorMessage)
     }
 
@@ -200,11 +200,11 @@ class PreparationViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        viewModel.startDraw { }
+        viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
 
         assertNotNull(viewModel.uiState.value.errorMessage)
-        assertFalse(viewModel.uiState.value.isStarting)
+        assertFalse(viewModel.uiState.value.isDrawing)
     }
 
     @Test
@@ -217,5 +217,21 @@ class PreparationViewModelTest {
 
         assertTrue(viewModel.uiState.value.drawDayPassed)
         assertFalse(viewModel.uiState.value.canStartDraw)
+    }
+
+    @Test
+    fun ereignisWirdNachDerNavigationQuittiert() = runTest {
+        val viewModel = erstelleViewModel(anzahlTeilnehmer = 3)
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.isLoading.not())
+
+        viewModel.onStartDrawClick()
+        testScheduler.advanceUntilIdle()
+        assertNotNull(viewModel.uiState.value.completedDrawId)
+
+        viewModel.onDrawHandled()
+        testScheduler.advanceUntilIdle()
+        assertNull(viewModel.uiState.value.completedDrawId)
     }
 }

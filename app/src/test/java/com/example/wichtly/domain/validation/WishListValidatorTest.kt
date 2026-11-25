@@ -1,13 +1,13 @@
 package com.example.wichtly.domain.validation
 
-import com.example.wichtly.domain.model.participant.WishListItem
+import com.example.wichtly.domain.model.participant.WishlistItem
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class WishListValidatorTest {
+class WishlistValidatorTest {
 
-    private val validator = WishListValidator()
-    private val wunsch = WishListItem(id = "w1", participantId = "p1", text = "Buch")
+    private val validator = WishlistValidator()
+    private val wunsch = WishlistItem(id = "w1", participantId = "p1", text = "Buch")
 
     @Test
     fun gueltigerWunschHatKeineFehler() {
@@ -17,7 +17,7 @@ class WishListValidatorTest {
     @Test
     fun leererTextIstFehler() {
         val fehler = validator.validate(wunsch.copy(text = "   "), emptyList())
-        assertTrue(WishListValidationError.EmptyText in fehler)
+        assertTrue(WishlistValidationError.EmptyText in fehler)
     }
 
     @Test
@@ -28,13 +28,13 @@ class WishListValidatorTest {
     @Test
     fun textUeber200ZeichenIstFehler() {
         val fehler = validator.validate(wunsch.copy(text = "x".repeat(201)), emptyList())
-        assertTrue(WishListValidationError.TextTooLong in fehler)
+        assertTrue(WishlistValidationError.TextTooLong in fehler)
     }
 
     @Test
     fun gleicherWunschIstDuplikatAuchMitAndererSchreibweise() {
-        val vorhanden = listOf(WishListItem(id = "w2", participantId = "p1", text = " BUCH "))
-        assertTrue(WishListValidationError.DuplicateText in validator.validate(wunsch, vorhanden))
+        val vorhanden = listOf(WishlistItem(id = "w2", participantId = "p1", text = " BUCH "))
+        assertTrue(WishlistValidationError.DuplicateText in validator.validate(wunsch, vorhanden))
     }
 
     @Test

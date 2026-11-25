@@ -17,6 +17,9 @@ private const val TAG = "SaveGiftGroup"
 /**
  * Rohe Formulareingaben einer Wichtelgruppe, so wie der Nutzer sie getippt hat.
  * Budget und Wichteltag bleiben Text, damit Format- und Fachfehler an einer Stelle geprüft werden.
+ *
+ * Konvention für alle Use Cases: Ab drei fachlichen Eingabefeldern gibt es ein eigenes `…Input`-Objekt
+ * (hier fünf Felder); darunter Einzelparameter (SaveParticipantUseCase, SaveWishlistItemUseCase).
  */
 data class GiftGroupInput(
     val name: String,
@@ -45,7 +48,7 @@ class SaveGiftGroupUseCase(
      */
     suspend operator fun invoke(groupId: String?, input: GiftGroupInput): GiftGroupResult {
         AppLog.d(TAG) { if (groupId == null) "Neue Gruppe speichern" else "Gruppe $groupId speichern" }
-        val existingGroups = repository.getGiftGroups().first()
+        val existingGroups = repository.observeGiftGroups().first()
         val stored = groupId?.let { id ->
             existingGroups.firstOrNull { it.id == id } ?: return notFound(id)
         }
@@ -69,7 +72,7 @@ class SaveGiftGroupUseCase(
             }
         }
         if (errors.isNotEmpty() || budgetCents == null || drawDay == null) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString { it::class.simpleName.orEmpty() }}" }
+            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
             return GiftGroupResult.ValidationError(errors)
         }
 

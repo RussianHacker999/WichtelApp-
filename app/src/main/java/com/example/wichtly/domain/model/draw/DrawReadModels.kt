@@ -10,14 +10,3 @@ data class DrawSummary(
     val drawType: DrawType,
     val assignmentCount: Int,
 )
-
-data class ParticipantPreview(
-    val participantId: String,
-    val name: String,
-    val wishCount: Int
-)
-data class GroupDrawOverview(
-    val groupId: String,
-    val participantCount: Int,
-    val drawCount: Int,
-)

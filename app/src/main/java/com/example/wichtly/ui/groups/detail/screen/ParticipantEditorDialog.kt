@@ -14,7 +14,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
-import com.example.wichtly.ui.components.photo.PhotoArea
 import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
 import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -28,7 +27,7 @@ import com.example.wichtly.domain.validation.ParticipantValidator
  * @param isEditMode Steuert den Dialogtitel: false = "Teilnehmer hinzufügen", true = "Teilnehmer bearbeiten".
  * @param name Aktueller Inhalt des Namens-Eingabefeldes.
  * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Namensfeld.
- * @param isSaving Deaktiviert Interaktionen während eines aktiven Speichervorgangs.
+ * @param isBusy Deaktiviert Interaktionen während eines aktiven Speichervorgangs.
  * @param onNameChange Callback bei Texteingaben im Namensfeld.
  * @param onSave Callback beim Bestätigen/Speichern.
  * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
@@ -50,7 +49,7 @@ fun ParticipantEditorDialog(
     isEditMode: Boolean,
     name: String,
     errorMessage: String?,
-    isSaving: Boolean,
+    isBusy: Boolean,
     onNameChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
@@ -74,16 +73,15 @@ fun ParticipantEditorDialog(
             title = stringResource(if (isEditMode) R.string.participant_edit else R.string.participant_add),
             confirmLabel = stringResource(R.string.common_save),
             onConfirm = onSave,
-            confirmEnabled = !isSaving,
-            confirmLoading = isSaving,
-            dismissEnabled = !isSaving,
+            confirmEnabled = !isBusy,
+            confirmLoading = isBusy,
+            dismissEnabled = !isBusy,
         ) {
             PhotoPickerField(
-                area = PhotoArea.PARTICIPANT,
                 hasPhoto = photoPath != null,
                 photoFile = photoFile,
                 onSelectClick = onPhotoSelectClick,
-                enabled = !isSaving,
+                enabled = !isBusy,
             )
             if (cameraDenied) {
                 CameraPermissionDeniedHint(onOpenSettings = onOpenAppSettings)
@@ -97,14 +95,13 @@ fun ParticipantEditorDialog(
                 onValueChange = onNameChange,
                 placeholder = stringResource(R.string.participant_name_placeholder),
                 errorText = errorMessage,
-                enabled = !isSaving,
+                enabled = !isBusy,
                 maxLength = ParticipantValidator.MAX_NAME_LENGTH,
             )
         }
 
         // PhotoCaptureFlow als Geschwister-Element außerhalb des WichtlyDialogs
         PhotoCaptureFlow(
-            area = PhotoArea.PARTICIPANT,
             hasPhoto = photoPath != null,
             isOpen = isPhotoFlowOpen,
             onClose = onPhotoFlowClose,
@@ -124,12 +121,12 @@ private fun PreviewDialog(
     isEditMode: Boolean,
     name: String,
     errorMessage: String? = null,
-    isSaving: Boolean = false,
+    isBusy: Boolean = false,
     cameraDenied: Boolean = false,
 ) {
     WichtlyTheme {
         ParticipantEditorDialog(
-            isEditMode = isEditMode, name = name, errorMessage = errorMessage, isSaving = isSaving,
+            isEditMode = isEditMode, name = name, errorMessage = errorMessage, isBusy = isBusy,
             onNameChange = {}, onSave = {}, onDismiss = {},
             photoPath = null, photoFile = null, photoError = null, isPhotoFlowOpen = false, cameraDenied = cameraDenied,
             onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
@@ -165,5 +162,5 @@ private fun ParticipantEditorDialogCameraDeniedPreview() {
 @Preview
 @Composable
 private fun ParticipantEditorDialogSavingStatePreview() {
-    PreviewDialog(isEditMode = true, name = "Maria", isSaving = true)
+    PreviewDialog(isEditMode = true, name = "Maria", isBusy = true)
 }

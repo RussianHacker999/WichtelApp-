@@ -3,7 +3,7 @@ package com.example.wichtly.data.local.relation
 import androidx.room.Embedded
 import androidx.room.Relation
 import com.example.wichtly.data.local.entity.DrawAssignmentEntity
-import com.example.wichtly.data.local.entity.DrawWishListItemSnapshotEntity
+import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 
 data class DrawAssignmentWithWishlist(
     @Embedded
@@ -12,5 +12,5 @@ data class DrawAssignmentWithWishlist(
         parentColumn = "id",
         entityColumn = "assignmentId",
     )
-    val wishlistItems: List<DrawWishListItemSnapshotEntity>,
+    val wishlistItems: List<DrawWishlistItemSnapshotEntity>,
 )

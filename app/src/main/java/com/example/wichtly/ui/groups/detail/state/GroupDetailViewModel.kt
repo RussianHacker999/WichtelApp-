@@ -52,6 +52,8 @@ private data class GroupDetailLocalState(
     val isDeletingGroup: Boolean = false,
     @StringRes val groupDeleteError: Int? = null,
     val isGroupDeleted: Boolean = false,
+    // Bleibt nach dem Quittieren des Ereignisses gesetzt: Die Gruppe ist gewollt weg, kein "nicht gefunden"
+    val groupWasDeleted: Boolean = false,
 )
 
 /**
@@ -81,14 +83,14 @@ class GroupDetailViewModel(
     private var committedParticipantPhotoPath: String? = null
 
     val uiState: StateFlow<GroupDetailUiState> = combine(
-        giftGroupRepository.getGiftGroupById(groupId)
+        giftGroupRepository.observeGiftGroupById(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe", e)
                 _localState.update { it.copy(groupLoadError = R.string.error_group_load) }
                 emit(null)
             },
-        participantRepository.getParticipantsByGroupId(groupId)
+        participantRepository.observeParticipantsByGroupId(groupId)
             .catch { e ->
                 if (e is CancellationException) throw e
                 AppLog.e(TAG, "Fehler beim Laden der Teilnehmerliste", e)
@@ -98,7 +100,7 @@ class GroupDetailViewModel(
         _localState,
     ) { group, participants, localState ->
         // Nach dem eigenen Löschen ist die Gruppe gewollt weg: kein "nicht gefunden" bis zur Navigation
-        val isGroupNotFound = group == null && localState.groupLoadError == null && !localState.isGroupDeleted
+        val isGroupNotFound = group == null && localState.groupLoadError == null && !localState.groupWasDeleted
         val combinedErrorMessage = localState.groupLoadError ?: localState.participantsLoadError
 
         val isEditingParticipantPresent = localState.editingParticipantId == null ||
@@ -179,15 +181,15 @@ class GroupDetailViewModel(
     /**
      * Öffnet den Teilnehmer-Editor im Bearbeiten-Modus, falls der Teilnehmer in der aktuellen Liste existiert.
      */
-    fun onEditParticipantClick(id: String) {
+    fun onEditParticipantClick(participantId: String) {
         val currentParticipants = uiState.value.participants
-        val participantToEdit = currentParticipants.find { it.id == id }
+        val participantToEdit = currentParticipants.find { it.id == participantId }
         if (participantToEdit != null) {
             committedParticipantPhotoPath = participantToEdit.photoPath
             _localState.update {
                 it.copy(
                     showParticipantEditor = true,
-                    editingParticipantId = id,
+                    editingParticipantId = participantId,
                     participantNameInput = participantToEdit.name,
                     participantNameError = null,
                     participantPhotoPath = participantToEdit.photoPath,
@@ -251,10 +253,10 @@ class GroupDetailViewModel(
     /**
      * Merkt sich die ID des zu löschenden Teilnehmers und öffnet den Lösch-Dialog.
      */
-    fun onDeleteParticipantClick(id: String) {
+    fun onDeleteParticipantClick(participantId: String) {
         _localState.update {
             it.copy(
-                pendingDeleteParticipantId = id,
+                pendingDeleteParticipantId = participantId,
                 participantDeleteError = null,
             )
         }
@@ -263,7 +265,7 @@ class GroupDetailViewModel(
     /**
      * Schließt den Lösch-Dialog (nur wenn kein Speichervorgang läuft).
      */
-    fun onDismissDelete() {
+    fun onDismissParticipantDelete() {
         if (_localState.value.isSaving) return
         _localState.update {
             it.copy(
@@ -349,7 +351,7 @@ class GroupDetailViewModel(
         }
     }
 
-    fun onPhotoRemove() {
+    fun onRemovePhoto() {
         val currentPath = _localState.value.participantPhotoPath
         if (currentPath != committedParticipantPhotoPath && currentPath != null) {
             viewModelScope.launch {
@@ -382,7 +384,7 @@ class GroupDetailViewModel(
      * Das ViewModel prüft nichts selbst: Name, Duplikat und Existenz von Gruppe und Teilnehmer
      * prüft der [SaveParticipantUseCase]; hier werden nur seine Fehler in Texte übersetzt.
      */
-    fun onSaveParticipant() {
+    fun onSaveParticipantClick() {
         if (_localState.value.isSaving) return
 
         val localState = _localState.value
@@ -465,7 +467,7 @@ class GroupDetailViewModel(
     // TEILNEHMER LÖSCHEN
     // =========================================================================
 
-    fun onConfirmDelete() {
+    fun onConfirmParticipantDelete() {
         if (_localState.value.isSaving) return
 
         val pendingId = _localState.value.pendingDeleteParticipantId ?: return
@@ -549,6 +551,7 @@ class GroupDetailViewModel(
                                 isDeletingGroup = false,
                                 showGroupDeleteDialog = false,
                                 isGroupDeleted = true,
+                                groupWasDeleted = true,
                             )
                         }
                     }
@@ -565,5 +568,13 @@ class GroupDetailViewModel(
                 }
             }
         }
+    }
+
+    /**
+     * Setzt das Ereignis [GroupDetailUiState.isGroupDeleted] zurück, nachdem die Route navigiert hat
+     * (gleiches Muster wie onSavedHandled im Formular und onDrawHandled in der Vorbereitung).
+     */
+    fun onGroupDeletedHandled() {
+        _localState.update { it.copy(isGroupDeleted = false) }
     }
 }

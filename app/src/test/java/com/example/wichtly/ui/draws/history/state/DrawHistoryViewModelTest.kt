@@ -75,7 +75,7 @@ class DrawHistoryViewModelTest {
         assertEquals(false, state.isLoading)
         assertEquals(groupName, state.groupName)
         assertEquals(1, state.draws.size)
-        assertEquals(false, state.groupNotFound)
+        assertEquals(false, state.notFound)
         assertNull(state.errorMessage)
     }
 
@@ -138,12 +138,12 @@ class DrawHistoryViewModelTest {
         assertEquals(false, state.isLoading)
         assertEquals(groupName, state.groupName)
         assertTrue(state.draws.isEmpty())
-        assertEquals(false, state.groupNotFound)
+        assertEquals(false, state.notFound)
         assertNull(state.errorMessage)
     }
 
     /**
-     * Test 4: Unbekannte Gruppe setzt groupNotFound auf true.
+     * Test 4: Unbekannte Gruppe setzt notFound auf true.
      */
     @Test
     fun unknownGroup_setsGroupNotFound() = runTest {
@@ -157,7 +157,7 @@ class DrawHistoryViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
-        assertTrue(state.groupNotFound)
+        assertTrue(state.notFound)
         assertNull(state.groupName)
         assertNull(state.errorMessage)
     }
@@ -182,7 +182,7 @@ class DrawHistoryViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
         assertEquals(R.string.error_history_load, state.errorMessage)
-        assertEquals(false, state.groupNotFound)
+        assertEquals(false, state.notFound)
     }
 
     /**
@@ -203,7 +203,7 @@ class DrawHistoryViewModelTest {
         val state = viewModel.uiState.value
         assertEquals(false, state.isLoading)
         assertEquals(R.string.error_history_load, state.errorMessage)
-        assertEquals(false, state.groupNotFound)
+        assertEquals(false, state.notFound)
     }
 
     /**

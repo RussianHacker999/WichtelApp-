@@ -1,11 +1,14 @@
 package com.example.wichtly.ui.groups.list.state
 
+import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -31,64 +34,49 @@ class GroupsViewModelTest {
     )
 
     @Test
-    fun zeigtGruppenAusDemRepository() {
+    fun zeigtGruppenAusDemRepository() = runTest {
         val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(familie, uni)) }
-
         val viewModel = GroupsViewModel(groupRepository, FakePhotoRepository())
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
 
-        assertEquals(listOf(familie, uni), viewModel.uiState.groups)
+        assertFalse(viewModel.uiState.value.isLoading)
+        assertEquals(listOf(familie, uni), viewModel.uiState.value.groups)
     }
 
     @Test
-    fun aktualisiertListeWennSichDatenbankAendert() {
+    fun aktualisiertListeWennSichDatenbankAendert() = runTest {
         val groupRepository = FakeGiftGroupRepository()
         val viewModel = GroupsViewModel(groupRepository, FakePhotoRepository())
-        assertTrue(viewModel.uiState.groups.isEmpty())
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
+        assertTrue(viewModel.uiState.value.groups.isEmpty())
 
         // simuliert: neue Gruppe wurde gespeichert
         groupRepository.setGroups(listOf(familie))
+        testScheduler.advanceUntilIdle()
 
-        assertEquals(listOf(familie), viewModel.uiState.groups)
+        assertEquals(listOf(familie), viewModel.uiState.value.groups)
     }
 
     @Test
-    fun selectGroupMerktSichAusgewaehlteGruppe() {
+    fun gruppeAntippenMerktSichAusgewaehlteGruppe() = runTest {
         val viewModel = GroupsViewModel(FakeGiftGroupRepository(), FakePhotoRepository())
+        backgroundScope.launch { viewModel.uiState.collect {} }
 
-        viewModel.selectGroup("g1")
+        viewModel.onGroupClick("g1")
+        testScheduler.advanceUntilIdle()
 
-        assertEquals("g1", viewModel.uiState.selectedGroupId)
+        assertEquals("g1", viewModel.uiState.value.selectedGroupId)
     }
 
     @Test
-    fun kameraAbgelehntSchliesstFotoFlowUndMerktGruppe() {
-        val viewModel = GroupsViewModel(FakeGiftGroupRepository(), FakePhotoRepository())
-        viewModel.openPhotoFlow("g1")
+    fun ladefehlerWirdAlsFehlermeldungGezeigt() = runTest {
+        val viewModel = GroupsViewModel(FakeGiftGroupRepository().apply { failFlows = true }, FakePhotoRepository())
+        backgroundScope.launch { viewModel.uiState.collect {} }
+        testScheduler.advanceUntilIdle()
 
-        viewModel.onCameraDenied("g1")
-
-        assertNull(viewModel.uiState.photoFlowGroupId)
-        assertEquals("g1", viewModel.uiState.cameraDeniedGroupId)
-    }
-
-    @Test
-    fun fotoFlowOeffnenSetztKameraHinweisZurueck() {
-        val viewModel = GroupsViewModel(FakeGiftGroupRepository(), FakePhotoRepository())
-        viewModel.onCameraDenied("g1")
-
-        viewModel.openPhotoFlow("g1")
-
-        assertEquals("g1", viewModel.uiState.photoFlowGroupId)
-        assertNull(viewModel.uiState.cameraDeniedGroupId)
-    }
-
-    @Test
-    fun fotoFlowSchliessen() {
-        val viewModel = GroupsViewModel(FakeGiftGroupRepository(), FakePhotoRepository())
-        viewModel.openPhotoFlow("g1")
-
-        viewModel.closePhotoFlow()
-
-        assertNull(viewModel.uiState.photoFlowGroupId)
+        assertEquals(R.string.error_groups_load, viewModel.uiState.value.errorMessage)
+        assertFalse(viewModel.uiState.value.isLoading)
     }
 }

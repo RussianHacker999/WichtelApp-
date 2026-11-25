@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.domain.model.group.DrawType
@@ -23,10 +24,10 @@ import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.controls.WichtlyTextButton
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
-import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 /**
  * Zustandsloser Composable-Screen für die Ergebnisansicht eines gespeicherten Auslosungs-Durchlaufs.
@@ -55,6 +56,9 @@ fun DrawDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     val draw = state.draw
+    // Datum und Uhrzeit der Ziehung, z. B. "01.12.2026, 18:42 Uhr"; Muster wie in der Historie
+    val dateTimePattern = stringResource(R.string.common_datetime_pattern)
+    val dateTimeFormatter = remember(dateTimePattern) { DateTimeFormatter.ofPattern(dateTimePattern) }
     WichtlyScaffold(
         modifier = modifier,
         topBar = {
@@ -100,7 +104,7 @@ fun DrawDetailScreen(
                 item {
                     // (1) Seitenkopf mit Eyebrow (Datum) und Titel
                     PageHeader(
-                        eyebrow = stringResource(R.string.draw_detail_eyebrow, formatDateForInput(draw.createdAt)),
+                        eyebrow = stringResource(R.string.draw_detail_eyebrow, draw.drawnAt.format(dateTimeFormatter)),
                         title = stringResource(R.string.draw_detail_header),
                         subtitle = stringResource(
                             R.string.draw_detail_subtitle,
@@ -154,7 +158,7 @@ private fun createSampleDraw(): DrawDetailUiModel {
         id = "d-preview-1",
         groupId = "g1",
         groupName = "Familie Wichteln",
-        createdAt = LocalDate.of(2026, 12, 1),
+        drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42),
         drawType = DrawType.NORMAL,
         assignments = names.mapIndexed { index, name ->
             val receiverIndex = (index + 1) % names.size

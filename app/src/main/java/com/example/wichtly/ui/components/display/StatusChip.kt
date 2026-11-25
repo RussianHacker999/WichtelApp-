@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.wichtly.ui.theme.WichtlyTheme
+import com.example.wichtly.ui.theme.Spacing
 
 /** Color sets for [StatusChip]. */
 enum class ChipTone { Gold, Berry, Success, Neutral, OnImage }
@@ -59,7 +60,7 @@ fun StatusChip(
                 drawContent()
                 drawCircle(color = hole, radius = 2.dp.toPx(), center = Offset(8.dp.toPx(), size.height / 2f))
             }
-            .padding(start = 15.dp, end = 10.dp, top = 6.dp, bottom = 6.dp),
+            .padding(start = Spacing.relaxed, end = Spacing.inline, top = Spacing.tight, bottom = Spacing.tight),
     )
 }
 

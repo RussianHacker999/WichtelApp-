@@ -77,7 +77,7 @@ fun ListItemCard(
 /** Title + optional subtitle as used inside [ListItemCard] and the hero group card. */
 @Composable
 fun ListItemText(title: String, subtitle: String?, titleMaxLines: Int = 1, modifier: Modifier = Modifier) {
-    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(3.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
@@ -104,7 +104,7 @@ fun ChevronIcon() {
         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 8.dp),
+        modifier = Modifier.padding(horizontal = Spacing.s),
     )
 }
 
@@ -130,8 +130,8 @@ fun NoteCard(text: String, modifier: Modifier = Modifier, icon: ImageVector = Ic
         modifier = modifier
             .fillMaxWidth()
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.large)
-            .padding(horizontal = Spacing.l, vertical = 14.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
+            .padding(horizontal = Spacing.l, vertical = Spacing.relaxed),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.inline),
     ) {
         Icon(
             imageVector = icon,
@@ -151,7 +151,7 @@ fun InfoRowsCard(rows: List<Pair<String, String>>, modifier: Modifier = Modifier
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
-        Column(modifier = Modifier.padding(Spacing.cardPadding), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(modifier = Modifier.padding(Spacing.cardPadding), verticalArrangement = Arrangement.spacedBy(Spacing.inline)) {
             rows.forEach { (label, value) ->
                 Row(horizontalArrangement = Arrangement.spacedBy(Spacing.m)) {
                     Text(

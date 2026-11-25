@@ -30,7 +30,7 @@ class ParticipantValidatorTest {
     fun doppelterNameInGruppeIstFehler() {
         val vorhanden = listOf(Participant(id = "p2", groupId = "g1", name = " anna "))
         val fehler = validator.validate(anna, vorhanden)
-        assertTrue(ParticipantValidationError.DuplicateNameInGroup in fehler)
+        assertTrue(ParticipantValidationError.DuplicateName in fehler)
     }
 
     @Test

@@ -22,4 +22,4 @@ fun GiftGroup.toEntity(): GiftGroupEntity = GiftGroupEntity(
     photoPath = photoPath
 )
 
-fun List<GiftGroupEntity>.toDomainModelList(): List<GiftGroup> = map { it.toDomainModel() }
+fun List<GiftGroupEntity>.toDomainModels(): List<GiftGroup> = map { it.toDomainModel() }

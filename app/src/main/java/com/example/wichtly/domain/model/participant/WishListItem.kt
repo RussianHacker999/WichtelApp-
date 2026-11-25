@@ -10,7 +10,7 @@ import java.util.UUID
  * @property text Content or description of the wish.
  * @property sortOrder Order for sorting wish items in the list.
  */
-data class WishListItem(
+data class WishlistItem(
     val id: String = UUID.randomUUID().toString(),
     val participantId: String,
     val text: String,

@@ -52,8 +52,8 @@ fun PageHeader(
         modifier = modifier
             .fillMaxWidth()
             .headerSparkles(seed = title.hashCode())
-            .padding(top = 10.dp, bottom = Spacing.m),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+            .padding(top = Spacing.inline, bottom = Spacing.m),
+        verticalArrangement = Arrangement.spacedBy(Spacing.tight),
     ) {
         if (eyebrow != null) {
             Text(
@@ -63,7 +63,7 @@ fun PageHeader(
                 color = MaterialTheme.colorScheme.primary,
             )
         } else {
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(Spacing.relaxed))
         }
         Text(
             text = title,
@@ -92,8 +92,8 @@ data class MetaItem(val icon: ImageVector, val text: String)
 fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
     FlowRow(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(14.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.relaxed),
+        verticalArrangement = Arrangement.spacedBy(Spacing.tight),
     ) {
         items.forEach { item ->
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -156,7 +156,7 @@ private fun CountBadge(count: Int) {
         Box(
             modifier = Modifier
                 .defaultMinSize(minWidth = 22.dp, minHeight = 22.dp)
-                .padding(horizontal = 7.dp),
+                .padding(horizontal = Spacing.tight),
             contentAlignment = Alignment.Center,
         ) {
             Text(

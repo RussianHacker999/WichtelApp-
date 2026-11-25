@@ -80,7 +80,7 @@ fun GroupFormRoute(
         onPhotoSelectClick = viewModel::onPhotoSelectClick,
         onPhotoFlowClose = viewModel::onPhotoFlowClose,
         onPhotoCaptured = viewModel::onPhotoCaptured,
-        onRemovePhoto = viewModel::onPhotoRemove,
+        onRemovePhoto = viewModel::onRemovePhoto,
         onCameraDenied = viewModel::onCameraDenied,
         onOpenAppSettings = { openAppSettings(context) },
         modifier = modifier

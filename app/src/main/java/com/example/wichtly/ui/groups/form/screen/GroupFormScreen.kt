@@ -34,7 +34,6 @@ import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
-import com.example.wichtly.ui.components.photo.PhotoArea
 import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
 import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.components.layout.screenContentPadding
@@ -64,13 +63,13 @@ import com.example.wichtly.domain.validation.GiftGroupValidator
  * @param onDrawTypeChange Callback bei Änderung des Wichtel-Typs.
  * @param onSaveClick Callback zum Auslösen des Speichervorgangs.
  * @param onBack Callback für die Zurück-Navigation.
- * @param modifier Äußerer Modifier für den Screen.
  * @param onPhotoSelectClick Öffnet den Foto-Ablauf.
  * @param onPhotoFlowClose Schließt den Foto-Ablauf.
  * @param onPhotoCaptured Neues Foto aufgenommen.
  * @param onRemovePhoto Foto entfernen.
  * @param onCameraDenied Kamerazugriff abgelehnt.
  * @param onOpenAppSettings Öffnet die App-Einstellungen.
+ * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun GroupFormScreen(
@@ -81,13 +80,13 @@ fun GroupFormScreen(
     onDrawTypeChange: (DrawType) -> Unit,
     onSaveClick: () -> Unit,
     onBack: () -> Unit,
+    onPhotoSelectClick: () -> Unit,
+    onPhotoFlowClose: () -> Unit,
+    onPhotoCaptured: (File) -> Unit,
+    onRemovePhoto: () -> Unit,
+    onCameraDenied: () -> Unit,
+    onOpenAppSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    onPhotoSelectClick: () -> Unit = {},
-    onPhotoFlowClose: () -> Unit = {},
-    onPhotoCaptured: (File) -> Unit = {},
-    onRemovePhoto: () -> Unit = {},
-    onCameraDenied: () -> Unit = {},
-    onOpenAppSettings: (() -> Unit)? = null,
 ) {
     val showForm = !state.isLoading && !state.notFound
     // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
@@ -154,7 +153,6 @@ fun GroupFormScreen(
     }
 
     PhotoCaptureFlow(
-        area = PhotoArea.GROUP,
         hasPhoto = state.photoPath != null,
         isOpen = state.isPhotoFlowOpen,
         onClose = onPhotoFlowClose,
@@ -194,7 +192,6 @@ private fun GroupFormContent(
         }
         item {
             PhotoPickerField(
-                area = PhotoArea.GROUP,
                 hasPhoto = state.photoPath != null,
                 photoFile = state.photoFile,
                 onSelectClick = onPhotoSelectClick,
@@ -290,6 +287,8 @@ private fun GroupFormScreenCreatePreview() {
             state = GroupFormUiState(isEditMode = false, isLoading = false),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
             onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }
@@ -308,6 +307,8 @@ private fun GroupFormScreenEditPreview() {
             ),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
             onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }
@@ -329,7 +330,9 @@ private fun GroupFormScreenErrorsPreview() {
                 cameraDenied = true,
             ),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
-            onSaveClick = {}, onBack = {}, onOpenAppSettings = {},
+            onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }
@@ -348,6 +351,8 @@ private fun GroupFormScreenSavingPreview() {
             ),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
             onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }
@@ -363,6 +368,8 @@ private fun GroupFormScreenLoadingPreview() {
             state = GroupFormUiState(isEditMode = true, isLoading = true),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
             onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }
@@ -378,6 +385,8 @@ private fun GroupFormScreenNotFoundPreview() {
             state = GroupFormUiState(isEditMode = true, isLoading = false, notFound = true),
             onNameChange = {}, onBudgetChange = {}, onDrawDayChange = {}, onDrawTypeChange = {},
             onSaveClick = {}, onBack = {},
+            onPhotoSelectClick = {}, onPhotoFlowClose = {}, onPhotoCaptured = {}, onRemovePhoto = {},
+            onCameraDenied = {}, onOpenAppSettings = {},
         )
     }
 }

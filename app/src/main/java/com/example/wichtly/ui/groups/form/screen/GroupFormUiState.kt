@@ -30,7 +30,7 @@ import java.io.File
  *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.
  */
 data class GroupFormUiState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isEditMode: Boolean = false,
     val notFound: Boolean = false,
     val name: String = "",

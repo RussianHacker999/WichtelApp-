@@ -1,13 +1,25 @@
 package com.example.wichtly.ui.groups.list.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.WichtlyApplication
 import com.example.wichtly.ui.groups.list.screen.GroupsScreen
 
+/**
+ * Zustandsbehaftete Route der Gruppenliste: holt die Abhängigkeiten aus dem AppContainer, erzeugt das
+ * [GroupsViewModel] und verbindet dessen Zustand mit dem zustandslosen [GroupsScreen].
+ *
+ * @param onAddGroup Navigation zum Formular "Neue Gruppe".
+ * @param onOpenGroup Navigation zu den Details einer Gruppe.
+ * @param onEditGroup Navigation zum Formular "Gruppe bearbeiten".
+ * @param onPrepareDraw Navigation zur Vorbereitung der Auslosung der ausgewählten Gruppe.
+ * @param modifier Äußerer Modifier.
+ */
 @Composable
 fun GroupsRoute(
     onAddGroup: () -> Unit,
@@ -17,28 +29,23 @@ fun GroupsRoute(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val repository = (context.applicationContext as WichtlyApplication).container.giftGroupRepository
-    val photoRepository = (context.applicationContext as WichtlyApplication).container.photoRepository
-    val factory = remember(repository, photoRepository) { GroupsViewModelFactory(repository, photoRepository) }
-    val viewModel: GroupsViewModel = viewModel(factory = factory)
+    val container = (context.applicationContext as WichtlyApplication).container
+    val giftGroupRepository = container.giftGroupRepository
+    val photoRepository = container.photoRepository
 
-    // erstellt einen GroupsSceen
-    // gibt seine Parameter Methoden als Parameter in den GroupSceen
+    val factory = remember(giftGroupRepository, photoRepository) {
+        GroupsViewModelFactory(repository = giftGroupRepository, photoRepository = photoRepository)
+    }
+    val viewModel: GroupsViewModel = viewModel(factory = factory)
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
     GroupsScreen(
-        uiState = viewModel.uiState,
-        // oeffenet Gruppe hinzufuegen Screen
+        state = state,
         onAddGroupClick = onAddGroup,
-        // makiert die ausgewhlte Gruppe
-        onGroupClick = { groupId -> viewModel.selectGroup(groupId) },
-        // oeffnet die Detailansicht der ausgewaehlten Gruppe
-        onDetailsClick = {groupId -> onOpenGroup(groupId)},
-        // oeffnet die Bearbeitungsansicht der ausgewaehlter Gruppe
+        onGroupClick = viewModel::onGroupClick,
+        onDetailsClick = onOpenGroup,
         onEditGroupClick = onEditGroup,
-        // oeffnet die Vorbereitung der Auslosung fuer die markierte Gruppe
-        onPrepareDrawClick = { groupId ->
-            onPrepareDraw(groupId)
-        },
-        // Das Gruppenfoto wird seit dem Redesign nur noch im Gruppenformular gesetzt.
+        onPrepareDrawClick = onPrepareDraw,
         modifier = modifier,
     )
 }

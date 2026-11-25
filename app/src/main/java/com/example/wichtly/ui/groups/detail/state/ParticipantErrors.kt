@@ -20,7 +20,7 @@ data class ParticipantUiErrors(
  * Übersetzt eine Liste von [ParticipantValidationError] aus dem SaveParticipantUseCase in strukturierte [ParticipantUiErrors].
  *
  * Zuordnung der Fehler:
- * - EmptyName, NameTooLong, DuplicateNameInGroup -> gehören zum Namensfeld (nameError).
+ * - EmptyName, NameTooLong, DuplicateName -> gehören zum Namensfeld (nameError).
  * - ParticipantNotFound, GroupNotFound -> ergeben einen allgemeinen Fehler (generalError).
  *
  * Regel bei Mehrfachfehlern:
@@ -43,7 +43,7 @@ fun mapParticipantValidationErrors(
             is ParticipantValidationError.NameTooLong -> {
                 if (nameErr == null) nameErr = R.string.error_participant_name_too_long
             }
-            is ParticipantValidationError.DuplicateNameInGroup -> {
+            is ParticipantValidationError.DuplicateName -> {
                 if (nameErr == null) nameErr = R.string.error_participant_name_duplicate
             }
             is ParticipantValidationError.ParticipantNotFound -> {

@@ -43,14 +43,14 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         groupsFlow.value = groupsFlow.value.filter { it.id != id }
     }
 
-    override fun getGiftGroups(): Flow<List<GiftGroup>> {
+    override fun observeGiftGroups(): Flow<List<GiftGroup>> {
         if (failFlows) {
             return flow { throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppen") }
         }
         return groupsFlow
     }
 
-    override fun getGiftGroupById(id: String): Flow<GiftGroup?> {
+    override fun observeGiftGroupById(id: String): Flow<GiftGroup?> {
         if (failFlows) {
             return flow { throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppe") }
         }

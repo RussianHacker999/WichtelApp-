@@ -52,18 +52,18 @@ import java.time.format.DateTimeFormatter
  *
  * @param state Der aktuelle UI-Zustand der Auslosungshistorie.
  * @param onBack Callback für die Zurück-Navigation.
- * @param onOpenDraw Callback zum Öffnen eines spezifischen Auslosungsdurchlaufs (erhält drawId).
+ * @param onDrawClick Callback zum Öffnen eines spezifischen Auslosungsdurchlaufs (erhält drawId).
  * @param modifier Äußerer Modifier für den Screen.
  */
 @Composable
 fun DrawHistoryScreen(
     state: DrawHistoryUiState,
     onBack: () -> Unit,
-    onOpenDraw: (drawId: String) -> Unit,
+    onDrawClick: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Datum und Uhrzeit einer Ziehung, z. B. "01.12.2026, 18:42 Uhr"; das Muster steht in strings.xml
-    val dateTimePattern = stringResource(R.string.draw_history_datetime_pattern)
+    val dateTimePattern = stringResource(R.string.common_datetime_pattern)
     val historyDateTimeFormatter = remember(dateTimePattern) { DateTimeFormatter.ofPattern(dateTimePattern) }
     WichtlyScaffold(
         modifier = modifier,
@@ -85,7 +85,7 @@ fun DrawHistoryScreen(
             )
             // 3. ZUSTAND: Gruppe nicht gefunden
             // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
-            state.groupNotFound -> MessageState(
+            state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
                 icon = Icons.Outlined.ErrorOutline,
@@ -129,7 +129,7 @@ fun DrawHistoryScreen(
                             title = draw.drawnAt.format(historyDateTimeFormatter),
                             leading = { IconAvatar(icon = Icons.Filled.Redeem) },
                             trailing = { ChevronIcon() },
-                            onClick = { onOpenDraw(draw.id) },
+                            onClick = { onDrawClick(draw.id) },
                         )
                     }
                 }
@@ -163,7 +163,7 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
         DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30), drawType = DrawType.JUNK, assignmentCount = 8),
     )
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onOpenDraw = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
     }
 }
 
@@ -175,7 +175,7 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 private fun DrawHistoryScreenWithSingleDrawPreview() {
     val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42), drawType = DrawType.NORMAL, assignmentCount = 6))
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onOpenDraw = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
     }
 }
 
@@ -186,7 +186,7 @@ private fun DrawHistoryScreenWithSingleDrawPreview() {
 @Composable
 private fun DrawHistoryScreenEmptyPreview() {
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Büro Wichteln 2026"), onBack = {}, onOpenDraw = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Büro Wichteln 2026"), onBack = {}, onDrawClick = {})
     }
 }
 
@@ -197,7 +197,7 @@ private fun DrawHistoryScreenEmptyPreview() {
 @Composable
 private fun DrawHistoryScreenLoadingPreview() {
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = true), onBack = {}, onOpenDraw = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = true), onBack = {}, onDrawClick = {})
     }
 }
 
@@ -210,7 +210,7 @@ private fun DrawHistoryScreenErrorPreview() {
     WichtlyTheme {
         DrawHistoryScreen(
             state = DrawHistoryUiState(isLoading = false, errorMessage = R.string.error_history_load),
-            onBack = {}, onOpenDraw = {},
+            onBack = {}, onDrawClick = {},
         )
     }
 }
@@ -222,6 +222,6 @@ private fun DrawHistoryScreenErrorPreview() {
 @Composable
 private fun DrawHistoryScreenNotFoundPreview() {
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupNotFound = true), onBack = {}, onOpenDraw = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, notFound = true), onBack = {}, onDrawClick = {})
     }
 }

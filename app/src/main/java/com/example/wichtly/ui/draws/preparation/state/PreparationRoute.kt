@@ -1,6 +1,7 @@
 package com.example.wichtly.ui.draws.preparation.state
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,7 +12,13 @@ import com.example.wichtly.WichtlyApplication
 import com.example.wichtly.ui.draws.preparation.screen.PreparationScreen
 
 /**
- * Holt Repositories und ViewModel und verbindet sie mit dem zustandslosen Screen.
+ * Zustandsbehaftete Route der Vorbereitung: holt Abhängigkeiten und ViewModel und verbindet sie mit dem
+ * zustandslosen [PreparationScreen].
+ *
+ * @param groupId ID der Gruppe, die ausgelost werden soll.
+ * @param onBack Zurück-Navigation.
+ * @param onDrawStarted Navigation zum Ergebnis, sobald die Auslosung gespeichert ist.
+ * @param modifier Äußerer Modifier.
  */
 @Composable
 fun PreparationRoute(
@@ -20,38 +27,38 @@ fun PreparationRoute(
     onDrawStarted: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Über den Application-Context erreicht die Route den AppContainer mit Repositories und Use Cases
     val context = LocalContext.current
-    // leifert den aktuellen Andorid-Content
-    // Zugiff auf viele Android Funktionen
     val container = (context.applicationContext as WichtlyApplication).container
-    // ermoeglicht schlussendlich den Zugriff auf das Repositoty mit den Daten ueber diese App und einen Container
+    val giftGroupRepository = container.giftGroupRepository
+    val participantRepository = container.participantRepository
+    val performDraw = container.performDrawUseCase
 
-    // erstelltn eine Faktory fuer Preparation
-    val factory = remember(
-        groupId,
-        container.giftGroupRepository,
-        container.participantRepository,
-        container.performDrawUseCase,
-    ) {
+    // Die Factory erzeugt das ViewModel mit diesen Abhängigkeiten
+    val factory = remember(groupId, giftGroupRepository, participantRepository, performDraw) {
         PreparationViewModelFactory(
             groupId = groupId,
-            giftGroupRepository = container.giftGroupRepository,
-            participantRepository = container.participantRepository,
-            performDraw = container.performDrawUseCase,
+            giftGroupRepository = giftGroupRepository,
+            participantRepository = participantRepository,
+            performDraw = performDraw,
         )
     }
-    // Faktory erstellt eine ViewModel
-    val viewModel: PreparationViewModel =
-        viewModel(key = groupId, factory = factory)
+    val viewModel: PreparationViewModel = viewModel(key = groupId, factory = factory)
+    // "by" liest direkt den aktuellen Wert des StateFlows
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    // holte den UiSate aus dem ViewModel
-    // durch das by wird direkt die value-Eigenschaft verwednet
 
-    // erstellt einen PreparationScreen
+    // Nach erfolgreicher Auslosung genau einmal zum Ergebnis navigieren und das Ereignis quittieren
+    LaunchedEffect(state.completedDrawId) {
+        state.completedDrawId?.let { drawId ->
+            onDrawStarted(drawId)
+            viewModel.onDrawHandled()
+        }
+    }
+
     PreparationScreen(
         state = state,
         onBack = onBack,
-        onStartDraw = { viewModel.startDraw(onDrawStarted) },
+        onStartDrawClick = viewModel::onStartDrawClick,
         modifier = modifier,
     )
 }

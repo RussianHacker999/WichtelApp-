@@ -54,6 +54,10 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import kotlin.random.Random
 
+// Formgebundene Maße des Startbilds: Luft über dem Schriftzug und Einzug des Fußbereichs
+private val HeroTopSpace = 140.dp
+private val HeroSidePadding = 28.dp
+
 /**
  * Startseite (Mockup-Option A "Nachthimmel"): großer Wichtly-Schriftzug mittig auf einem
  * leuchtenden Nachthimmel mit Schnee, darunter eine Infozeile und eine Hauptaktion.
@@ -123,7 +127,7 @@ fun StartScreen(
             if (summary != null) {
                 StartFooter(summary = summary, onOpenGroups = onOpenGroups, onCreateGroup = onCreateGroup)
             } else {
-                Spacer(modifier = Modifier.height(140.dp))
+                Spacer(modifier = Modifier.height(HeroTopSpace))
             }
         }
     }
@@ -146,7 +150,7 @@ private val NightSkyBrush = Brush.verticalGradient(
 @Composable
 private fun Wordmark() {
     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        Box(modifier = Modifier.padding(start = 28.dp, end = 28.dp, top = 14.dp)) {
+        Box(modifier = Modifier.padding(start = HeroSidePadding, end = HeroSidePadding, top = Spacing.relaxed)) {
             BasicText(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displayLarge.copy(
@@ -237,7 +241,7 @@ private fun InfoPill(summary: StartSummary) {
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = Spacing.relaxed, vertical = Spacing.s),
         )
     }
 }

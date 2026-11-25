@@ -20,7 +20,7 @@ import com.example.wichtly.ui.wishlist.screen.ParticipantWishlistScreen
  *   ViewModel- und Repository-Abhängigkeiten, was Previews und automatisierte UI-Tests extrem vereinfacht.
  * - Warum manuelles Beziehen des AppContainers?
  *   Über `(LocalContext.current.applicationContext as WichtlyApplication).container` holen wir die benötigten
- *   Repositories (`participantRepository` und `wishListRepository`) ohne zusätzliche DI-Framework-Abhängigkeiten.
+ *   Repositories (`participantRepository` und `wishlistRepository`) ohne zusätzliche DI-Framework-Abhängigkeiten.
  * - Warum `remember` für die ViewModelFactory?
  *   Verhindert die unnötige Neuerstellung der Factory bei Re-Compositions, solange sich `participantId`
  *   und die Repositories nicht ändern.
@@ -42,16 +42,16 @@ fun ParticipantWishlistRoute(
     val context = LocalContext.current
     val container = (context.applicationContext as WichtlyApplication).container
     val participantRepository = container.participantRepository
-    val wishListRepository = container.wishListRepository
-    val saveWishListItem = container.saveWishListItemUseCase
+    val wishlistRepository = container.wishlistRepository
+    val saveWishlistItem = container.saveWishlistItemUseCase
 
     // Instanziieren der ViewModelFactory mit den nötigen Repositories und dem Use Case zum Speichern
-    val factory = remember(participantId, participantRepository, wishListRepository, saveWishListItem) {
+    val factory = remember(participantId, participantRepository, wishlistRepository, saveWishlistItem) {
         WishlistViewModelFactory(
             participantId = participantId,
             participantRepository = participantRepository,
-            wishListRepository = wishListRepository,
-            saveWishListItem = saveWishListItem,
+            wishlistRepository = wishlistRepository,
+            saveWishlistItem = saveWishlistItem,
         )
     }
 

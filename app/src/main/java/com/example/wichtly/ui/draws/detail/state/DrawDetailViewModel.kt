@@ -79,7 +79,7 @@ class DrawDetailViewModel(
             if (draw == null) {
                 flowOf(null to null)
             } else {
-                giftGroupRepository.getGiftGroupById(draw.groupId)
+                giftGroupRepository.observeGiftGroupById(draw.groupId)
                     .map<_, String?> { group -> group?.name }
                     .catch { e ->
                         if (e is CancellationException) throw e
@@ -183,7 +183,7 @@ class DrawDetailViewModel(
             id = domainDraw.id,
             groupId = domainDraw.groupId,
             groupName = groupName,
-            createdAt = domainDraw.drawnAt.atZone(ZoneId.systemDefault()).toLocalDate(),
+            drawnAt = domainDraw.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
             drawType = domainDraw.drawType,
             assignments = sortedAssignments
         )

@@ -4,11 +4,11 @@ import com.example.wichtly.domain.algorithm.SecretSantaDrawAlgorithm
 import com.example.wichtly.domain.model.draw.DrawAssignment
 import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawRules
-import com.example.wichtly.domain.model.draw.DrawWishListItemSnapshot
+import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 import com.example.wichtly.domain.repository.DrawRepository
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
-import com.example.wichtly.domain.repository.WishListRepository
+import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
 import kotlinx.coroutines.flow.first
@@ -24,7 +24,7 @@ private const val TAG = "PerformDraw"
  * Ablauf: Gruppe muss existieren → Wichteltag darf nicht vorbei sein → mindestens
  * [DrawRules.MIN_PARTICIPANTS] Teilnehmer →
  * Zuordnung per [SecretSantaDrawAlgorithm] → Namen und Wunschlisten der Empfänger als
- * unveränderlichen Snapshot kopieren → atomar über [DrawRepository.saveDraw] speichern.
+ * unveränderlichen Snapshot kopieren → atomar über [DrawRepository.insertDraw] speichern.
  *
  * @param now Liefert den Zeitpunkt der Auslosung; in Tests durch einen festen Wert ersetzbar.
  * @param today Liefert das heutige Datum für die Prüfung des Wichteltags; in Tests ersetzbar.
@@ -32,7 +32,7 @@ private const val TAG = "PerformDraw"
 class PerformDrawUseCase(
     private val giftGroupRepository: GiftGroupRepository,
     private val participantRepository: ParticipantRepository,
-    private val wishListRepository: WishListRepository,
+    private val wishlistRepository: WishlistRepository,
     private val drawRepository: DrawRepository,
     private val algorithm: SecretSantaDrawAlgorithm = SecretSantaDrawAlgorithm(),
     private val now: () -> Instant = { Instant.now() },
@@ -40,13 +40,13 @@ class PerformDrawUseCase(
 ) {
     suspend operator fun invoke(groupId: String): DrawResult {
         AppLog.d(TAG) { "Auslosung für Gruppe $groupId gestartet" }
-        val group = giftGroupRepository.getGiftGroupById(groupId).first()
+        val group = giftGroupRepository.observeGiftGroupById(groupId).first()
         if (group == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, keine Auslosung")
             return DrawResult.ValidationError(listOf(DrawValidationError.GroupNotFound))
         }
 
-        val participants = participantRepository.getParticipantsByGroupId(groupId).first()
+        val participants = participantRepository.observeParticipantsByGroupId(groupId).first()
         val errors = buildList {
             if (!DrawRules.isDrawDayOpen(group.drawDay, today())) add(DrawValidationError.DrawDayPassed)
             if (!DrawRules.canDraw(participants.size)) add(DrawValidationError.NotEnoughParticipants)
@@ -63,8 +63,8 @@ class PerformDrawUseCase(
         val assignments = assignmentMap.map { (giverId, receiverId) ->
             val giver = participantsById.getValue(giverId)
             val receiver = participantsById.getValue(receiverId)
-            val receiverWishes = wishListRepository.observeWishlistItems(receiver.id).first()
-                .map { item -> DrawWishListItemSnapshot(text = item.text, sortOrder = item.sortOrder) }
+            val receiverWishes = wishlistRepository.observeWishlistItems(receiver.id).first()
+                .map { item -> DrawWishlistItemSnapshot(text = item.text, sortOrder = item.sortOrder) }
             DrawAssignment(
                 giverName = giver.name,
                 giverId = giver.id,
@@ -80,7 +80,7 @@ class PerformDrawUseCase(
             drawType = group.drawType,
             assignments = assignments,
         )
-        drawRepository.saveDraw(draw)
+        drawRepository.insertDraw(draw)
         // Datenschutz: nur Anzahlen, niemals wer wen beschenkt
         AppLog.i(TAG, "Auslosung ${draw.id} für Gruppe $groupId gespeichert (${assignments.size} Zuordnungen)")
         return DrawResult.Success(draw)

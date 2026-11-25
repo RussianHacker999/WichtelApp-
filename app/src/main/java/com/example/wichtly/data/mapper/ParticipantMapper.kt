@@ -17,4 +17,4 @@ fun Participant.toEntity(): ParticipantEntity = ParticipantEntity(
     photoPath = photoPath
 )
 
-fun List<ParticipantEntity>.toDomainModelList(): List<Participant> = map { it.toDomainModel() }
+fun List<ParticipantEntity>.toDomainModels(): List<Participant> = map { it.toDomainModel() }

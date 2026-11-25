@@ -37,6 +37,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param destructive Shows the icon and confirm button in red (delete dialogs).
  * @param confirmLabel null leaves only the dismiss button (e.g. when the content itself holds the actions).
  * @param dismissLabel null hides the dismiss button.
+ * @param errorMessage Optional error shown below the content (e.g. when deleting failed); same look in every dialog.
  */
 @Composable
 fun WichtlyDialog(
@@ -53,6 +54,7 @@ fun WichtlyDialog(
     confirmEnabled: Boolean = true,
     dismissEnabled: Boolean = true,
     confirmLoading: Boolean = false,
+    errorMessage: String? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null,
 ) {
     AlertDialog(
@@ -62,7 +64,7 @@ fun WichtlyDialog(
         title = {
             Text(text = title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         },
-        text = if (text == null && content == null) null else {
+        text = if (text == null && content == null && errorMessage == null) null else {
             {
                 Column(
                     modifier = Modifier
@@ -80,6 +82,15 @@ fun WichtlyDialog(
                         )
                     }
                     content?.invoke(this)
+                    if (errorMessage != null) {
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             }
         },
