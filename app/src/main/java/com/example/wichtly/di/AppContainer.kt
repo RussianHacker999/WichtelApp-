@@ -16,6 +16,7 @@ import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.WishlistRepository
 import com.example.wichtly.domain.usecase.CleanUpOrphanPhotosUseCase
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
+import com.example.wichtly.domain.usecase.DeleteParticipantUseCase
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
@@ -27,8 +28,12 @@ import com.example.wichtly.domain.validation.WishlistValidator
 /**
  * Composition Root der App.
  *
- * Lesen: über die Repositories. Schreiben: ausschließlich über die Use Cases, weil nur sie die
- * Fachregeln prüfen. Die Repositories selbst sind reine Persistenz.
+ * Lesen: über die Repositories. Die Repositories selbst sind reine Persistenz.
+ *
+ * Schreiben: über die Use Cases, sobald Fachregeln greifen (Anlegen und Ändern mit Validierung, Losen)
+ * oder Datenbank und Fotodateien gemeinsam geändert werden (Gruppe oder Teilnehmer löschen).
+ * Einzige Ausnahme ist das Löschen eines Wunsches: Es ist eine einzelne Zeile ohne Regeln und ohne
+ * Datei, deshalb ruft das ViewModel dafür direkt das WishlistRepository auf.
  */
 interface AppContainer {
     val giftGroupRepository: GiftGroupRepository
@@ -40,6 +45,7 @@ interface AppContainer {
     val saveGiftGroupUseCase: SaveGiftGroupUseCase
     val deleteGiftGroupUseCase: DeleteGiftGroupUseCase
     val saveParticipantUseCase: SaveParticipantUseCase
+    val deleteParticipantUseCase: DeleteParticipantUseCase
     val saveWishlistItemUseCase: SaveWishlistItemUseCase
     val performDrawUseCase: PerformDrawUseCase
     val cleanUpOrphanPhotosUseCase: CleanUpOrphanPhotosUseCase
@@ -97,6 +103,12 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
             participantRepository = participantRepository,
             giftGroupRepository = giftGroupRepository,
             validator = ParticipantValidator(),
+        )
+    }
+    override val deleteParticipantUseCase: DeleteParticipantUseCase by lazy {
+        DeleteParticipantUseCase(
+            participantRepository = participantRepository,
+            photoRepository = photoRepository,
         )
     }
     override val saveWishlistItemUseCase: SaveWishlistItemUseCase by lazy {

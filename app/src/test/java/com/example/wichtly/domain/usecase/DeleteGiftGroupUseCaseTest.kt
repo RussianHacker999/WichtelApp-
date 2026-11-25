@@ -2,8 +2,6 @@ package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.domain.validation.GiftGroupResult
-import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
@@ -11,7 +9,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.LocalDate
 
@@ -41,7 +38,7 @@ class DeleteGiftGroupUseCaseTest {
 
         val result = useCase("g1")
 
-        assertTrue(result is GiftGroupResult.Success)
+        assertEquals(DeleteResult.Deleted, result)
         assertEquals(1, groupRepository.deleteCalls)
         assertNull(groupRepository.observeGiftGroupById("g1").first())
         assertEquals(
@@ -58,19 +55,19 @@ class DeleteGiftGroupUseCaseTest {
 
         val result = useCase("g1")
 
-        assertTrue(result is GiftGroupResult.Success)
+        assertEquals(DeleteResult.Deleted, result)
         assertNull(groupRepository.observeGiftGroupById("g1").first())
     }
 
     @Test
-    fun unbekannteGruppeMeldetGroupNotFoundUndLoeschtNichts() = runTest {
+    fun unbekannteGruppeMeldetNotFoundUndLoeschtNichts() = runTest {
         val groupRepository = FakeGiftGroupRepository()
         val photoRepository = FakePhotoRepository()
         val useCase = DeleteGiftGroupUseCase(groupRepository, FakeParticipantRepository(), photoRepository)
 
         val result = useCase("gibt-es-nicht")
 
-        assertEquals(GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound)), result)
+        assertEquals(DeleteResult.NotFound, result)
         assertEquals(0, groupRepository.deleteCalls)
         assertEquals(0, photoRepository.deleteCalls)
     }

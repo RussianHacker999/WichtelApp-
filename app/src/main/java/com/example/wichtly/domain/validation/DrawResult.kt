@@ -4,6 +4,9 @@ import com.example.wichtly.domain.model.draw.DrawDetail
 
 /**
  * Fachliche Fehler einer Auslosung. Als data object, damit sie in Logs und Tests lesbar heißen.
+ *
+ * Liegt bewusst unter `validation`: Alle drei Fälle sind Vorbedingungen, die der PerformDrawUseCase
+ * vor dem Losen prüft (Gruppe vorhanden, Wichteltag offen, genug Teilnehmer).
  */
 sealed interface DrawValidationError {
     data object GroupNotFound : DrawValidationError

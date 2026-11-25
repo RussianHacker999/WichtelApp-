@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.wishlist.state
 
+import androidx.annotation.StringRes
 import com.example.wichtly.R
 import com.example.wichtly.domain.validation.WishlistValidationError
 
@@ -13,15 +14,16 @@ import com.example.wichtly.domain.validation.WishlistValidationError
  * @param errors Die Liste der aufgetretenen Domain-Validierungsfehler.
  * @return String-Ressource des Fehlertexts oder `null`, falls keine Fehler vorliegen.
  */
+@StringRes
 fun mapWishlistValidationErrors(
     errors: List<WishlistValidationError>,
-): Int? {
-    val firstError = errors.firstOrNull() ?: return null
-    return when (firstError) {
-        is WishlistValidationError.EmptyText -> R.string.error_wish_empty
-        is WishlistValidationError.TextTooLong -> R.string.error_wish_too_long
-        is WishlistValidationError.DuplicateText -> R.string.error_wish_duplicate
-        // Nur beim Bearbeiten möglich: der Wunsch wurde inzwischen gelöscht
-        is WishlistValidationError.WishNotFound -> R.string.error_wish_missing
-    }
+): Int? = errors.firstOrNull()?.messageRes()
+
+@StringRes
+private fun WishlistValidationError.messageRes(): Int = when (this) {
+    WishlistValidationError.EmptyText -> R.string.error_wish_empty
+    WishlistValidationError.TextTooLong -> R.string.error_wish_too_long
+    WishlistValidationError.DuplicateText -> R.string.error_wish_duplicate
+    // Nur beim Bearbeiten möglich: der Wunsch wurde inzwischen gelöscht
+    WishlistValidationError.WishNotFound -> R.string.error_wish_missing
 }

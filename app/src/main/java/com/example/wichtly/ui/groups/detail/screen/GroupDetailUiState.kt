@@ -12,23 +12,17 @@ import java.io.File
  * @property isLoading Zeigt an, ob die Gruppendaten und Teilnehmer aktuell geladen werden.
  * @property group Die geladene Wichtelgruppe (null, falls noch geladen wird oder die Gruppe nicht existiert).
  * @property notFound Bedeutet, dass die Wichtelgruppe nicht existiert (nicht in der Datenbank vorhanden oder gelöscht).
- * @property participants Liste der Teilnehmer dieser Gruppe. Eine leere Liste (participants.isEmpty()) ist ein vollkommen gültiger Zustand (die Gruppe hat noch keine Teilnehmer) und stellt keinen Fehler dar!
- * @property errorMessage Enthält einen Fehlertext für Ladefehler auf Screen-Ebene, die den normalen Screen-Inhalt ersetzen.
- * @property isSaving Gibt an, ob aktuell ein Teilnehmer hinzugefügt, bearbeitet oder gelöscht wird (deaktiviert Dialog-Buttons).
- * @property showParticipantEditor Steuert die Sichtbarkeit des Dialogs zum Erstellen oder Bearbeiten eines Teilnehmers.
- * @property editingParticipantId Steuert den Modus des Teilnehmer-Editors: null = Hinzufügen-Modus (neuer Teilnehmer), String (ID) = Bearbeiten-Modus für diesen Teilnehmer.
- * @property participantNameInput Aktueller Textinhalt im Eingabefeld des Teilnehmer-Dialogs.
- * @property participantNameError Spezifische Validierungs- oder Formatfehlermeldung für das Namensfeld, die direkt im Teilnehmer-Dialog angezeigt wird (und nicht den Screen ersetzt).
+ * @property participants Liste der Teilnehmer dieser Gruppe. Eine leere Liste ist ein gültiger Zustand
+ *   (die Gruppe hat noch keine Teilnehmer) und kein Fehler.
+ * @property errorMessage Fehlertext für Ladefehler auf Screen-Ebene, die den normalen Screen-Inhalt ersetzen.
+ * @property isSaving Ein Teilnehmer wird gerade hinzugefügt, bearbeitet oder gelöscht (deaktiviert Dialog-Buttons).
+ * @property participantEditor Der offene Teilnehmer-Editor; null = Editor geschlossen.
  * @property participantDeleteError Fehlermeldung, die im Lösch-Dialog angezeigt wird.
- * @property pendingDeleteParticipantId ID des Teilnehmers, für den der Lösch-Bestätigungsdialog angezeigt wird (null = kein Löschdialog aktiv).
- * @property participantPhotoPath Relativer Pfad des aktuellen Teilnehmerfotos im Editor (null = kein Foto).
- * @property participantPhotoFile Aufgelöste Bilddatei zur Vorschau-Anzeige im Teilnehmer-Editor.
- * @property isPhotoFlowOpen Steuert das Öffnen/Schließen des Foto-Aufnahme-Workflows für Teilnehmer.
- * @property cameraDenied Zeigt an, ob der Kamerazugriff für Teilnehmerfotos abgelehnt wurde.
- * @property photoError Fehlermeldung speziell für Fehler beim Speichern/Aufnehmen des Teilnehmerfotos.
- * @property participantPhotoFiles Map von Teilnehmer-IDs auf deren aufgelöste Bilddateien (nur für Teilnehmer mit vorhandener Bilddatei).
+ * @property pendingDeleteParticipantId ID des Teilnehmers, für den der Lösch-Bestätigungsdialog angezeigt wird
+ *   (null = kein Löschdialog aktiv).
+ * @property participantPhotoFiles Fotodatei je Teilnehmer-ID (nur für Teilnehmer mit vorhandener Bilddatei).
  * @property showGroupDeleteDialog Steuert die Sichtbarkeit des Dialogs zum Löschen der ganzen Gruppe.
- * @property isDeletingGroup Gibt an, ob die Gruppe gerade gelöscht wird (deaktiviert die Dialog-Buttons).
+ * @property isDeletingGroup Die Gruppe wird gerade gelöscht (deaktiviert die Dialog-Buttons).
  * @property groupDeleteError Fehlermeldung, die im Gruppen-Löschdialog angezeigt wird.
  * @property isGroupDeleted Einmal-Ereignis: Die Gruppe wurde gelöscht, die Route navigiert zurück und
  *   quittiert mit onGroupDeletedHandled().
@@ -41,17 +35,9 @@ data class GroupDetailUiState(
     val participants: List<Participant> = emptyList(),
     @StringRes val errorMessage: Int? = null,
     val isSaving: Boolean = false,
-    val showParticipantEditor: Boolean = false,
-    val editingParticipantId: String? = null,
-    val participantNameInput: String = "",
-    @StringRes val participantNameError: Int? = null,
+    val participantEditor: ParticipantEditorUiState? = null,
     @StringRes val participantDeleteError: Int? = null,
     val pendingDeleteParticipantId: String? = null,
-    val participantPhotoPath: String? = null,
-    val participantPhotoFile: File? = null,
-    val isPhotoFlowOpen: Boolean = false,
-    val cameraDenied: Boolean = false,
-    @StringRes val photoError: Int? = null,
     val participantPhotoFiles: Map<String, File> = emptyMap(),
     val showGroupDeleteDialog: Boolean = false,
     val isDeletingGroup: Boolean = false,
@@ -59,3 +45,32 @@ data class GroupDetailUiState(
     val isGroupDeleted: Boolean = false,
     val drawDayPassed: Boolean = false,
 )
+
+/**
+ * Zustand des Teilnehmer-Editors (Dialog zum Hinzufügen oder Bearbeiten).
+ *
+ * Alle Felder gehören nur zum offenen Editor; deshalb sind sie hier gebündelt und der Editor als
+ * Ganzes ist nullable. Verschwindet der bearbeitete Teilnehmer, schließt das ViewModel den Editor,
+ * indem es diesen Zustand auf null setzt.
+ *
+ * @property editingParticipantId null = Hinzufügen-Modus, sonst die ID des bearbeiteten Teilnehmers.
+ * @property nameInput Aktueller Text im Namensfeld.
+ * @property nameError Validierungs- oder Speicherfehler, der im Dialog angezeigt wird.
+ * @property photoPath Relativer Pfad des Fotos im Editor (null = kein Foto).
+ * @property photoFile Aufgelöste Bilddatei zur Vorschau; im ViewModel-internen Zustand immer null.
+ * @property isPhotoFlowOpen Der Foto-Ablauf (Quelle → Berechtigung → Kamera) ist offen.
+ * @property cameraDenied Der Kamerazugriff wurde abgelehnt (Hinweis im Editor).
+ * @property photoError Fehler beim Aufnehmen oder Speichern des Fotos.
+ */
+data class ParticipantEditorUiState(
+    val editingParticipantId: String? = null,
+    val nameInput: String = "",
+    @StringRes val nameError: Int? = null,
+    val photoPath: String? = null,
+    val photoFile: File? = null,
+    val isPhotoFlowOpen: Boolean = false,
+    val cameraDenied: Boolean = false,
+    @StringRes val photoError: Int? = null,
+) {
+    val isEditMode: Boolean get() = editingParticipantId != null
+}

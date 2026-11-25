@@ -4,8 +4,6 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
-import com.example.wichtly.domain.validation.GiftGroupResult
-import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.logging.AppLog
 import kotlinx.coroutines.flow.first
 
@@ -28,15 +26,14 @@ class DeleteGiftGroupUseCase(
     private val photoRepository: PhotoRepository,
 ) {
     /**
-     * @return Success mit der gelöschten Gruppe oder ValidationError(GroupNotFound),
-     *         wenn es die Gruppe nicht (mehr) gibt.
+     * @return [DeleteResult.Deleted] oder [DeleteResult.NotFound], wenn es die Gruppe nicht (mehr) gibt.
      */
-    suspend operator fun invoke(groupId: String): GiftGroupResult {
+    suspend operator fun invoke(groupId: String): DeleteResult {
         AppLog.d(TAG) { "Gruppe $groupId löschen" }
         val group = giftGroupRepository.observeGiftGroupById(groupId).first()
         if (group == null) {
             AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gelöscht")
-            return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
+            return DeleteResult.NotFound
         }
 
         // Fotopfade vor dem Löschen einsammeln, danach sind die Teilnehmer nicht mehr lesbar
@@ -48,6 +45,6 @@ class DeleteGiftGroupUseCase(
 
         // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
         photoPaths.forEach { photoRepository.deletePhotoQuietly(it, TAG) }
-        return GiftGroupResult.Success(group)
+        return DeleteResult.Deleted
     }
 }

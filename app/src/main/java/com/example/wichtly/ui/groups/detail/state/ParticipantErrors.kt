@@ -23,40 +23,32 @@ data class ParticipantUiErrors(
  * - EmptyName, NameTooLong, DuplicateName -> gehören zum Namensfeld (nameError).
  * - ParticipantNotFound, GroupNotFound -> ergeben einen allgemeinen Fehler (generalError).
  *
- * Regel bei Mehrfachfehlern:
- * Mehrere Fehler auf dem Namensfeld ergeben genau eine Fehlermeldung (der erste Fehler in der Liste hat Vorrang).
+ * Gleiches Muster wie die übrigen Fehler-Mapper: Jeder Fehler hat per `when` genau einen Text
+ * ([messageRes]); bei mehreren Fehlern derselben Art gewinnt der erste in der Liste.
  *
  * @param errors Die Liste der aufgetretenen Domain-Validierungsfehler.
  * @return Ein [ParticipantUiErrors]-Objekt mit getrennten Fehlertexten für Feld- und allgemeine Fehler.
  */
 fun mapParticipantValidationErrors(
-    errors: List<ParticipantValidationError>
-): ParticipantUiErrors {
-    var nameErr: Int? = null
-    var genErr: Int? = null
+    errors: List<ParticipantValidationError>,
+): ParticipantUiErrors = ParticipantUiErrors(
+    nameError = errors.firstOrNull { it.isNameError() }?.messageRes(),
+    generalError = errors.firstOrNull { !it.isNameError() }?.messageRes(),
+)
 
-    for (error in errors) {
-        when (error) {
-            is ParticipantValidationError.EmptyName -> {
-                if (nameErr == null) nameErr = R.string.error_participant_name_empty
-            }
-            is ParticipantValidationError.NameTooLong -> {
-                if (nameErr == null) nameErr = R.string.error_participant_name_too_long
-            }
-            is ParticipantValidationError.DuplicateName -> {
-                if (nameErr == null) nameErr = R.string.error_participant_name_duplicate
-            }
-            is ParticipantValidationError.ParticipantNotFound -> {
-                if (genErr == null) genErr = R.string.error_participant_missing
-            }
-            is ParticipantValidationError.GroupNotFound -> {
-                if (genErr == null) genErr = R.string.error_group_not_found
-            }
-        }
-    }
+private fun ParticipantValidationError.isNameError(): Boolean = when (this) {
+    ParticipantValidationError.EmptyName,
+    ParticipantValidationError.NameTooLong,
+    ParticipantValidationError.DuplicateName -> true
+    ParticipantValidationError.ParticipantNotFound,
+    ParticipantValidationError.GroupNotFound -> false
+}
 
-    return ParticipantUiErrors(
-        nameError = nameErr,
-        generalError = genErr
-    )
+@StringRes
+private fun ParticipantValidationError.messageRes(): Int = when (this) {
+    ParticipantValidationError.EmptyName -> R.string.error_participant_name_empty
+    ParticipantValidationError.NameTooLong -> R.string.error_participant_name_too_long
+    ParticipantValidationError.DuplicateName -> R.string.error_participant_name_duplicate
+    ParticipantValidationError.ParticipantNotFound -> R.string.error_participant_missing
+    ParticipantValidationError.GroupNotFound -> R.string.error_group_not_found
 }

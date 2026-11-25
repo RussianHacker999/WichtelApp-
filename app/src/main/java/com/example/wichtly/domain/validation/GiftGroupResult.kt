@@ -19,7 +19,8 @@ sealed interface GiftGroupValidationError {
 }
 
 /**
- * Ergebnis von SaveGiftGroupUseCase und DeleteGiftGroupUseCase: Erfolg oder die Liste aller fachlichen Fehler.
+ * Ergebnis von SaveGiftGroupUseCase: Erfolg oder die Liste aller fachlichen Fehler.
+ * Das Löschen hat einen eigenen Ergebnistyp (DeleteResult), weil dabei nichts validiert wird.
  */
 sealed interface GiftGroupResult {
     data class Success(val giftGroup: GiftGroup) : GiftGroupResult

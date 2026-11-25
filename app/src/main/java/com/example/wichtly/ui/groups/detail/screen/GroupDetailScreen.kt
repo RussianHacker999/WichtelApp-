@@ -153,20 +153,21 @@ fun GroupDetailScreen(
     }
 
     // Dialoge als Overlay über dem Inhalt
-    if (state.showParticipantEditor) {
+    val editor = state.participantEditor
+    if (editor != null) {
         ParticipantEditorDialog(
-            isEditMode = state.editingParticipantId != null,
-            name = state.participantNameInput,
-            errorMessage = state.participantNameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
+            isEditMode = editor.isEditMode,
+            name = editor.nameInput,
+            errorMessage = editor.nameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
             isBusy = state.isSaving,
             onNameChange = actions.onParticipantNameChange,
             onSave = actions.onSaveParticipantClick,
             onDismiss = actions.onDismissParticipantEditor,
-            photoPath = state.participantPhotoPath,
-            photoFile = state.participantPhotoFile,
-            photoError = state.photoError?.let { stringResource(it) },
-            isPhotoFlowOpen = state.isPhotoFlowOpen,
-            cameraDenied = state.cameraDenied,
+            photoPath = editor.photoPath,
+            photoFile = editor.photoFile,
+            photoError = editor.photoError?.let { stringResource(it) },
+            isPhotoFlowOpen = editor.isPhotoFlowOpen,
+            cameraDenied = editor.cameraDenied,
             onPhotoSelectClick = actions.onPhotoSelectClick,
             onPhotoFlowClose = actions.onPhotoFlowClose,
             onPhotoCaptured = actions.onPhotoCaptured,
@@ -420,7 +421,7 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
     PreviewScreen(
         GroupDetailUiState(
             isLoading = false, group = previewGroup, participants = previewParticipants,
-            showParticipantEditor = true, participantNameInput = "Maria",
+            participantEditor = ParticipantEditorUiState(nameInput = "Maria"),
         )
     )
 }

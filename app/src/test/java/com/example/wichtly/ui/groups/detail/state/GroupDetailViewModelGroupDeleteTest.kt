@@ -3,6 +3,7 @@ package com.example.wichtly.ui.groups.detail.state
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
+import com.example.wichtly.domain.usecase.DeleteParticipantUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
@@ -37,6 +38,7 @@ class GroupDetailViewModelGroupDeleteTest {
             photoRepo,
             SaveParticipantUseCase(participantRepo, groupRepo),
             DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+            DeleteParticipantUseCase(participantRepo, photoRepo),
         )
     }
 

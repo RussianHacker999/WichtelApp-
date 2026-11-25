@@ -302,7 +302,8 @@ class WishlistViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Aufruf von deleteWishlistItem(pendingId).
+     * 2. Aufruf von deleteWishlistItem(pendingId) direkt am Repository: eine einzelne Zeile ohne
+     *    Fachregeln und ohne Datei, daher ohne eigenen Use Case (siehe AppContainer).
      * 3. Bei Fehlern bleibt der Dialog geöffnet und zeigt deleteError.
      */
     fun onConfirmDelete() {
