@@ -1,45 +1,21 @@
 package com.example.wichtly.ui.groups.form.screen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.outlined.ErrorOutline
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.R
-import com.example.wichtly.domain.model.group.DrawType
-import com.example.wichtly.domain.validation.GiftGroupValidator
-import com.example.wichtly.ui.components.controls.ChoiceCard
-import com.example.wichtly.ui.components.controls.FieldLabel
 import com.example.wichtly.ui.components.controls.PrimaryButton
 import com.example.wichtly.ui.components.controls.SecondaryButton
-import com.example.wichtly.ui.components.controls.WichtlyTextField
-import com.example.wichtly.ui.components.display.descriptionRes
-import com.example.wichtly.ui.components.display.labelRes
 import com.example.wichtly.ui.components.layout.BottomActionBar
 import com.example.wichtly.ui.components.layout.LoadingState
 import com.example.wichtly.ui.components.layout.MessageState
-import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
-import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.photo.screen.PhotoField
-import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
-import com.example.wichtly.ui.theme.Spacing
-import com.example.wichtly.ui.theme.WichtlyTheme
-import java.io.File
 
 /**
  * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -58,6 +34,8 @@ import java.io.File
  * @param state Der aktuelle UI-Zustand des Formulars.
  * @param actions Alle Nutzeraktionen des Screens, siehe [GroupFormActions].
  * @param modifier Äußerer Modifier für den Screen.
+ *
+ * Inhalt: [GroupFormContent]; Previews: GroupFormScreenPreviews.kt.
  */
 @Composable
 fun GroupFormScreen(
@@ -137,241 +115,5 @@ fun GroupFormScreen(
                 onRemovePhoto = actions.onRemovePhoto,
             )
         }
-    }
-}
-
-/**
- * UI-Darstellung des scrollbaren Formulars.
- * Die Aktionsleiste darunter weicht über imePadding() automatisch der Software-Tastatur aus.
- */
-@Composable
-private fun GroupFormContent(
-    state: GroupFormUiState,
-    innerPaddingTop: androidx.compose.foundation.layout.PaddingValues,
-    onNameChange: (String) -> Unit,
-    onBudgetChange: (String) -> Unit,
-    onDrawDayChange: (String) -> Unit,
-    onDrawTypeChange: (DrawType) -> Unit,
-    onPhotoCaptured: (File) -> Unit,
-    onRemovePhoto: () -> Unit,
-) {
-    val enabled = !state.isSaving
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = screenContentPadding(innerPaddingTop),
-        verticalArrangement = Arrangement.spacedBy(Spacing.m),
-    ) {
-        item {
-            // Seitenkopf mit Eyebrow und Titel (PageHeader)
-            PageHeader(
-                eyebrow = stringResource(if (state.isEditMode) R.string.group_form_eyebrow_edit else R.string.group_form_eyebrow_create),
-                title = stringResource(if (state.isEditMode) R.string.group_form_header_edit else R.string.group_form_header_create),
-            )
-        }
-        item {
-            PhotoField(
-                photo = state.photo,
-                onPhotoCaptured = onPhotoCaptured,
-                onRemovePhoto = onRemovePhoto,
-                enabled = enabled,
-            )
-        }
-        item {
-            WichtlyTextField(
-                // 1. Gruppennamen-Eingabe
-                label = stringResource(R.string.group_form_name_label),
-                value = state.name,
-                onValueChange = onNameChange,
-                placeholder = stringResource(R.string.group_form_name_placeholder),
-                errorText = state.nameError?.let { stringResource(it, GiftGroupValidator.MAX_NAME_LENGTH) },
-                enabled = enabled,
-                maxLength = GiftGroupValidator.MAX_NAME_LENGTH,
-            )
-        }
-        item {
-            WichtlyTextField(
-                // 2. Budget-Eingabe in Euro (Dezimaltastatur)
-                label = stringResource(R.string.group_form_budget_label),
-                value = state.budget,
-                onValueChange = onBudgetChange,
-                placeholder = stringResource(R.string.group_form_budget_placeholder),
-                supportingText = stringResource(R.string.group_form_budget_support),
-                errorText = state.budgetError?.let { stringResource(it, GiftGroupValidator.BUDGET_LIMIT_EUROS) },
-                enabled = enabled,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            )
-        }
-        item {
-            WichtlyTextField(
-                // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
-                label = stringResource(R.string.group_form_date_label),
-                value = state.drawDay,
-                onValueChange = onDrawDayChange,
-                placeholder = stringResource(R.string.group_form_date_placeholder),
-                supportingText = stringResource(
-                    if (state.drawDayPassed) R.string.group_form_date_passed_support else R.string.group_form_date_support,
-                ),
-                errorText = state.drawDayError?.let { stringResource(it, GiftGroupValidator.MAX_YEARS_AHEAD) },
-                enabled = enabled,
-                trailingIcon = { Icon(imageVector = Icons.Filled.Event, contentDescription = null) },
-            )
-        }
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                // 4. Auswahl der Wichtel-Art (Auswahlkarten mit RadioButton)
-                FieldLabel(text = stringResource(R.string.group_form_type_label))
-                DrawType.entries.forEach { type ->
-                    ChoiceCard(
-                        title = stringResource(type.labelRes()),
-                        description = stringResource(type.descriptionRes()),
-                        selected = state.drawType == type,
-                        onClick = { onDrawTypeChange(type) },
-                        enabled = enabled,
-                    )
-                }
-            }
-        }
-        // 5. Allgemeiner Fehlertext
-        state.generalError?.let { error ->
-            item { ErrorText(stringResource(error)) }
-        }
-    }
-}
-
-@Composable
-private fun ErrorText(text: String) {
-    Text(text = text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
-}
-
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
-
-/**
- * Preview 1: Erstellen-Modus mit leeren Feldern.
- */
-
-private val previewActions = GroupFormActions(
-    onNameChange = { _ -> },
-    onBudgetChange = { _ -> },
-    onDrawDayChange = { _ -> },
-    onDrawTypeChange = { _ -> },
-    onSaveClick = { },
-    onBack = { },
-    onPhotoCaptured = { },
-    onRemovePhoto = { },
-)
-
-@Preview(showBackground = true, heightDp = 900)
-@Composable
-private fun GroupFormScreenCreatePreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(isEditMode = false, isLoading = false),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 2: Bearbeiten-Modus mit gefüllten Formularfeldern.
- */
-@Preview(showBackground = true, heightDp = 900)
-@Composable
-private fun GroupFormScreenEditPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(
-                isEditMode = true, isLoading = false, name = "Büro Wichteln 2026",
-                budget = "25,00", drawDay = "24.12.2026", drawType = DrawType.NORMAL,
-            ),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 3: Formular mit aktiven Feldfehlern und allgemeinem Fehlertext.
- */
-@Preview(showBackground = true, heightDp = 1000)
-@Composable
-private fun GroupFormScreenErrorsPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(
-                isEditMode = false, isLoading = false, name = "", budget = "abc", drawDay = "31.02.2026",
-                nameError = R.string.error_group_name_empty,
-                budgetError = R.string.error_budget_format,
-                drawDayError = R.string.error_date_format,
-                generalError = R.string.error_group_save,
-                photo = PhotoFieldUiState(error = R.string.error_photo_save),
-            ),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 4: Formular während des laufenden Speichervorgangs (isSaving = true).
- */
-@Preview(showBackground = true, heightDp = 900)
-@Composable
-private fun GroupFormScreenSavingPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(
-                isEditMode = true, isLoading = false, isSaving = true, name = "Familie Wichteln",
-                budget = "50,00", drawDay = "31.12.2026", drawType = DrawType.JUNK,
-            ),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 5: Ladezustand im Bearbeiten-Modus.
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupFormScreenLoadingPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(isEditMode = true, isLoading = true),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 6: Gruppe nicht gefunden (notFound = true).
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupFormScreenNotFoundPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(isEditMode = true, isLoading = false, notFound = true),
-            actions = previewActions,
-        )
-    }
-}
-
-/**
- * Preview 7: Ladefehler im Bearbeiten-Modus (loadFailed = true).
- */
-@Preview(showBackground = true)
-@Composable
-private fun GroupFormScreenLoadFailedPreview() {
-    WichtlyTheme {
-        GroupFormScreen(
-            state = GroupFormUiState(
-                isEditMode = true,
-                isLoading = false,
-                loadFailed = true,
-                generalError = R.string.error_group_load,
-            ),
-            actions = previewActions,
-        )
     }
 }

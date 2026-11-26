@@ -20,8 +20,6 @@ import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.saveErrorMessage
-import com.example.wichtly.ui.components.display.formatCentsForInput
-import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import com.example.wichtly.ui.photo.state.PhotoDraft
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
@@ -117,22 +115,11 @@ class GroupFormViewModel(
                 val loadedGroup = repository.getGiftGroupById(id)
                 if (loadedGroup == null) {
                     AppLog.w(TAG, "Group $id to edit not found")
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            notFound = true,
-                        )
-                    }
+                    _uiState.update { it.copy(isLoading = false, notFound = true) }
                 } else {
                     originalGroup = loadedGroup
                     photoDraft.start(committedPath = loadedGroup.photoPath)
-                    val fromDatabase = FormInputs(
-                        name = loadedGroup.name,
-                        budget = formatCentsForInput(loadedGroup.budgetCents),
-                        drawDay = formatDateForInput(loadedGroup.drawDay),
-                        drawType = loadedGroup.drawType,
-                        photoPath = loadedGroup.photoPath,
-                    )
+                    val fromDatabase = FormInputs.of(loadedGroup)
                     // Nach einem Prozesstod gewinnen die zuletzt eingegebenen Werte
                     val inputs = restoredInputs ?: fromDatabase
                     val photoFile = photoRepository.getFileForRelativePath(inputs.photoPath)
@@ -150,13 +137,7 @@ class GroupFormViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to load the group", e)
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        loadFailed = true,
-                        generalError = R.string.error_group_load,
-                    )
-                }
+                _uiState.update { it.copy(isLoading = false, loadFailed = true, generalError = R.string.error_group_load) }
             }
         }
     }
@@ -169,36 +150,21 @@ class GroupFormViewModel(
      * Setzt den neuen Gruppennamen und löscht den Fehler des Namensfeldes.
      */
     fun onNameChange(newName: String) {
-        _uiState.update {
-            it.copy(
-                name = newName,
-                nameError = null,
-            )
-        }
+        _uiState.update { it.copy(name = newName, nameError = null) }
     }
 
     /**
      * Setzt das neue Budget und löscht den Fehler des Budgetfeldes.
      */
     fun onBudgetChange(newBudget: String) {
-        _uiState.update {
-            it.copy(
-                budget = newBudget,
-                budgetError = null,
-            )
-        }
+        _uiState.update { it.copy(budget = newBudget, budgetError = null) }
     }
 
     /**
      * Setzt das neue Auslosungsdatum und löscht den Fehler des Datumsfeldes.
      */
     fun onDrawDayChange(newDrawDay: String) {
-        _uiState.update {
-            it.copy(
-                drawDay = newDrawDay,
-                drawDayError = null,
-            )
-        }
+        _uiState.update { it.copy(drawDay = newDrawDay, drawDayError = null) }
     }
 
     /**
@@ -214,9 +180,7 @@ class GroupFormViewModel(
      * Setzt den ausgewählten Wichtel-Typ.
      */
     fun onDrawTypeChange(newDrawType: DrawType) {
-        _uiState.update {
-            it.copy(drawType = newDrawType)
-        }
+        _uiState.update { it.copy(drawType = newDrawType) }
     }
 
     // =========================================================================
@@ -240,20 +204,12 @@ class GroupFormViewModel(
 
         // Bearbeiten ohne geladene Gruppe (Ladefehler): nicht speichern, Grund nennen
         if (groupId != null && originalGroup == null) {
-            _uiState.update {
-                it.copy(generalError = R.string.error_group_not_loaded_cannot_save)
-            }
+            _uiState.update { it.copy(generalError = R.string.error_group_not_loaded_cannot_save) }
             return
         }
 
         _uiState.update {
-            it.copy(
-                isSaving = true,
-                nameError = null,
-                budgetError = null,
-                drawDayError = null,
-                generalError = null,
-            )
+            it.copy(isSaving = true, nameError = null, budgetError = null, drawDayError = null, generalError = null)
         }
 
         val input = GiftGroupInput(
@@ -271,12 +227,7 @@ class GroupFormViewModel(
                     is GiftGroupResult.Success -> {
                         // Ein ersetztes oder entferntes altes Foto erst nach erfolgreichem Speichern löschen
                         photoDraft.commit(savedPath = currentState.photo.path)
-                        _uiState.update {
-                            it.copy(
-                                isSaving = false,
-                                savedGroupId = result.giftGroup.id,
-                            )
-                        }
+                        _uiState.update { it.copy(isSaving = false, savedGroupId = result.giftGroup.id) }
                     }
                     is GiftGroupResult.ValidationError -> {
                         _uiState.update { state ->
@@ -288,12 +239,7 @@ class GroupFormViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to save the group", e)
-                _uiState.update {
-                    it.copy(
-                        isSaving = false,
-                        generalError = saveErrorMessage(e, R.string.error_group_save),
-                    )
-                }
+                _uiState.update { it.copy(isSaving = false, generalError = saveErrorMessage(e, R.string.error_group_save)) }
             }
         }
     }
@@ -354,55 +300,3 @@ class GroupFormViewModel(
     }
 }
 
-/**
- * Die Eingaben des Formulars, wie sie im SavedStateHandle liegen.
- * Fehlertexte und Ladezustand werden nicht gesichert; sie entstehen beim nächsten Speichern neu.
- */
-internal data class FormInputs(
-    val name: String,
-    val budget: String,
-    val drawDay: String,
-    val drawType: DrawType,
-    val photoPath: String?,
-) {
-    fun applyTo(state: GroupFormUiState): GroupFormUiState = state.copy(
-        name = name,
-        budget = budget,
-        drawDay = drawDay,
-        drawType = drawType,
-        photo = state.photo.copy(path = photoPath),
-    )
-
-    fun writeTo(handle: SavedStateHandle) {
-        handle[KEY_PRESENT] = true
-        handle[KEY_NAME] = name
-        handle[KEY_BUDGET] = budget
-        handle[KEY_DRAW_DAY] = drawDay
-        handle[KEY_DRAW_TYPE] = drawType.name
-        handle[KEY_PHOTO_PATH] = photoPath
-    }
-
-    companion object {
-        internal const val KEY_PRESENT = "group_form_inputs"
-        internal const val KEY_NAME = "group_form_name"
-        internal const val KEY_BUDGET = "group_form_budget"
-        internal const val KEY_DRAW_DAY = "group_form_draw_day"
-        internal const val KEY_DRAW_TYPE = "group_form_draw_type"
-        internal const val KEY_PHOTO_PATH = "group_form_photo_path"
-
-        fun of(state: GroupFormUiState) = FormInputs(state.name, state.budget, state.drawDay, state.drawType, state.photo.path)
-
-        fun readFrom(handle: SavedStateHandle): FormInputs? {
-            if (handle.get<Boolean>(KEY_PRESENT) != true) return null
-            return FormInputs(
-                name = handle[KEY_NAME] ?: "",
-                budget = handle[KEY_BUDGET] ?: "",
-                drawDay = handle[KEY_DRAW_DAY] ?: "",
-                drawType = handle.get<String>(KEY_DRAW_TYPE)
-                    ?.let { name -> DrawType.entries.firstOrNull { it.name == name } }
-                    ?: DrawType.NORMAL,
-                photoPath = handle[KEY_PHOTO_PATH],
-            )
-        }
-    }
-}

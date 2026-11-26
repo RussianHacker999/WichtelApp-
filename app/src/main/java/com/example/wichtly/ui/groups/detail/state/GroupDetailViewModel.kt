@@ -1,6 +1,5 @@
 package com.example.wichtly.ui.groups.detail.state
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,7 +9,6 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.wichtly.R
 import com.example.wichtly.di.AppContainer
-import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
@@ -46,25 +44,6 @@ import java.time.LocalDate
 private const val TAG = "GroupDetailViewModel"
 
 /**
- * Lokaler interner Zustand für Dialoge und Fehler der Gruppen-Detailansicht.
- *
- * @property editor Offener Teilnehmer-Editor (null = geschlossen). Die Fotodatei für die Vorschau löst
- *   [GroupDetailViewModel.uiState] aus dem Pfad auf; was hier in [PhotoFieldUiState.file] steht, wird dort ersetzt.
- */
-private data class GroupDetailLocalState(
-    val isSaving: Boolean = false,
-    val editor: ParticipantEditorUiState? = null,
-    @StringRes val participantDeleteError: Int? = null,
-    val pendingDeleteParticipantId: String? = null,
-    val showGroupDeleteDialog: Boolean = false,
-    val isDeletingGroup: Boolean = false,
-    @StringRes val groupDeleteError: Int? = null,
-    val isGroupDeleted: Boolean = false,
-    // Bleibt nach dem Quittieren des Ereignisses gesetzt: Die Gruppe ist gewollt weg, kein "nicht gefunden"
-    val groupWasDeleted: Boolean = false,
-)
-
-/**
  * ViewModel für die Gruppen-Detailansicht (Verwaltung von Teilnehmern und Gruppen-Details).
  *
  * @param groupId Die ID der geladenen Wichtelgruppe.
@@ -92,7 +71,7 @@ class GroupDetailViewModel(
 
     // Ein offener Editor wird aus dem SavedStateHandle wiederhergestellt (Prozesstod im Hintergrund)
     private val _localState = MutableStateFlow(
-        GroupDetailLocalState(editor = restoreEditor(savedStateHandle))
+        GroupDetailLocalState(editor = ParticipantEditorSavedState.restore(savedStateHandle))
     )
 
     init {
@@ -100,12 +79,7 @@ class GroupDetailViewModel(
         _localState
             .map { it.editor }
             .distinctUntilChanged()
-            .onEach { editor ->
-                savedStateHandle[KEY_EDITOR_OPEN] = editor != null
-                savedStateHandle[KEY_EDITING_ID] = editor?.editingParticipantId
-                savedStateHandle[KEY_NAME_INPUT] = editor?.nameInput ?: ""
-                savedStateHandle[KEY_PHOTO_PATH] = editor?.photo?.path
-            }
+            .onEach { editor -> ParticipantEditorSavedState.write(savedStateHandle, editor) }
             .launchIn(viewModelScope)
     }
 
@@ -116,7 +90,7 @@ class GroupDetailViewModel(
         ownerType = PhotoOwnerType.PARTICIPANTS,
         scope = viewModelScope,
         savedStateHandle = savedStateHandle,
-        committedPathKey = KEY_COMMITTED_PHOTO,
+        committedPathKey = ParticipantEditorSavedState.KEY_COMMITTED_PHOTO,
         tag = TAG,
     )
 
@@ -133,46 +107,7 @@ class GroupDetailViewModel(
             .map { path -> photoRepository.getFileForRelativePath(path) },
         _localState,
     ) { groupResult, (participantsResult, photoFilesMap), resolvedPhotoFile, localState ->
-        val group = groupResult.getOrNull()
-        val participants = participantsResult.getOrDefault(emptyList())
-        val combinedErrorMessage = when {
-            groupResult.isFailure -> R.string.error_group_load
-            participantsResult.isFailure -> R.string.error_participants_load
-            else -> null
-        }
-        // Nach dem eigenen Löschen ist die Gruppe gewollt weg: kein "nicht gefunden" bis zur Navigation
-        val isGroupNotFound = group == null && groupResult.isSuccess && !localState.groupWasDeleted
-
-        // Editor schließen, wenn die Gruppe oder der bearbeitete Teilnehmer inzwischen fehlt
-        val editor = localState.editor
-        val isEditedParticipantGone = editor?.editingParticipantId != null &&
-                participants.none { it.id == editor.editingParticipantId }
-        val visibleEditor = if (editor == null || isGroupNotFound || isEditedParticipantGone) {
-            null
-        } else {
-            editor.copy(photo = editor.photo.copy(file = resolvedPhotoFile))
-        }
-
-        val isDeleteParticipantPresent = localState.pendingDeleteParticipantId == null ||
-                participants.any { it.id == localState.pendingDeleteParticipantId }
-
-        GroupDetailUiState(
-            isLoading = false,
-            group = group,
-            notFound = isGroupNotFound,
-            participants = participants,
-            errorMessage = combinedErrorMessage,
-            isSaving = localState.isSaving,
-            participantEditor = visibleEditor,
-            participantDeleteError = if (!isDeleteParticipantPresent) null else localState.participantDeleteError,
-            pendingDeleteParticipantId = if (isGroupNotFound || !isDeleteParticipantPresent) null else localState.pendingDeleteParticipantId,
-            participantPhotoFiles = photoFilesMap,
-            showGroupDeleteDialog = localState.showGroupDeleteDialog && group != null,
-            isDeletingGroup = localState.isDeletingGroup,
-            groupDeleteError = localState.groupDeleteError,
-            isGroupDeleted = localState.isGroupDeleted,
-            drawDayPassed = group != null && !DrawRules.isDrawDayOpen(group.drawDay, today()),
-        )
+        buildGroupDetailUiState(groupResult, participantsResult, photoFilesMap, resolvedPhotoFile, localState, today())
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
@@ -346,9 +281,7 @@ class GroupDetailViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to delete the participant", e)
-                _localState.update {
-                    it.copy(isSaving = false, participantDeleteError = R.string.error_participant_delete)
-                }
+                _localState.update { it.copy(isSaving = false, participantDeleteError = R.string.error_participant_delete) }
             }
         }
     }
@@ -383,12 +316,7 @@ class GroupDetailViewModel(
                     // NotFound heißt: schon von anderer Stelle gelöscht. Für den Nutzer ist das Ziel erreicht.
                     DeleteResult.Deleted, DeleteResult.NotFound -> {
                         _localState.update {
-                            it.copy(
-                                isDeletingGroup = false,
-                                showGroupDeleteDialog = false,
-                                isGroupDeleted = true,
-                                groupWasDeleted = true,
-                            )
+                            it.copy(isDeletingGroup = false, showGroupDeleteDialog = false, isGroupDeleted = true, groupWasDeleted = true)
                         }
                     }
                 }
@@ -396,12 +324,7 @@ class GroupDetailViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to delete the group", e)
-                _localState.update {
-                    it.copy(
-                        isDeletingGroup = false,
-                        groupDeleteError = R.string.error_group_delete,
-                    )
-                }
+                _localState.update { it.copy(isDeletingGroup = false, groupDeleteError = R.string.error_group_delete) }
             }
         }
     }
@@ -415,22 +338,6 @@ class GroupDetailViewModel(
     }
 
     companion object {
-        internal const val KEY_EDITOR_OPEN = "participant_editor_open"
-        internal const val KEY_EDITING_ID = "participant_editing_id"
-        internal const val KEY_NAME_INPUT = "participant_name_input"
-        internal const val KEY_PHOTO_PATH = "participant_photo_path"
-        internal const val KEY_COMMITTED_PHOTO = "participant_committed_photo"
-
-        /** Stellt einen offenen Editor aus dem SavedStateHandle wieder her; null, wenn keiner offen war. */
-        private fun restoreEditor(handle: SavedStateHandle): ParticipantEditorUiState? {
-            if (handle.get<Boolean>(KEY_EDITOR_OPEN) != true) return null
-            return ParticipantEditorUiState(
-                editingParticipantId = handle[KEY_EDITING_ID],
-                nameInput = handle[KEY_NAME_INPUT] ?: "",
-                photo = PhotoFieldUiState(path = handle[KEY_PHOTO_PATH]),
-            )
-        }
-
         /**
          * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
          */
