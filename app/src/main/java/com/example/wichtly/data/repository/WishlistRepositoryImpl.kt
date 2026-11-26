@@ -32,7 +32,7 @@ class WishlistRepositoryImpl(
     override suspend fun updateWishlistItem(item: WishlistItem): Boolean =
         wishlistItemDao.updateWishlistItem(item.toEntity()) > 0
 
-    override suspend fun deleteWishlistItem(id: String) {
-        wishlistItemDao.deleteWishlistItemById(id)
-    }
+    // Die DELETE-Abfrage liefert die Anzahl gelöschter Zeilen; 0 heißt, der Wunsch existiert nicht (mehr)
+    override suspend fun deleteWishlistItem(id: String): Boolean =
+        wishlistItemDao.deleteWishlistItemById(id) > 0
 }

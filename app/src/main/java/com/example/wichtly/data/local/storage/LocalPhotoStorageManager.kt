@@ -33,7 +33,7 @@ class LocalPhotoStorageManager(
         return if (file.path.startsWith(root.path + File.separator)) {
             file
         } else {
-            AppLog.w(TAG, "Fotopfad außerhalb des Fotoordners abgelehnt")
+            AppLog.w(TAG, "Rejected photo path outside the photo folder")
             null
         }
     }
@@ -48,11 +48,23 @@ class LocalPhotoStorageManager(
 
     /**
      * Löst einen relativen Pfad (z. B. "photos/groups/groups_123.jpg") in eine absolute Datei auf.
-     * Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt oder auf keine vorhandene Datei zeigt.
+     * Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt, auf keine vorhandene Datei zeigt
+     * oder sich nicht auflösen lässt.
+     *
+     * Wirft nie: Die ViewModels lösen Fotos innerhalb ihres UI-State-Flows auf, eine Exception würde dort die App
+     * beenden. Ein unlesbares Foto ist fachlich "kein Foto", die UI zeigt dann Initialen bzw. den Platzhalter.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File? = withContext(Dispatchers.IO) {
-        val file = resolveInsidePhotos(relativePath)
-        if (file != null && file.exists() && file.isFile) file else null
+        try {
+            val file = resolveInsidePhotos(relativePath)
+            if (file != null && file.exists() && file.isFile) file else null
+        } catch (e: IOException) {
+            AppLog.w(TAG, "Could not resolve photo path, treating it as missing", e)
+            null
+        } catch (e: SecurityException) {
+            AppLog.w(TAG, "No access to photo path, treating it as missing", e)
+            null
+        }
     }
 
     /**
@@ -84,7 +96,7 @@ class LocalPhotoStorageManager(
             sourceFile.copyTo(destFile, overwrite = true)
         }
         val relativePath = "photos/${ownerType.value}/$filename"
-        AppLog.d(TAG) { "Foto gespeichert: $relativePath (${destFile.length() / 1024} KB)" }
+        AppLog.d(TAG) { "Photo saved: $relativePath (${destFile.length() / 1024} KB)" }
         relativePath
     }
 
@@ -97,12 +109,12 @@ class LocalPhotoStorageManager(
             if (file != null) {
                 if (file.exists()) {
                     if (file.delete()) {
-                        AppLog.d(TAG) { "Foto gelöscht: $relativePath" }
+                        AppLog.d(TAG) { "Photo deleted: $relativePath" }
                     } else {
-                        AppLog.w(TAG, "Foto konnte nicht gelöscht werden: $relativePath")
+                        AppLog.w(TAG, "Could not delete photo: $relativePath")
                     }
                 } else {
-                    AppLog.d(TAG) { "Foto zum Löschen nicht vorhanden: $relativePath" }
+                    AppLog.d(TAG) { "Photo to delete does not exist: $relativePath" }
                 }
             }
         }

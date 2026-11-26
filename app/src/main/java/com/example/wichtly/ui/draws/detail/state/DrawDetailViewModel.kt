@@ -75,7 +75,7 @@ class DrawDetailViewModel(
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private val drawWithGroupName: Flow<Pair<Result<DrawDetail?>, String?>> = drawRepository.observeDrawDetailById(drawId)
-        .asResult(TAG, "Fehler beim Laden der Auslosung.")
+        .asResult(TAG, "Failed to load the draw")
         .flatMapLatest { drawResult ->
             val draw = drawResult.getOrNull()
             if (draw == null) {
@@ -85,7 +85,7 @@ class DrawDetailViewModel(
                     .map<_, String?> { group -> group?.name }
                     .catch { e ->
                         if (e is CancellationException) throw e
-                        AppLog.w(TAG, "Fehler beim Laden des Gruppennamens.", e)
+                        AppLog.w(TAG, "Failed to load the group name", e)
                         emit(null)
                     }
                     .map { name -> drawResult to name }

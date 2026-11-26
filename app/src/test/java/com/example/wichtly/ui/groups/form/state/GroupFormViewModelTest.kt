@@ -201,6 +201,23 @@ class GroupFormViewModelTest {
     }
 
     @Test
+    fun ladefehlerImBearbeitenModusZeigtFehlerzustandUndSichertKeineLeerenEingaben() = runTest {
+        val repository = FakeGiftGroupRepository().apply { failFlows = true }
+        val handle = SavedStateHandle()
+
+        val viewModel = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), today = { heute }, savedStateHandle = handle)
+        testScheduler.advanceUntilIdle()
+
+        val state = viewModel.uiState.value
+        assertTrue(state.loadFailed)
+        assertFalse(state.isLoading)
+        assertFalse(state.notFound)
+        assertEquals(R.string.error_group_load, state.generalError)
+        // Leere Felder dürfen nach einem Prozesstod nicht die Werte aus der Datenbank überschreiben
+        assertNull(handle.get<Boolean>(FormInputs.KEY_PRESENT))
+    }
+
+    @Test
     fun imBearbeitenModusGewinnenGesicherteEingabenUeberDieDatenbank() = runTest {
         val gruppe = GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))
         val repository = FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }

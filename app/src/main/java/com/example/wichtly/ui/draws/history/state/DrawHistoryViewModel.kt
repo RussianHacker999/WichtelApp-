@@ -42,9 +42,9 @@ class DrawHistoryViewModel(
 
     val uiState: StateFlow<DrawHistoryUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
-            .asResult(TAG, "Fehler beim Laden der Wichtelgruppe."),
+            .asResult(TAG, "Failed to load the group"),
         drawRepository.observeDrawSummariesByGroupId(groupId)
-            .asResult(TAG, "Fehler beim Laden der Auslosungshistorie."),
+            .asResult(TAG, "Failed to load the draw history"),
     ) { groupResult, summariesResult ->
         val group = groupResult.getOrNull()
         val summaries = summariesResult.getOrDefault(emptyList())

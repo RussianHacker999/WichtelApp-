@@ -63,7 +63,7 @@
     <string name="error_groups_load">Fehler beim Laden der Wichtelgruppen.</string>
 
     <!-- Gruppendetails und Teilnehmer -->
-    <string name="group_detail_loading">Gruppendetails werden geladen...</string>
+    <string name="group_detail_loading">Gruppendetails werden geladen…</string>
     <string name="group_detail_min_participants_hint" tools:ignore="PluralsCandidate">Mindestens %1$d Teilnehmer zum Losen</string>
     <string name="group_detail_budget_label">Budget pro Geschenk</string>
     <string name="group_detail_add">Hinzufügen</string>
@@ -94,9 +94,9 @@
     <string name="error_group_not_found">Die Wichtelgruppe wurde nicht gefunden.</string>
 
     <!-- Gruppenformular -->
-    <string name="group_form_saving">Wird gespeichert...</string>
+    <string name="group_form_saving">Wird gespeichert…</string>
     <string name="group_form_create">Gruppe erstellen</string>
-    <string name="group_form_loading">Wichtelgruppe wird geladen...</string>
+    <string name="group_form_loading">Wichtelgruppe wird geladen…</string>
     <string name="group_form_eyebrow_edit">Basisdaten</string>
     <string name="group_form_eyebrow_create">Neue Wichtelgruppe</string>
     <string name="group_form_header_edit">Gruppe aktualisieren.</string>
@@ -125,7 +125,7 @@
 
     <!-- Vorbereitung der Auslosung -->
     <string name="preparation_title">Vorbereitung</string>
-    <string name="preparation_drawing">Wird ausgelost...</string>
+    <string name="preparation_drawing">Wird ausgelost…</string>
     <string name="preparation_draw_now">Jetzt losen</string>
     <string name="preparation_eyebrow">Fast geschafft</string>
     <string name="preparation_header">Alles bereit?</string>
@@ -140,7 +140,7 @@
     <!-- Wunschliste -->
     <string name="wishlist_title">Wunschliste</string>
     <string name="wishlist_add">Wunsch hinzufügen</string>
-    <string name="wishlist_loading">Wunschliste wird geladen...</string>
+    <string name="wishlist_loading">Wunschliste wird geladen…</string>
     <string name="wishlist_participant_missing_title">Teilnehmer nicht gefunden</string>
     <string name="wishlist_participant_missing_text">Der angeforderte Teilnehmer existiert nicht oder wurde entfernt.</string>
     <string name="wishlist_eyebrow">Was wünschst du dir?</string>
@@ -166,7 +166,7 @@
     <string name="error_wish_delete">Fehler beim Löschen des Wunsches. Bitte erneut versuchen.</string>
 
     <!-- Auslosungshistorie -->
-    <string name="draw_history_loading">Auslosungshistorie wird geladen...</string>
+    <string name="draw_history_loading">Auslosungshistorie wird geladen…</string>
     <string name="draw_history_eyebrow">Alle Durchläufe</string>
     <string name="draw_history_header">Schon mal gelost</string>
     <string name="draw_history_subtitle">Jede Ziehung bleibt gespeichert und lässt sich jederzeit wieder ansehen.</string>
@@ -182,7 +182,7 @@
     <!-- Auslosungsdetail und Ergebnis-Anhänger -->
     <string name="draw_detail_title_fallback">Auslosung ansehen</string>
     <string name="draw_detail_group_placeholder">Wichtelgruppe</string>
-    <string name="draw_detail_loading">Auslosungsdetails werden geladen...</string>
+    <string name="draw_detail_loading">Auslosungsdetails werden geladen…</string>
     <string name="draw_detail_not_found_title">Auslosung nicht gefunden</string>
     <string name="draw_detail_not_found_text">Dieser gespeicherte Durchlauf ist nicht mehr verfügbar.</string>
     <string name="draw_detail_eyebrow">Ausgelost am %1$s</string>

@@ -12,8 +12,10 @@ import com.example.wichtly.R
 import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.WishlistRepository
+import com.example.wichtly.domain.result.DeleteResult
+import com.example.wichtly.domain.result.WishlistItemResult
+import com.example.wichtly.domain.usecase.DeleteWishlistItemUseCase
 import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
-import com.example.wichtly.domain.validation.WishlistItemResult
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
@@ -22,7 +24,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -55,8 +56,9 @@ private data class WishlistLocalState(
  *
  * @param participantId Die ID des Teilnehmers.
  * @param participantRepository Repository für Teilnehmer.
- * @param wishlistRepository Repository für Wunschlisten-Einträge (Lesen und Löschen).
+ * @param wishlistRepository Repository für Wunschlisten-Einträge (nur Lesen).
  * @param saveWishlistItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
+ * @param deleteWishlistItem Löscht einen Wunsch.
  * @param savedStateHandle Hält den offenen Editor samt Text, auch wenn Android den Prozess im Hintergrund beendet.
  */
 class WishlistViewModel(
@@ -64,6 +66,7 @@ class WishlistViewModel(
     private val participantRepository: ParticipantRepository,
     private val wishlistRepository: WishlistRepository,
     private val saveWishlistItem: SaveWishlistItemUseCase,
+    private val deleteWishlistItem: DeleteWishlistItemUseCase,
     private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
@@ -89,9 +92,9 @@ class WishlistViewModel(
 
     val uiState: StateFlow<WishlistUiState> = combine(
         participantRepository.observeParticipantById(participantId)
-            .asResult(TAG, "Fehler beim Laden des Teilnehmers"),
+            .asResult(TAG, "Failed to load the participant"),
         wishlistRepository.observeWishlistItems(participantId)
-            .asResult(TAG, "Fehler beim Laden der Wunschliste"),
+            .asResult(TAG, "Failed to load the wishlist"),
         _localState
     ) { participantResult, itemsResult, localState ->
         val participant = participantResult.getOrNull()
@@ -282,7 +285,7 @@ class WishlistViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Speichern des Wunsches", e)
+                AppLog.e(TAG, "Failed to save the wish", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -302,8 +305,8 @@ class WishlistViewModel(
      *
      * Ablauf:
      * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Aufruf von deleteWishlistItem(pendingId) direkt am Repository: eine einzelne Zeile ohne
-     *    Fachregeln und ohne Datei, daher ohne eigenen Use Case (siehe AppContainer).
+     * 2. Löschen über den [DeleteWishlistItemUseCase]. War der Wunsch schon gelöscht, ist das Ziel
+     *    ebenfalls erreicht und der Dialog schließt sich.
      * 3. Bei Fehlern bleibt der Dialog geöffnet und zeigt deleteError.
      */
     fun onConfirmDelete() {
@@ -321,19 +324,19 @@ class WishlistViewModel(
 
         viewModelScope.launch {
             try {
-                wishlistRepository.deleteWishlistItem(pendingId)
-                AppLog.i(TAG, "Wunsch $pendingId gelöscht")
-                _localState.update {
-                    it.copy(
-                        isSaving = false,
-                        pendingDeleteItemId = null,
-                        deleteError = null
-                    )
+                when (deleteWishlistItem(pendingId)) {
+                    DeleteResult.Deleted, DeleteResult.NotFound -> _localState.update {
+                        it.copy(
+                            isSaving = false,
+                            pendingDeleteItemId = null,
+                            deleteError = null
+                        )
+                    }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Löschen des Wunsches", e)
+                AppLog.e(TAG, "Failed to delete the wish", e)
                 _localState.update {
                     it.copy(
                         isSaving = false,
@@ -359,6 +362,7 @@ class WishlistViewModel(
                     participantRepository = container.participantRepository,
                     wishlistRepository = container.wishlistRepository,
                     saveWishlistItem = container.saveWishlistItemUseCase,
+                    deleteWishlistItem = container.deleteWishlistItemUseCase,
                     savedStateHandle = createSavedStateHandle(),
                 )
             }

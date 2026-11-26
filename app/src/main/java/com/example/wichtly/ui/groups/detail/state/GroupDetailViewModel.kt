@@ -17,11 +17,11 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
+import com.example.wichtly.domain.result.DeleteResult
+import com.example.wichtly.domain.result.ParticipantResult
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.DeleteParticipantUseCase
-import com.example.wichtly.domain.usecase.DeleteResult
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
-import com.example.wichtly.domain.validation.ParticipantResult
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
@@ -118,9 +118,9 @@ class GroupDetailViewModel(
 
     val uiState: StateFlow<GroupDetailUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
-            .asResult(TAG, "Fehler beim Laden der Wichtelgruppe"),
+            .asResult(TAG, "Failed to load the group"),
         participantRepository.observeParticipantsByGroupId(groupId)
-            .asResult(TAG, "Fehler beim Laden der Teilnehmerliste")
+            .asResult(TAG, "Failed to load the participants")
             // Fotodateien nur prüfen, wenn sich die Teilnehmer ändern, nicht bei jedem Tastendruck
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
         // Das Foto im Editor nur neu auflösen, wenn sich sein Pfad ändert
@@ -269,13 +269,13 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Speichern des Teilnehmerfotos", e)
+                AppLog.e(TAG, "Failed to save the participant photo", e)
                 updateEditor { it.copy(photoError = saveErrorMessage(e, R.string.error_photo_save)) }
             } finally {
                 try {
                     if (tempFile.exists()) tempFile.delete()
                 } catch (e: Exception) {
-                    AppLog.w(TAG, "Fehler beim Löschen der temporären Fotodatei", e)
+                    AppLog.w(TAG, "Failed to delete the temporary photo file", e)
                 }
             }
         }
@@ -336,7 +336,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Speichern des Teilnehmers", e)
+                AppLog.e(TAG, "Failed to save the participant", e)
                 _localState.update { it.copy(isSaving = false) }
                 updateEditor { it.copy(nameError = saveErrorMessage(e, R.string.error_participant_save)) }
             }
@@ -378,7 +378,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Löschen des Teilnehmers", e)
+                AppLog.e(TAG, "Failed to delete the participant", e)
                 _localState.update {
                     it.copy(isSaving = false, participantDeleteError = R.string.error_participant_delete)
                 }
@@ -428,7 +428,7 @@ class GroupDetailViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Löschen der Wichtelgruppe", e)
+                AppLog.e(TAG, "Failed to delete the group", e)
                 _localState.update {
                     it.copy(
                         isDeletingGroup = false,

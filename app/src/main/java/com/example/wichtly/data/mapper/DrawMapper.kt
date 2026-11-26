@@ -31,9 +31,8 @@ fun DrawAssignmentWithWishlist.toDomainModel(): DrawAssignment {
         giverId = assignment.giverId,
         receiverName = assignment.receiverName,
         receiverId = assignment.receiverId,
-        receiverWishlistItems = wishlistItems
-            .sortedBy { it.sortOrder }
-            .map { it.toDomainModel() },
+        // Reihenfolge legt die Anzeige fest (DrawDetailViewModel sortiert Zuordnungen und Wünsche)
+        receiverWishlistItems = wishlistItems.map { it.toDomainModel() },
     )
 }
 

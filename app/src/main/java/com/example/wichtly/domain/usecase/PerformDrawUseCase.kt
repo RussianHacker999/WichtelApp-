@@ -6,7 +6,7 @@ import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 import com.example.wichtly.domain.repository.DrawRepository
-import com.example.wichtly.domain.validation.DrawResult
+import com.example.wichtly.domain.result.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
 import com.example.wichtly.logging.AppLog
 import java.time.Instant
@@ -33,10 +33,10 @@ class PerformDrawUseCase(
     private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     suspend operator fun invoke(groupId: String): DrawResult {
-        AppLog.d(TAG) { "Auslosung für Gruppe $groupId gestartet" }
+        AppLog.d(TAG) { "Draw for group $groupId started" }
         val source = drawRepository.getDrawSource(groupId)
         if (source == null) {
-            AppLog.w(TAG, "Gruppe $groupId nicht gefunden, keine Auslosung")
+            AppLog.w(TAG, "Group $groupId not found, no draw")
             return DrawResult.ValidationError(listOf(DrawValidationError.GroupNotFound))
         }
         val group = source.group
@@ -47,7 +47,7 @@ class PerformDrawUseCase(
         }
         if (errors.isNotEmpty()) {
             // Die UI sperrt "Losen" in diesen Fällen; kommt der Aufruf trotzdem an, ist das auffällig
-            AppLog.w(TAG, "Auslosung für Gruppe $groupId abgelehnt: ${errors.joinToString()} (${participants.size} Teilnehmer, Wichteltag ${group.drawDay})")
+            AppLog.w(TAG, "Draw for group $groupId rejected: ${errors.joinToString()} (${participants.size} participants, draw day ${group.drawDay})")
             return DrawResult.ValidationError(errors)
         }
 
@@ -77,7 +77,7 @@ class PerformDrawUseCase(
         )
         drawRepository.insertDraw(draw)
         // Datenschutz: nur Anzahlen, niemals wer wen beschenkt
-        AppLog.i(TAG, "Auslosung ${draw.id} für Gruppe $groupId gespeichert (${assignments.size} Zuordnungen)")
+        AppLog.i(TAG, "Draw ${draw.id} for group $groupId saved (${assignments.size} assignments)")
         return DrawResult.Success(draw)
     }
 }

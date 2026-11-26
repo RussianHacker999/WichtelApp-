@@ -1,7 +1,7 @@
-package com.example.wichtly.domain.usecase
+package com.example.wichtly.domain.result
 
 /**
- * Ergebnis der Lösch-Use-Cases ([DeleteGiftGroupUseCase], [DeleteParticipantUseCase]).
+ * Ergebnis der Lösch-Use-Cases (DeleteGiftGroupUseCase, DeleteParticipantUseCase, DeleteWishlistItemUseCase).
  *
  * Eigener Typ statt der Save-Ergebnisse: Beim Löschen wird nichts validiert, es gibt nur
  * "gelöscht" oder "gab es schon nicht mehr". Für den Nutzer ist in beiden Fällen das Ziel erreicht;

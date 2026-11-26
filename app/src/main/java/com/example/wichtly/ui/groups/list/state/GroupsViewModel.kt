@@ -55,7 +55,7 @@ class GroupsViewModel(
 
     val uiState: StateFlow<GroupsUiState> = combine(
         repository.observeGiftGroups()
-            .asResult(TAG, "Gruppen konnten nicht geladen werden")
+            .asResult(TAG, "Failed to load the groups")
             // Fotodateien nur prüfen, wenn sich die Gruppen ändern, nicht beim Antippen einer Karte
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
         _localState,

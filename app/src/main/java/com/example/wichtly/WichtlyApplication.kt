@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
  */
 class WichtlyApplication : Application() {
     lateinit var container: AppContainer
+        private set
 
     // Lebt so lange wie der Prozess; nur für kurze Hintergrundaufgaben beim Start
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -27,7 +28,7 @@ class WichtlyApplication : Application() {
         // Debug-Builds (debuggable) zeigen alles ab DEBUG, Release-Builds erst ab INFO.
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         AppLog.install(AndroidLogSink(minLevel = if (isDebuggable) LogLevel.DEBUG else LogLevel.INFO))
-        AppLog.i(TAG, "App gestartet (debuggable=$isDebuggable)")
+        AppLog.i(TAG, "App started (debuggable=$isDebuggable)")
 
         container = DefaultAppContainer(this)
         cleanUpOrphanPhotos()
@@ -39,7 +40,7 @@ class WichtlyApplication : Application() {
                 container.cleanUpOrphanPhotosUseCase()
             } catch (e: Exception) {
                 // Aufräumen ist optional; ein Fehler darf den Start nicht stören
-                AppLog.w(TAG, "Aufräumen verwaister Fotos fehlgeschlagen", e)
+                AppLog.w(TAG, "Orphan photo cleanup failed", e)
             }
         }
     }

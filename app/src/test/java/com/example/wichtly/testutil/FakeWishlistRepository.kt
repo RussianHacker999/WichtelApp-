@@ -69,11 +69,13 @@ class FakeWishlistRepository : WishlistRepository {
         return true
     }
 
-    override suspend fun deleteWishlistItem(id: String) {
+    override suspend fun deleteWishlistItem(id: String): Boolean {
         deleteCalls++
         if (shouldThrow) {
             throw IllegalStateException("Simulierter Speicherfehler beim Löschen des Wunsches")
         }
-        itemsFlow.value = itemsFlow.value.filter { it.id != id }
+        val before = itemsFlow.value
+        itemsFlow.value = before.filter { it.id != id }
+        return itemsFlow.value.size < before.size
     }
 }

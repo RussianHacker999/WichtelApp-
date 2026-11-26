@@ -45,7 +45,7 @@ fun AppNavHost(
     // Jeden Zielwechsel protokollieren (nur das Routen-Muster, keine Argumente)
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
-            AppLog.d(TAG) { "Ziel: ${destination.route}" }
+            AppLog.d(TAG) { "Destination: ${destination.route}" }
         }
         navController.addOnDestinationChangedListener(listener)
         onDispose { navController.removeOnDestinationChangedListener(listener) }

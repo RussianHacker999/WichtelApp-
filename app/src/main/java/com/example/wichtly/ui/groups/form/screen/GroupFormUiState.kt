@@ -11,6 +11,8 @@ import java.io.File
  * @property isLoading Zeigt an, ob die Gruppendaten im Bearbeiten-Modus noch aus der Datenbank geladen werden.
  * @property isEditMode false = neue Gruppe erstellen, true = bestehende Gruppe bearbeiten.
  * @property notFound true, wenn im Bearbeiten-Modus die angeforderte Gruppe nicht existiert oder gelöscht wurde.
+ * @property loadFailed true, wenn im Bearbeiten-Modus das Laden der Gruppe mit einem Fehler gescheitert ist. Der Screen
+ *   zeigt dann statt des (leeren) Formulars einen Fehlerzustand.
  * @property name Aktueller Textinhalt des Eingabefeldes für den Gruppennamen.
  * @property budget Aktueller Textinhalt des Eingabefeldes für das Budget (z. B. "25,50").
  * @property drawDay Aktueller Textinhalt des Eingabefeldes für das Auslosungsdatum (z. B. "24.12.2026").
@@ -34,6 +36,7 @@ data class GroupFormUiState(
     val isLoading: Boolean = true,
     val isEditMode: Boolean = false,
     val notFound: Boolean = false,
+    val loadFailed: Boolean = false,
     val name: String = "",
     val budget: String = "",
     val drawDay: String = "",

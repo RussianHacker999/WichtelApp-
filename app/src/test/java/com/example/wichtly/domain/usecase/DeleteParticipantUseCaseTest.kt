@@ -1,6 +1,7 @@
 package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.participant.Participant
+import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import kotlinx.coroutines.flow.first

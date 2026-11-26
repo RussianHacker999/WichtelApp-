@@ -1,7 +1,7 @@
 package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.participant.WishlistItem
-import com.example.wichtly.domain.validation.WishlistItemResult
+import com.example.wichtly.domain.result.WishlistItemResult
 import com.example.wichtly.domain.validation.WishlistValidationError
 import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.testutil.FakeWishlistRepository

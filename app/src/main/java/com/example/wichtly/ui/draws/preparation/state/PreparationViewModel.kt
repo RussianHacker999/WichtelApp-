@@ -11,8 +11,8 @@ import com.example.wichtly.di.AppContainer
 import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
+import com.example.wichtly.domain.result.DrawResult
 import com.example.wichtly.domain.usecase.PerformDrawUseCase
-import com.example.wichtly.domain.validation.DrawResult
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
@@ -21,7 +21,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -62,9 +61,9 @@ class PreparationViewModel(
     // Zustand erzeugt einen neuen PreparationUiState.
     val uiState: StateFlow<PreparationUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
-            .asResult(TAG, "Gruppe konnte nicht geladen werden"),
+            .asResult(TAG, "Failed to load the group"),
         participantRepository.observeParticipantsByGroupId(groupId)
-            .asResult(TAG, "Teilnehmer konnten nicht geladen werden"),
+            .asResult(TAG, "Failed to load the participants"),
         _localState,
     ) { groupResult, participantsResult, localState ->
         val group = groupResult.getOrNull()
@@ -119,14 +118,14 @@ class PreparationViewModel(
                     is DrawResult.Success -> _localState.update { it.copy(completedDrawId = result.draw.id) }
                     is DrawResult.ValidationError -> {
                         // Details hat der PerformDrawUseCase bereits geloggt
-                        AppLog.d(TAG) { "Auslosung für Gruppe $groupId nicht gestartet: ${result.errors.joinToString()}" }
+                        AppLog.d(TAG) { "Draw for group $groupId not started: ${result.errors.joinToString()}" }
                         _localState.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Auslosung fehlgeschlagen", e)
+                AppLog.e(TAG, "Draw failed", e)
                 _localState.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
             } finally {
                 _localState.update { it.copy(isDrawing = false) }

@@ -2,7 +2,7 @@ package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.domain.validation.ParticipantResult
+import com.example.wichtly.domain.result.ParticipantResult
 import com.example.wichtly.domain.validation.ParticipantValidationError
 import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.testutil.FakeGiftGroupRepository

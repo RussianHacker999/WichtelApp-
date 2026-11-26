@@ -14,7 +14,7 @@ interface PhotoRepository {
     /**
      * Löst einen relativen Fotopfad (z. B. "photos/groups/groups_123.jpg") in eine Datei im privaten
      * internen Speicher auf. Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt
-     * oder die Datei nicht existiert.
+     * oder die Datei nicht existiert oder nicht lesbar ist. Wirft nicht; ein unlesbares Foto gilt als "kein Foto".
      * suspend, weil auf das Dateisystem zugegriffen wird; Implementierungen wechseln auf einen I/O-Thread.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File?
@@ -55,7 +55,7 @@ suspend fun PhotoRepository.deletePhotoQuietly(relativePath: String?, tag: Strin
         try {
             deletePhoto(relativePath)
         } catch (e: Exception) {
-            AppLog.w(tag, "Foto $relativePath konnte nicht gelöscht werden", e)
+            AppLog.w(tag, "Could not delete photo $relativePath", e)
         }
     }
 }

@@ -44,7 +44,7 @@ class SecretSantaDrawAlgorithm(
         // Notfall-Plan: Ring über eine gemischte Reihenfolge, immer gültig.
         // Praktisch nie erreicht (rund 37 % aller Mischungen sind gültig, 100 Fehlversuche in Folge haben eine
         // Wahrscheinlichkeit von etwa 10^-20); falls doch, ist das Ergebnis gültig, aber nicht gleichverteilt.
-        AppLog.w(TAG, "Kein Zufalls-Derangement nach $maxAttempts Versuchen, Ring-Fallback für ${participantIds.size} Teilnehmer")
+        AppLog.w(TAG, "No random derangement after $maxAttempts attempts, using ring fallback for ${participantIds.size} participants")
         val shuffled = participantIds.shuffled(random)
         val size = shuffled.size
         return shuffled.mapIndexed { index, giverId ->

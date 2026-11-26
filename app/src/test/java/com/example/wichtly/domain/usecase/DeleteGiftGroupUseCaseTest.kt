@@ -2,6 +2,7 @@ package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
+import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository

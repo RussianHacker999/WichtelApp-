@@ -62,7 +62,7 @@ fun ListItemCard(
             horizontalArrangement = Arrangement.spacedBy(Spacing.m),
         ) {
             leading?.invoke()
-            ListItemText(title, subtitle, titleMaxLines, Modifier.weight(1f))
+            ListItemText(title = title, subtitle = subtitle, modifier = Modifier.weight(1f), titleMaxLines = titleMaxLines)
             if (trailing != null) {
                 Row(verticalAlignment = Alignment.CenterVertically) { trailing() }
             }
@@ -77,7 +77,7 @@ fun ListItemCard(
 
 /** Titel und optionaler Untertitel, wie in [ListItemCard] und der Gruppenkarte (HeroGroupCard) verwendet. */
 @Composable
-fun ListItemText(title: String, subtitle: String?, titleMaxLines: Int = 1, modifier: Modifier = Modifier) {
+fun ListItemText(title: String, subtitle: String?, modifier: Modifier = Modifier, titleMaxLines: Int = 1) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
         Text(
             text = title,

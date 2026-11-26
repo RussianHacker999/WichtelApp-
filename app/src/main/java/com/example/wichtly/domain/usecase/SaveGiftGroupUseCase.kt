@@ -3,7 +3,7 @@ package com.example.wichtly.domain.usecase
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.repository.GiftGroupRepository
-import com.example.wichtly.domain.validation.GiftGroupResult
+import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.domain.validation.GiftGroupValidator
 import com.example.wichtly.domain.validation.parseBudgetToCents
@@ -46,7 +46,7 @@ class SaveGiftGroupUseCase(
      * @param groupId null legt eine neue Gruppe an, sonst wird die Gruppe mit dieser ID geändert.
      */
     suspend operator fun invoke(groupId: String?, input: GiftGroupInput): GiftGroupResult {
-        AppLog.d(TAG) { if (groupId == null) "Neue Gruppe speichern" else "Gruppe $groupId speichern" }
+        AppLog.d(TAG) { if (groupId == null) "Saving new group" else "Saving group $groupId" }
         val existingGroups = repository.getGiftGroups()
         val stored = groupId?.let { id ->
             existingGroups.firstOrNull { it.id == id } ?: return notFound(id)
@@ -71,7 +71,7 @@ class SaveGiftGroupUseCase(
             }
         }
         if (errors.isNotEmpty() || budgetCents == null || drawDay == null) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
+            AppLog.d(TAG) { "Input rejected: ${errors.joinToString()}" }
             return GiftGroupResult.ValidationError(errors)
         }
 
@@ -85,7 +85,7 @@ class SaveGiftGroupUseCase(
                 photoPath = input.photoPath,
             )
             repository.insertGiftGroup(group)
-            AppLog.i(TAG, "Gruppe ${group.id} angelegt")
+            AppLog.i(TAG, "Group ${group.id} created")
             GiftGroupResult.Success(group)
         } else {
             // Bearbeiten: id bleibt über copy() erhalten
@@ -98,13 +98,13 @@ class SaveGiftGroupUseCase(
             )
             // Zwischen Laden und Schreiben gelöscht: nichts geändert, also kein Erfolg melden
             if (!repository.updateGiftGroup(group)) return notFound(group.id)
-            AppLog.i(TAG, "Gruppe ${group.id} geändert")
+            AppLog.i(TAG, "Group ${group.id} updated")
             GiftGroupResult.Success(group)
         }
     }
 
     private fun notFound(groupId: String): GiftGroupResult {
-        AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gespeichert")
+        AppLog.w(TAG, "Group $groupId not found, nothing saved")
         return GiftGroupResult.ValidationError(listOf(GiftGroupValidationError.GroupNotFound))
     }
 }

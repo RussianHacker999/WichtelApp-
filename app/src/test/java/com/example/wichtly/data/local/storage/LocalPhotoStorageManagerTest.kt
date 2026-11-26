@@ -52,6 +52,14 @@ class LocalPhotoStorageManagerTest {
     }
 
     @Test
+    fun nichtAufloesbarerPfadLiefertNullStattZuWerfen() = runTest {
+        // Ein NUL-Zeichen lässt File.getCanonicalFile() mit IOException scheitern ("Invalid file path")
+        val ungueltigerPfad = "photos/groups/groups_\u0000.jpg"
+
+        assertNull(manager().getFileForRelativePath(ungueltigerPfad))
+    }
+
+    @Test
     fun geloeschtesFotoIstWeg() = runTest {
         val source = tempFolder.newFile("photo_tmp.jpg").apply { writeText("jpeg") }
         val relativePath = manager().savePhotoFile(source, PhotoOwnerType.PARTICIPANTS)

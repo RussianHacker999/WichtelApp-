@@ -4,6 +4,7 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
+import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.logging.AppLog
 
 private const val TAG = "DeleteGiftGroupUseCase"
@@ -28,10 +29,10 @@ class DeleteGiftGroupUseCase(
      * @return [DeleteResult.Deleted] oder [DeleteResult.NotFound], wenn es die Gruppe nicht (mehr) gibt.
      */
     suspend operator fun invoke(groupId: String): DeleteResult {
-        AppLog.d(TAG) { "Gruppe $groupId löschen" }
+        AppLog.d(TAG) { "Deleting group $groupId" }
         val group = giftGroupRepository.getGiftGroupById(groupId)
         if (group == null) {
-            AppLog.w(TAG, "Gruppe $groupId nicht gefunden, nichts gelöscht")
+            AppLog.w(TAG, "Group $groupId not found, nothing deleted")
             return DeleteResult.NotFound
         }
 
@@ -40,7 +41,7 @@ class DeleteGiftGroupUseCase(
         val photoPaths = listOfNotNull(group.photoPath) + participants.mapNotNull { it.photoPath }
 
         giftGroupRepository.deleteGiftGroup(groupId)
-        AppLog.i(TAG, "Gruppe $groupId gelöscht (${participants.size} Teilnehmer, ${photoPaths.size} Fotos)")
+        AppLog.i(TAG, "Group $groupId deleted (${participants.size} participants, ${photoPaths.size} photos)")
 
         // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
         photoPaths.forEach { photoRepository.deletePhotoQuietly(it, TAG) }

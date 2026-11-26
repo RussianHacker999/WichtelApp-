@@ -2,7 +2,7 @@ package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
-import com.example.wichtly.domain.validation.GiftGroupResult
+import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import kotlinx.coroutines.test.runTest

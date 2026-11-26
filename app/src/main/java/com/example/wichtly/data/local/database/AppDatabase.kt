@@ -74,15 +74,15 @@ abstract class AppDatabase : RoomDatabase() {
         /** Protokolliert Lebenszyklus-Ereignisse der Datenbank; eine destruktive Neuanlage ist immer eine Warnung. */
         private object LoggingCallback : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
-                AppLog.i(TAG, "Datenbank neu angelegt (Version ${db.version})")
+                AppLog.i(TAG, "Database created (version ${db.version})")
             }
 
             override fun onOpen(db: SupportSQLiteDatabase) {
-                AppLog.d(TAG) { "Datenbank geöffnet (Version ${db.version})" }
+                AppLog.d(TAG) { "Database opened (version ${db.version})" }
             }
 
             override fun onDestructiveMigration(db: SupportSQLiteDatabase) {
-                AppLog.w(TAG, "Datenbank destruktiv neu angelegt (Version ohne Schema oder Downgrade): alle Daten gelöscht")
+                AppLog.w(TAG, "Database recreated destructively (version without schema, or downgrade): all data deleted")
             }
         }
 

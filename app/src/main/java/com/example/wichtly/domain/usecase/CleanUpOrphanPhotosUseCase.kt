@@ -40,7 +40,7 @@ class CleanUpOrphanPhotosUseCase(
         val orphans = candidates.filterNot { it in referenced }
         orphans.forEach { photoRepository.deletePhotoQuietly(it, TAG) }
         if (orphans.isNotEmpty()) {
-            AppLog.i(TAG, "${orphans.size} verwaiste Fotos gelöscht")
+            AppLog.i(TAG, "Deleted ${orphans.size} orphaned photos")
         }
         return orphans.size
     }

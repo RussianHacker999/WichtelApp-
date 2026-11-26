@@ -23,6 +23,7 @@ interface WishlistItemDao {
     @Update
     suspend fun updateWishlistItem(item: WishlistItemEntity): Int
 
+    /** @return Anzahl gelöschter Zeilen; 0 heißt, den Wunsch gab es nicht (mehr). */
     @Query("DELETE FROM wishlist_items WHERE id = :id")
-    suspend fun deleteWishlistItemById(id: String)
+    suspend fun deleteWishlistItemById(id: String): Int
 }

@@ -65,7 +65,7 @@ fun GroupFormScreen(
     actions: GroupFormActions,
     modifier: Modifier = Modifier,
 ) {
-    val showForm = !state.isLoading && !state.notFound
+    val showForm = !state.isLoading && !state.notFound && !state.loadFailed
     // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
     WichtlyScaffold(
         modifier = modifier,
@@ -115,7 +115,17 @@ fun GroupFormScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
-            // 3. ZUSTAND: Formular anzeigen
+            // 3. ZUSTAND: Ladefehler im Bearbeiten-Modus
+            // Ersetzt das Formular, damit keine leeren Felder einer bestehenden Gruppe erscheinen (gemeinsamer MessageState).
+            state.loadFailed -> MessageState(
+                title = stringResource(R.string.common_error_loading_title),
+                text = stringResource(state.generalError ?: R.string.error_group_load),
+                icon = Icons.Outlined.ErrorOutline,
+                isError = true,
+                actionLabel = stringResource(R.string.common_back_to_overview),
+                onAction = actions.onBack,
+            )
+            // 4. ZUSTAND: Formular anzeigen
             else -> GroupFormContent(
                 state = state,
                 innerPaddingTop = innerPadding,
@@ -363,6 +373,25 @@ private fun GroupFormScreenNotFoundPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(isEditMode = true, isLoading = false, notFound = true),
+            actions = previewActions,
+        )
+    }
+}
+
+/**
+ * Preview 7: Ladefehler im Bearbeiten-Modus (loadFailed = true).
+ */
+@Preview(showBackground = true)
+@Composable
+private fun GroupFormScreenLoadFailedPreview() {
+    WichtlyTheme {
+        GroupFormScreen(
+            state = GroupFormUiState(
+                isEditMode = true,
+                isLoading = false,
+                loadFailed = true,
+                generalError = R.string.error_group_load,
+            ),
             actions = previewActions,
         )
     }

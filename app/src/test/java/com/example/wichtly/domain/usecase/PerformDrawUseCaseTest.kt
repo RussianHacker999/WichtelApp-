@@ -4,7 +4,7 @@ import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.model.participant.WishlistItem
-import com.example.wichtly.domain.validation.DrawResult
+import com.example.wichtly.domain.result.DrawResult
 import com.example.wichtly.domain.validation.DrawValidationError
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository

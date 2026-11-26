@@ -54,7 +54,7 @@ fun parseBudgetToCents(input: String): Long? {
 
 /**
  * Eingabeformat des Wichteltags, z. B. "24.12.2026". Einzige Stelle dieses Musters:
- * [parseDate] liest damit, die UI (formatDateForInput, Datumsauswahl) schreibt damit.
+ * [parseDate] liest damit, die UI (formatDateForInput im Bearbeiten-Modus) schreibt damit.
  */
 const val DRAW_DAY_INPUT_PATTERN = "dd.MM.uuuu"
 

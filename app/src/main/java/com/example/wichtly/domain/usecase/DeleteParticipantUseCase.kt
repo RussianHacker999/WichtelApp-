@@ -3,6 +3,7 @@ package com.example.wichtly.domain.usecase
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
+import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.logging.AppLog
 
 private const val TAG = "DeleteParticipantUseCase"
@@ -22,15 +23,15 @@ class DeleteParticipantUseCase(
     private val photoRepository: PhotoRepository,
 ) {
     suspend operator fun invoke(participantId: String): DeleteResult {
-        AppLog.d(TAG) { "Teilnehmer $participantId löschen" }
+        AppLog.d(TAG) { "Deleting participant $participantId" }
         val participant = participantRepository.getParticipantById(participantId)
         if (participant == null) {
-            AppLog.w(TAG, "Teilnehmer $participantId nicht gefunden, nichts gelöscht")
+            AppLog.w(TAG, "Participant $participantId not found, nothing deleted")
             return DeleteResult.NotFound
         }
 
         participantRepository.deleteParticipant(participantId)
-        AppLog.i(TAG, "Teilnehmer $participantId gelöscht")
+        AppLog.i(TAG, "Participant $participantId deleted")
 
         // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos
         photoRepository.deletePhotoQuietly(participant.photoPath, TAG)

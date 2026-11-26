@@ -16,9 +16,9 @@ import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
+import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
-import com.example.wichtly.domain.validation.GiftGroupResult
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.components.display.formatCentsForInput
@@ -91,9 +91,10 @@ class GroupFormViewModel(
                 _uiState.update { it.copy(photoFile = file) }
             }
         }
-        // Eingaben laufend sichern, sobald das Formular steht (nicht während des Ladens)
+        // Eingaben laufend sichern, sobald das Formular steht (nicht während des Ladens). Nach einem Ladefehler
+        // nicht: Die leeren Felder würden sonst nach einem Prozesstod die Werte aus der Datenbank überschreiben.
         _uiState
-            .filter { !it.isLoading }
+            .filter { !it.isLoading && !it.loadFailed }
             .onEach { FormInputs.of(it).writeTo(savedStateHandle) }
             .launchIn(viewModelScope)
     }
@@ -103,11 +104,11 @@ class GroupFormViewModel(
      */
     private fun loadGroup(id: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, generalError = null) }
+            _uiState.update { it.copy(isLoading = true, loadFailed = false, generalError = null) }
             try {
                 val loadedGroup = repository.getGiftGroupById(id)
                 if (loadedGroup == null) {
-                    AppLog.w(TAG, "Gruppe $id zum Bearbeiten nicht gefunden")
+                    AppLog.w(TAG, "Group $id to edit not found")
                     _uiState.update {
                         it.copy(
                             isLoading = false,
@@ -139,10 +140,11 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Laden der Wichtelgruppe", e)
+                AppLog.e(TAG, "Failed to load the group", e)
                 _uiState.update {
                     it.copy(
                         isLoading = false,
+                        loadFailed = true,
                         generalError = R.string.error_group_load,
                     )
                 }
@@ -280,7 +282,7 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Speichern der Wichtelgruppe", e)
+                AppLog.e(TAG, "Failed to save the group", e)
                 _uiState.update {
                     it.copy(
                         isSaving = false,
@@ -338,13 +340,13 @@ class GroupFormViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                AppLog.e(TAG, "Fehler beim Speichern des Gruppenfotos", e)
+                AppLog.e(TAG, "Failed to save the group photo", e)
                 _uiState.update { it.copy(photoError = saveErrorMessage(e, R.string.error_photo_save)) }
             } finally {
                 try {
                     if (tempFile.exists()) tempFile.delete()
                 } catch (e: Exception) {
-                    AppLog.w(TAG, "Fehler beim Löschen der temporären Fotodatei", e)
+                    AppLog.w(TAG, "Failed to delete the temporary photo file", e)
                 }
             }
         }

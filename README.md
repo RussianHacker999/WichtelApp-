@@ -68,11 +68,13 @@ ui (Compose screens, ViewModels)  ──►  domain (models, rules, use cases)  
 ```
 
 - **domain** has no dependency on Android UI or Room. It contains the models, the business rules
-  (`DrawRules`, validators), the draw algorithm and the use cases.
+  (`DrawRules`, validators and their error types in `domain/validation`), the draw algorithm, the use cases
+  and their result types (`domain/result`).
 - **Use cases are the only place for validation.** Every write goes through a use case
   (`SaveGiftGroupUseCase`, `SaveParticipantUseCase`, `SaveWishlistItemUseCase`, `PerformDrawUseCase`,
-  `DeleteGiftGroupUseCase`, `DeleteParticipantUseCase`). They return a result type with either success or a
-  list of business errors. The only exception is deleting a single wish, which has no rules and no file.
+  `DeleteGiftGroupUseCase`, `DeleteParticipantUseCase`, `DeleteWishlistItemUseCase`). Saving and drawing return
+  a result type with either success or a list of business errors; deleting returns `DeleteResult`
+  (`Deleted` or `NotFound`). ViewModels use repositories for reading only.
 - **Repositories are pure persistence.** `observe…` methods return a `Flow` for screens that show live data;
   `get…` methods read the current state once (use cases, loading a form).
 - **ViewModels** own the screen state as a `StateFlow` (`combine` + `stateIn(WhileSubscribed(5_000))`) and

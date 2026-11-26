@@ -2,7 +2,7 @@ package com.example.wichtly.domain.usecase
 
 import com.example.wichtly.domain.model.participant.WishlistItem
 import com.example.wichtly.domain.repository.WishlistRepository
-import com.example.wichtly.domain.validation.WishlistItemResult
+import com.example.wichtly.domain.result.WishlistItemResult
 import com.example.wichtly.domain.validation.WishlistValidationError
 import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.logging.AppLog
@@ -31,7 +31,7 @@ class SaveWishlistItemUseCase(
         participantId: String,
         text: String,
     ): WishlistItemResult {
-        AppLog.d(TAG) { if (itemId == null) "Neuen Wunsch für Teilnehmer $participantId speichern" else "Wunsch $itemId speichern" }
+        AppLog.d(TAG) { if (itemId == null) "Saving new wish for participant $participantId" else "Saving wish $itemId" }
         val currentItems = repository.getWishlistItems(participantId)
         val stored = itemId?.let { id ->
             currentItems.firstOrNull { it.id == id } ?: return notFound(id)
@@ -47,23 +47,23 @@ class SaveWishlistItemUseCase(
 
         val errors = validator.validate(item, currentItems)
         if (errors.isNotEmpty()) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
+            AppLog.d(TAG) { "Input rejected: ${errors.joinToString()}" }
             return WishlistItemResult.ValidationError(errors)
         }
 
         if (stored == null) {
             repository.insertWishlistItem(item)
-            AppLog.i(TAG, "Wunsch ${item.id} für Teilnehmer $participantId angelegt")
+            AppLog.i(TAG, "Wish ${item.id} created for participant $participantId")
         } else if (!repository.updateWishlistItem(item)) {
             return notFound(item.id)
         } else {
-            AppLog.i(TAG, "Wunsch ${item.id} geändert")
+            AppLog.i(TAG, "Wish ${item.id} updated")
         }
         return WishlistItemResult.Success(item)
     }
 
     private fun notFound(itemId: String): WishlistItemResult {
-        AppLog.w(TAG, "Wunsch $itemId nicht gefunden, nichts gespeichert")
+        AppLog.w(TAG, "Wish $itemId not found, nothing saved")
         return WishlistItemResult.ValidationError(listOf(WishlistValidationError.WishNotFound))
     }
 }

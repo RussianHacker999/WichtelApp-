@@ -70,10 +70,10 @@ fun PhotoCaptureFlow(
         contract = ActivityResultContracts.RequestPermission(),
     ) { isGranted ->
         if (isGranted) {
-            AppLog.i(TAG, "Kamera-Berechtigung erteilt")
+            AppLog.i(TAG, "Camera permission granted")
             currentStep = PhotoFlowStep.CAMERA_SCREEN
         } else {
-            AppLog.i(TAG, "Kamera-Berechtigung vom System-Dialog verweigert")
+            AppLog.i(TAG, "Camera permission denied in the system dialog")
             onCameraDenied()
             onClose()
         }
@@ -110,7 +110,7 @@ fun PhotoCaptureFlow(
                     permissionLauncher.launch(Manifest.permission.CAMERA)
                 },
                 onDeny = {
-                    AppLog.d(TAG) { "Kamera-Hinweis ohne Berechtigungsanfrage geschlossen" }
+                    AppLog.d(TAG) { "Camera rationale dismissed without requesting the permission" }
                     onCameraDenied()
                     onClose()
                 },
@@ -133,9 +133,9 @@ fun PhotoCaptureFlow(
                         onClose()
                     },
                     onCancel = onClose,
-                    onError = {
+                    onCaptureError = {
                         // Ursache hat CameraCaptureScreen bereits als ERROR geloggt
-                        AppLog.w(TAG, "Kamera-Ablauf nach Fehler geschlossen")
+                        AppLog.w(TAG, "Camera flow closed after an error")
                         onCaptureError()
                         onClose()
                     },

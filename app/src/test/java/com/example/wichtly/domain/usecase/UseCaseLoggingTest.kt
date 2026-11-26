@@ -70,7 +70,7 @@ class UseCaseLoggingTest {
         useCase("g1")
 
         val info = sink.atLevel(LogLevel.INFO).single()
-        assertTrue("3 Zuordnungen" in info.message)
+        assertTrue("3 assignments" in info.message)
         assertFalse(sink.entries.any { entry -> teilnehmer.any { it.name in entry.message } })
     }
 

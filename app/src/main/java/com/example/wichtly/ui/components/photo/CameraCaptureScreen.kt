@@ -47,6 +47,7 @@ import com.example.wichtly.R
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.theme.Spacing
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 import androidx.camera.core.Preview as CameraPreview
 
 private const val TAG = "CameraCaptureScreen"
@@ -70,24 +71,23 @@ private val CaptureTargetSize = Size(1280, 960)
  *
  * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme mit der erzeugten [File].
  * @param onCancel Callback beim Abbrechen der Vorschau (z. B. Schließen-Button oben links oder System-Back).
- * @param onError Callback im Fehlerfall mit verständlicher Fehlermeldung.
+ * @param onCaptureError Callback, wenn die Kamera nicht startet oder die Aufnahme scheitert (die Ursache ist bereits geloggt).
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
 fun CameraCaptureScreen(
     onPhotoCaptured: (File) -> Unit,
     onCancel: () -> Unit,
-    onError: (String) -> Unit,
+    onCaptureError: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val captureErrorText = stringResource(R.string.error_photo_capture)
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
 
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var isCapturing by remember { mutableStateOf(false) }
     // Wird in onDispose gesetzt; der Listener des Providers kann danach noch laufen
-    val isDisposed = remember { booleanArrayOf(false) }
+    val isDisposed = remember { AtomicBoolean(false) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val shutterDescription = stringResource(R.string.photo_take)
 
@@ -109,7 +109,7 @@ fun CameraCaptureScreen(
 
                 cameraProviderFuture.addListener({
                     // Screen schon geschlossen: nicht mehr binden, sonst bleibt die Kamera belegt
-                    if (isDisposed[0]) return@addListener
+                    if (isDisposed.get()) return@addListener
                     try {
                         val cameraProvider = cameraProviderFuture.get()
                         val preview = CameraPreview.Builder().build().also {
@@ -127,7 +127,7 @@ fun CameraCaptureScreen(
                         val cameraSelector = if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
                             CameraSelector.DEFAULT_BACK_CAMERA
                         } else {
-                            AppLog.i(TAG, "Keine Rückkamera, nutze Frontkamera")
+                            AppLog.i(TAG, "No back camera, using the front camera")
                             CameraSelector.DEFAULT_FRONT_CAMERA
                         }
 
@@ -138,10 +138,10 @@ fun CameraCaptureScreen(
                             preview,
                             capture
                         )
-                        AppLog.d(TAG) { "Kamera gebunden" }
+                        AppLog.d(TAG) { "Camera bound" }
                     } catch (e: Exception) {
-                        AppLog.e(TAG, "Fehler beim Binden der Kamera", e)
-                        onError(captureErrorText)
+                        AppLog.e(TAG, "Failed to bind the camera", e)
+                        onCaptureError()
                     }
                 }, executor)
 
@@ -178,8 +178,8 @@ fun CameraCaptureScreen(
                 val photoFile = try {
                     File.createTempFile("photo_", ".jpg", context.cacheDir)
                 } catch (e: Exception) {
-                    AppLog.e(TAG, "Fehler beim Erstellen der temporären Datei", e)
-                    onError(captureErrorText)
+                    AppLog.e(TAG, "Failed to create the temporary file", e)
+                    onCaptureError()
                     return@FloatingActionButton
                 }
                 isCapturing = true
@@ -192,15 +192,15 @@ fun CameraCaptureScreen(
                     mainExecutor,
                     object : ImageCapture.OnImageSavedCallback {
                         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                            AppLog.d(TAG) { "Foto aufgenommen (${photoFile.length() / 1024} KB)" }
+                            AppLog.d(TAG) { "Photo captured (${photoFile.length() / 1024} KB)" }
                             onPhotoCaptured(photoFile)
                         }
 
                         override fun onError(exception: ImageCaptureException) {
-                            AppLog.e(TAG, "Fehler beim Speichern des Fotos", exception)
+                            AppLog.e(TAG, "Failed to save the photo", exception)
                             isCapturing = false
                             photoFile.delete()
-                            onError(captureErrorText)
+                            onCaptureError()
                         }
                     }
                 )
@@ -224,13 +224,13 @@ fun CameraCaptureScreen(
     // Beim Verlassen des Screens die Kamera freigeben (unbindAll)
     DisposableEffect(lifecycleOwner) {
         onDispose {
-            isDisposed[0] = true
+            isDisposed.set(true)
             try {
                 if (cameraProviderFuture.isDone) {
                     cameraProviderFuture.get().unbindAll()
                 }
             } catch (e: Exception) {
-                AppLog.w(TAG, "Fehler beim Unbinden der Kamera", e)
+                AppLog.w(TAG, "Failed to unbind the camera", e)
             }
         }
     }

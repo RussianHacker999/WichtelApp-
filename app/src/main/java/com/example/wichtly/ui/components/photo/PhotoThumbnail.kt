@@ -86,7 +86,7 @@ fun PhotoThumbnail(
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {
-                    AppLog.w(TAG, "Foto konnte nicht dekodiert werden, Platzhalter wird angezeigt: ${file.name}", e)
+                    AppLog.w(TAG, "Could not decode photo, showing placeholder: ${file.name}", e)
                     null
                 }
             }
@@ -158,7 +158,7 @@ private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
         }
     } catch (e: Exception) {
         // Kein Rethrow von CancellationException: normale Funktion, keine Coroutine
-        AppLog.w(TAG, "EXIF-Ausrichtung nicht lesbar, Foto wird ungedreht angezeigt: ${filePath.substringAfterLast('/')}", e)
+        AppLog.w(TAG, "Could not read EXIF orientation, showing photo unrotated: ${filePath.substringAfterLast('/')}", e)
         bitmap
     }
 }

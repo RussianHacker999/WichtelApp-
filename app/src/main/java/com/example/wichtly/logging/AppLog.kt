@@ -35,6 +35,9 @@ interface LogSink {
  *
  * Datenschutz-Regel: Niemals Namen, Wunschtexte, Zuordnungen einer Auslosung oder Bildinhalte
  * loggen. Erlaubt sind technische IDs, Anzahlen, Fehlertypen und relative Dateipfade.
+ *
+ * Sprache: Log-Texte sind englisch (wie Stacktraces und Bibliotheksmeldungen in Logcat);
+ * Texte für Nutzer stehen in strings.xml.
  */
 object AppLog {
 

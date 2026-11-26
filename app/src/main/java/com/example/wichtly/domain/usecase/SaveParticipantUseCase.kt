@@ -3,7 +3,7 @@ package com.example.wichtly.domain.usecase
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
-import com.example.wichtly.domain.validation.ParticipantResult
+import com.example.wichtly.domain.result.ParticipantResult
 import com.example.wichtly.domain.validation.ParticipantValidationError
 import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.logging.AppLog
@@ -33,9 +33,9 @@ class SaveParticipantUseCase(
         name: String,
         photoPath: String?,
     ): ParticipantResult {
-        AppLog.d(TAG) { if (participantId == null) "Neuen Teilnehmer in Gruppe $groupId speichern" else "Teilnehmer $participantId speichern" }
+        AppLog.d(TAG) { if (participantId == null) "Saving new participant in group $groupId" else "Saving participant $participantId" }
         if (giftGroupRepository.getGiftGroupById(groupId) == null) {
-            AppLog.w(TAG, "Gruppe $groupId nicht gefunden, Teilnehmer nicht gespeichert")
+            AppLog.w(TAG, "Group $groupId not found, participant not saved")
             return error(ParticipantValidationError.GroupNotFound)
         }
 
@@ -50,23 +50,23 @@ class SaveParticipantUseCase(
 
         val errors = validator.validate(participant, participantsInGroup)
         if (errors.isNotEmpty()) {
-            AppLog.d(TAG) { "Eingaben abgelehnt: ${errors.joinToString()}" }
+            AppLog.d(TAG) { "Input rejected: ${errors.joinToString()}" }
             return ParticipantResult.ValidationError(errors)
         }
 
         if (stored == null) {
             participantRepository.insertParticipant(participant)
-            AppLog.i(TAG, "Teilnehmer ${participant.id} in Gruppe $groupId angelegt")
+            AppLog.i(TAG, "Participant ${participant.id} created in group $groupId")
         } else if (!participantRepository.updateParticipant(participant)) {
             return participantNotFound(participant.id)
         } else {
-            AppLog.i(TAG, "Teilnehmer ${participant.id} geändert")
+            AppLog.i(TAG, "Participant ${participant.id} updated")
         }
         return ParticipantResult.Success(participant)
     }
 
     private fun participantNotFound(participantId: String): ParticipantResult {
-        AppLog.w(TAG, "Teilnehmer $participantId nicht gefunden, nichts gespeichert")
+        AppLog.w(TAG, "Participant $participantId not found, nothing saved")
         return error(ParticipantValidationError.ParticipantNotFound)
     }
 

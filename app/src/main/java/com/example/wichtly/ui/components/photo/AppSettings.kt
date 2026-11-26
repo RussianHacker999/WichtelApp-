@@ -19,6 +19,6 @@ fun openAppSettings(context: Context) {
         }
         context.startActivity(intent)
     } catch (e: ActivityNotFoundException) {
-        AppLog.w(TAG, "Einstellungen-App konnte nicht geöffnet werden", e)
+        AppLog.w(TAG, "Could not open the app settings", e)
     }
 }

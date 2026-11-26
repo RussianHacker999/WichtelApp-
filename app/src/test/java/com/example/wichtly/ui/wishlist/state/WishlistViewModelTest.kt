@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.model.participant.WishlistItem
+import com.example.wichtly.domain.usecase.DeleteWishlistItemUseCase
 import com.example.wichtly.domain.usecase.SaveWishlistItemUseCase
 import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.testutil.FakeParticipantRepository
@@ -58,6 +59,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -82,6 +84,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -109,6 +112,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -139,6 +143,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -193,6 +198,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -230,6 +236,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -256,6 +263,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -295,6 +303,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -326,6 +335,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -365,6 +375,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -403,6 +414,7 @@ class WishlistViewModelTest {
             participantRepository = participantRepository,
             wishlistRepository = wishlistRepository,
             saveWishlistItem = SaveWishlistItemUseCase(wishlistRepository),
+            deleteWishlistItem = DeleteWishlistItemUseCase(wishlistRepository),
         )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -426,12 +438,12 @@ class WishlistViewModelTest {
         }
         val wishlistRepository = FakeWishlistRepository()
         val handle = SavedStateHandle()
-        val vorher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), handle)
+        val vorher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
         vorher.onAddClick()
         vorher.onEditorTextChange("Wollsocken")
 
         // Neues ViewModel mit demselben Handle, wie nach einem Prozesstod
-        val nachher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), handle)
+        val nachher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
         backgroundScope.launch { nachher.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 

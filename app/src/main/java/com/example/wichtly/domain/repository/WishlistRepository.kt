@@ -30,7 +30,8 @@ interface WishlistRepository {
     suspend fun updateWishlistItem(item: WishlistItem): Boolean
 
     /**
-     * Löscht einen Wunsch anhand seiner ID.
+     * Löscht einen Wunsch anhand seiner ID. Verwendet von: DeleteWishlistItemUseCase.
+     * @return false, wenn es keinen Wunsch mit dieser ID (mehr) gibt.
      */
-    suspend fun deleteWishlistItem(id: String)
+    suspend fun deleteWishlistItem(id: String): Boolean
 }
