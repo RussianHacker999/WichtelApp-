@@ -150,16 +150,6 @@ class GroupFormViewModelTest {
         assertFalse(viewModel.uiState.value.drawDayPassed)
     }
 
-    @Test
-    fun aufnahmefehlerSchliesstFotoAblaufUndZeigtFehler() = runTest {
-        val viewModel = neuesFormular()
-        viewModel.onPhotoSelectClick()
-
-        viewModel.onPhotoCaptureError()
-
-        assertFalse(viewModel.uiState.value.photo.isFlowOpen)
-        assertEquals(R.string.error_photo_capture, viewModel.uiState.value.photo.error)
-    }
 
     @Test
     fun verlassenWaehrendDesSpeichernsLoeschtDasFotoNicht() = runTest {

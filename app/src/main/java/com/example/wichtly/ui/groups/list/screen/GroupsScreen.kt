@@ -59,7 +59,7 @@ import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.photo.PhotoThumbnail
+import com.example.wichtly.ui.components.display.PhotoThumbnail
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
@@ -189,7 +189,7 @@ fun GroupsScreen(
 
 // Das Gruppenfoto wird nicht mehr in der Liste aufgenommen. Auswahl (Foto aufnehmen / entfernen),
 // Kamera-Abfrage und der Hinweis bei abgelehntem Kamerazugriff laufen jetzt im Gruppenformular
-// (GroupFormScreen) über PhotoCaptureFlow, genau wie beim Teilnehmerfoto.
+// (GroupFormScreen) über PhotoField, genau wie beim Teilnehmerfoto.
 
 /**
  * Gruppenkarte mit farbigem Bildbereich (Gruppenfoto oder Verlauf mit Sternchen),

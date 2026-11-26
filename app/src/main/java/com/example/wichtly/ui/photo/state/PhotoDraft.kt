@@ -1,25 +1,17 @@
-package com.example.wichtly.ui.common
+package com.example.wichtly.ui.photo.state
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.SavedStateHandle
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.saveErrorMessage
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
-
-/** Ergebnis von [PhotoDraft.capture]. */
-sealed interface PhotoCaptureResult {
-    /** Foto liegt im App-Speicher unter [path]; [file] ist die aufgelöste Datei zur Vorschau. */
-    data class Saved(val path: String, val file: File?) : PhotoCaptureResult
-
-    /** Foto konnte nicht gespeichert werden; [error] ist der Text für den Nutzer. */
-    data class Failed(@StringRes val error: Int) : PhotoCaptureResult
-}
 
 /**
  * Fotoentwurf eines Formulars oder Editors. Ein neu aufgenommenes Foto liegt sofort im App-Speicher, steht
@@ -61,20 +53,21 @@ class PhotoDraft(
     }
 
     /**
-     * Verschiebt ein neu aufgenommenes Foto in den App-Speicher. Ein ungespeichertes Foto, das bisher im
-     * Formular stand ([currentPath]), wird gelöscht; das gespeicherte bleibt bis [commit] liegen.
-     * Die temporäre Datei der Kamera wird in jedem Fall entfernt.
+     * Verschiebt ein neu aufgenommenes Foto in den App-Speicher und liefert das Fotofeld mit dem neuen Foto
+     * (oder mit Fehlertext, wenn das Speichern scheitert). Ein ungespeichertes Foto, das bisher im Feld stand,
+     * wird gelöscht; das gespeicherte bleibt bis [commit] liegen. Die temporäre Datei der Kamera wird in jedem
+     * Fall entfernt.
      */
-    suspend fun capture(tempFile: File, currentPath: String?): PhotoCaptureResult =
+    suspend fun capture(tempFile: File, photo: PhotoFieldUiState): PhotoFieldUiState =
         try {
             val newPath = photoRepository.savePhoto(tempFile, ownerType)
-            if (isUncommitted(currentPath)) photoRepository.deletePhotoQuietly(currentPath, tag)
-            PhotoCaptureResult.Saved(newPath, photoRepository.getFileForRelativePath(newPath))
+            if (isUncommitted(photo.path)) photoRepository.deletePhotoQuietly(photo.path, tag)
+            photo.copy(path = newPath, file = photoRepository.getFileForRelativePath(newPath), error = null)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
             AppLog.e(tag, "Failed to save the photo (${ownerType.value})", e)
-            PhotoCaptureResult.Failed(saveErrorMessage(e, R.string.error_photo_save))
+            photo.copy(error = saveErrorMessage(e, R.string.error_photo_save))
         } finally {
             deleteTempFile(tempFile)
         }

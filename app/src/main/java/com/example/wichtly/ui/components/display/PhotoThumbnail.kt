@@ -1,4 +1,4 @@
-package com.example.wichtly.ui.components.photo
+package com.example.wichtly.ui.components.display
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory

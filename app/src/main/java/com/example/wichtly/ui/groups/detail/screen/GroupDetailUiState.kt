@@ -3,7 +3,7 @@ package com.example.wichtly.ui.groups.detail.screen
 import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.ui.components.photo.PhotoFieldUiState
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import java.io.File
 
 /**
@@ -57,7 +57,7 @@ data class GroupDetailUiState(
  * @property editingParticipantId null = Hinzufügen-Modus, sonst die ID des bearbeiteten Teilnehmers.
  * @property nameInput Aktueller Text im Namensfeld.
  * @property nameError Validierungs- oder Speicherfehler, der im Dialog angezeigt wird.
- * @property photo Fotofeld des Teilnehmers samt Foto-Ablauf (gleicher Zustand wie im Gruppenformular).
+ * @property photo Fotofeld des Teilnehmers (gleicher Zustand wie im Gruppenformular; den Foto-Ablauf hält die UI).
  *   Die Datei für die Vorschau ([PhotoFieldUiState.file]) löst das ViewModel im uiState immer aus dem Pfad
  *   neu auf, auch nach einer Wiederherstellung aus dem SavedStateHandle.
  */

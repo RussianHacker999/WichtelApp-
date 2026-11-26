@@ -89,7 +89,6 @@ class GroupDetailViewModelPhotoTest {
         val state = viewModel.uiState.value
         assertEquals(1, photoRepo.saveCalls)
         assertNotNull(state.participantEditor?.photo?.path)
-        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
     }
 
     /**
@@ -445,91 +444,8 @@ class GroupDetailViewModelPhotoTest {
         assertNull(viewModel.uiState.value.participantEditor)
     }
 
-    /**
-     * Test 14: onCameraDenied setzt cameraDenied auf true und schließt den Foto-Flow.
-     */
-    @Test
-    fun cameraDenied_setsFlagAndClosesFlow() = runTest {
-        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
-        val participantRepo = FakeParticipantRepository()
-        val photoRepo = FakePhotoRepository()
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
 
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        // Das Foto gehört zum Teilnehmer-Editor: ohne offenen Editor gibt es keinen Foto-Ablauf
-        viewModel.onAddParticipantClick()
-        viewModel.onPhotoSelectClick()
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onCameraDenied()
-        testScheduler.advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertEquals(true, state.participantEditor?.photo?.cameraDenied)
-        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
-    }
-
-    /**
-     * Test 15: onPhotoSelectClick öffnet den Flow, onPhotoFlowClose schließt ihn.
-     */
-    @Test
-    fun photoSelectClick_opensFlowAndClose_closesFlow() = runTest {
-        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
-        val participantRepo = FakeParticipantRepository()
-        val photoRepo = FakePhotoRepository()
-
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
-
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        // Das Foto gehört zum Teilnehmer-Editor: ohne offenen Editor gibt es keinen Foto-Ablauf
-        viewModel.onAddParticipantClick()
-        viewModel.onPhotoSelectClick()
-        testScheduler.advanceUntilIdle()
-        assertEquals(true, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
-
-        viewModel.onPhotoFlowClose()
-        testScheduler.advanceUntilIdle()
-        assertEquals(false, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
-    }
-
-    /**
-     * Test 16: onPhotoSelectClick wird während eines Speichervorgangs (isSaving) ignoriert.
-     */
-    @Test
-    fun photoSelectWhileSaving_isIgnored() = runTest {
-        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
-        val gate = CompletableDeferred<Unit>()
-        val fakeParticipantRepo = FakeParticipantRepository()
-        val participantRepo = GatedParticipantRepository(fakeParticipantRepo, gate)
-        val photoRepo = FakePhotoRepository()
-
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
-
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onAddParticipantClick()
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onParticipantNameChange("Test")
-        viewModel.onSaveParticipantClick() // hängt am Gate -> isSaving bleibt true
-
-        val stateDuringSave = viewModel.uiState.value
-        assertEquals(true, stateDuringSave.isSaving)
-
-        viewModel.onPhotoSelectClick()
-        val state = viewModel.uiState.value
-        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
-
-        // Gate öffnen, damit die Coroutine beendet werden kann
-        gate.complete(Unit)
-        testScheduler.advanceUntilIdle()
-    }
 
     /**
      * Test 17: participantPhotoFiles enthält nur Teilnehmer, deren Fotodatei vorhanden ist (p1), nicht p2,
@@ -567,23 +483,6 @@ class GroupDetailViewModelPhotoTest {
         assertTrue(!state.participantPhotoFiles.containsKey("p2"))
     }
 
-    @Test
-    fun captureError_closesFlowAndShowsError() = runTest {
-        val groupRepo = FakeGiftGroupRepository().apply { setGroups(listOf(createSampleGroup())) }
-        val participantRepo = FakeParticipantRepository()
-        val photoRepo = FakePhotoRepository()
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
-        backgroundScope.launch { viewModel.uiState.collect {} }
-        viewModel.onAddParticipantClick()
-        viewModel.onPhotoSelectClick()
-        testScheduler.advanceUntilIdle()
-
-        viewModel.onPhotoCaptureError()
-        testScheduler.advanceUntilIdle()
-
-        assertEquals(false, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
-        assertEquals(R.string.error_photo_capture, viewModel.uiState.value.participantEditor?.photo?.error)
-    }
 
     @Test
     fun restoredEditor_keepsInputsAndDoesNotDeleteCommittedPhoto() = runTest {

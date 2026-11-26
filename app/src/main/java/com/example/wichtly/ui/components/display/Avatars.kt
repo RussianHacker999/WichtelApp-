@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.wichtly.ui.components.photo.PhotoThumbnail
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 

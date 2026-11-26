@@ -1,4 +1,4 @@
-package com.example.wichtly.ui.components.photo
+package com.example.wichtly.ui.photo.screen
 
 import android.util.Size
 import androidx.activity.compose.BackHandler
@@ -75,7 +75,7 @@ private val CaptureTargetSize = Size(1280, 960)
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
-fun CameraCaptureScreen(
+internal fun CameraCaptureScreen(
     onPhotoCaptured: (File) -> Unit,
     onCancel: () -> Unit,
     onCaptureError: () -> Unit,

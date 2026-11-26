@@ -47,7 +47,6 @@ import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.photo.PhotoActions
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
@@ -319,7 +318,7 @@ private val previewActions = GroupDetailActions(
     onAddParticipantClick = { },
     onEditParticipantClick = { _ -> },
     onDeleteParticipantClick = { _ -> },
-    participantEditor = ParticipantEditorActions(onNameChange = { _ -> }, onSave = { }, onDismiss = { }, photo = PhotoActions.NoOp),
+    participantEditor = ParticipantEditorActions(onNameChange = { _ -> }, onSave = { }, onDismiss = { }, onPhotoCaptured = { }, onRemovePhoto = { }),
     onConfirmParticipantDelete = { },
     onDismissParticipantDelete = { },
     onPrepareDrawClick = { },

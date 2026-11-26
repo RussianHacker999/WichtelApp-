@@ -1,4 +1,4 @@
-package com.example.wichtly.ui.components.photo
+package com.example.wichtly.ui.photo.screen
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PhotoCamera
@@ -24,7 +24,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
-fun CameraPermissionDialog(
+internal fun CameraPermissionDialog(
     onAllow: () -> Unit,
     onDeny: () -> Unit,
     onDismiss: () -> Unit,

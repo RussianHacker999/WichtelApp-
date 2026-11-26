@@ -1,4 +1,4 @@
-package com.example.wichtly.ui.components.photo
+package com.example.wichtly.ui.photo.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -37,7 +37,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
-fun PhotoSourceDialog(
+internal fun PhotoSourceDialog(
     hasPhoto: Boolean,
     onTakePhoto: () -> Unit,
     onRemovePhoto: () -> Unit,

@@ -5,12 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.ui.common.appContainer
-import com.example.wichtly.ui.components.photo.PhotoActions
-import com.example.wichtly.ui.components.photo.openAppSettings
 import com.example.wichtly.ui.groups.form.screen.GroupFormActions
 import com.example.wichtly.ui.groups.form.screen.GroupFormScreen
 
@@ -39,7 +36,6 @@ fun GroupFormRoute(
     onSaved: (groupId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
     val viewModel: GroupFormViewModel = viewModel(
         key = groupId ?: "new",
         factory = GroupFormViewModel.factory(appContainer(), groupId),
@@ -67,15 +63,8 @@ fun GroupFormRoute(
         onDrawTypeChange = viewModel::onDrawTypeChange,
         onSaveClick = viewModel::onSaveClick,
         onBack = leave,
-        photo = PhotoActions(
-            onSelectClick = viewModel::onPhotoSelectClick,
-            onFlowClose = viewModel::onPhotoFlowClose,
-            onCaptured = viewModel::onPhotoCaptured,
-            onRemove = viewModel::onRemovePhoto,
-            onCameraDenied = viewModel::onCameraDenied,
-            onCaptureError = viewModel::onPhotoCaptureError,
-            onOpenAppSettings = { openAppSettings(context) },
-        ),
+        onPhotoCaptured = viewModel::onPhotoCaptured,
+        onRemovePhoto = viewModel::onRemovePhoto,
     )
 
     GroupFormScreen(

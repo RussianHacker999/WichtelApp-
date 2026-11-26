@@ -1,6 +1,6 @@
 package com.example.wichtly.ui.groups.detail.screen
 
-import com.example.wichtly.ui.components.photo.PhotoActions
+import java.io.File
 
 /**
  * Nutzeraktionen der Gruppendetails: Navigation, Teilnehmerliste, Teilnehmer-Editor, Löschen.
@@ -50,6 +50,8 @@ data class ParticipantEditorActions(
     val onSave: () -> Unit,
     /** Editor schließen oder abbrechen. */
     val onDismiss: () -> Unit,
-    /** Aktionen rund um das Teilnehmerfoto. */
-    val photo: PhotoActions,
+    /** Neues Teilnehmerfoto aufgenommen (temporäre Datei der Kamera). */
+    val onPhotoCaptured: (File) -> Unit,
+    /** Teilnehmerfoto entfernen. */
+    val onRemovePhoto: () -> Unit,
 )

@@ -1,4 +1,4 @@
-package com.example.wichtly.ui.components.photo
+package com.example.wichtly.ui.photo.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -22,7 +22,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param modifier Optionaler Layout-Modifier.
  */
 @Composable
-fun CameraPermissionDeniedHint(
+internal fun CameraPermissionDeniedHint(
     onOpenSettings: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {

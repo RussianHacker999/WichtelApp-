@@ -4,12 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.ui.common.appContainer
-import com.example.wichtly.ui.components.photo.PhotoActions
-import com.example.wichtly.ui.components.photo.openAppSettings
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailActions
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorActions
@@ -38,7 +35,6 @@ fun GroupDetailRoute(
     onGroupDeleted: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val context = LocalContext.current
     val viewModel: GroupDetailViewModel = viewModel(
         key = groupId,
         factory = GroupDetailViewModel.factory(appContainer(), groupId),
@@ -65,15 +61,8 @@ fun GroupDetailRoute(
             onNameChange = viewModel::onParticipantNameChange,
             onSave = viewModel::onSaveParticipantClick,
             onDismiss = viewModel::onDismissParticipantEditor,
-            photo = PhotoActions(
-                onSelectClick = viewModel::onPhotoSelectClick,
-                onFlowClose = viewModel::onPhotoFlowClose,
-                onCaptured = viewModel::onPhotoCaptured,
-                onRemove = viewModel::onRemovePhoto,
-                onCameraDenied = viewModel::onCameraDenied,
-                onCaptureError = viewModel::onPhotoCaptureError,
-                onOpenAppSettings = { openAppSettings(context) },
-            ),
+            onPhotoCaptured = viewModel::onPhotoCaptured,
+            onRemovePhoto = viewModel::onRemovePhoto,
         ),
         onConfirmParticipantDelete = viewModel::onConfirmParticipantDelete,
         onDismissParticipantDelete = viewModel::onDismissParticipantDelete,

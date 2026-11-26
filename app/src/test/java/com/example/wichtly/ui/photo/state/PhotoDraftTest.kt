@@ -1,9 +1,10 @@
-package com.example.wichtly.ui.common
+package com.example.wichtly.ui.photo.state
 
 import androidx.lifecycle.SavedStateHandle
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.testutil.FakePhotoRepository
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -32,10 +33,10 @@ class PhotoDraftTest {
         val photoRepo = FakePhotoRepository().apply { setExistingPaths(setOf(committed)) }
         val draft = draft(photoRepo).apply { start(committed) }
 
-        val first = draft.capture(tempFile(), currentPath = committed) as PhotoCaptureResult.Saved
+        val first = draft.capture(tempFile(), PhotoFieldUiState(path = committed))
         assertTrue(photoRepo.deletedPaths.isEmpty())
 
-        draft.capture(tempFile(), currentPath = first.path)
+        draft.capture(tempFile(), first)
         assertEquals(listOf(first.path), photoRepo.deletedPaths)
     }
 
@@ -44,9 +45,9 @@ class PhotoDraftTest {
         val photoRepo = FakePhotoRepository().apply { shouldThrowOnSave = true }
         val temp = tempFile()
 
-        val result = draft(photoRepo).capture(temp, currentPath = null)
+        val result = draft(photoRepo).capture(temp, PhotoFieldUiState())
 
-        assertEquals(PhotoCaptureResult.Failed(R.string.error_photo_save), result)
+        assertEquals(PhotoFieldUiState(error = R.string.error_photo_save), result)
         assertFalse(temp.exists())
     }
 

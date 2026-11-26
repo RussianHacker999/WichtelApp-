@@ -2,7 +2,7 @@ package com.example.wichtly.ui.groups.form.screen
 
 import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.group.DrawType
-import com.example.wichtly.ui.components.photo.PhotoFieldUiState
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 
 /**
  * UI State für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -24,7 +24,7 @@ import com.example.wichtly.ui.components.photo.PhotoFieldUiState
  * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
  * @property savedGroupId Einmal-Ereignis: ID der gespeicherten Gruppe; die Route navigiert und quittiert
  *   mit onSavedHandled().
- * @property photo Fotofeld der Gruppe samt Foto-Ablauf (gleicher Zustand wie im Teilnehmer-Editor). Der Pfad
+ * @property photo Fotofeld der Gruppe (gleicher Zustand wie im Teilnehmer-Editor; den Foto-Ablauf hält die UI). Der Pfad
  *   wird erst beim Speichern in die Datenbank übernommen.
  * @property drawDayPassed Beim Bearbeiten: Der gespeicherte Wichteltag ist vorbei. Das Formular erklärt
  *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.

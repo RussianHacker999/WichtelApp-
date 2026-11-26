@@ -19,11 +19,11 @@ import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.logging.AppLog
-import com.example.wichtly.ui.common.PhotoDraft
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.components.display.formatCentsForInput
 import com.example.wichtly.ui.components.display.formatDateForInput
-import com.example.wichtly.ui.components.photo.PhotoFieldUiState
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import com.example.wichtly.ui.photo.state.PhotoDraft
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -307,35 +307,14 @@ class GroupFormViewModel(
         _uiState.update { it.copy(photo = transform(it.photo)) }
     }
 
-    /** Öffnet den Foto-Ablauf. */
-    fun onPhotoSelectClick() {
-        if (_uiState.value.isSaving) return
-        updatePhoto { it.withFlowOpened() }
-    }
-
-    /** Schließt den Foto-Ablauf. */
-    fun onPhotoFlowClose() {
-        updatePhoto { it.withFlowClosed() }
-    }
-
-    /** Kamerazugriff wurde abgelehnt: Ablauf schließen und Hinweis zeigen. */
-    fun onCameraDenied() {
-        updatePhoto { it.withCameraDenied() }
-    }
-
-    /** Kamera startet nicht oder die Aufnahme scheitert: Ablauf schließen und Fehler zeigen. */
-    fun onPhotoCaptureError() {
-        updatePhoto { it.withCaptureError() }
-    }
-
     /**
      * Übernimmt ein neu aufgenommenes Foto ins Formular. Es wird sofort in den App-Speicher verschoben (notfalls kopiert),
      * aber erst beim Speichern der Gruppe in der Datenbank eingetragen.
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
-            val result = photoDraft.capture(tempFile, currentPath = _uiState.value.photo.path)
-            updatePhoto { it.withResult(result) }
+            val photo = photoDraft.capture(tempFile, _uiState.value.photo)
+            updatePhoto { photo }
         }
     }
 

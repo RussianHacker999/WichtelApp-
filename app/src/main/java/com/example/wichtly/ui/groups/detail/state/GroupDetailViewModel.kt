@@ -22,10 +22,10 @@ import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.DeleteParticipantUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 import com.example.wichtly.logging.AppLog
-import com.example.wichtly.ui.common.PhotoDraft
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
-import com.example.wichtly.ui.components.photo.PhotoFieldUiState
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import com.example.wichtly.ui.photo.state.PhotoDraft
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailUiState
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorUiState
 import kotlinx.coroutines.CancellationException
@@ -240,33 +240,15 @@ class GroupDetailViewModel(
     // FOTO IM EDITOR (Dateien verwaltet der PhotoDraft)
     // =========================================================================
 
-    fun onPhotoSelectClick() {
-        if (_localState.value.isSaving) return
-        updateEditorPhoto { it.withFlowOpened() }
-    }
-
-    fun onPhotoFlowClose() {
-        updateEditorPhoto { it.withFlowClosed() }
-    }
-
-    /** Kamerazugriff abgelehnt: Ablauf schließen und Hinweis im Editor zeigen. */
-    fun onCameraDenied() {
-        updateEditorPhoto { it.withCameraDenied() }
-    }
-
-    /** Kamera startet nicht oder die Aufnahme scheitert: Ablauf schließen und Fehler im Editor zeigen. */
-    fun onPhotoCaptureError() {
-        updateEditorPhoto { it.withCaptureError() }
-    }
-
     /**
      * Übernimmt ein neu aufgenommenes Foto in den Editor. Es wird sofort in den App-Speicher verschoben,
      * aber erst beim Speichern des Teilnehmers in der Datenbank eingetragen.
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
-            val result = photoDraft.capture(tempFile, currentPath = _localState.value.editor?.photo?.path)
-            updateEditorPhoto { it.withResult(result) }
+            val current = _localState.value.editor?.photo ?: return@launch
+            val photo = photoDraft.capture(tempFile, current)
+            updateEditorPhoto { photo }
         }
     }
 

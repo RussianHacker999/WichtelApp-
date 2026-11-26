@@ -1,0 +1,75 @@
+package com.example.wichtly.ui.photo.screen
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/**
+ * Unit-Tests für [PhotoFlowState]: die Schritte des Foto-Ablaufs und die Hinweise, die er hinterlässt.
+ * (Früher lag dieser Zustand im ViewModel und wurde dort getestet.)
+ */
+class PhotoFlowStateTest {
+
+    @Test
+    fun oeffnenZeigtQuellauswahlUndSchliessenBeendet() {
+        val flow = PhotoFlowState()
+        assertEquals(PhotoFlowStep.CLOSED, flow.step)
+
+        flow.open()
+        assertEquals(PhotoFlowStep.SOURCE_SELECTION, flow.step)
+
+        flow.close()
+        assertEquals(PhotoFlowStep.CLOSED, flow.step)
+    }
+
+    @Test
+    fun kameraOhneBerechtigungFuehrtZuerstZurAufklaerung() {
+        val flow = PhotoFlowState().apply { open() }
+
+        flow.requestCamera(permissionGranted = false)
+        assertEquals(PhotoFlowStep.PERMISSION_DIALOG, flow.step)
+
+        flow.onPermissionGranted()
+        assertEquals(PhotoFlowStep.CAMERA, flow.step)
+    }
+
+    @Test
+    fun kameraMitBerechtigungOeffnetDirekt() {
+        val flow = PhotoFlowState().apply { open() }
+
+        flow.requestCamera(permissionGranted = true)
+
+        assertEquals(PhotoFlowStep.CAMERA, flow.step)
+    }
+
+    @Test
+    fun abgelehnteKameraSchliesstUndZeigtHinweis() {
+        val flow = PhotoFlowState().apply { open() }
+
+        flow.onCameraDenied()
+
+        assertEquals(PhotoFlowStep.CLOSED, flow.step)
+        assertTrue(flow.cameraDenied)
+    }
+
+    @Test
+    fun aufnahmefehlerSchliesstUndZeigtFehler() {
+        val flow = PhotoFlowState().apply { open(); requestCamera(permissionGranted = true) }
+
+        flow.onCaptureFailed()
+
+        assertEquals(PhotoFlowStep.CLOSED, flow.step)
+        assertTrue(flow.captureFailed)
+    }
+
+    @Test
+    fun erneutesOeffnenEntferntAlteHinweise() {
+        val flow = PhotoFlowState(cameraDenied = true, captureFailed = true)
+
+        flow.open()
+
+        assertFalse(flow.cameraDenied)
+        assertFalse(flow.captureFailed)
+    }
+}
