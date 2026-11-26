@@ -25,31 +25,30 @@ class SecretSantaDrawAlgorithm(
     fun generateDerangement(participantIds: List<String>): Map<String, String> {
         if (!DrawRules.canDraw(participantIds.size)) return emptyMap()
 
-        var attempts = 0
-        while (attempts < maxAttempts) {
-            attempts++
-            val shuffled = participantIds.shuffled(random)
-            var isDerangement = true
-            for (i in participantIds.indices) {
-                if (participantIds[i] == shuffled[i]) {
-                    isDerangement = false
-                    break
-                }
-            }
-            if (isDerangement) {
-                return participantIds.zip(shuffled).toMap()
-            }
-        }
+        // Die Sequenz ist lazy: Es wird erst gemischt, wenn firstOrNull den nächsten Versuch anfordert,
+        // und nach dem ersten gültigen Versuch wird nicht weiter gemischt. Bei maxAttempts <= 0 ist der
+        // Bereich leer, und es geht direkt zum Ring.
+        val receivers = (0 until maxAttempts).asSequence()
+            .map { participantIds.shuffled(random) }
+            .firstOrNull { shuffled -> isDerangement(participantIds, shuffled) }
 
-        // Notfall-Plan: Ring über eine gemischte Reihenfolge, immer gültig.
-        // Praktisch nie erreicht (rund 37 % aller Mischungen sind gültig, 100 Fehlversuche in Folge haben eine
-        // Wahrscheinlichkeit von etwa 10^-20); falls doch, ist das Ergebnis gültig, aber nicht gleichverteilt.
+        return receivers?.let { participantIds.zip(it).toMap() }
+            ?: ringFallback(participantIds)
+    }
+
+    /** true, wenn an keiner Position Geber und Empfänger gleich sind, also niemand sich selbst zieht. */
+    private fun isDerangement(givers: List<String>, receivers: List<String>): Boolean =
+        givers.zip(receivers).none { (giver, receiver) -> giver == receiver }
+
+    /**
+     * Notfall-Plan: Ring über eine gemischte Reihenfolge, immer gültig. Jeder beschenkt seinen Nachfolger,
+     * der Letzte den Ersten (deshalb wird das erste Element hinten angehängt).
+     * Praktisch nie erreicht (rund 37 % aller Mischungen sind gültig, 100 Fehlversuche in Folge haben eine
+     * Wahrscheinlichkeit von etwa 10^-20); falls doch, ist das Ergebnis gültig, aber nicht gleichverteilt.
+     */
+    private fun ringFallback(participantIds: List<String>): Map<String, String> {
         AppLog.w(TAG, "No random derangement after $maxAttempts attempts, using ring fallback for ${participantIds.size} participants")
         val shuffled = participantIds.shuffled(random)
-        val size = shuffled.size
-        return shuffled.mapIndexed { index, giverId ->
-            val receiverIndex = (index + 1) % size
-            giverId to shuffled[receiverIndex]
-        }.toMap()
+        return (shuffled + shuffled.first()).zipWithNext().toMap()
     }
 }
