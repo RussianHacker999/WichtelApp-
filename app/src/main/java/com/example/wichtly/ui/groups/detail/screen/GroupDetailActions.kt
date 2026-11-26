@@ -1,12 +1,13 @@
 package com.example.wichtly.ui.groups.detail.screen
 
-import java.io.File
+import com.example.wichtly.ui.components.photo.PhotoActions
 
 /**
- * Nutzeraktionen der Gruppendetails: Navigation, Teilnehmer-Editor, Teilnehmerfoto, Löschen.
+ * Nutzeraktionen der Gruppendetails: Navigation, Teilnehmerliste, Teilnehmer-Editor, Löschen.
  *
- * Bündelt die Callbacks, damit der Screen nicht über zehn einzelne Parameter hat. Die Route füllt sie
- * mit ViewModel-Methoden und Navigation; ohne Standardwerte, damit keine Aktion vergessen wird.
+ * Bündelt die Callbacks, damit der Screen nicht über zehn einzelne Parameter hat. Die Aktionen des
+ * Teilnehmer-Editors stecken gesammelt in [participantEditor]. Die Route füllt alles mit ViewModel-Methoden
+ * und Navigation; ohne Standardwerte, damit keine Aktion vergessen wird.
  */
 data class GroupDetailActions(
     /** Callback für die Zurück-Navigation. */
@@ -21,30 +22,12 @@ data class GroupDetailActions(
     val onEditParticipantClick: (participantId: String) -> Unit,
     /** Callback zum Löschen eines Teilnehmers (erhält participantId). */
     val onDeleteParticipantClick: (participantId: String) -> Unit,
-    /** Callback bei Änderung des Namen-Eingabefeldes im Teilnehmer-Dialog. */
-    val onParticipantNameChange: (String) -> Unit,
-    /** Callback zum Speichern eines Teilnehmers. */
-    val onSaveParticipantClick: () -> Unit,
-    /** Callback zum Schließen/Abbrechen des Teilnehmer-Editor-Dialogs. */
-    val onDismissParticipantEditor: () -> Unit,
+    /** Aktionen im offenen Teilnehmer-Editor (Name, Speichern, Schließen, Foto). */
+    val participantEditor: ParticipantEditorActions,
     /** Callback zum Bestätigen der Teilnehmer-Löschung. */
     val onConfirmParticipantDelete: () -> Unit,
     /** Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs. */
     val onDismissParticipantDelete: () -> Unit,
-    /** Callback zum Starten der Foto-Auswahl für Teilnehmer. */
-    val onPhotoSelectClick: () -> Unit,
-    /** Callback zum Schließen des Foto-Workflows. */
-    val onPhotoFlowClose: () -> Unit,
-    /** Callback nach erfolgreicher Fotoaufnahme. */
-    val onPhotoCaptured: (File) -> Unit,
-    /** Callback zum Entfernen des Teilnehmerfotos. */
-    val onRemovePhoto: () -> Unit,
-    /** Callback bei verweigerter Kameraberechtigung. */
-    val onCameraDenied: () -> Unit,
-    /** Kamera startet nicht oder Aufnahme scheitert. */
-    val onPhotoCaptureError: () -> Unit,
-    /** Callback zum Öffnen der Systemeinstellungen. */
-    val onOpenAppSettings: () -> Unit,
     /** Auslosungs-Vorbereitung für diese Gruppe öffnen. */
     val onPrepareDrawClick: () -> Unit,
     /** Historie dieser Gruppe öffnen. */
@@ -55,4 +38,18 @@ data class GroupDetailActions(
     val onConfirmGroupDelete: () -> Unit,
     /** Schließt den Gruppen-Löschdialog. */
     val onDismissGroupDelete: () -> Unit,
+)
+
+/**
+ * Nutzeraktionen im Teilnehmer-Editor (Dialog zum Hinzufügen oder Bearbeiten).
+ */
+data class ParticipantEditorActions(
+    /** Text im Namensfeld geändert. */
+    val onNameChange: (String) -> Unit,
+    /** Teilnehmer speichern. */
+    val onSave: () -> Unit,
+    /** Editor schließen oder abbrechen. */
+    val onDismiss: () -> Unit,
+    /** Aktionen rund um das Teilnehmerfoto. */
+    val photo: PhotoActions,
 )

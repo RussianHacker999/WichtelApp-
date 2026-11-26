@@ -36,7 +36,9 @@ import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
 import com.example.wichtly.ui.components.photo.CameraPermissionDeniedHint
+import com.example.wichtly.ui.components.photo.PhotoActions
 import com.example.wichtly.ui.components.photo.PhotoCaptureFlow
+import com.example.wichtly.ui.components.photo.PhotoFieldUiState
 import com.example.wichtly.ui.components.photo.PhotoPickerField
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
@@ -133,20 +135,20 @@ fun GroupFormScreen(
                 onBudgetChange = actions.onBudgetChange,
                 onDrawDayChange = actions.onDrawDayChange,
                 onDrawTypeChange = actions.onDrawTypeChange,
-                onPhotoSelectClick = actions.onPhotoSelectClick,
-                onOpenAppSettings = actions.onOpenAppSettings,
+                onPhotoSelectClick = actions.photo.onSelectClick,
+                onOpenAppSettings = actions.photo.onOpenAppSettings,
             )
         }
     }
 
     PhotoCaptureFlow(
-        hasPhoto = state.photoPath != null,
-        isOpen = state.isPhotoFlowOpen,
-        onClose = actions.onPhotoFlowClose,
-        onPhotoCaptured = actions.onPhotoCaptured,
-        onRemovePhoto = actions.onRemovePhoto,
-        onCameraDenied = actions.onCameraDenied,
-        onCaptureError = actions.onPhotoCaptureError,
+        hasPhoto = state.photo.hasPhoto,
+        isOpen = state.photo.isFlowOpen,
+        onClose = actions.photo.onFlowClose,
+        onPhotoCaptured = actions.photo.onCaptured,
+        onRemovePhoto = actions.photo.onRemove,
+        onCameraDenied = actions.photo.onCameraDenied,
+        onCaptureError = actions.photo.onCaptureError,
     )
 }
 
@@ -180,16 +182,16 @@ private fun GroupFormContent(
         }
         item {
             PhotoPickerField(
-                hasPhoto = state.photoPath != null,
-                photoFile = state.photoFile,
+                hasPhoto = state.photo.hasPhoto,
+                photoFile = state.photo.file,
                 onSelectClick = onPhotoSelectClick,
                 enabled = enabled,
             )
         }
-        if (state.cameraDenied) {
+        if (state.photo.cameraDenied) {
             item { CameraPermissionDeniedHint(onOpenSettings = onOpenAppSettings) }
         }
-        state.photoError?.let { error ->
+        state.photo.error?.let { error ->
             item { ErrorText(stringResource(error)) }
         }
         item {
@@ -275,13 +277,7 @@ private val previewActions = GroupFormActions(
     onDrawTypeChange = { _ -> },
     onSaveClick = { },
     onBack = { },
-    onPhotoSelectClick = { },
-    onPhotoFlowClose = { },
-    onPhotoCaptured = { _ -> },
-    onRemovePhoto = { },
-    onCameraDenied = { },
-    onPhotoCaptureError = { },
-    onOpenAppSettings = { },
+    photo = PhotoActions.NoOp,
 )
 
 @Preview(showBackground = true, heightDp = 900)
@@ -326,7 +322,7 @@ private fun GroupFormScreenErrorsPreview() {
                 budgetError = R.string.error_budget_format,
                 drawDayError = R.string.error_date_format,
                 generalError = R.string.error_group_save,
-                cameraDenied = true,
+                photo = PhotoFieldUiState(cameraDenied = true),
             ),
             actions = previewActions,
         )

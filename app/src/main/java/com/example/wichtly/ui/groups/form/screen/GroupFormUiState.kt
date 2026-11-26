@@ -2,7 +2,7 @@ package com.example.wichtly.ui.groups.form.screen
 
 import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.group.DrawType
-import java.io.File
+import com.example.wichtly.ui.components.photo.PhotoFieldUiState
 
 /**
  * UI State für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
@@ -24,11 +24,8 @@ import java.io.File
  * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
  * @property savedGroupId Einmal-Ereignis: ID der gespeicherten Gruppe; die Route navigiert und quittiert
  *   mit onSavedHandled().
- * @property photoPath Relativer Pfad des Gruppenfotos im Formular (null = kein Foto). Wird erst beim Speichern übernommen.
- * @property photoFile Aufgelöste Bilddatei zur Vorschau im Fotofeld.
- * @property isPhotoFlowOpen Steuert den Foto-Ablauf (Quelle → Berechtigung → Kamera).
- * @property cameraDenied true, wenn der Kamerazugriff abgelehnt wurde (zeigt den Hinweis unter dem Fotofeld).
- * @property photoError Fehlermeldung beim Aufnehmen oder Speichern des Fotos.
+ * @property photo Fotofeld der Gruppe samt Foto-Ablauf (gleicher Zustand wie im Teilnehmer-Editor). Der Pfad
+ *   wird erst beim Speichern in die Datenbank übernommen.
  * @property drawDayPassed Beim Bearbeiten: Der gespeicherte Wichteltag ist vorbei. Das Formular erklärt
  *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.
  */
@@ -47,10 +44,6 @@ data class GroupFormUiState(
     @StringRes val generalError: Int? = null,
     val isSaving: Boolean = false,
     val savedGroupId: String? = null,
-    val photoPath: String? = null,
-    val photoFile: File? = null,
-    val isPhotoFlowOpen: Boolean = false,
-    val cameraDenied: Boolean = false,
-    @StringRes val photoError: Int? = null,
+    val photo: PhotoFieldUiState = PhotoFieldUiState(),
     val drawDayPassed: Boolean = false,
 )

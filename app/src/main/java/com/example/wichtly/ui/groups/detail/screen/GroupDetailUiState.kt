@@ -3,6 +3,7 @@ package com.example.wichtly.ui.groups.detail.screen
 import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
+import com.example.wichtly.ui.components.photo.PhotoFieldUiState
 import java.io.File
 
 /**
@@ -56,21 +57,15 @@ data class GroupDetailUiState(
  * @property editingParticipantId null = Hinzufügen-Modus, sonst die ID des bearbeiteten Teilnehmers.
  * @property nameInput Aktueller Text im Namensfeld.
  * @property nameError Validierungs- oder Speicherfehler, der im Dialog angezeigt wird.
- * @property photoPath Relativer Pfad des Fotos im Editor (null = kein Foto).
- * @property photoFile Aufgelöste Bilddatei zur Vorschau; im ViewModel-internen Zustand immer null.
- * @property isPhotoFlowOpen Der Foto-Ablauf (Quelle → Berechtigung → Kamera) ist offen.
- * @property cameraDenied Der Kamerazugriff wurde abgelehnt (Hinweis im Editor).
- * @property photoError Fehler beim Aufnehmen oder Speichern des Fotos.
+ * @property photo Fotofeld des Teilnehmers samt Foto-Ablauf (gleicher Zustand wie im Gruppenformular).
+ *   Die Datei für die Vorschau ([PhotoFieldUiState.file]) löst das ViewModel im uiState immer aus dem Pfad
+ *   neu auf, auch nach einer Wiederherstellung aus dem SavedStateHandle.
  */
 data class ParticipantEditorUiState(
     val editingParticipantId: String? = null,
     val nameInput: String = "",
     @StringRes val nameError: Int? = null,
-    val photoPath: String? = null,
-    val photoFile: File? = null,
-    val isPhotoFlowOpen: Boolean = false,
-    val cameraDenied: Boolean = false,
-    @StringRes val photoError: Int? = null,
+    val photo: PhotoFieldUiState = PhotoFieldUiState(),
 ) {
     val isEditMode: Boolean get() = editingParticipantId != null
 }

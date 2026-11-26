@@ -1,7 +1,7 @@
 package com.example.wichtly.ui.groups.form.screen
 
 import com.example.wichtly.domain.model.group.DrawType
-import java.io.File
+import com.example.wichtly.ui.components.photo.PhotoActions
 
 /**
  * Nutzeraktionen des Gruppenformulars: Eingaben, Speichern, Zurück und Gruppenfoto.
@@ -22,18 +22,6 @@ data class GroupFormActions(
     val onSaveClick: () -> Unit,
     /** Callback für die Zurück-Navigation. */
     val onBack: () -> Unit,
-    /** Öffnet den Foto-Ablauf. */
-    val onPhotoSelectClick: () -> Unit,
-    /** Schließt den Foto-Ablauf. */
-    val onPhotoFlowClose: () -> Unit,
-    /** Neues Foto aufgenommen. */
-    val onPhotoCaptured: (File) -> Unit,
-    /** Foto entfernen. */
-    val onRemovePhoto: () -> Unit,
-    /** Kamerazugriff abgelehnt. */
-    val onCameraDenied: () -> Unit,
-    /** Kamera startet nicht oder Aufnahme scheitert. */
-    val onPhotoCaptureError: () -> Unit,
-    /** Öffnet die App-Einstellungen. */
-    val onOpenAppSettings: () -> Unit,
+    /** Aktionen rund um das Gruppenfoto (gleiche wie beim Teilnehmerfoto). */
+    val photo: PhotoActions,
 )

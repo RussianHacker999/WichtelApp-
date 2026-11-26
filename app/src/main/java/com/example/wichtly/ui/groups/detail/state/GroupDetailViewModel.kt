@@ -16,15 +16,16 @@ import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.ParticipantRepository
 import com.example.wichtly.domain.repository.PhotoRepository
-import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.domain.result.ParticipantResult
 import com.example.wichtly.domain.usecase.DeleteGiftGroupUseCase
 import com.example.wichtly.domain.usecase.DeleteParticipantUseCase
 import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.PhotoDraft
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
+import com.example.wichtly.ui.components.photo.PhotoFieldUiState
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailUiState
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorUiState
 import kotlinx.coroutines.CancellationException
@@ -47,8 +48,8 @@ private const val TAG = "GroupDetailViewModel"
 /**
  * Lokaler interner Zustand für Dialoge und Fehler der Gruppen-Detailansicht.
  *
- * @property editor Offener Teilnehmer-Editor (null = geschlossen). Die Fotodatei wird erst im
- *   [GroupDetailViewModel.uiState] aufgelöst, hier ist [ParticipantEditorUiState.photoFile] immer null.
+ * @property editor Offener Teilnehmer-Editor (null = geschlossen). Die Fotodatei für die Vorschau löst
+ *   [GroupDetailViewModel.uiState] aus dem Pfad auf; was hier in [PhotoFieldUiState.file] steht, wird dort ersetzt.
  */
 private data class GroupDetailLocalState(
     val isSaving: Boolean = false,
@@ -103,18 +104,21 @@ class GroupDetailViewModel(
                 savedStateHandle[KEY_EDITOR_OPEN] = editor != null
                 savedStateHandle[KEY_EDITING_ID] = editor?.editingParticipantId
                 savedStateHandle[KEY_NAME_INPUT] = editor?.nameInput ?: ""
-                savedStateHandle[KEY_PHOTO_PATH] = editor?.photoPath
+                savedStateHandle[KEY_PHOTO_PATH] = editor?.photo?.path
             }
             .launchIn(viewModelScope)
     }
 
-    // Pfad des Teilnehmers, der aktuell in der DB gespeichert ist. Liegt im SavedStateHandle, damit ein
-    // wiederhergestellter Editor beim Verwerfen nicht versehentlich das gespeicherte Foto löscht.
-    private var committedParticipantPhotoPath: String?
-        get() = savedStateHandle[KEY_COMMITTED_PHOTO]
-        set(value) {
-            savedStateHandle[KEY_COMMITTED_PHOTO] = value
-        }
+    // Teilnehmerfoto als Entwurf: merkt sich das gespeicherte Foto (auch im SavedStateHandle) und räumt
+    // ungespeicherte Fotos auf. Dieselbe Klasse nutzt das Gruppenformular für das Gruppenfoto.
+    private val photoDraft = PhotoDraft(
+        photoRepository = photoRepository,
+        ownerType = PhotoOwnerType.PARTICIPANTS,
+        scope = viewModelScope,
+        savedStateHandle = savedStateHandle,
+        committedPathKey = KEY_COMMITTED_PHOTO,
+        tag = TAG,
+    )
 
     val uiState: StateFlow<GroupDetailUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
@@ -124,7 +128,7 @@ class GroupDetailViewModel(
             // Fotodateien nur prüfen, wenn sich die Teilnehmer ändern, nicht bei jedem Tastendruck
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
         // Das Foto im Editor nur neu auflösen, wenn sich sein Pfad ändert
-        _localState.map { it.editor?.photoPath }
+        _localState.map { it.editor?.photo?.path }
             .distinctUntilChanged()
             .map { path -> photoRepository.getFileForRelativePath(path) },
         _localState,
@@ -146,7 +150,7 @@ class GroupDetailViewModel(
         val visibleEditor = if (editor == null || isGroupNotFound || isEditedParticipantGone) {
             null
         } else {
-            editor.copy(photoFile = resolvedPhotoFile)
+            editor.copy(photo = editor.photo.copy(file = resolvedPhotoFile))
         }
 
         val isDeleteParticipantPresent = localState.pendingDeleteParticipantId == null ||
@@ -186,26 +190,31 @@ class GroupDetailViewModel(
         _localState.update { state -> state.editor?.let { state.copy(editor = transform(it)) } ?: state }
     }
 
+    /** Ändert das Fotofeld des offenen Editors; ist keiner offen, passiert nichts. */
+    private fun updateEditorPhoto(transform: (PhotoFieldUiState) -> PhotoFieldUiState) {
+        updateEditor { it.copy(photo = transform(it.photo)) }
+    }
+
     // =========================================================================
     // TEILNEHMER-EDITOR
     // =========================================================================
 
     /** Öffnet den Teilnehmer-Editor im Hinzufügen-Modus. */
     fun onAddParticipantClick() {
-        committedParticipantPhotoPath = null
+        photoDraft.start(committedPath = null)
         _localState.update { it.copy(editor = ParticipantEditorUiState()) }
     }
 
     /** Öffnet den Teilnehmer-Editor im Bearbeiten-Modus, falls der Teilnehmer in der aktuellen Liste existiert. */
     fun onEditParticipantClick(participantId: String) {
         val participantToEdit = uiState.value.participants.find { it.id == participantId } ?: return
-        committedParticipantPhotoPath = participantToEdit.photoPath
+        photoDraft.start(committedPath = participantToEdit.photoPath)
         _localState.update {
             it.copy(
                 editor = ParticipantEditorUiState(
                     editingParticipantId = participantId,
                     nameInput = participantToEdit.name,
-                    photoPath = participantToEdit.photoPath,
+                    photo = PhotoFieldUiState(path = participantToEdit.photoPath),
                 ),
             )
         }
@@ -222,35 +231,32 @@ class GroupDetailViewModel(
      */
     fun onDismissParticipantEditor() {
         if (_localState.value.isSaving) return
-        val currentPath = _localState.value.editor?.photoPath
-        if (currentPath != committedParticipantPhotoPath) {
-            viewModelScope.launch { photoRepository.deletePhotoQuietly(currentPath, TAG) }
-        }
-        committedParticipantPhotoPath = null
+        photoDraft.discard(_localState.value.editor?.photo?.path)
+        photoDraft.start(committedPath = null)
         _localState.update { it.copy(editor = null) }
     }
 
     // =========================================================================
-    // FOTO IM EDITOR
+    // FOTO IM EDITOR (Dateien verwaltet der PhotoDraft)
     // =========================================================================
 
     fun onPhotoSelectClick() {
         if (_localState.value.isSaving) return
-        updateEditor { it.copy(isPhotoFlowOpen = true, cameraDenied = false) }
+        updateEditorPhoto { it.withFlowOpened() }
     }
 
     fun onPhotoFlowClose() {
-        updateEditor { it.copy(isPhotoFlowOpen = false) }
+        updateEditorPhoto { it.withFlowClosed() }
     }
 
     /** Kamerazugriff abgelehnt: Ablauf schließen und Hinweis im Editor zeigen. */
     fun onCameraDenied() {
-        updateEditor { it.copy(cameraDenied = true, isPhotoFlowOpen = false) }
+        updateEditorPhoto { it.withCameraDenied() }
     }
 
     /** Kamera startet nicht oder die Aufnahme scheitert: Ablauf schließen und Fehler im Editor zeigen. */
     fun onPhotoCaptureError() {
-        updateEditor { it.copy(photoError = R.string.error_photo_capture, isPhotoFlowOpen = false) }
+        updateEditorPhoto { it.withCaptureError() }
     }
 
     /**
@@ -259,35 +265,15 @@ class GroupDetailViewModel(
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
-            try {
-                val previousPath = _localState.value.editor?.photoPath
-                val relativePath = photoRepository.savePhoto(tempFile, PhotoOwnerType.PARTICIPANTS)
-                if (previousPath != committedParticipantPhotoPath) {
-                    photoRepository.deletePhotoQuietly(previousPath, TAG)
-                }
-                updateEditor { it.copy(photoPath = relativePath, photoError = null) }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                AppLog.e(TAG, "Failed to save the participant photo", e)
-                updateEditor { it.copy(photoError = saveErrorMessage(e, R.string.error_photo_save)) }
-            } finally {
-                try {
-                    if (tempFile.exists()) tempFile.delete()
-                } catch (e: Exception) {
-                    AppLog.w(TAG, "Failed to delete the temporary photo file", e)
-                }
-            }
+            val result = photoDraft.capture(tempFile, currentPath = _localState.value.editor?.photo?.path)
+            updateEditorPhoto { it.withResult(result) }
         }
     }
 
     /** Entfernt das Foto aus dem Editor. Ein gespeichertes Foto wird erst beim Speichern gelöscht. */
     fun onRemovePhoto() {
-        val currentPath = _localState.value.editor?.photoPath
-        if (currentPath != committedParticipantPhotoPath) {
-            viewModelScope.launch { photoRepository.deletePhotoQuietly(currentPath, TAG) }
-        }
-        updateEditor { it.copy(photoPath = null, photoError = null) }
+        photoDraft.discard(_localState.value.editor?.photo?.path)
+        updateEditorPhoto { it.withoutPhoto() }
     }
 
     // =========================================================================
@@ -304,8 +290,11 @@ class GroupDetailViewModel(
         if (_localState.value.isSaving) return
         val editor = _localState.value.editor ?: return
 
-        _localState.update {
-            it.copy(isSaving = true, editor = it.editor?.copy(nameError = null, photoError = null))
+        _localState.update { state ->
+            state.copy(
+                isSaving = true,
+                editor = state.editor?.let { it.copy(nameError = null, photo = it.photo.copy(error = null)) },
+            )
         }
 
         viewModelScope.launch {
@@ -314,16 +303,12 @@ class GroupDetailViewModel(
                     participantId = editor.editingParticipantId,
                     groupId = groupId,
                     name = editor.nameInput,
-                    photoPath = editor.photoPath,
+                    photoPath = editor.photo.path,
                 )
                 when (result) {
                     is ParticipantResult.Success -> {
                         // Ein ersetztes oder entferntes altes Foto erst nach erfolgreichem Speichern löschen
-                        val oldCommitted = committedParticipantPhotoPath
-                        if (oldCommitted != editor.photoPath) {
-                            photoRepository.deletePhotoQuietly(oldCommitted, TAG)
-                        }
-                        committedParticipantPhotoPath = null
+                        photoDraft.commit(savedPath = editor.photo.path)
                         _localState.update { it.copy(isSaving = false, editor = null) }
                     }
                     is ParticipantResult.ValidationError -> {
@@ -460,7 +445,7 @@ class GroupDetailViewModel(
             return ParticipantEditorUiState(
                 editingParticipantId = handle[KEY_EDITING_ID],
                 nameInput = handle[KEY_NAME_INPUT] ?: "",
-                photoPath = handle[KEY_PHOTO_PATH],
+                photo = PhotoFieldUiState(path = handle[KEY_PHOTO_PATH]),
             )
         }
 

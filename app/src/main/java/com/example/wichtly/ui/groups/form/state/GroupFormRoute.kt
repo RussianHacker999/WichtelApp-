@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.ui.common.appContainer
+import com.example.wichtly.ui.components.photo.PhotoActions
 import com.example.wichtly.ui.components.photo.openAppSettings
 import com.example.wichtly.ui.groups.form.screen.GroupFormActions
 import com.example.wichtly.ui.groups.form.screen.GroupFormScreen
@@ -66,13 +67,15 @@ fun GroupFormRoute(
         onDrawTypeChange = viewModel::onDrawTypeChange,
         onSaveClick = viewModel::onSaveClick,
         onBack = leave,
-        onPhotoSelectClick = viewModel::onPhotoSelectClick,
-        onPhotoFlowClose = viewModel::onPhotoFlowClose,
-        onPhotoCaptured = viewModel::onPhotoCaptured,
-        onRemovePhoto = viewModel::onRemovePhoto,
-        onCameraDenied = viewModel::onCameraDenied,
-        onPhotoCaptureError = viewModel::onPhotoCaptureError,
-        onOpenAppSettings = { openAppSettings(context) },
+        photo = PhotoActions(
+            onSelectClick = viewModel::onPhotoSelectClick,
+            onFlowClose = viewModel::onPhotoFlowClose,
+            onCaptured = viewModel::onPhotoCaptured,
+            onRemove = viewModel::onRemovePhoto,
+            onCameraDenied = viewModel::onCameraDenied,
+            onCaptureError = viewModel::onPhotoCaptureError,
+            onOpenAppSettings = { openAppSettings(context) },
+        ),
     )
 
     GroupFormScreen(

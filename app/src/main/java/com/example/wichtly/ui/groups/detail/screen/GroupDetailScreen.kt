@@ -24,7 +24,6 @@ import com.example.wichtly.domain.model.draw.DrawRules
 import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
-import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.ui.components.controls.ItemMenu
 import com.example.wichtly.ui.components.controls.MenuAction
 import com.example.wichtly.ui.components.controls.PrimaryButton
@@ -48,6 +47,7 @@ import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 import com.example.wichtly.ui.components.layout.screenContentPadding
+import com.example.wichtly.ui.components.photo.PhotoActions
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
@@ -156,25 +156,9 @@ fun GroupDetailScreen(
     val editor = state.participantEditor
     if (editor != null) {
         ParticipantEditorDialog(
-            isEditMode = editor.isEditMode,
-            name = editor.nameInput,
-            errorMessage = editor.nameError?.let { stringResource(it, ParticipantValidator.MAX_NAME_LENGTH) },
+            editor = editor,
             isBusy = state.isSaving,
-            onNameChange = actions.onParticipantNameChange,
-            onSave = actions.onSaveParticipantClick,
-            onDismiss = actions.onDismissParticipantEditor,
-            photoPath = editor.photoPath,
-            photoFile = editor.photoFile,
-            photoError = editor.photoError?.let { stringResource(it) },
-            isPhotoFlowOpen = editor.isPhotoFlowOpen,
-            cameraDenied = editor.cameraDenied,
-            onPhotoSelectClick = actions.onPhotoSelectClick,
-            onPhotoFlowClose = actions.onPhotoFlowClose,
-            onPhotoCaptured = actions.onPhotoCaptured,
-            onRemovePhoto = actions.onRemovePhoto,
-            onCameraDenied = actions.onCameraDenied,
-            onPhotoCaptureError = actions.onPhotoCaptureError,
-            onOpenAppSettings = actions.onOpenAppSettings,
+            actions = actions.participantEditor,
         )
     }
 
@@ -335,18 +319,9 @@ private val previewActions = GroupDetailActions(
     onAddParticipantClick = { },
     onEditParticipantClick = { _ -> },
     onDeleteParticipantClick = { _ -> },
-    onParticipantNameChange = { _ -> },
-    onSaveParticipantClick = { },
-    onDismissParticipantEditor = { },
+    participantEditor = ParticipantEditorActions(onNameChange = { _ -> }, onSave = { }, onDismiss = { }, photo = PhotoActions.NoOp),
     onConfirmParticipantDelete = { },
     onDismissParticipantDelete = { },
-    onPhotoSelectClick = { },
-    onPhotoFlowClose = { },
-    onPhotoCaptured = { _ -> },
-    onRemovePhoto = { },
-    onCameraDenied = { },
-    onPhotoCaptureError = { },
-    onOpenAppSettings = { },
     onPrepareDrawClick = { },
     onHistoryClick = { },
     onDeleteGroupClick = { },

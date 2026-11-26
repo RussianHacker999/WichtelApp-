@@ -15,14 +15,15 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
-import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.logging.AppLog
+import com.example.wichtly.ui.common.PhotoDraft
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.components.display.formatCentsForInput
 import com.example.wichtly.ui.components.display.formatDateForInput
+import com.example.wichtly.ui.components.photo.PhotoFieldUiState
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,9 +70,16 @@ class GroupFormViewModel(
     // Geladene Gruppe im Bearbeiten-Modus; null, solange (noch) nichts geladen werden konnte
     private var originalGroup: GiftGroup? = null
 
-    // Foto, das aktuell in der Datenbank steht. Alles andere ist ein noch nicht gespeichertes Foto
-    // und wird beim Verwerfen oder Ersetzen wieder gelöscht (gleiches Muster wie beim Teilnehmerfoto).
-    private var committedPhotoPath: String? = null
+    // Gruppenfoto als Entwurf: merkt sich das gespeicherte Foto und räumt ungespeicherte Fotos beim
+    // Ersetzen, Entfernen oder Verwerfen auf (dieselbe Klasse wie beim Teilnehmerfoto).
+    private val photoDraft = PhotoDraft(
+        photoRepository = photoRepository,
+        ownerType = PhotoOwnerType.GROUPS,
+        scope = viewModelScope,
+        savedStateHandle = savedStateHandle,
+        committedPathKey = KEY_COMMITTED_PHOTO,
+        tag = TAG,
+    )
 
     private val _uiState = MutableStateFlow(
         GroupFormUiState(
@@ -88,7 +96,7 @@ class GroupFormViewModel(
         } else if (restoredInputs?.photoPath != null) {
             viewModelScope.launch {
                 val file = photoRepository.getFileForRelativePath(restoredInputs.photoPath)
-                _uiState.update { it.copy(photoFile = file) }
+                _uiState.update { it.copy(photo = it.photo.copy(file = file)) }
             }
         }
         // Eingaben laufend sichern, sobald das Formular steht (nicht während des Ladens). Nach einem Ladefehler
@@ -117,7 +125,7 @@ class GroupFormViewModel(
                     }
                 } else {
                     originalGroup = loadedGroup
-                    committedPhotoPath = loadedGroup.photoPath
+                    photoDraft.start(committedPath = loadedGroup.photoPath)
                     val fromDatabase = FormInputs(
                         name = loadedGroup.name,
                         budget = formatCentsForInput(loadedGroup.budgetCents),
@@ -129,10 +137,11 @@ class GroupFormViewModel(
                     val inputs = restoredInputs ?: fromDatabase
                     val photoFile = photoRepository.getFileForRelativePath(inputs.photoPath)
                     _uiState.update {
-                        inputs.applyTo(it).copy(
+                        val withInputs = inputs.applyTo(it)
+                        withInputs.copy(
                             isLoading = false,
                             notFound = false,
-                            photoFile = photoFile,
+                            photo = withInputs.photo.copy(file = photoFile),
                             drawDayPassed = !DrawRules.isDrawDayOpen(loadedGroup.drawDay, today()),
                         )
                     }
@@ -253,7 +262,7 @@ class GroupFormViewModel(
             drawDay = currentState.drawDay,
             drawType = currentState.drawType,
             // Foto neu, geändert oder entfernt: der aktuelle Stand des Formulars wird gespeichert
-            photoPath = currentState.photoPath,
+            photoPath = currentState.photo.path,
         )
 
         viewModelScope.launch {
@@ -261,11 +270,7 @@ class GroupFormViewModel(
                 when (val result = saveGiftGroup(groupId, input)) {
                     is GiftGroupResult.Success -> {
                         // Ein ersetztes oder entferntes altes Foto erst nach erfolgreichem Speichern löschen
-                        val oldCommitted = committedPhotoPath
-                        if (oldCommitted != null && oldCommitted != currentState.photoPath) {
-                            photoRepository.deletePhotoQuietly(oldCommitted, TAG)
-                        }
-                        committedPhotoPath = currentState.photoPath
+                        photoDraft.commit(savedPath = currentState.photo.path)
                         _uiState.update {
                             it.copy(
                                 isSaving = false,
@@ -294,28 +299,33 @@ class GroupFormViewModel(
     }
 
     // =========================================================================
-    // FOTO (gleicher Ablauf wie beim Teilnehmerfoto)
+    // FOTO (gleicher Ablauf wie beim Teilnehmerfoto; Dateien verwaltet der PhotoDraft)
     // =========================================================================
+
+    /** Ändert das Fotofeld des Formulars. */
+    private fun updatePhoto(transform: (PhotoFieldUiState) -> PhotoFieldUiState) {
+        _uiState.update { it.copy(photo = transform(it.photo)) }
+    }
 
     /** Öffnet den Foto-Ablauf. */
     fun onPhotoSelectClick() {
         if (_uiState.value.isSaving) return
-        _uiState.update { it.copy(isPhotoFlowOpen = true, cameraDenied = false) }
+        updatePhoto { it.withFlowOpened() }
     }
 
     /** Schließt den Foto-Ablauf. */
     fun onPhotoFlowClose() {
-        _uiState.update { it.copy(isPhotoFlowOpen = false) }
+        updatePhoto { it.withFlowClosed() }
     }
 
     /** Kamerazugriff wurde abgelehnt: Ablauf schließen und Hinweis zeigen. */
     fun onCameraDenied() {
-        _uiState.update { it.copy(cameraDenied = true, isPhotoFlowOpen = false) }
+        updatePhoto { it.withCameraDenied() }
     }
 
     /** Kamera startet nicht oder die Aufnahme scheitert: Ablauf schließen und Fehler zeigen. */
     fun onPhotoCaptureError() {
-        _uiState.update { it.copy(photoError = R.string.error_photo_capture, isPhotoFlowOpen = false) }
+        updatePhoto { it.withCaptureError() }
     }
 
     /**
@@ -324,41 +334,15 @@ class GroupFormViewModel(
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
-            try {
-                val previousPath = _uiState.value.photoPath
-                val relativePath = photoRepository.savePhoto(tempFile, PhotoOwnerType.GROUPS)
-                if (previousPath != null && previousPath != committedPhotoPath) {
-                    photoRepository.deletePhotoQuietly(previousPath, TAG)
-                }
-                _uiState.update {
-                    it.copy(
-                        photoPath = relativePath,
-                        photoFile = photoRepository.getFileForRelativePath(relativePath),
-                        photoError = null,
-                    )
-                }
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                AppLog.e(TAG, "Failed to save the group photo", e)
-                _uiState.update { it.copy(photoError = saveErrorMessage(e, R.string.error_photo_save)) }
-            } finally {
-                try {
-                    if (tempFile.exists()) tempFile.delete()
-                } catch (e: Exception) {
-                    AppLog.w(TAG, "Failed to delete the temporary photo file", e)
-                }
-            }
+            val result = photoDraft.capture(tempFile, currentPath = _uiState.value.photo.path)
+            updatePhoto { it.withResult(result) }
         }
     }
 
     /** Entfernt das Foto aus dem Formular. Ein gespeichertes Foto wird erst beim Speichern gelöscht. */
     fun onRemovePhoto() {
-        val currentPath = _uiState.value.photoPath
-        if (currentPath != null && currentPath != committedPhotoPath) {
-            viewModelScope.launch { photoRepository.deletePhotoQuietly(currentPath, TAG) }
-        }
-        _uiState.update { it.copy(photoPath = null, photoFile = null, photoError = null) }
+        photoDraft.discard(_uiState.value.photo.path)
+        updatePhoto { it.withoutPhoto() }
     }
 
     /**
@@ -367,13 +351,12 @@ class GroupFormViewModel(
     fun onDiscard() {
         // Während des Speicherns gehört das Foto womöglich schon zur gespeicherten Gruppe
         if (_uiState.value.isSaving) return
-        val currentPath = _uiState.value.photoPath
-        if (currentPath != null && currentPath != committedPhotoPath) {
-            viewModelScope.launch { photoRepository.deletePhotoQuietly(currentPath, TAG) }
-        }
+        photoDraft.discard(_uiState.value.photo.path)
     }
 
     companion object {
+        internal const val KEY_COMMITTED_PHOTO = "group_form_committed_photo"
+
         /**
          * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
          * @param groupId null = neue Gruppe, sonst die zu bearbeitende Gruppe.
@@ -408,7 +391,7 @@ internal data class FormInputs(
         budget = budget,
         drawDay = drawDay,
         drawType = drawType,
-        photoPath = photoPath,
+        photo = state.photo.copy(path = photoPath),
     )
 
     fun writeTo(handle: SavedStateHandle) {
@@ -428,7 +411,7 @@ internal data class FormInputs(
         internal const val KEY_DRAW_TYPE = "group_form_draw_type"
         internal const val KEY_PHOTO_PATH = "group_form_photo_path"
 
-        fun of(state: GroupFormUiState) = FormInputs(state.name, state.budget, state.drawDay, state.drawType, state.photoPath)
+        fun of(state: GroupFormUiState) = FormInputs(state.name, state.budget, state.drawDay, state.drawType, state.photo.path)
 
         fun readFrom(handle: SavedStateHandle): FormInputs? {
             if (handle.get<Boolean>(KEY_PRESENT) != true) return null

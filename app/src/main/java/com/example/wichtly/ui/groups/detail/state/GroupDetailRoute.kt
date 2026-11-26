@@ -8,9 +8,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.wichtly.ui.common.appContainer
+import com.example.wichtly.ui.components.photo.PhotoActions
 import com.example.wichtly.ui.components.photo.openAppSettings
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailActions
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
+import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorActions
 
 
 /**
@@ -59,18 +61,22 @@ fun GroupDetailRoute(
         onAddParticipantClick = viewModel::onAddParticipantClick,
         onEditParticipantClick = viewModel::onEditParticipantClick,
         onDeleteParticipantClick = viewModel::onDeleteParticipantClick,
-        onParticipantNameChange = viewModel::onParticipantNameChange,
-        onSaveParticipantClick = viewModel::onSaveParticipantClick,
-        onDismissParticipantEditor = viewModel::onDismissParticipantEditor,
+        participantEditor = ParticipantEditorActions(
+            onNameChange = viewModel::onParticipantNameChange,
+            onSave = viewModel::onSaveParticipantClick,
+            onDismiss = viewModel::onDismissParticipantEditor,
+            photo = PhotoActions(
+                onSelectClick = viewModel::onPhotoSelectClick,
+                onFlowClose = viewModel::onPhotoFlowClose,
+                onCaptured = viewModel::onPhotoCaptured,
+                onRemove = viewModel::onRemovePhoto,
+                onCameraDenied = viewModel::onCameraDenied,
+                onCaptureError = viewModel::onPhotoCaptureError,
+                onOpenAppSettings = { openAppSettings(context) },
+            ),
+        ),
         onConfirmParticipantDelete = viewModel::onConfirmParticipantDelete,
         onDismissParticipantDelete = viewModel::onDismissParticipantDelete,
-        onPhotoSelectClick = viewModel::onPhotoSelectClick,
-        onPhotoFlowClose = viewModel::onPhotoFlowClose,
-        onPhotoCaptured = viewModel::onPhotoCaptured,
-        onRemovePhoto = viewModel::onRemovePhoto,
-        onCameraDenied = viewModel::onCameraDenied,
-        onPhotoCaptureError = viewModel::onPhotoCaptureError,
-        onOpenAppSettings = { openAppSettings(context) },
         onPrepareDrawClick = { onPrepareDraw(groupId) },
         onHistoryClick = { onOpenHistory(groupId) },
         onDeleteGroupClick = viewModel::onDeleteGroupClick,

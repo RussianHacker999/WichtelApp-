@@ -88,8 +88,8 @@ class GroupDetailViewModelPhotoTest {
 
         val state = viewModel.uiState.value
         assertEquals(1, photoRepo.saveCalls)
-        assertNotNull(state.participantEditor?.photoPath)
-        assertEquals(false, state.participantEditor?.isPhotoFlowOpen)
+        assertNotNull(state.participantEditor?.photo?.path)
+        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
     }
 
     /**
@@ -111,7 +111,7 @@ class GroupDetailViewModelPhotoTest {
 
         viewModel.onPhotoCaptured(File("temp1.jpg"))
         testScheduler.advanceUntilIdle()
-        val firstPath = viewModel.uiState.value.participantEditor?.photoPath
+        val firstPath = viewModel.uiState.value.participantEditor?.photo?.path
 
         viewModel.onPhotoCaptured(File("temp2.jpg"))
         testScheduler.advanceUntilIdle()
@@ -206,7 +206,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onRemovePhoto()
         testScheduler.advanceUntilIdle()
 
-        assertNull(viewModel.uiState.value.participantEditor?.photoPath)
+        assertNull(viewModel.uiState.value.participantEditor?.photo?.path)
         assertTrue(!photoRepo.deletedPaths.contains(oldPath))
 
         viewModel.onSaveParticipantClick()
@@ -234,12 +234,12 @@ class GroupDetailViewModelPhotoTest {
 
         viewModel.onPhotoCaptured(File("temp.jpg"))
         testScheduler.advanceUntilIdle()
-        val path = viewModel.uiState.value.participantEditor?.photoPath
+        val path = viewModel.uiState.value.participantEditor?.photo?.path
 
         viewModel.onRemovePhoto()
         testScheduler.advanceUntilIdle()
 
-        assertNull(viewModel.uiState.value.participantEditor?.photoPath)
+        assertNull(viewModel.uiState.value.participantEditor?.photo?.path)
         assertTrue(photoRepo.deletedPaths.contains(path))
     }
 
@@ -267,7 +267,7 @@ class GroupDetailViewModelPhotoTest {
 
         viewModel.onPhotoCaptured(File("pending.jpg"))
         testScheduler.advanceUntilIdle()
-        val pendingPath = viewModel.uiState.value.participantEditor?.photoPath
+        val pendingPath = viewModel.uiState.value.participantEditor?.photo?.path
 
         viewModel.onDismissParticipantEditor()
         testScheduler.advanceUntilIdle()
@@ -390,7 +390,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 12: Schlägt savePhoto fehl, wird photoError gesetzt und Pfad unverändert.
+     * Test 12: Schlägt savePhoto fehl, wird photo.error gesetzt und Pfad unverändert.
      */
     @Test
     fun savePhotoFailure_setsPhotoError() = runTest {
@@ -412,8 +412,8 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertNotNull(state.participantEditor?.photoError)
-        assertNull(state.participantEditor?.photoPath)
+        assertNotNull(state.participantEditor?.photo?.error)
+        assertNull(state.participantEditor?.photo?.path)
     }
 
     /**
@@ -468,8 +468,8 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        assertEquals(true, state.participantEditor?.cameraDenied)
-        assertEquals(false, state.participantEditor?.isPhotoFlowOpen)
+        assertEquals(true, state.participantEditor?.photo?.cameraDenied)
+        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
     }
 
     /**
@@ -490,11 +490,11 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onAddParticipantClick()
         viewModel.onPhotoSelectClick()
         testScheduler.advanceUntilIdle()
-        assertEquals(true, viewModel.uiState.value.participantEditor?.isPhotoFlowOpen)
+        assertEquals(true, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
 
         viewModel.onPhotoFlowClose()
         testScheduler.advanceUntilIdle()
-        assertEquals(false, viewModel.uiState.value.participantEditor?.isPhotoFlowOpen)
+        assertEquals(false, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
     }
 
     /**
@@ -524,7 +524,7 @@ class GroupDetailViewModelPhotoTest {
 
         viewModel.onPhotoSelectClick()
         val state = viewModel.uiState.value
-        assertEquals(false, state.participantEditor?.isPhotoFlowOpen)
+        assertEquals(false, state.participantEditor?.photo?.isFlowOpen)
 
         // Gate öffnen, damit die Coroutine beendet werden kann
         gate.complete(Unit)
@@ -581,8 +581,8 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onPhotoCaptureError()
         testScheduler.advanceUntilIdle()
 
-        assertEquals(false, viewModel.uiState.value.participantEditor?.isPhotoFlowOpen)
-        assertEquals(R.string.error_photo_capture, viewModel.uiState.value.participantEditor?.photoError)
+        assertEquals(false, viewModel.uiState.value.participantEditor?.photo?.isFlowOpen)
+        assertEquals(R.string.error_photo_capture, viewModel.uiState.value.participantEditor?.photo?.error)
     }
 
     @Test
