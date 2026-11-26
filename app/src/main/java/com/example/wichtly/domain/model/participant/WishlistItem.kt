@@ -3,13 +3,13 @@ package com.example.wichtly.domain.model.participant
 import java.util.UUID
 
 /**
- * Ein einzelner Wunsch auf der Wunschliste eines Teilnehmers.
+ * A single wish on a participant's wish list
  *
- * @property id Eindeutige ID des Wunsches (UUID als String).
- * @property participantId Teilnehmer, zu dem der Wunsch gehört (in der Datenbank ein Fremdschlüssel).
- * @property text Inhalt bzw. Beschreibung des Wunsches.
- * @property sortOrder Position in der Liste; neue Wünsche bekommen die höchste Position + 1.
- */
+ * @property id the unique identifier for a WishlistItem (UUID als String).
+ * @property participantId the unique identifier for the participant the WishlistItem belongs to
+ * @property text Content/description of the wish.
+ * @property sortOrder Position in the list; new requests from a participant are assigned the highest position + 1
+*/
 data class WishlistItem(
     val id: String = UUID.randomUUID().toString(),
     val participantId: String,
