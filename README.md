@@ -33,6 +33,35 @@ wrote it.
   must point to a JDK. The JDK 25 used by the Gradle daemon is downloaded automatically on the first build
   (`gradle/gradle-daemon-jvm.properties`)
 
+## Development environment
+
+The versions the app was actually developed, built and tested with:
+
+| Component | Version |
+|---|---|
+| Operating system | Windows 11 (x64) |
+| Android Studio | 2026.2.2 (build AI-262.10968.63.2622.16730706) |
+| JDK | JetBrains Runtime 25.0.4 (bundled with Android Studio, also used as `JAVA_HOME`) |
+| Gradle (wrapper) | 9.6.0 |
+| Gradle daemon toolchain | Java 25 (`gradle/gradle-daemon-jvm.properties`) |
+| Android Gradle Plugin | 9.5.0 |
+| Kotlin | 2.4.21 |
+| KSP | 2.3.12 |
+| Java source/target compatibility | 11 |
+| compileSdk / targetSdk | 37 |
+| minSdk | 26 (Android 8.0) |
+| Android SDK Build-Tools | 36.0.0 |
+| Android SDK Platform-Tools (adb) | 37.0.1 |
+
+Library versions are defined in `gradle/libs.versions.toml`.
+
+Test devices (connected through wireless debugging, `adb` over Wi-Fi):
+
+| Device | Android version (API level) |
+|---|---|
+| `<device 1>` | `<Android version (API)>` |
+| `<device 2>` | `<Android version (API)>` |
+
 ## Build and run
 
 From a clean checkout:
