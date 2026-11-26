@@ -1,7 +1,8 @@
 package com.example.wichtly.domain.model.photo
 
 /**
- * Wem ein Foto gehört (Gruppe oder Teilnehmer); [value] dient als Unterordner und Dateinamen-Präfix.
+ * Who owns a photo (group or participant);
+ * [value] serves as a subfolder and filename prefix
  */
 enum class PhotoOwnerType(
     val value: String,

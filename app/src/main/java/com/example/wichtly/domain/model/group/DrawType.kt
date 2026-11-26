@@ -1,13 +1,14 @@
 package com.example.wichtly.domain.model.group
 
 /**
- * Art der Auslosung.
- * Anzeigetexte gehören nicht in die Domain; sie liegen in strings.xml und werden in der UI
- * über [com.example.wichtly.ui.components.display.labelRes] zugeordnet.
+ * Type of draw.
+ * Display texts do not belong in the domain layer; they are located in `strings.xml` and
+ * are mapped in the UI via `[com.example.wichtly.ui.components.display.labelRes]`.
  *
- * Achtung: Room speichert den Konstanten-Namen als Text (Converters.fromDrawType). Konstanten nicht
- * umbenennen oder löschen; gespeicherte Gruppen und Auslosungen ließen sich sonst nicht mehr lesen.
- * Neue Konstanten anhängen ist unproblematisch.
+ * Attention: Room stores the constant name as text (Converters.fromDrawType).
+ * Do not rename or delete constants
+ *        -> It would make it impossible to read previously saved groups and draws.
+ * Adding new constants is perfectly fine.
  */
 enum class DrawType {
     NORMAL,

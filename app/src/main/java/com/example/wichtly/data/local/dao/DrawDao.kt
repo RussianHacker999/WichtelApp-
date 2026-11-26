@@ -11,6 +11,10 @@ import com.example.wichtly.data.local.entity.DrawWishlistItemSnapshotEntity
 import com.example.wichtly.data.local.relation.DrawWithDetails
 import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import kotlinx.coroutines.flow.Flow
+
+/**
+ *
+ */
 @Dao
 interface DrawDao {
     /** Alle Auslosungen einer Gruppe, neueste zuerst. Für die Historienliste (nur Datum und Uhrzeit). */
