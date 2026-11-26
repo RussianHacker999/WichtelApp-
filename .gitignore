@@ -1,21 +1,28 @@
+# IntelliJ / Android Studio
+# Ignores any directory named .idea/libraries, no matter where it is in the repository.
 *.iml
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.idea/.name
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.idea/deviceManager.xml
+
+# Local configuration
 local.properties
 
-#VIKO BRANCH
-.idea/.name
-.idea/deviceManager.xml
+# macOS
+.DS_Store
+
+# Build output
+**/build/
+.externalNativeBuild
+.cxx
+/captures
+
+# Eigene Dateien
 VikoNotes.md
 repomix-output.md
