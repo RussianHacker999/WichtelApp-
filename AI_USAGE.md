@@ -811,6 +811,10 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Commits**: 48273d0
 
 
-
+### 2026-11-26 (Melissa, Meyer), Copilot (kostenlos)
+**Prompt 1**: Wir scheiben eine Ardoid App in Kotiln mit Git. Uns ist aufgefallen, dass wir 2 .gitignore haben. Ein .gitignore liegt ganz oben bei der README und ein .gitignore liegt in der ersten Schicht des App-Ordners. Ich möchte die .gitignore zusammenfassen. Es ist doch sinvoller, das .gitignore ganz oben zu behalten, oder?
+**Prompt 2**: Habe ich das so richtig eingebunden?.\
+**Geaendert**:         loesche .gitignore in app und passe das bleibende .gitignore an
+**Commits:**           dac99ca
 
 
