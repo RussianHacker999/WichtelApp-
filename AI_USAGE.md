@@ -268,7 +268,27 @@ private @Preview-Funktion in WichtlyTheme hinzu: Screen mit offenem Löschdialog
 **Accepted**: UI-Screen Vorschläge als temporärer Erstversuch im delete Wishlist item Kontext.
 **Commits**: 10930b2
 
+### 2026-11-10 (Viktoria)
 
+**Prompt 1**:
+Read AGENTS.md. Read our domain model GiftGroup. Propose a domain model for Participant (as in)
+secret santa participant of a GiftGroup. Justify it.
+**Accepted**: id, groupId, name, photoPath for now.
+**Rejected**: fields wishlist, assignedRecipientId (for now).
+**Commits**: 425799c, 823ac40
+
+**Prompt 2**:
+Suggest a Repository interface for the Participant model suitable
+for CRUD operations, including listing.
+**Accepted**: participantvalidator class analogous zu giftgroup validator
+**Rejected**: seel follow-up questions in Prompt 3
+**Commits**: 425799c, 823ac40
+
+**Prompt 3**:
+Two questions: 1) do still need deleteParticipantsByGroupId
+even if we have CASCADE deletion for groups,2)
+**Accepted**: remove deleteParticipantsByGroupId
+**Commits**: 425799c, 823ac40
 
 
 ### 2026-11-10 (Diana, Folz), Claude.ai (pro)
@@ -293,51 +313,17 @@ Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nenne
 **Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt
 **Commits**: ca5d2602
 
-### 2026-11-10 (Viktoria)
-
-**Prompt 1**:
-Read AGENTS.md. Read our domain model GiftGroup. Propose a domain model for Participant (as in)
-secret santa participant of a GiftGroup. Justify it.
-**Accepted**: id, groupId, name, photoPath for now.
-**Rejected**: wishlist, assignedRecipientId (for now).
-Decision was to have WishList as a multi-item entity itself.
-**Commits**:
-
-**Prompt 2**:
-Suggest a Repository interface for the Participant model suitable
-for CRUD operations, including listing.
-nicht alles akzeptiert..; siehe erst prompt 3
-akzeptiert: participantvalidator analog zu giftgroup validator
-
-**Prompt 3**:
-Two questions: 1) do still need deleteParticipantsByGroupId
-even if we have CASCADE deletion for groups,2)
-why did you not add add groupId to the signature of createParticipant?
-Antwort war: deletion bei cascade nicht nötig, deletebygroup entfernt;
-groupId war mein Fehler
--->deletebygroupId entfernt
-
-**Prompt 4**:
-Now do execute these steps (domain model, repository)
-for the WishList entity itself. Each WishList
-is linked to a participant and contains one or several
-WishListItem objects.
-(zurückgestellt... muss noch überprüft werden stand vom
-promptgen 11 10)
-
---> erkläre warum wir sowohl wishlistitem als auch
-wishlist brauchen??
-reichtwishlist item wirklich nicht aus?
 
 ### 2026-11-12 (Viktoria)
+
 **Prompt 1**:
 Implement a Participant Room entity.
 id/pk String, groupId String, name String, photopath like in GiftGroupEntity.
 groupdId as foreignkey towards GiftGroupEntity.id in gift_groups,
 onDelete=CASCADE.
-**Accepted**: ParticipantEntity, Participant Mapper classes.
+**Accepted**: ParticipantEntity, Participant Mapper classes. Changes to AppDatabase, AppContainer.
 For now, accept fallback to destructive Migration in AppDatabase.
-**Commits**:
+**Commits**: 15d5479
 
 **Prompt 2**:
 Implement ParticipantDao with following functions:
@@ -346,48 +332,38 @@ fun getParticipantById(id: String): Flow<ParticipantEntity?>
 suspend fun insertParticipant(participant: ParticipantEntity)
 suspend fun updateParticipant(participant: ParticipantEntity): Int
 suspend fun deleteParticipantById(id: String)
--->dao klass passt so
-
+**Accepted**: DAO.
+**Commits**: 15d5479
 
 **Prompt 3**:
 Now implement ParticipantRepository according to the interface,
 in analogy to GiftGroupRepositoryImpl
--> hinweis hat auch ParticipantValidator
-gemacht, was eigtl. ok ist. Akz.
-->loadParticipantsByGroup war gar nicht im Interface, erstmal weg!
--->darum ersetzung:
-val existingParticipants = loadParticipantsByGroup(participantWithId.groupId)
-val existingParticipants = participantDao.getParticipantsByGroupId(participantWithId.groupId).first().toDomainModelList()
--->sonst wurde VORLÄUFIG akzeptiert damit Diana mit was arbeiten kann;
-aber nur als vorläufige Vers.
-
-
--->!! WICHTIG MUSS geprüft werden!!
+**Accepted**: ParticipantRepositoryImpl; ParticipantValidator as preliminary versions.
+**Rejected**: loadParticipantsByGroup; was not part of Interface, remove for now.
+**Commits**: 15d5479
 
 **Prompt 4**:
-Please make AppContainer sole owner and manager of AppDatabase.
-Remove the Singleton pattern from AppDatabase.
--->nicht akzeptiert; create method impl bleibt in AppDatabase. 
-->follow up prompt: No, please do leave the create method impl itself in the AppDatabase.
-->accepted 
+Please remove singleton logic from AppDatabase.
+**Accepted**: as is.
+**Commits**: 2ad5f55
+
+**Prompt 4**:
+Please move UUID creation from the repository layer to the domain classes.
+**Accepted**: as is.
+**Commits**: 2ad5f55
 
 **Prompt 5**:
-Please move UUID creation from the repository layer to the domain classes.
--->all acct; including changes do viewmodel i did not take into account 
-
-
-**Prompt 6**:
 Check all places where the name param is being trimmed.
 Evaluate if it makes sense to also trim it in the RepositoryImpl classes or not.
---> all accept 
+**Accepted**: Was quickly accepted until single source of trimmig not 100% identified.
+**Commits**: 2ad5f55
 
-**Prompt 7**: 
-Replace (repositoryimpl classes) the UPDATE NOtFound Error handling with pure existence 
-check 
-["Evaluate whether changing update error handling in GiftGroupRepositoryImpl and ParticipantRepositoryImpl
-from checking rowsUpdated == 0 (post-Room @Update) to an explicit existence check
-(existingItems.any { it.id == item.id }) beforehand is safe and appropriate for our offline-only app scope."]
---> umgesetzt; passt
+**Prompt 6**:
+Replace (repositoryimpl classes) the UPDATE NOtFound Error handling with pure existence
+check
+**Accepted**: accepted but later on decision changed.
+**Commits**: 2ad5f55
+
 
 ### 2026-11-13 (Viktoria)
 
@@ -395,31 +371,29 @@ from checking rowsUpdated == 0 (post-Room @Update) to an explicit existence chec
 Change the WishListItem domain class so that it has the signature of TemporaryWishlistPlaceholders.kt.
 Also add interface WishListRepository with: observerWishlistItems; createWishListItem, updateWishListItem,
 deleteWishListItem
---> all accepting 
+**Accepted**: as is.
+**Commits**: b94c1f0
 
 **Prompt 2**:
 Implement a WishListValidator class
 in analogy to existing validator classes.
--->all acc 
+**Accepted**: as is.
+**Commits**: b94c1f0
 
 **Prompt 3**:
-Implement WishListItemEntity als Table wishlist_items with id:String PK, participantId String FK 
+Implement WishListItemEntity als Table wishlist_items with id:String PK, participantId String FK
 (ParticipantEntity id, ondelete cascade, index).
 Also implement WishListItemdao with observerbyparticipantid sorted by sortOrder;
-insert, update; delete. 
--->passt 
+insert, update; delete.
+**Accepted**: as is.
+**Commits**: b94c1f0
 
 **Prompt 4**:
 Add getWishListItemById to Wishlist dao and repository.
-Implement WishListRepository according to the interface. 
+Implement WishListRepository according to the interface.
 Add validation and trimming in analogy to existing repository classes.
-
-
-COMMIT MSG:
-feat(wishlist): implement database entity/dao, domain+mapper, repository layer, 
-validator, add to AppDatabase/AppContainer
-
-
+**Accepted**: as is.
+**Commits**: b94c1f0
 
 
 ### 2026-11-14 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
@@ -433,6 +407,54 @@ validator, add to AppDatabase/AppContainer
 **Promt 2**: Wie fuege ich die Imports fuer die Icons hinzu?
 **Geaendert:**  Aufbau der Cards der LazyList fur die Gruppen & Bearbeiten-IconButton 
 **Commits:**    47ae2d8
+
+
+### 2026-11-16 (Viktoria)
+
+**Prompt 1**: Look at Feature 3 in AGENTS.md. I am starting to work
+on the Room entities for both Current draws and historic/immutable draw snapshots.
+Please give your opinion whether one or several draw snapshot entities make more sense
+and justify your decision. /plan
+**Accepted**: entities draw, draw_assignment with fields.
+**Rejected**: Extra tables for photopath. Photos do not belong in historical snapshots. giver/receiver id as nullables (not sensible for snapshot?).
+**Decided**: Three tables: draw, draw_assignment (fk draw), draw_wishlist (fk draw_assignment). Then prompted to implement altered plan.
+**Commits**: 2e0f8d3
+
+**Prompt 2**:
+Now help me figure out which repository functions are required for all user flows
+of the entire draw feature (see AGENTS.md).
+There will be three Screens: DrawPreparation (before submitting),
+DrawHistory (showing summaries of all draws), DrawDetail (showing any
+draw detail, including assignments and wishes).
+Make a suggestion for the repository interface and justify it. /plan
+**Accepted**: Suggested domain models. Suggested repo functions (Drawprep: getlastestdraw, performdraw;
+drawhistory: getdrawsummaries; drawdetail: getdrawbyid)
+**Rejected**: No delete function for snapshots. Performdraw did not return result, I modified plan.
+**Commits**: 2e0f8d3
+
+**Prompt 3**:
+Implement drawrepository interface and domain models, but change the following
+things: no delete functions, savedraw returns (for now empty) drawresult.
+Now implement a DrawRepositoryImpl and a DrawDao based on that.
+**Accepted**: as is.
+**Rejected**: No separate usecase for now for simplicity reasons.
+**Commits**: 2e0f8d3
+
+**Prompt 4**:
+Create comments for UI people so they exactly know when to use which of my repository
+functions. Create them in a separate file.
+**Accepted**: as is.
+**Commits**: 2e0f8d3
+
+**Prompt 5**:
+Now work on a pure domain-level draw algorithm. /plan
+**Accepted**: Algorithm plan was corrected once. Pure ring shuffle was replaced with real "random" permutation plus fallback to ring.
+**Rejected**: No separate usecase for now. Added Validation errors for draw. Added Validation errors/result class in current plan.
+Removed duplicate repo fun saveDraw vs. performDraw. Removed arg drawtype from performdraw; business rule for both types identical.
+Generic <T> signature was replaced with Strings (for participant IDs).
+**Commits**: 2e0f8d3
+
+
 
 ### 2026-11-16 (Merve, Öztürk), Claude.ai (Opus 5.5)
 **Prompt 1**: "Lies AGENTS.md. Ich bin Person A und für die Navigation zuständig (MainActivity, AppNavHost, AppContainer). Erkläre mir, welche Screens im Projekt schon eine fertige Route-Funktion mit Callbacks haben und zwischen welchen Screens ich Navigation einbauen kann."\
@@ -465,6 +487,48 @@ validator, add to AppDatabase/AppContainer
 **Changed**: Noch nichts geändert, Anpassungen folgen in einem späteren Commit.\
 **Commits**: 0194ad8
 
+
+
+
+### 2026-11-17 (Viktoria)
+
+**Prompt 1**: Tell me what exactly would belong to data- and domain sections of our camera feature. /plan
+**Accepted**:  Repository as main responsiblity from my side.
+**Commits**: f106370
+
+**Prompt 2**:  "As a first step, add every needed File, Class and method (including signatures; but NOT implementation yet)."
+**Accepted**: as is.
+**Commits**: f106370
+
+**Prompt 3**:  Implement these functions now. Also create comments for UI people so they know when to use what from domain/data.
+**Accepted**: as is. But see follow-up prompts.
+**Commits**: f106370
+
+**Prompt 4**: Also implement any dependency injection.
+**Accepted**: as is.
+**Commits**: f106370
+
+**Prompt 5**: Change the filename prefix to extra enum (groups, participant) so that it is typed instead of plain string.
+Change directory structure so there are both photos/groups as well as photos/participant directories.
+**Accepted**: as is.
+**Commits**: f106370
+
+**Prompt 6**: "make dirname and filenameprefix identical so it is only one arg."
+Change directory structure so there are both photos/groups as well as photos/participant directories.
+**Accepted**: as is.
+**Commits**: f106370
+
+### 2026-11-18 (Viktoria); Claude Code (Claude Opus 5.5)
+**Prompt 1**:
+** Please make following picture as our Android app icon [Image #4] and make it also appear on App launch. State exactly what you changed and where.**
+**Accepted**: as is.
+**Commits**: 46e4385
+
+**Prompt 2**: The app icon itself is finde; BUT its display on the launcher fullscreen is way to low-quality. Please fix.
+**Accepted**: as is.
+**Commits**: 46e4385
+
+#
 ### 2026-11-21 (Melissa, Meyer), GitHup Copilot Education
 **Prompt 1**: Bitte passe den Code an: GroupScreen soll die Daten aus dem Repository verwenden und nicht, wie bisher, die hard reingecodeten Daten. Bitte mache leichter verständliche Änderungen und viele Kommentare. Ich, als Anfängerin, möchte die Änderungen nachvollziehen können..\
 **Geaendert:**   Quelle der GiftGroups & Kommentare
@@ -605,8 +669,148 @@ uiState.cameraDeniedGroupId?.let {
 **Geaendert**:      Komentare
 **Commits:**        94961c9
 
-### 2026-11-26 (Melissa, Meyer), Copilot (kostenlos)
-**Prompt 1**: Wir scheiben eine Ardoid App in Kotiln mit Git. Uns ist aufgefallen, dass wir 2 .gitignore haben. Ein .gitignore liegt ganz oben bei der README und ein .gitignore liegt in der ersten Schicht des App-Ordners. Ich möchte die .gitignore zusammenfassen. Es ist doch sinvoller, das .gitignore ganz oben zu behalten, oder?
-**Prompt 2**: Habe ich das so richtig eingebunden?.\
-**Geaendert**:         loesche .gitignore in app und passe das bleibende .gitignore an
-**Commits:**           dac99ca
+
+### 2026-11-23 (Viktoria), Claude Code (Claude Opus 5.5)
+
+**Prompts for UI: picking mockups."**
+**Commits**: 8dcfa0a
+"The UI of the app looks very inconsistent and messy across all screens. I am assigned with the task to unify it, give it a "secret santa" like, modern and minimalist but expressive layout. How do I proceed with this task?"
+"please tell me what you mean by "layouts stay unachanged". Because maybe I DO want to change layouts, but you need to specify"
+"so: picker with more color combinations. NO light/dark mode only ONE. also MORE fonts to choose from. color and font are first step."
+"Palette B · Evergreen Night; Font 6 · Young Serif + Instrument Sans"
+"Groups: hero cards; Detail: one scroll; Reveal: gift tag; Details: no pattern, 24dp corners, pill buttons, gift-tag chips; BUT also make some shadow (black or other dark colour) on the title text. create another artifact with ALL screen previews first BEFORE implementing. start implementing only after MY approval. Prepare to make several rounds of re-adjustments to the artifact mockup."
+"update mockup artifact based on my criticism from (path) criticism.txt"
+--> "Implement now."
+**Accepted**: as is.
+
+**Prompt**: "Please restore the style and amount of comments which were present BEFORE my major UI refactor. Please restore ANYTHING which was there before my last commits. "
+"please do adjust any comments that do not match the new code anymore; every comment should be correct and fit to current code."\
+**Commits**: 6df30c2
+
+
+### 2026-11-24 (Viktoria), Claude Code (Claude Opus 5.5)
+
+**Prompts for further UI redesign; several rounds**
+**Commits**: f815f72, 7927c36
+"Last session we were working on major UI refactoring. However, there are still some problematic issues with the UI. How do we proceed so as to minimize the amounts of cycles of implementations while correcting those issue? here are the issues:
+UI REMARKS AFTER REFACTOR
+#####
+DESIGN: Startseite anpassen ausgehend von Mockup-Auswahl (Liste VS Startseite?). Startseite soll deutlicher als solche erkennbar und einladender sein.
+ALLG: Glitzersterne passen nicht überall (überschrieben usw) -->Topbar überschreibt das glitzer..
+GROUPFORM: Abbrechbutton Text passt nicht in Button rein; alternative Überschrift bei EDIT statt "Gruppenstammdaten"??
+GROUPDETAIL: "Doppelte Namen sind erlaubt" entfernen, ist falsch.
+Statuschip "regeln offen" muss weg bei Schrottwichteln; ist auch vorber. möglich.
+Chip "vorbereitung möglich" ist zu lang, kürzen (weil Text daneben ist dann hässlich).
+Button "+Teilnehmer" ist zu lang, passt nicht rein!!!! (dann aber auch andere analoge Buttons entsprechend angleichen).
+Wunschliste öffnen nur auf EINEM weg (von Teilnehmer aus per tippen, nicht per Side menu). Text "neue auslosung ist abgeschnitten" wegen des langen Labels (auch sub-text zu lang). Auslosungshistorie-subtext entfernen.
+WISHLIST SCREEN:
+"hilftex nur einfache texte in dieser version. die reihenfolge deiner Einträge bleibt erhalten" weg.
+DRAWDETAIL:
+DRAWRESULTDIALOG:
+Closed tag soll den Text von "nur für deine Augen" übernehmen; "nur für deine augen" dialog wird dadurch ersetzt und kommt weg (also entfernen von "DrawRevealConfirmDialog")
+DRAWDETAILSCREEN: subtitle "schenkt ++++" eher Fragezeichen oÄ statt den punkten
+DRAWHISTORY:
+DATUM UND UHRZEIT uhrzeit anzheigen in history. Dafür die anderen infos weglassen im drawhistoryscreen.
+gespeichert label so groß dass viel text nicht sichtbar (zB DrawHistoryScreen -> davon die ListItemCard)
+"Start screen: A, aber pass gut auf, dass der Appname nicht abgeschnitten wird, das ist im Mockup ein Problem."
+"das Meiste sieht gut aus; noch paar Kritikpunkte:
+NEWER REMARKS:
+group erstellen: "gruppe erstellen" text passt nicht in button.
+GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass sowohl "neue auslosung" drin ist als auch der "losen button"... diese inconsistency muss beseitigt werden; hierfür bitte mockups mit verschiedenen varianten."
+"Refactor both Grouplist and Groupdetail so that "Losen" becomes main button (similar to proposal D) and adding actions are somewhetere else."
+"create possibility to close the ClosedTag component in case the person is not the one in question"\
+
+
+
+### 2026-11-25 Viktoria, Claude Code (Claude Opus 5.5)
+
+**Prompt 1**: "Überführe alle hardcodierten Stringliterale in die strings xml"
+**Accepted**: as is.
+**Commits**: e27e524
+
+**Prompt 2**: Zentralisiere die color referenzen. Zurzeit sind sie in colors.xml als auch in color.kt.
+**Accepted**: as is.
+**Commits**: e81ca74
+
+**Prompt 3**: Entferne Validierung aus UI und ViewModels und dem Data-Layer. Erstelle Usecases im domain layer, sodass die repositories nur noch reine persistenz sind.
+**Accepted**: as is.
+**Commits**: fd91a6d
+
+**Prompt 4**: ergänze die delete funktion für die gruppen, auf allen layern.
+**Accepted**: as is.
+**Commits**: 5606889
+
+**Prompt 5**:Zeige auf dem Draw Result Screen den echten Gruppennamen anstatt Platzhalter.
+**Accepted**: as is.
+**Commits**: a54b7e0
+
+**Prompt 6**: Verhindere mögliche Doppeltipp Ereignisse in der Navigation.
+**Accepted**: as is.
+**Commits**: 18070e2
+
+**Prompt 7**: Exportiere unser aktuelles DB Schema und stelle auf automigrate ab der aktuellen version. Destruktiv für downgrade und Vorgängerversionen.
+**Accepted**: as is.
+**Commits**: 448dc65
+
+**Prompt 8**: Erstelle zentralisiertes Logging ohne dass immer Log importiert werden muss mit Stufen debug, info, warn, error. Keine Klarnamen in den Infologs (datenschutz).
+**Accepted**: as is.
+**Commits**: 64f2fab
+
+**Prompt 9**: Erstelle zentralisiertes Logging-Muster ohne dass immer Log importiert werden muss mit Stufen debug, info, warn, error. Keine Klarnamen in den Infologs (datenschutz).
+**Accepted**: as is.
+**Commits**: 64f2fab
+
+**Prompt 10**: unterteile die UI feat packages weiter: groups in list, form, detail. draws: preparation, history, detail. components in sinnvoll thematisch gegliederte unterpackages. domain/model in: grouop, participant, draw, photo. unterteile die screen+state packages in stateful und stateless subpackages.
+**Accepted**: as is.
+**Commits**: e5bc693
+
+**Prompt 11**: Erweitere die Validierung: doppelte wunschnamen verboten; budget ab 999999 verboten, wichteltag ab +100Jahren verboten, bearbeiten nach wichteltag erlaubt aber datumsänderung nur in zukünftige Daten, losen nach wichteltag sperren, begrenze zeichenlänge für participants und wishlist in den stateless ui components.
+**Accepted**: as is.
+**Commits**: edc1741
+
+**Prompt 12**: Benenne die Navigationsereignisse einheitlich, benenne die Zustandsfelder isloading und notfound einheitlich, stelle die gruppenliste auf combine plus stateIn um, benenne wishlist überall in "Wishlist" um, füge hardcodierte abstände alle in Spacing.kt über, benenne die repository methoden und error typen einheitlich, ladende dialoge einheltich, benenne UI callbacks einheitlich, entferne default test file
+**Accepted**: as is.
+**Commits**: edd97b2
+
+**Prompt 13**: schütze form/editor eingaben mit SavedStateHandle; erstelle einen prozess der verwaise photos bei Appstart aufräumt; erstelle ein grundlegendes README gemäß dem derzeitigen Codestand; stelle die viewmodel creation um auf viewModelFactory creation, lade alle daten für die auslösung zusammen inerhalb Transaktion, navigiere nach group create direkt ins detail, adde fehler handling für vollen speicher inklusive string, entferne stale ladefehler aus dem stateflow, beschränke die fotopfade auf filesDir/photos verzeichnis, stelle savephotofile auf verschieben statt kopieren um, trenne ladefehler von aktionsfehler beim losen, handle photocaptureerror als text,
+**Accepted**: as is.
+**Commits**: 60e30c0
+
+
+**Prompt 14**: erstelle eigenen DeleteParticipantUseCase (erst datenbank, dann foto), erstelle für alle usecases einheitliches deleteresult, kapsele den participant editor state im groupdetailuistate, passe backup/data extraction rules an no-backup an, vereinheitliche fehler-mapper in group, wishlist, participant; lösche dead code in mainactivity und ungeuste androidtest dependency
+**Accepted**: as is.
+**Commits**: 3075dd3
+
+**Prompt 15**: übersetze readme auf englisch; stelle einmaliges lesen in repository auf suspend fun um, zentralisiere draw datum formatierung
+**Accepted**: as is.
+**Commits**: dd76d70
+
+
+**Prompt 16**: suche nach fachlich inkorrekten kommentaren und ersetze sie. übersetze alle kommentare für teammitlieder temporär auf deutsch.
+**Accepted**: as is.
+**Commits**: 2328b4b
+
+**Prompt 17**: entferne  drawType, assignmentCount aus DrawSummary
+**Accepted**: as is.
+**Commits**: 1098bbe
+
+**Prompt 18**: ergänze load fail state in groupform; übersetze alle log messages nach Englisch; verschiebe alle ergebnistypen nach domain/result, ergänze für wunschlöschung den DeleteWishlistItemUseCase, suche nach ungenutzten importen und entferne sie, photo getFileForRelativePath: behandle exceptions als null bzw. wie fehlendes foto,
+**Accepted**: as is.
+**Commits**: 1ef3e99
+
+**Prompt 19**: Überführe den drawalgorithm in kotlin code muster.
+**Accepted**: as is.
+**Commits**:ae0ea59
+
+**Prompt 20**: ergänze den README abschnitt um development umgebung, android studio version, gradle, jdk, sdk, platzhalter für benutzte devices
+**Accepted**: as is.
+**Commits**: 56665aa
+
+**Prompt 21**: fasse das photohandling in groupdetailvm und groupformvm zusammen, kapsele photo ui state wie zuvor den participanteditorstate, bündle die photocallbacks für die jeweiligen screens, erstelle als action class ein participanteditoractions,
+**Accepted**: as is.
+**Commits**: 48273d0
+
+
+
+
+
