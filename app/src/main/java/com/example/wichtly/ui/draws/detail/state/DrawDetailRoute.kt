@@ -1,5 +1,6 @@
 package com.example.wichtly.ui.draws.detail.state
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import com.example.wichtly.ui.draws.detail.screen.DrawDetailScreen
 /**
  * Stateful route of a saved draw: creates the [DrawDetailViewModel] (one per draw), connects it
  * with the stateless [DrawDetailScreen] and closes the gift tag when the app goes to the background.
+ * A configuration change (e.g. rotation) does not close it.
  *
  * @param drawId the saved draw to show.
  */
@@ -24,8 +26,12 @@ fun DrawDetailRoute(drawId: String, onBack: () -> Unit, modifier: Modifier = Mod
     )
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val activity = LocalActivity.current
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
-        viewModel.onAppStopped()
+        // A rotation stops the activity as well; the ViewModel survives it, so the gift tag stays open
+        if (activity?.isChangingConfigurations != true) {
+            viewModel.onAppStopped()
+        }
     }
 
     DrawDetailScreen(

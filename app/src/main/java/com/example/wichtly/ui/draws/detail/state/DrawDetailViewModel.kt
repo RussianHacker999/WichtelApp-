@@ -140,6 +140,7 @@ class DrawDetailViewModel(
 
     /**
      * Closes all dialogs when the app is stopped (ON_STOP), so nobody sees a result by accident.
+     * The route does not call it for a configuration change such as a rotation.
      */
     fun onAppStopped() {
         localStateFlow.update { it.copy(revealedGiverId = null) }
