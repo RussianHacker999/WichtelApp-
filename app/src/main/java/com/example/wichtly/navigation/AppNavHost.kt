@@ -27,12 +27,8 @@ import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
 
 private const val TAG = "AppNavHost"
 
-
 @Composable
-fun AppNavHost(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-) {
+fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
     // Log every destination change (route pattern only, no arguments)
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -104,8 +100,10 @@ fun AppNavHost(
                     onBack = dropUnlessResumed { navController.popBackStack() },
                     onEditGroup = dropUnlessResumedWithArg { id -> navController.navigate(Routes.groupEdit(id)) },
                     onOpenWishlist = dropUnlessResumedWithArg { participantId -> navController.navigate(Routes.wishlist(participantId)) },
-                    onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) }, // go to draw preparation
-                    onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) }, // go to the group's draw history
+                    // Go to draw preparation
+                    onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) },
+                    // Go to the group's draw history
+                    onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) },
                     // Group deleted: go back to where the user came from (group list or start screen)
                     onGroupDeleted = { navController.popBackStack() },
                 )
