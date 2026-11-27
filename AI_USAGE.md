@@ -556,38 +556,126 @@ Generic <T> signature was replaced with Strings (for participant IDs).
 
 
 
-### 2026-11-16 (Merve, Öztürk), Claude.ai (Opus 5.5)
-**Prompt 1**: "Lies AGENTS.md. Ich bin Person A und für die Navigation zuständig (MainActivity, AppNavHost, AppContainer). Erkläre mir, welche Screens im Projekt schon eine fertige Route-Funktion mit Callbacks haben und zwischen welchen Screens ich Navigation einbauen kann."\
-**Accepted**: Nichts, die KI hatte keinen Zugriff auf den Projektordner.\
-**Changed**: -\
+### 2026-11-15 – 2026-11-20 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "ich arbeite gerade an einem code, android studios, das ist ein gruppenprojekt" (Anhang: Arbeitsplan AP3.3, Projektfahrplan, Architekturmodell, Leitfäden, APK)\
+**Accepted**: Überblick über den Projektstand.\
 **Commits**: -
 
-**Prompt 2**: "Welche Dependency brauche ich für Navigation in Jetpack Compose?"\
-**Accepted**: Dependency navigation-compose.\
-**Changed**: Version auf die von der IDE vorgeschlagene angepasst.\
+**Prompt 2**: Teamaufteilung A–D mit offenen Fragen: "Was ist der AppContainer? Warum GroupsUiState UND ViewModel? Wie funktioniert StateFlow / Datenfluss DB → UI? Wo kommt die Formularvalidierung hin? Ich muss die Navigation"\
+**Accepted**: Erklärungen zu AppContainer, UiState/ViewModel, StateFlow und Validierung.\
+**Commits**: -
+
+**Prompt 3**: "So sieht der Code bisher aus"\
+**Accepted**: Analyse des Code-Stands: Navigation fehlt, GroupsScreen ohne Callbacks, GroupsViewModel mit Testdaten.\
+**Rejected**: Von Claude erstellte Komplettlösung (inkl. Änderungen an Dateien von Person C).\
+**Commits**: -
+
+**Prompt 4**: "du hast jetzt alles einfach gemacht, kannst du das bitte mit mir zusammen machen, sprich dass wir das schritt für schritt machen"\
+**Accepted**: Schrittweises Vorgehen mit Erklärungen.\
+**Commits**: -
+
+**Prompt 5**: "wenn du mir zb sagst füge hier room 2.8.5 ein, dann schreib auch dazu warum ich das mache und was das auswirkt"\
+**Accepted**: Code-Vorschlag für navigation-compose in libs.versions.toml und build.gradle.kts mit Erklärung jeder Zeile; von mir eingetragen.\
 **Commits**: 0194ad8
 
-**Prompt 3**: "Ich möchte in navigation/AppNavHost.kt ein object Routes anlegen. Über Routen sollen nur IDs übergeben werden. Erkläre mir, wie ich Routen mit Platzhalter (z. B. groupId) definiere und warum Hilfsfunktionen wie groupDetail(id) sinnvoll sind."\
-**Accepted**: Aufbau von object Routes mit ARG-Konstanten, Routen-Mustern mit Platzhaltern und Hilfsfunktionen.\
-**Changed**: Routen-Namen selbst gewählt, getrennte Routen für Gruppe anlegen und Gruppe bearbeiten.\
+**Prompt 6**: Screenshot mit Fehler "Unresolved reference 'navigation'" in build.gradle.kts\
+**Accepted**: Ursache: Gradle Sync fehlte. Sync ausgeführt, Fehler behoben.\
 **Commits**: 0194ad8
 
-**Prompt 4**: "Ich habe in AppNavHost.kt ein object Routes mit Adressen. Wie ordne ich diese Adressen den Screens GroupFormRoute, GroupDetailRoute und ParticipantWishlistRoute zu? Erkläre mir dabei, was NavHost, composable(), navArgument und popBackStack() machen."\
-**Accepted**: Aufbau der composable-Blöcke mit navArgument und Auslesen der IDs über backStackEntry.arguments.\
-**Changed**: Callbacks an die echten Signaturen unserer Route-Funktionen angepasst.\
+**Prompt 7**: "also meine aufgabe ist nur die navigation, ich möchte nicht iwas von den anderen ändern"\
+**Accepted**: Plan nur mit meinen Dateien (MainActivity, AppNavHost).\
+**Rejected**: Änderungen an GroupsScreen, GroupsViewModel, GroupsUiState (Person C).\
+**Commits**: -
+
+**Prompt 8**: "kannst du mir hier zeigen, was ich dort einfügen soll" (AppNavHost)\
+**Accepted**: Code-Vorschlag für object Routes und AppNavHost (Routen Gruppenliste, Formular neu/bearbeiten, Detail, Wunschliste); von mir eingefügt.\
 **Commits**: 0194ad8
 
-**Prompt 5**: "Ich habe AppNavHost fertig. Was muss ich in MainActivity ändern, damit die App mit dem AppNavHost startet?"\
-**Accepted**: Aufruf von AppNavHost in setContent innerhalb unseres Themes.\
-**Changed**: -\
+**Prompt 9**: "kannst du mir sagen was ich wo einfügen und auskommentieren soll" (MainActivity)\
+**Accepted**: Aufruf von AppNavHost in setContent.\
+**Changed**: Alten Testcode auskommentiert statt gelöscht (eigene Entscheidung).\
 **Commits**: 0194ad8
 
-**Prompt 6**: "Hier ist mein AppNavHost [...]. Prüfe, ob etwas fehlt oder falsch ist, und erkläre Fehler. Schreibe den Code nicht komplett neu."\
-**Accepted**: Hinweise aus dem Review als Prüfliste (fehlende Callbacks in GroupsScreen, Import von GroupsScreen, Zugriff auf AppContainer, Signaturen der Callbacks).\
-**Changed**: Noch nichts geändert, Anpassungen folgen in einem späteren Commit.\
-**Commits**: 0194ad8
+**Prompt 10**: "wie weit haben meine anderen kommilitonen programmiert, was ist ganz fertig was noch nicht, zwischen welchen Screens kann ich das Navigieren einbauen?"\
+**Accepted**: Übersicht fertiger/offener Teile und möglicher Navigationswege.\
+**Commits**: -
 
+**Prompt 11**: "was ist eine dependency, was ist jetpack compose; was ist ein object routes, warum platzhalter; was sind hilfsfunktionen; was sind navhost, composable(), navargument und popbackstack; was sind GroupFormRoute, GroupDetailRoute und ParticipantWishlistRoute"\
+**Accepted**: Erklärungen.\
+**Commits**: -
 
+**Prompt 12**: "kannst du mir einfach erklären warum was wie gemacht wurde" (Anhang: AppNavHost.kt mit object Routes und fünf composable-Blöcken)\
+**Accepted**: Erklärung des AppNavHost Abschnitt für Abschnitt.\
+**Commits**: -
+
+**Prompt 13**: "import com.example.wichtly.ui.GroupsScreen – was binde ich damit ein? das ist ja keine bibliothek"\
+**Accepted**: Erklärung: Import von eigenem Code über Package-Namen.\
+**Commits**: -
+
+**Prompt 14**: "@OptIn(ExperimentalMaterial3Api::class) @Composable – warum muss man das davor schreiben"\
+**Accepted**: Erklärung von Annotationen.\
+**Commits**: -
+
+**Prompt 15**: "Den Teil hat einer meiner Gruppenmitglieder programmiert, kannsr du sagen, was wir hier machen" (Anhang: object Routes aus AppNavHost.kt)\
+**Accepted**: Erklärung von Routen, Platzhaltern und Hilfsfunktionen.\
+**Commits**: -
+
+**Prompt 16**: "const val ARG_GROUP_ID = "groupId" – kannst du mir das erklären"; "warum als string"; "wo wird diese information bei mir im code gebraucht"\
+**Accepted**: Erklärung: Konstante enthält nur den Namen des Platzhalters, nicht die ID.\
+**Commits**: -
+
+**Prompt 17**: "von wo kommt diese lücke, woher weiß ich was reinkommt?"; "warum habe ich nicht in den anderen screens eine variable, der diese nummer zugeordnet wird"\
+**Accepted**: Erklärung, wie die ID über die Route weitergegeben wird.\
+**Commits**: -
+
+**Prompt 18**: "kannst du mal einen ablauf machen, wie das aussehen würde"\
+**Accepted**: Ablaufdiagramm DB → Liste → Klick → AppNavHost → Detail.\
+**Commits**: -
+
+**Prompt 19**: "const val GROUP_EDIT = "group-form/{$ARG_GROUP_ID}" – was bedeutet der letzte teil, warum gibt es dort $"\
+**Accepted**: Erklärung von String-Templates.\
+**Commits**: -
+
+**Prompt 20**: "was passiert hier, definiere ich hier eine funktion, was sind die usages, reagieren sie auf klicks?"
+```kotlin
+fun groupEdit(groupId: String) = "group-form/$groupId"
+fun groupDetail(groupId: String) = "group-detail/$groupId"
+fun wishlist(participantId: String) = "wishlist/$participantId"
+```
+**Accepted**: Erklärung Definition vs. Aufruf.\
+**Commits**: -
+
+**Prompt 21**: "was ist Routes.GROUPS", "was ist ein object", "wo werden die adressen zugeordnet", "unterschied zwischen hilfsfunktion und composable"\
+**Accepted**: Erklärungen.\
+**Commits**: -
+
+**Prompt 22**: "wie kann ich das in meinem text committen, damit meine kommilitonen das später nachvollziehen können warum ich das so gemacht habe"\
+**Accepted**: Vorschlag für KDoc-Kommentar über object Routes und Commit-Nachricht.\
+**Commits**: -
+
+**Prompt 23**: "der Screen in GroupsScreen muss um Callbacks erweitert werden, damit ich es hier verdrahten kann"\
+**Accepted**: Nachricht an Person C mit benötigter Funktionssignatur.\
+**Commits**: -
+
+**Prompt 24**: "diana hat eine ganze codedatei eingefügt mit groupdetailroute, warum? ist das nötig"\
+**Accepted**: Erklärung Route vs. Screen.\
+**Commits**: -
+
+**Prompt 25**: "was ist viewmodel, was ist screen, was ist uistate"; "was ist groupsScreen.kt, GroupsUiState, GroupsViewModel", "kannst du mir noch mal ausführliche ihre Funktionen erklären"\
+**Accepted**: Erklärungen.\
+**Commits**: -
+
+**Prompt 26**: "was ist ein callback, was passiert dann, wie hängt das alles zusammen"\
+**Accepted**: Erklärung mit Beispiel.\
+**Commits**: -
+
+**Prompt 27**: "fun KnopfScreen(onKnopfClick: () -> Unit) – was bedeutet das und was muss in die klammer rein", "kommen auch eigenschaften rein, zb metadaten"\
+**Accepted**: Erklärung von Parametern und Funktionstypen.\
+**Commits**: -
+
+**Prompt 28**: "der teil von group fehlt wegen der navigation, wie kann ich das einbinden?"\
+**Accepted**: Schrittplan für GroupsUiState, GroupsViewModel, Factory, GroupsRoute, Callbacks.\
+**Commits**: -
 
 
 ### 2026-11-17 (Viktoria)
@@ -785,6 +873,92 @@ Gib am Ende die Liste der neuen Dateien aus. Keine Tests, kein Einbau in bestehe
 **Accepted**: as is.
 **Commits**: 46e4385
 
+### 2026-11-20 – 2026-11-21 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "also ich möchte mir erst den aktuellsten stand aus der main holen, dh ich mache einen fetch und dann einen merge oder wie" (Anhang: Screenshot Merge-Dialog)\
+**Accepted**: Anleitung Fetch → Merge 'origin/main' into 'merve'; Hinweis, im Dialog origin/main statt merve auszuwählen.\
+**Commits**: -
+
+**Prompt 2**: "kannst du mir erklären, was die einzelnen Dateien machen … was ist der Sinn … welche Komponenten muss ich für meinen Teil wissen, um die einzelnen Screens miteinander zu verbinden?"\
+**Accepted**: Erklärung der Projektstruktur (data, domain, di, ui, navigation) und dass für die Navigation nur Name, ID und Callbacks der Route-Funktionen nötig sind.\
+**Commits**: -
+
+**Prompt 3**: "ich habe nicht viel Ahnung vom Programmieren und von Kotlin, wenn du mir die Screens der anderen erklärst, kannst du die Programmiersprache Kotlich auch erklären"\
+**Accepted**: Kotlin-Spickzettel (val/var, Typen, null, fun, class, data class, object, Lambda, String-Templates, Annotationen, package/import).\
+**Commits**: -
+
+**Prompt 4**: Fragen zu `fun KnopfScreen(onKnopfClick: () -> Unit)`: "ist das kein Parameter?", "ist das eine Funktion?", "Unterschied Lambda und Funktion?", "wie kann eine Funktion keinen Namen haben?", "ist onKnopfClick vordefiniert?", "woher weiß ich, was die Funktion macht?"\
+**Accepted**: Erklärung Parameter mit Funktionstyp, Lambda vs. benannte Funktion, Namen von Callbacks werden vom Entwickler der Funktion vergeben (onClick ist von Google vorgegeben).\
+**Commits**: -
+
+**Prompt 5**: "warum heißt es Button(onClick = onKnopfClick) und nicht onClick = true/false?"; "ist onKnopfClick nicht überflüssig?"\
+**Accepted**: Unterschied Zustand (enabled = true/false) vs. Anweisung (onClick = Code); Callbacks als Brücke zwischen Screen-Datei und AppNavHost (navController nur dort bekannt).\
+**Commits**: -
+
+**Prompt 6**: "ist Button eine Funktion?", "wann kommt eine Anweisung in die Klammer und wann nicht?", "geht fun KnopfScreen(onKnopfClick: () -> Unit = kk)?"\
+**Accepted**: Button als @Composable-Funktion; Faustregel Definition (name: Typ) vs. Aufruf (name = Wert); Standardwerte für Funktionsparameter.\
+**Commits**: -
+
+**Prompt 7**: "woher weiß ich, welche Parameter ich brauche?", "warum geht fun abc(a: Int) { a = a + 2 } nicht?", "wo muss ich b definieren?", "wann brauche ich return?", "wie steht im Code, dass Button onClick ausführt?"\
+**Accepted**: Parameter = was sich pro Aufruf ändert; Parameter sind schreibgeschützt; lokale Variablen mit val; return nur bei Rückgabewert; Beispiel Modifier.clickable { onClick() }.\
+**Commits**: -
+
+**Prompt 8**: Fragen zum Beispiel `machWas(aufgabe: (String) -> Unit)`: "was gebe ich in die Funktion ein?", "aber ich habe doch Merve definiert", "müsste es nicht umgekehrt sein – im Body was gemacht wird?"\
+**Accepted**: Erklärung mit Zeitablauf; zwei Funktionen mit eigenem Parameter und Body; Unit = gibt nichts zurück, tut aber etwas.\
+**Commits**: -
+
+**Prompt 9**: "wenn ich doch eine Navigation-Datei habe, warum brauche ich dann noch extra eine Route-Datei für alle Screens?"\
+**Accepted**: Unterschied Route als Adresse (AppNavHost) vs. …Route.kt als Eingangstür eines Screens.\
+**Commits**: -
+
+**Prompt 10**: "GroupsRoute – was muss ich da speziell machen, und was in GroupsViewModelFactory?"; "was macht GroupsViewModelFactory?"; "was ist ein Repository?"; "was ist ein Interface?"\
+**Accepted**: Erklärung Factory, Repository, Interface; Code-Vorschlag für GroupsViewModelFactory.\
+**Commits**: -
+
+**Prompt 11**: Fehlermeldungen "Expecting a top level declaration", "imports are only allowed in the beginning of file"\
+**Accepted**: Ursache: Chat-Markierungen bzw. doppelter Inhalt mitkopiert; Datei geleert und Code neu eingefügt.\
+**Commits**: 2703530
+
+**Prompt 12**: "manche Dateien haben eine Fahne, andere zwei blaue Kreise – Unterschied?"; "was heißt genau, dass die Factory vorgibt, wie das ViewModel aufgebaut wird?"; "muss ich das in AppNavHost mit reinnehmen?"\
+**Accepted**: Erklärung IDE-Symbole (Datei mit Funktionen vs. eine Klasse); Ablauf Factory → ViewModel; AppNavHost ruft nur die Route auf.\
+**Commits**: -
+
+**Prompt 13**: "Wie kann ich die Callbacks in GroupsScreen einbauen"\
+**Accepted**: Schrittweise Anleitung für 5 Änderungen (Funktionskopf, Button "Gruppe hinzufügen", Card, Stift-Button, Vorschau).\
+**Changed**: Änderungen selbst eingetippt; eigene Fehler (fehlender Doppelpunkt, Definitions-Schreibweise im Card-Aufruf, onClick = { onAddGroupClick } ohne ()) mit Hilfe korrigiert; erklärenden Kommentar in GroupsScreen ergänzt.\
+**Commits**: 1dd38c7
+
+**Prompt 14**: "ist das die Schachtel und der Inhalt das Lambda?", "muss ich die Schachtel in GroupsScreen importieren?", "muss ich in AppNavHost importieren?", "die Schachteln sind ja in den Funktionen definiert", "wie viele Buttons müssen verdrahtet werden?", "brauche ich nur -> Unit?", "stimmt onGroupClick: (groupId: String) -> Unit?"\
+**Accepted**: Erklärungen.\
+**Commits**: -
+
+**Prompt 15**: Fehlermeldungen "No value passed for parameter 'onAddGroupClick' / 'onEditGroupClick' / 'onGroupClick'"\
+**Accepted**: Ursache: neue Pflicht-Parameter beim Aufruf (Vorschau, AppNavHost) nicht gefüllt; Vorschau mit leeren Lambdas ergänzt.\
+**Commits**: -
+
+**Prompt 16**: "der Button für Gruppendetail fehlt"; "muss ich bei der Schachtel mit Parameter noch was definieren?"; "warum geht Card(..., onClick: () -> Unit) nicht?"; "muss ich es im Body nochmal aufführen?"\
+**Accepted**: Ganze Card wird antippbar; Definition mit ":" vs. Aufruf mit "="; onClick nur in den runden Klammern der Card.\
+**Commits**: -
+
+**Prompt 17**: "passt das so?"; "was soll ich als Commit-Text schreiben?" (Anhang: GroupsScreen.kt mit den drei neuen Callbacks)\
+**Accepted**: Code-Review ohne Fehler; Vorschlag Commit-Nachricht.\
+**Commits**: -
+
+**Prompt 18**: "war das, was ich gemacht habe, der Callback?"; "wie springt er zu AppNavHost?"; "das heißt, wir sind eigentlich nur auf AppNavHost?"\
+**Accepted**: Erklärung: kein Sprung, Lambda wird vorher weitergereicht und nimmt navController mit (Closure); NavHost reagiert auf navController.\
+**Commits**: -
+
+**Prompt 19**: "GroupsScreen(…, onGroupClick = group) – group.id gibt eine Fehlermeldung"; "kann ich den Parameter setzen und im Body die Zuordnung machen?"
+```kotlin
+GroupsScreen(uiState = GroupsUiState(),onAddGroupClick={},onGroupClick=group)
+```
+**Accepted**: group existiert nur im GroupsScreen; im AppNavHost wird die ID über das Lambda empfangen (groupId -> …); Alternative: Lambda vorher in Variable legen.\
+**Changed**: Verdrahtung der drei Callbacks im AppNavHost selbst geschrieben.\
+**Commits**: 745f303
+
+**Prompt 20**: "Jetzt sind die Gruppen in AppNavHost vernetzt, Losen fehlt noch – fehlt sonst noch etwas?"\
+**Accepted**: Hinweis: Liste ist noch leer (GroupsUiState()), GroupsRoute und echte Daten im GroupsViewModel fehlen noch.\
+**Commits**: -
+
 #
 ### 2026-11-21 (Melissa, Meyer), GitHup Copilot Education
 **Prompt 1**: Bitte passe den Code an: GroupScreen soll die Daten aus dem Repository verwenden und nicht, wie bisher, die hard reingecodeten Daten. Bitte mache leichter verständliche Änderungen und viele Kommentare. Ich, als Anfängerin, möchte die Änderungen nachvollziehen können..\
@@ -811,6 +985,119 @@ Schreibe den Code leicht verständlich und kommentiere ihn auf Deutsch.
 **Prompt 1**:Was muss ich in den Code einfügen, sodass sich die Card in einem Scrollbaren Bereich befinden? Beispielsitualtion: Die Card-Elemente nehmen mehr Platz ein als die Seite groß ist. Dann soll man durch scrollen die unteren Elemente erreichen können. Die Button sollen aber ihre Positon beibehalten. + Anhang (aktuelle Datei: GroupsScreen)..\
 **Geaendert**:          Column Modifier
 **Commits**:            4984ef2
+
+### 2026-11-21 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "kannst du analog zum GroupDetailRoute.kt die Route für GroupsRoute erstellen"\
+**Accepted**: Erklärung, wie GroupDetailRoute aufgebaut ist und was bei der GroupsRoute anders ist (keine groupId, kein key, kein collectAsStateWithLifecycle wegen mutableStateOf im GroupsViewModel).\
+**Rejected**: Ausführlichere Version mit KDoc-Kommentar nach Vorbild der GroupDetailRoute; die einfachere Version aus dem Schritt davor beibehalten.\
+**Commits**: 89786a5
+
+**Prompt 2**: "das ist ja jetzt eine Funktion und keine Klasse. Die muss jetzt aber in AppNavHost GroupsScreen ersetzen oder"\
+**Accepted**: Bestätigung: GroupsRoute ist eine @Composable-Funktion; Aufrufkette AppNavHost → GroupsRoute → GroupsScreen; Anleitung zum Ersetzen des Aufrufs im AppNavHost und zum Aufräumen der Imports.\
+**Changed**: Aufruf im AppNavHost selbst ersetzt (GroupsScreen → GroupsRoute, Parameternamen onAddGroup/onOpenGroup/onEditGroup); ungenutzte Imports von GroupsScreen und GroupsUiState entfernt.\
+**Commits**: 89786a5
+
+**Prompt 3**: "aber dann habe ich vorhin ja die Verbindung in AppNavHost umsonst aufgebaut"\
+**Accepted**: Erklärung: Navigations-Lambdas bleiben identisch, nur Parameternamen ändern sich und uiState fällt weg; Callbacks im GroupsScreen werden weiterhin gebraucht, die Route reicht sie nur durch.\
+**Commits**: -
+
+**Prompt 4**: "aber bevor ich alles mache, muss ich ja erst die route importieren oder"\
+**Accepted**: Erklärung: Reihenfolge egal (Import zuerst oder nach dem Ersetzen per Alt + Enter); Import nötig, weil GroupsRoute in einem anderen Paket liegt; ungenutzte Imports von GroupsScreen und GroupsUiState entfernen.\
+**Commits**: -
+
+**Prompt 5**: "passt das so?" (Anhang: AppNavHost.kt mit GroupsRoute)\
+**Accepted**: Code-Review: GroupsRoute korrekt eingebunden; Hinweis, den ungenutzten Import von GroupsUiState zu löschen und die schließende Klammer in eine eigene Zeile zu setzen (Strg + Alt + L zum Formatieren).\
+**Commits**: -
+
+**Prompt 6**: "in welcher zeile?"\
+**Accepted**: Zeilenangaben: Zeile 12 (ungenutzter Import GroupsUiState), Zeile 47 (Klammer umbrechen bzw. mit Strg + Alt + L formatieren).\
+**Commits**: -
+
+**Prompt 7**: "ich soll aber allgemein Tests schreiben für die App, also diese Tests, die die ganze App automatisch testen"\
+**Accepted**: Erklärung automatischer Tests (Unit-Tests in app/src/test vs. UI-/Instrumented Tests in app/src/androidTest); Bestandsaufnahme vorhandener Tests (GroupFormErrorsTest, GroupFormInputTest, ParticipantErrorsTest, WishListErrorsTest, WishlistViewModelTest, testutil); Vorschlag für fehlende Tests (Routes, Factories, ViewModels, Navigation, Screens) nach Schwierigkeit geordnet.\
+**Commits**: -
+
+**Prompt 8**: "ich verstehe nicht, was hier gemacht wurde, wir haben DrawDetailScreen, DrawHistoryScreen, DrawResultDialog und DrawRevealConfirmDialog – was sind das? Result und DrawDetailScreen sind doch derselbe Screen"\
+**Accepted**: Erklärung: nur zwei Screens (DrawHistory, DrawDetail); DrawRevealConfirmDialog (Personen-Check) und DrawResultDialog (Ergebnis mit Wunschliste) sind Dialoge innerhalb des DrawDetailScreen, gesteuert vom DrawDetailViewModel; dafür sind keine Routen im AppNavHost nötig.\
+**Commits**: -
+
+**Prompt 9**: "ok d.h. ich muss jetzt wieder 2 neue Files für DrawDetailRoute und DrawHistoryRoute anlegen"\
+**Accepted**: Bestätigung: zwei neue Dateien DrawHistoryRoute.kt und DrawDetailRoute.kt im Ordner ui/draws.\
+**Commits**: -
+
+**Prompt 10**: "was stimmt hier nicht?" (Anhang: eigener Entwurf von DrawDetailRoute.kt)\
+**Accepted**: Code-Review mit korrigierter Version: falsche Imports (Groups-ViewModel/Factory, DrawDetailScreen im selben Paket), Route-Parameter nur für Navigation (drawId, onBack, modifier), Dialog-Aktionen per viewModel::onGiverClick usw. aus dem ViewModel, drawRepository + DrawDetailViewModelFactory(drawId, drawRepository), viewModel(key = drawId), state per collectAsStateWithLifecycle statt Typname, onBack = onBack statt Typdefinition, modifier statt Modifier.\
+**Changed**: Eigenen Entwurf durch die korrigierte Version ersetzt.\
+**Rejected**: Hinweis zu onAppStopped() (Ergebnis verdecken, wenn die App in den Hintergrund geht) vorerst nicht umgesetzt, erst mit Diana klären.\
+**Commits**: a8f20ad
+
+**Prompt 11**: "warum nehme ich sie vom ViewModel, bei Groups habe ich das ja auch nicht so gemacht"\
+**Accepted**: Faustregel: Klick führt zu anderem Screen → Callback vom AppNavHost über Route-Parameter; Klick bleibt im Screen und ändert nur den Zustand (Dialoge im DrawDetail) → Funktion aus dem ViewModel (viewModel::…); Vergleich mit GroupDetailRoute.\
+**Commits**: -
+
+**Prompt 12**: "dann muss ich nur das Zurück in AppNavHost machen, die restliche Navigation wird in der Route gemacht"\
+**Accepted**: Präzisierung: Dialog-Aktionen sind keine Navigation, sondern Zustand; in den AppNavHost kommen die Route draw-detail/{drawId} mit navArgument und onBack = popBackStack(), der Hinweg zum DrawDetail über onOpenDraw bei der DrawHistory; dazu ARG_DRAW_ID, DRAW_DETAIL und drawDetail(drawId) im object Routes.\
+**Commits**: -
+
+**Prompt 13**: "const val DrawDetail = "drawDetail" – warum bekomme ich hier eine Fehlermeldung?"\
+**Accepted**: Mögliche Ursachen: const val innerhalb einer Funktion, Namenskonflikt mit der Domain-Klasse DrawDetail; Lösung: Konstanten im object Routes in Großbuchstaben (ARG_DRAW_ID, DRAW_DETAIL = "draw-detail/{$ARG_DRAW_ID}") plus Hilfsfunktion drawDetail(drawId).\
+**Changed**: Konstante in DRAW_DETAIL umbenannt und Platzhalter {$ARG_DRAW_ID} ergänzt.\
+**Commits**: -
+
+**Prompt 14**: Fehlerliste eingefügt ("No value passed for parameter 'content'", "Argument type mismatch: actual type is 'Routes', but 'String' was expected", "Expecting an element", "Unused import directive", "Const property name 'DrawDetail' should not contain lowercase letters", Typo-Hinweise)\
+**Accepted**: Erklärung der Meldungen: ganzes Routes-Objekt statt Routes.DRAW_DETAIL übergeben, fehlender content-Block { … } bei composable(), Syntaxfehler ("Routes." ohne Namen), Konstante in Großbuchstaben umbenennen, ungenutzten Import löschen, Typo-Hinweise ignorieren.\
+**Commits**: -
+
+**Prompt 15**: (Anhang: AppNavHost.kt mit angefangenem DrawDetail-Block)\
+**Accepted**: Fehlerursachen: unvollständiger composable-Block, Konstante DrawDetail ohne Großschreibung und ohne ID-Platzhalter, falscher Auto-Import com.example.wichtly.domain.model.DrawDetail; Korrektur: ARG_DRAW_ID, DRAW_DETAIL, drawDetail(drawId), Block 6 analog zu Gruppendetail/Wunschliste mit DrawDetailRoute(drawId, onBack), Import von ui.draws.DrawDetailRoute.\
+**Changed**: Block 6 (DrawDetail) im AppNavHost selbst nachgebaut, ARG_DRAW_ID und DRAW_DETAIL ergänzt.\
+**Rejected**: Entfernen des ungenutzten Imports domain.model.DrawDetail (vorerst).\
+**Commits**: 197ff53
+
+**Prompt 16**: (Anhang: überarbeitete AppNavHost.kt mit DrawDetail-Block)\
+**Accepted**: Code-Review: arguments-Zeile falsch (navArgument fehlt, ARG.DRAW_ID statt ARG_DRAW_ID, Klammern); ARG_DRAW_ID und drawDetail(drawId) im object Routes fehlen; schließende Klammer der Funktion AppNavHost fehlt; Formatieren mit Strg + Alt + L.\
+**Changed**: Fehler selbst korrigiert (navArgument-Zeile, ARG_DRAW_ID, schließende Klammer).\
+**Commits**: 197ff53
+
+**Prompt 17**: (Anhang: erneut überarbeitete AppNavHost.kt)\
+**Accepted**: Restfehler: Routes.ARG.DRAW_ID statt Routes.ARG_DRAW_ID, vertauschte Klammern am Ende von DrawDetailRoute(...); Hinweis auf noch fehlende Hilfsfunktion drawDetail(drawId) für den Hinweg aus der Historie.\
+**Changed**: ARG_DRAW_ID-Schreibweise und Klammerreihenfolge selbst korrigiert.\
+**Commits**: 197ff53
+
+**Prompt 18**: "ich mache jetzt DrawHistoryRoute und möchte bei DrawHistoryScreen onOpenDraw = (drawId: String) -> Unit umformen – ich definiere hier ja keine Funktion, sondern mache die Zuordnung, wie muss ich das ausdrücken?"\
+**Accepted**: onOpenDraw ist Navigation und kommt vom AppNavHost; Definition im Funktionskopf der Route (onOpenDraw: (drawId: String) -> Unit), Zuordnung beim Screen-Aufruf (onOpenDraw = onOpenDraw); im AppNavHost onOpenDraw = { drawId -> navController.navigate(Routes.drawDetail(drawId)) }.\
+**Commits**: -
+
+**Prompt 19**: "irgendwo habe ich einen Fehler" (Anhang: eigener Entwurf von DrawHistoryRoute.kt als Kopie der DrawDetailRoute)\
+**Accepted**: Code-Review mit korrigierter Version: groupId statt drawId, Parameter onOpenDraw im Funktionskopf ergänzen, DrawHistoryViewModelFactory(groupId, drawRepository, giftGroupRepository), DrawHistoryViewModel, key = groupId; Vergleichstabelle DrawDetailRoute vs. DrawHistoryRoute.\
+**Changed**: Eigenen Entwurf durch die korrigierte Version ersetzt.\
+**Commits**: c5d166f
+
+**Prompt 20**: "key stimmt doch so, warum muss ich das ändern?"; "wo ist der Fehler?" (Anhang: überarbeitete DrawHistoryRoute.kt)\
+**Accepted**: key = drawId funktioniert technisch, aber die Variable enthält eine Gruppen-ID – Parameter überall in groupId umbenennen (Umschalt + F6); echte Fehler: onOpenDraw im Funktionskopf fehlt, giftGroupRepository fehlt beim Aufruf der DrawHistoryViewModelFactory.\
+**Changed**: Parameter in groupId umbenannt, onOpenDraw und giftGroupRepository ergänzt.\
+**Rejected**: Markierungskommentare (// umbenannt, // neu) entfernen bzw. Kommentare anpassen (vorerst).\
+**Commits**: c5d166f
+
+**Prompt 21**: (Anhang: AppNavHost.kt mit angefangenem DrawHistory-Block)\
+**Accepted**: Code-Review: Route DRAW_HIST ohne Platzhalter → DRAW_HISTORY = "draw-history/{$ARG_GROUP_ID}"; navArgument braucht den Platzhalter-Namen, nicht die Route; Import DrawHistoryScreen → DrawHistoryRoute (AppNavHost ruft immer die Route auf); Hilfsfunktionen drawDetail(drawId) und drawHistory(groupId) ergänzen; Hinweis, dass der Historie-Button im Gruppendetail noch einen Callback von Diana braucht.\
+**Changed**: Block 7 (DrawHistory) im AppNavHost selbst eingebaut, Import DrawHistoryRoute ergänzt.\
+**Commits**: 41472f4
+
+**Prompt 22**: "ich habe aber 5 Fehlermeldungen" (Anhang: überarbeitete AppNavHost.kt)\
+**Accepted**: Ursachen: Hilfsfunktionen drawDetail/drawHistory außerhalb des object Routes, Konstante DRAW_HIST statt DRAW_HISTORY und ohne Platzhalter, fehlender Import DrawHistoryRoute, eine schließende Klammer zu viel am Dateiende.\
+**Changed**: Hilfsfunktionen ins object Routes verschoben, Konstante in DRAW_HISTORY umbenannt.\
+**Commits**: 41472f4
+
+**Prompt 23**: (Anhang: erneut überarbeitete AppNavHost.kt)\
+**Accepted**: Restpunkte: überzählige schließende Klammer, fehlender Import DrawHistoryRoute, fehlender Platzhalter in DRAW_HISTORY (sonst Absturz, weil "draw-history/abc" nicht zur angemeldeten Route passt); Merkregel: Konstante {…} und Hilfsfunktion $… gleich aufbauen.\
+**Changed**: Platzhalter {$ARG_GROUP_ID} in DRAW_HISTORY ergänzt, überzählige Klammer entfernt.\
+**Rejected**: Entfernen des ungenutzten Imports domain.model.DrawDetail.\
+**Commits**: 41472f4
+
+**Prompt 24**: "was ist noch offen von den Aufgaben, die ich erledigen muss, habe ich irgendwas übersehen?"\
+**Accepted**: Statusübersicht: erledigt (GroupsViewModelFactory, Callbacks, GroupsRoute, DrawDetailRoute, DrawHistoryRoute, Blöcke 6/7 im AppNavHost); offen (Testen, Commit/Push, Pull Request, AI_USAGE); Abstimmungen mit Diana (onOpenHistory-Callback, onAppStopped) und Melissa (Testdaten im GroupsViewModel, PreparationScreen); Tests für SecretSantaDrawAlgorithm und Routes.\
+**Commits**: -
 
  ### 2026-11-22 (Melissa, Meyer), Copilot (kostenlos)
 **Prompt 1**:val uiState: StateFlow<PreparationUiState> = combine(
@@ -946,6 +1233,29 @@ STRIKTE REGELN
 **Checked**: Review der drei Dateien durch Claude, Build, alle Tests grün.
 **Commits**: a6c62cd
 
+
+### 2026-11-23 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "geh in meinen Code und schau mal, was alles gemacht wurde, und sage, was noch von wem offen ist"\
+**Accepted**: Analyse des main-Stands nach Pull: Push vom 21.11. bestätigt; neu von Melissa: PreparationScreen/-Route/-ViewModel, echte Daten im GroupsViewModel, Losen-Button verdrahtet, Gruppenfoto inkl. Kamera-Verweigerung; offen: Diana – Callbacks für "Auslosung vorbereiten" und "Historie" im Gruppendetail, onAppStopped; Merve – Callbacks danach im AppNavHost verdrahten, Aufräumen, Tests, Ablauf testen; alle – README und KI-Reflexion.\
+**Commits**: -
+
+**Prompt 2**: "kannst du bitte in meine App schauen, also in den Code, was wurde gemacht?" / "was ist noch offen?"\
+**Accepted**: Analyse nach Merge von origin/main (a6c62cd): Diana hat onPrepareDraw und onOpenHistory im GroupDetailScreen/GroupDetailRoute ergänzt und im AppNavHost zwei Platzhalter "TODO(A)" hinterlassen; Vorschlag: onPrepareDraw = { id -> navController.navigate(Routes.preparation(id)) }, onOpenHistory = { id -> navController.navigate(Routes.drawHistory(id)) }.\
+**Commits**: -
+
+**Prompt 3**: Nachricht von Diana eingefügt ("habe meine offenen Punkte auf main gepusht, musste zwei Zeilen im AppNavHost hinzufügen – onAppStopped() wird von der Route aufgerufen, die Draw-Route würdest du bauen")\
+**Accepted**: Prüfung von Dianas zwei Zeilen; Anleitung für onAppStopped in der DrawDetailRoute per LifecycleEventEffect(Lifecycle.Event.ON_STOP) { viewModel.onAppStopped() } inkl. Imports und Erklärung (Geheimhaltung beim App-Wechsel, Zustand statt Navigation); Testablauf und Commit-Vorschlag.\
+**Changed**: TODO(A)-Zeilen im AppNavHost selbst gefüllt; LifecycleEventEffect für onAppStopped in DrawDetailRoute eingebaut.\
+**Commits**: 49191ee, 4b149e9
+
+**Prompt 4**: "ok, was sind noch die offenen Punkte?"\
+**Accepted**: Aktuelle Liste: Aufräumen, Emulator-Cold-Boot und kompletten Ablauf testen, Commit/Push; danach Tests (SecretSantaDrawAlgorithm, Routes, leere GroupsViewModelTest.kt); gemeinsam README und KI-Reflexion; keine Abhängigkeiten mehr zu anderen.\
+**Commits**: -
+
+**Prompt 5**: "ich muss noch die tests machen, ich lege die Testdateien in app/src/test an, kannst du mir die Tests erstellen, damit ich sie einfügen kann"\
+**Accepted**: Abgleich mit der ursprünglichen Aufgabenliste; Testplan: SecretSantaDrawAlgorithm (wichtigster), Routes, GroupsViewModelFactory, später Navigations-UI-Tests. Die Tests wurden anschließend mit Claude erstellt: Unit-Tests für SecretSantaDrawAlgorithm, Routes-Hilfsfunktionen, GiftGroup-, Participant- und WishListValidator, GroupsViewModel und PreparationViewModel.\
+**Changed**: Am 27.11. die Funktionsnamen und Kommentare in den Tests selbst ins Englische übersetzt und einen Test angepasst.\
+**Commits**: 7695680, bb49589, afe7a93, 9957e3f, 1d3fa57, 537400a, 6b7c8f2, 0dbf54c, 4baa8c0
 
 ### 2026-11-23 (Viktoria)
 
@@ -1130,6 +1440,49 @@ Set up ktlint and run it through our code.
 Please prevent the DrawDetail popup card from closing on app rotation. 
 **Accepted**: Changes to state handling in route/vm.
 **Commits*: 1133ec0
+
+### 2026-11-27 (Merve, Öztürk), Claude.ai (Opus 5.5)
+**Prompt 1**: "ich habe folgendes Problem: im NavHost gibt es einen Widerspruch – requireNotNull und ? im AppNavHost raus, das ?. macht keinen Sinn" (Anhang: Foto vom Pseudocode des Dozenten, umgesetzt am Beispiel DrawHistory)
+```kotlin
+backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID)?.let { groupId ->
+    DrawHistoryRoute(groupId = groupId, ...)
+} ?: run {
+    // TODO: Log
+    // TODO: show error
+}
+```
+**Accepted**: Erklärung: ?. lässt null zu, requireNotNull verbietet null direkt danach (App-Absturz); ?. allein löschen geht nicht, da arguments nullable ist. Erklärung ?.let und Elvis-Operator ?: run; TODOs ausgefüllt: AppLog.e(...) und popBackStack() in einem LaunchedEffect (keine Navigation während der Composition); Muster an allen Stellen einheitlich verwenden.\
+**Rejected**: Extension-Funktion requireArg in Routes.kt (hätte requireNotNull nur verschoben, die App wäre weiterhin abgestürzt).\
+**Commits**: -
+
+**Prompt 2**: "was macht die Hilfsfunktion, wie sieht sie aus und kannst du die Kommentare direkt auf englisch machen"\
+**Accepted**: Zeilenweise Erklärung (Parameter, ?.let, ?: run, LaunchedEffect, AppLog, popBackStack); Begründung: Logik nur an einer Stelle. Code der Hilfsfunktion WithArgument mit englischen Kommentaren, Position in der Datei (unten, nach dropUnlessResumedWithArg) und benötigte Imports.\
+**Commits**: -
+
+**Prompt 3**: Screenshot AppNavHost.kt mit 6 Fehlern (NavBackStackEntry, arguments, destination rot)\
+**Accepted**: Ursache: Import androidx.navigation.NavBackStackEntry fehlte (Alt + Enter).\
+**Changed**: Import selbst ergänzt.\
+**Commits**: 279924a
+
+**Prompt 4**: Screenshot von Block 4 (Gruppendetail) mit "..." im Code
+```kotlin
+WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
+    GroupDetailRoute(
+        groupId = groupId,
+        onBack = ...,
+        ...
+        onGroupDeleted = { navController.popBackStack() },
+    )
+}
+```
+**Accepted**: Hinweis: "..." aus dem Beispiel wörtlich übernommen, dadurch fehlten die echten Callbacks (onEditGroup, onOpenWishlist, onPrepareDraw, onOpenHistory); vollständiger Block 4 als Vorlage.\
+**Changed**: Block 4 durch den vollständigen Block ersetzt.\
+**Commits**: 279924a
+
+**Prompt 5**: "aber ganz ehrlich, wenn ich das überall manuell hinschreibe, verbrauche ich weniger Zeilen als mit der Hilfsfunktion"\
+**Accepted**: Zeilenvergleich (manuell ca. +36 Zeilen, Hilfsfunktion ca. +24 Zeilen) und Argumente für die Hilfsfunktion (DRY, eine Stelle für Änderungen, weniger Fehlerquellen); beide Varianten korrekt.\
+**Decision**: Hilfsfunktion WithArgument beibehalten.\
+**Commits**: 279924a
 
 ## Reflection
 
