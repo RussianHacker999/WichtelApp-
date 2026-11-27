@@ -31,14 +31,14 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Das einheitliche Dialoglayout der App: rundes Icon, Serifentitel, optionaler Text und Inhalt,
- * darunter rechts „Abbrechen“ (Text-Button) und „Bestätigen“ (Pillen-Button).
+ * The app's standard dialog layout, with an icon, title, optional text and content,
+ * and action buttons at the bottom (To cancel and confirm).
  *
- * @param destructive Zeigt Icon und Bestätigen-Button in Rot (Löschdialoge).
- * @param confirmLabel null lässt nur den Abbrechen-Button übrig (z. B. wenn der Inhalt selbst die Aktionen enthält).
- * @param dismissLabel null blendet den Abbrechen-Button aus, solange [confirmLabel] gesetzt ist; ohne
- *   [confirmLabel] erscheint immer ein Abbrechen-Button (notfalls mit dem Standardtext).
- * @param errorMessage Optionaler Fehlertext unter dem Inhalt (z. B. wenn das Löschen scheiterte); in jedem Dialog gleich dargestellt.
+ * @param destructive Whether is set  the icon and confirm button are red (eg. for delete dialogs)
+ * @param confirmLabel Whether ist set only the confirm button is shown.
+ * @param dismissLabel The dismiss button label. If null and a confirm button exists, no dismiss
+ *  button is shown. If there is no confirm button, a dismiss button always appears.
+ * @param errorMessage Optional error text shown below the dialog content.
  */
 @Composable
 fun WichtlyDialog(
@@ -114,6 +114,12 @@ fun WichtlyDialog(
     )
 }
 
+/**
+ * Design for an icon in WichtlyDialog
+ * @param icon icon to show
+ * @param destructive whether the icon would have the color in MaterialTheme.colorScheme.error
+ *
+ */
 @Composable
 private fun DialogIcon(icon: ImageVector, destructive: Boolean) {
     val tint = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary

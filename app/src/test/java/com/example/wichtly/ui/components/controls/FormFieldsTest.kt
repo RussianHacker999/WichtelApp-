@@ -4,7 +4,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Tests für die Längenbegrenzung der Textfelder ([limitToLength]).
+ * Tests the text field length limit in [limitToLength].
  */
 class FormFieldsTest {
 
@@ -20,7 +20,7 @@ class FormFieldsTest {
 
     @Test
     fun emojiAnDerGrenzeWirdNichtZerschnitten() {
-        // 49 Buchstaben + Emoji (2 UTF-16-Einheiten) = 51 Einheiten; das halbe Emoji darf nicht übrig bleiben
+        // 49 letters plus one emoji (two UTF-16 units) make 51 units. Do not leave half an emoji.
         val text = "a".repeat(49) + "\uD83C\uDF84"
         assertEquals("a".repeat(49), limitToLength(text, 50))
     }

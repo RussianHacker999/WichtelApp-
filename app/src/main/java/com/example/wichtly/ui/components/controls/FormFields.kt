@@ -30,15 +30,15 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-/** Kleine Beschriftung über einem Formularfeld. */
+/** A small label shown above a form field. */
 @Composable
 fun FieldLabel(text: String, modifier: Modifier = Modifier) {
     Text(text = text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground, modifier = modifier)
 }
 
 /**
- * Kürzt [text] auf höchstens [maxLength] Zeichen, ohne ein Emoji (Surrogatpaar) zu zerschneiden.
- * Genutzt von [WichtlyTextField], damit Eingabe und Einfügen die Domain-Grenze nicht überschreiten.
+ * Limits [text] to [maxLength] characters without splitting a surrogate pair, such as an emoji.
+ * [WichtlyTextField] uses this for typed and pasted text.
  */
 internal fun limitToLength(text: String, maxLength: Int): String {
     if (text.length <= maxLength) return text
@@ -47,8 +47,9 @@ internal fun limitToLength(text: String, maxLength: Int): String {
 }
 
 /**
- * Textfeld mit Beschriftung darüber. Ein Fehlertext ersetzt den Hilfetext; mit [maxLength] erscheint
- * zusätzlich ein Zeichenzähler.
+ * A text field with a label above it.
+ * An error message replaces the helper text.
+ * A character count appears when [maxLength] is set.
  */
 @Composable
 fun WichtlyTextField(
@@ -70,8 +71,7 @@ fun WichtlyTextField(
         val helper = errorText ?: supportingText
         OutlinedTextField(
             value = value,
-            // Mit maxLength lässt das Feld keine längere Eingabe zu (auch nicht per Einfügen);
-            // die verbindliche Prüfung bleibt trotzdem in der Domain.
+            // Limit typed and pasted text. The domain still performs the final validation.
             onValueChange = { input -> onValueChange(if (maxLength != null) limitToLength(input, maxLength) else input) },
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
@@ -87,7 +87,7 @@ fun WichtlyTextField(
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                         Text(text = helper.orEmpty(), modifier = Modifier.weight(1f))
                         if (maxLength != null) {
-                            // Zeichenzähler, z. B. "37/50"
+                            // Show the current and maximum character counts, for example "37/50".
                             Text(text = "${value.length}/$maxLength")
                         }
                     }
@@ -106,7 +106,7 @@ fun WichtlyTextField(
     }
 }
 
-/** Auswahlkarte über die volle Breite mit Radiobutton (z. B. Wichtelart). */
+/** A full-width choice card with a radio button, for example for a gift exchange type. */
 @Composable
 fun ChoiceCard(
     title: String,
@@ -151,7 +151,7 @@ fun ChoiceCard(
 }
 
 /**
- * Hinweisleiste mit Icon, Text und optionalem Aktions-Link (z. B. Kamerazugriff abgelehnt).
+ * A hint bar with an icon, text and optional action link, for example when camera access is denied.
  */
 @Composable
 fun HintBar(
