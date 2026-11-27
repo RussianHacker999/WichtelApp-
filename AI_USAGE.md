@@ -300,6 +300,59 @@ Die Fehlermeldung für ein nicht lesbares Datum soll das Format TT.MM.JJJJ nenne
 **Accepted**: GroupFormUiState.kt, GroupFormErrors.kt, GroupFormErrorsTest.kt
 **Commits**: ca5d2602
 
+### 2026-11-10 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 3**:
+/plan Lies zuerst AGENTS.md. Ändere keine Dateien. Untersuche app/build.gradle.kts, gradle/libs.versions.toml, WichtlyApplication.kt, MainActivity.kt und di/AppContainer.kt. Beantworte: (1) Welche der Libraries lifecycle-viewmodel-compose, lifecycle-runtime-compose und navigation-compose sind bereits als Dependency vorhanden, mit Versionen? (2) Wie ist der AppContainer von außen erreichbar, zum Beispiel über die Application-Klasse? (3) Welche minSdk und welche Kotlin- und Compose-Version sind gesetzt? (4) Gibt es schon ViewModels, Factories oder Navigation? Nenne nur, was wirklich existiert, und erfinde nichts.\
+**Accepted**: Bestandsaufnahme (keine der drei Libraries vorhanden, Zugriff auf den AppContainer über `WichtlyApplication.container`, minSdk 26, noch keine ViewModels/Factories/Navigation).\
+**Changed**: Nur `lifecycle-viewmodel-compose` ergänzt. `lifecycle-runtime-compose` war nicht nötig, weil `collectAsStateWithLifecycle` bereits verfügbar war. navigation-compose bleibt Aufgabe von Person A. Vorher im Gruppenchat angekündigt, weil libs.versions.toml und build.gradle.kts dem ganzen Team gehören. Die beiden Dateien wurden getrennt vom Rest committet.\
+**Commits**: 19030c4, c0252ff
+
+**Prompt 4** (sinngemäß, Wortlaut nicht mehr vorhanden):
+/plan Konzept für ein WishlistViewModel: combine aus Teilnehmer-Flow, Wunsch-Flow und lokalem Dialog-Zustand, stateIn mit WhileSubscribed(5_000), Validierung und Fehlerübersetzung, Schutz vor doppeltem Speichern, Verhalten bei gelöschtem Teilnehmer, Factory über den AppContainer. Noch keine Dateien ändern.\
+**Accepted**: Plan als implementation_plan.artifact.md (lokaler Zustand in eigener data class, Editor schließt automatisch, wenn der Teilnehmer verschwindet). Umgesetzt am 13.11.\
+**Commits**: -
+
+**Prompt 5** (sinngemäß):
+GroupFormInput aufräumen und die Fehlertests um Grenzfälle erweitern (Überlauf, Exponentenschreibweise, Schaltjahr, einstellige Tage).\
+**Accepted**: As is.\
+**Commits**: 58dbd7b
+
+**Prompt 6** (sinngemäß):
+GroupFormViewModel samt Factory für Anlegen und Bearbeiten und zustandsloser GroupFormScreen. Gruppe beim Bearbeiten nur einmal laden (`first()` statt dauerhaftem Beobachten), beim Speichern `copy()` auf der geladenen Gruppe (damit `photoPath` nicht verloren geht), Schutz vor Doppelklick, kein stilles `catch`, Format- und Validierungsfehler über GroupFormErrors. Previews für Anlegen, Bearbeiten, Fehler, Laden und Nicht gefunden.\
+**Accepted**: Repository holen, ViewModel erzeugen, State sammeln, Speicher-Muster. Als Basis für die folgenden Prompts committet.\
+**Commits**: a082b5d, 1ba5aff
+
+### 2026-11-11 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1** (sinngemäß):
+GroupFormRoute, die AppContainer, Factory und Screen verbindet und nur groupId (null = neu) sowie onBack und onSaved bekommt.\
+**Accepted**: Route.\
+**Changed**: In der Route die Erzeugung von Factory und ViewModel korrigiert (Fehler aus der KI-Version). Zum Testen GroupFormRoute vorübergehend in MainActivity aufgerufen, nicht committet. Kommentare aufgeräumt.\
+**Checked**: Emulator: Gruppe anlegen, im Database Inspector geprüft. Bearbeiten-Modus mit der echten UUID aus dem Inspector: Formular zeigt die gespeicherten Werte.\
+**Commits**: e58fce8, 452d466, 9f0f08a, 11f9786
+
+Teamentscheidung vorab: Die Teilnehmerliste liegt im GroupDetailScreen, Teilnehmer werden über Dialoge verwaltet (kein eigener Screen), der Losen-Button erscheint in der Startseite und im Gruppendetail.
+
+**Prompt 2** (sinngemäß):
+GroupDetailUiState (Laden, Fehler, Nicht gefunden, Inhalt, Dialog-Felder) und ParticipantErrors (Übersetzung der Domain-Fehler in deutsche Texte, mit Test).\
+**Accepted**: As is.\
+**Commits**: 0f69e77
+
+**Prompt 3** (sinngemäß):
+GroupDetailViewModel mit Factory: combine aus Gruppe und Teilnehmern, lokaler Dialog-Zustand, isSaving-Schutz in allen Handlern, keine Namen als Schlüssel.\
+**Accepted**: As is.\
+**Commits**: 6d30248
+
+**Prompt 4** (sinngemäß):
+Zustandsloser GroupDetailScreen nach Mockup (Kopfbereich, Statistik-Karten, Stammdaten-Karte, Teilnehmerliste mit Drei-Punkte-Menü) mit Previews für alle Zustände.\
+**Accepted**: As is.\
+**Commits**: dcdf671
+
+**Prompt 5** (sinngemäß):
+ParticipantEditorDialog und ParticipantDeleteDialog (zustandslos, Previews), danach im Screen über dem Inhalt anzeigen, gesteuert nur über den UiState.\
+**Accepted**: As is.\
+**Commits**: 20d64a3, 3c69a78
 
 ### 2026-11-12 (Viktoria)
 
@@ -351,6 +404,18 @@ check
 **Accepted**: accepted but later on decision changed.
 **Commits**: 2ad5f55
 
+### 2026-11-12 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1** (sinngemäß):
+Kleine UI-Anpassungen im Gruppendetail an Mockup und echte Daten.\
+**Accepted**: As is.\
+**Commits**: 07f55f8
+
+**Prompt 2** (sinngemäß):
+GroupDetailRoute mit den Callbacks onBack, onEditGroup(groupId) und onOpenWishlist(participantId). Die Navigation baut Person A.\
+**Accepted**: As is.\
+**Commits**: 5eab887
+
 
 ### 2026-11-13 (Viktoria)
 
@@ -382,6 +447,23 @@ Add validation and trimming in analogy to existing repository classes.
 **Accepted**: as is.
 **Commits**: b94c1f0
 
+### 2026-11-13 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1** (sinngemäß):
+TemporaryWishlistItem durch das Domain-Modell WishListItem von Viktoria ersetzen.\
+**Accepted**: As is.\
+**Commits**: 9ca94ca
+
+**Prompt 2** (sinngemäß):
+Fehlerübersetzung für Wunschtexte (WishListErrors) und Anzeige von Löschfehlern im Löschdialog.\
+**Accepted**: As is.\
+**Commits**: b785d28, 7d4bebd
+
+**Prompt 3** (sinngemäß):
+WishlistViewModel und WishlistViewModelFactory nach dem Plan vom 10.11.\
+**Accepted**: As is.\
+**Commits**: 6948548
+
 
 ### 2026-11-14 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
 **Prompt 1**: Der Button mit der Aufschirft "Losen" soll auf dem Screen immer ganz unten angezeigt werden. Zudem soll Button soll höhe und die die Aufschrieft groeßer und dick sein. (Plus einer Datei mit dem aktuellem Code der Klasse GroupsScreen.\
@@ -394,6 +476,37 @@ Add validation and trimming in analogy to existing repository classes.
 **Promt 2**: Wie fuege ich die Imports fuer die Icons hinzu?
 **Geaendert:**  Aufbau der Cards der LazyList fur die Gruppen & Bearbeiten-IconButton 
 **Commits:**    47ae2d8
+
+### 2026-11-14 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1** (sinngemäß):
+ParticipantWishlistRoute, die AppContainer, Factory und Screen verbindet und nur participantId bekommt.\
+**Accepted**: As is.\
+**Commits**: c05c5cc
+
+**Prompt 2** (sinngemäß):
+ParticipantWishlistScreen an das Mockup (Prototyp 2) angleichen: Kopfkarte mit Teilnehmer, nummerierte Wunschkarten, Hinweis bei leerer Liste.\
+**Accepted**: Neues Layout.\
+**Rejected**: Der Agent wollte eigenmächtig `git checkout HEAD -- MainActivity.kt WishlistViewModel.kt` ausführen und damit ungespeicherte Änderungen verwerfen. Abgelehnt. Seitdem steht in jedem Prompt „Führe keine git-Befehle aus“.\
+**Checked**: Emulator mit sehr langen Wunschtexten (Umbruch statt Abschneiden).\
+**Commits**: 60326de
+
+**Prompt 3** (sinngemäß, Wortlaut nicht mehr vorhanden):
+Test-Infrastruktur für die Wunschliste: `kotlinx-coroutines-test`, `testOptions { unitTests.isReturnDefaultValues = true }` (damit `Log.e` in Unit-Tests nicht abstürzt), MainDispatcherRule sowie FakeWishListRepository und FakeParticipantRepository mit Test-Schaltern (failFlows, nextResult, shouldThrow) und Zählern.\
+**Accepted**: As is.\
+**Changed**: Version von coroutines-test an die vorhandene Coroutines-Version angepasst (vorher mit `./gradlew :app:dependencies` geprüft). FakeParticipantRepository in einem zweiten Schritt vervollständigt.\
+**Commits**: a3875e0, dddfe42, 709b849, 802bf94
+
+**Prompt 4** (sinngemäß):
+WishlistViewModelTest mit fünf Grundfällen: Teilnehmer lädt, unbekannter Teilnehmer, leerer Text setzt editorError ohne Repository-Aufruf, drei Wünsche bekommen sortOrder 0, 1, 2, Bearbeiten behält id und sortOrder.\
+**Accepted**: As is.\
+**Commits**: e4b302b
+
+**Prompt 5**:
+Lies zuerst AGENTS.md. Ergänze in app/src/test/java/com/example/wichtly/ui/wishlist/WishlistViewModelTest.kt sechs weitere Tests, ohne die vorhandenen zu ändern. Ändere keine anderen Dateien, keine Gradle-Dateien, keine git-Befehle. Nutze die Schalter der Fakes. Teste: (6) Ein Flow-Fehler (failFlows) ergibt errorMessage und participantName bleibt null, notFound gilt nicht. (7) Ein ValidationError vom Repository (nextResult) lässt den Editor offen und setzt editorError. (8) onConfirmDelete mit shouldThrow setzt deleteError und lässt den Dialog offen. (9) Wird der Teilnehmer entfernt, während der Editor offen ist, schließt der Editor. (10) Nach dem Löschen des mittleren von drei Wünschen bekommt ein neu angelegter das höchste sortOrder plus 1. (11) Zweimal direkt hintereinander onSaveClick aufgerufen ergibt genau einen Aufruf am Repository (createCalls ist 1). Jeder Test sammelt den State aktiv wie in den vorhandenen Tests. Kommentare auf Deutsch. Das Projekt muss bauen und alle Tests laufen. Fasse zusammen, welche laufen und welche scheitern.\
+**Accepted**: Alle sechs Tests.\
+**Checked**: 42 Unit-Tests im Projekt grün.\
+**Commits**: ef5acc2
 
 
 ### 2026-11-16 (Viktoria)
@@ -504,6 +617,166 @@ Change directory structure so there are both photos/groups as well as photos/par
 Change directory structure so there are both photos/groups as well as photos/participant directories.
 **Accepted**: as is.
 **Commits**: f106370
+
+### 2026-11-17 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1** (an Claude, mit den Draw-Dateien von Viktoria): „dies sind die dateien für draw soweit“\
+**Accepted**: Review der Draw-Datenschicht. Der DrawMapper benutzte Felder, die es nicht gibt (drawId, assignmentId), und kompilierte nicht. Claude lieferte Änderungs-Snippets für Viktoria: Mapper korrigiert, Zuordnungen nach Wichtel-Name sortiert (ohne Groß-/Kleinschreibung), neue Abfrage `observeGroupDrawOverview`, Ergebnis `DrawTypeRulesUndefined` statt erfundener Schrottwichtel-Regeln.\
+**Decision**: Wir behalten das Snapshot-Modell für Auslosungen.\
+**Commits**: (von Viktoria eingebaut)
+
+**Prompt 2** (sinngemäß; aus einem früheren Gemini-Chat, Wortlaut nicht mehr vorhanden; die Prompts wurden auf meinen Wunsch neu geschrieben „ohne die Integration der Route, die Route macht Person A vollständig“):
+(a) Draw-UiStates mit temporären Platzhalter-Modellen (TemporaryDrawPlaceholders.kt). (b) Zustandsloser DrawHistoryScreen mit Previews.\
+**Accepted**: As is.\
+**Commits**: 16a0a3a, 005a158
+
+**Prompt 3**:
+Lies zuerst AGENTS.md. orientiere dich im Stil an ui/groups/detail/GroupDetailScreen.kt. Lege im Paket com.example.wichtly.ui.draws die Datei DrawDetailScreen.kt an. Kein ViewModel, kein Repository, keine Navigation, keine Dependencies, kein !!.
+
+Zustandsloser Composable DrawDetailScreen(state: DrawDetailUiState, onBack: () -> Unit, onGiverClick: (giverId: String) -> Unit, modifier: Modifier = Modifier), keine Standardwerte außer modifier. TopAppBar “Auslosung ansehen” mit Zurück-Aktion. Geprüft in dieser Reihenfolge: Laden, Fehler, nicht gefunden (Text “Auslosung nicht gefunden” mit Zurück-Button), sonst Inhalt.
+
+Der Inhalt ist eine LazyColumn: Kopfbereich mit Gruppenname, Datum, Teilnehmerzahl und Wichtelart, dazu der Hinweis “Gespeicherter Durchlauf, nur lesend”, dann je Zuordnung eine Karte mit key = giverId, die NUR den Namen der schenkenden Person und den Platzhalter “→ ••••” zeigt. Wichtig für die Geheimhaltung: Der Name der beschenkten Person darf in der Liste nirgends vorkommen, weder als Text noch in einer contentDescription noch in einem semantics-Text. Ein Tipp auf die Karte ruft onGiverClick(giverId) auf, die Karte beschreibt sich per contentDescription als “<Name>, Ergebnis anzeigen”.
+
+Previews: mit sechs Zuordnungen, Laden, Fehler, nicht gefunden. Fake-Daten nur in den Previews. Kommentare auf Deutsch. Das Projekt muss bauen. Fasse zusammen.\
+**Accepted**: As is. Der Name der beschenkten Person kommt in der Liste nirgends vor, auch nicht in contentDescription oder semantics.\
+**Commits**: 9d6624d
+
+**Prompt 4**:
+Lies zuerst AGENTS.md und orientiere dich an ui/groups/detail/ParticipantDeleteDialog.kt. Lege im Paket com.example.wichtly.ui.draws die Dateien DrawRevealConfirmDialog.kt und DrawResultDialog.kt an. Kein ViewModel, kein Repository, keine Dependencies, kein !!.
+
+DrawRevealConfirmDialog: zustandsloser AlertDialog mit giverName, onConfirm, onDismiss. Text: “<Name>: geloste Person anzeigen? Stelle sicher, dass niemand auf deinen Bildschirm schauen kann.” Buttons “Anzeigen” und “Abbrechen”.
+
+DrawResultDialog: zustandsloser AlertDialog mit assignment: TemporaryDrawAssignment und onDismiss. Zeigt “<Schenkender> → <Beschenkter>“ und darunter die Wunschliste des Beschenkten als Aufzählung aus assignment.wishes. Ist die Liste leer, steht dort “Zum Zeitpunkt der Auslosung waren keine Wünsche eingetragen.” Ein Button “Schließen”. Previews für beide, bei dem Ergebnisdialog mit drei Wünschen, ohne Wünsche und mit sehr langem Wunschtext. Kommentare auf Deutsch. Das Projekt muss bauen. Fasse zusammen.\
+**Accepted**: As is.\
+**Commits**: 0a16ed8
+
+**Prompt 5**:
+Lies zuerst AGENTS.md. Ändere nur DrawDetailScreen.kt. Der Screen bleibt zustandslos. Ergänze die Parameter onConfirmReveal: () -> Unit, onDismissConfirm: () -> Unit und onDismissResult: () -> Unit, ohne Standardwerte, vor modifier. Zeige DrawRevealConfirmDialog, wenn state.confirmGiverId gesetzt ist und in den Zuordnungen des Durchlaufs ein Eintrag mit dieser giverId existiert (giverName von dort). Zeige DrawResultDialog, wenn state.revealedGiverId gesetzt ist und ein Eintrag existiert, und übergib nur diese eine Zuordnung. Existiert der Eintrag nicht, wird kein Dialog gezeigt. Die Dialoge liegen über dem Inhalt und nicht in der Verzweigung der Zustände Laden, Fehler und nicht gefunden. Passe alle Previews an und füge zwei hinzu: offene Sicherheitsabfrage und offenes Ergebnis. Kommentare auf Deutsch. Das Projekt muss bauen. Fasse zusammen.\
+**Accepted**: As is.\
+**Commits**: a43b17b
+
+**Prompt 6**:
+Aufgabe: Erstelle ViewModel und Factory für den Screen DrawDetailScreen. Die UI bleibt unverändert. Es wird KEINE Route erstellt (die macht eine andere Person).
+
+STRIKTE REGELN
+- Führe keine git-Befehle aus (kein checkout, stash, reset, commit).
+- Ändere oder erstelle NUR diese Dateien in ui/draws/: DrawDetailViewModel.kt, DrawDetailViewModelFactory.kt, und passe DrawDetailScreen.kt NUR dort an, wo unten beschrieben.
+- Erstelle keine DrawDetailRoute. Fasse MainActivity.kt, AppContainer.kt, Navigation und alle Data-/Domain-Dateien nicht an.
+- Kein !!, keine stillen catch-Blöcke, CancellationException immer weiterwerfen, Log.e bei Fehlern.
+
+KONTEXT
+- Lies zuerst DrawDetailScreen.kt (mit TemporaryDraw, TemporaryDrawAssignment und dem UiState-Typ), ui/wishlist/WishlistViewModel.kt und WishlistViewModelFactory.kt. Übernimm genau deren Muster (StateFlow, stateIn WhileSubscribed(5_000), Factory).
+- Echte Domain-Modelle (domain/model): DrawDetail(id, groupId, drawnAt, drawType, assignments), DrawAssignment(id, giverName, giverId, receiverName, receiverId, receiverWishlistItems: List<DrawWishListItemSnapshot>), DrawWishListItemSnapshot(id, text, sortOrder).
+- Repository: DrawRepository.observeDrawDetailById(drawId: String): Flow<DrawDetail?>.
+
+ANFORDERUNGEN
+1. DrawDetailViewModel(drawId: String, drawRepository: DrawRepository):
+   - UiState mit den vier Zuständen aus dem Screen: Laden, Inhalt, Nicht gefunden (Flow liefert null), Fehler (Flow wirft; per .catch abfangen, CancellationException weiterwerfen, Log.e, Nachricht "Fehler beim Laden der Auslosung.").
+   - Die DrawDetail wird in die UI-Modelle gemappt (private Funktion im ViewModel). Zuordnungen nach giverName ohne Groß-/Kleinschreibung sortieren, dann nach giverId. Wünsche nach sortOrder, nur der Text.
+   - Dialog-Zustand: confirmGiverId: String? und revealedGiverId: String? (nur IDs, keine Namen).
+     onGiverClick(giverId) setzt confirmGiverId. onConfirmReveal setzt revealedGiverId = confirmGiverId und confirmGiverId = null. onDismissConfirm und onDismissResult setzen jeweils auf null. Existiert die giverId nicht in der aktuellen Liste, passiert nichts.
+   - Öffentliche Funktion onAppStopped(): schließt beide Dialoge (wird später von der Route bei ON_STOP aufgerufen).
+   - Dialog-Zustand liegt im ViewModel, damit er die Rotation übersteht.
+2. DrawDetailViewModelFactory(drawId, drawRepository) wie bei Wishlist.
+3. DrawDetailScreen: bleibt stateless; nur die Typen TemporaryDraw/TemporaryDrawAssignment durch die neuen UI-Modelle ersetzen, falls nötig. Der Hinweiskasten "draw-detail-snapshot-hint" bleibt. Previews müssen weiter kompilieren.
+
+Gib am Ende eine Liste der geänderten Dateien aus. Keine Tests, keine Route.\
+**Accepted**: ViewModel und Factory.\
+**Changed**: Gruppenname im Kopf zunächst als Platzhalter „Wichtelgruppe“.\
+**Checked**: Review durch Claude vor dem Push auf den Branch `diana`.\
+**Commits**: b4f671b
+
+### 2026-11-18 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+Umbenennung von TemporaryDrawPlaceholders.kt in DrawDetailUiModels.kt (Klassen DrawDetailUiModel, DrawAssignmentUiModel) von Hand mit dem Refactoring in Android Studio, auf Empfehlung von Claude erst nach dem ViewModel. Kein KI-Prompt.\
+**Commits**: 5edf8bb
+
+**Prompt 1**:
+was haben diese 31 errors zu bedeuten\
+**Prompt 2**:
+ja\
+**Accepted**: Erklärung von Gemini: Nach dem Umbenennen verwiesen noch Stellen auf die alten Klassennamen. Auf „ja“ hat Gemini die Verweise korrigiert.\
+**Checked**: Build wieder grün.\
+**Commits**: d8b345a
+
+**Prompt 3**:
+Aufgabe: Erstelle ViewModel und Factory für den DrawHistoryScreen und stelle UiState und Screen auf ein echtes UI-Modell um. Es wird KEINE Route erstellt (die macht eine andere Person).
+
+STRIKTE REGELN
+- Führe keine git-Befehle aus (kein checkout, stash, reset, commit).
+- Ändere oder erstelle NUR diese Dateien in ui/draws/: DrawHistoryViewModel.kt, DrawHistoryViewModelFactory.kt, DrawHistoryUiState.kt, DrawHistoryScreen.kt. Das neue UI-Modell DrawHistoryItemUiModel kommt in DrawHistoryUiState.kt.
+- Fasse MainActivity.kt, AppContainer.kt, Navigation, DrawDetail*-Dateien und alle Data-/Domain-Dateien nicht an.
+- Kein !!, keine stillen catch-Blöcke, CancellationException immer weiterwerfen, Log.e bei Fehlern.
+
+KONTEXT
+- Lies zuerst DrawHistoryUiState.kt, DrawHistoryScreen.kt, ui/draws/DrawDetailViewModel.kt und DrawDetailViewModelFactory.kt. Übernimm exakt deren Muster (combine, stateIn WhileSubscribed(5_000), Factory).
+- Repositories:
+  - DrawRepository.observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> (bereits von neu nach alt sortiert).
+  - GiftGroupRepository.getGiftGroupById(id: String): Flow<GiftGroup?> (GiftGroup hat name).
+- Domain-Modell DrawSummary(id, groupId, drawnAt: Instant, drawType: DrawType, assignmentCount: Int).
+
+ANFORDERUNGEN
+1. DrawHistoryUiState.kt: Neues UI-Modell
+   data class DrawHistoryItemUiModel(val id: String, val drawnAt: LocalDate, val drawType: DrawType, val assignmentCount: Int)
+   DrawHistoryUiState: List<TemporaryDraw> durch List<DrawHistoryItemUiModel> ersetzen. Die übrigen Felder (isLoading, groupName, groupNotFound, errorMessage) bleiben. KDoc anpassen. Wenn TemporaryDraw dort noch vorkommt, entfernen. Wenn Klassen aus der Detail-Datei umbenannt wurden, deren neue Namen verwenden.
+2. DrawHistoryViewModel(groupId: String, drawRepository: DrawRepository, giftGroupRepository: GiftGroupRepository):
+   - uiState per combine aus dem Gruppen-Flow und dem Summaries-Flow, stateIn(WhileSubscribed(5_000)), Anfangswert isLoading = true.
+   - Gruppe null -> groupNotFound = true (kein Fehler). Leere Liste ist ein gültiger Zustand.
+   - Mapping: drawnAt per ZoneId.systemDefault().toLocalDate(), Reihenfolge unverändert lassen.
+   - Fehler in einem der Flows per .catch abfangen: CancellationException weiterwerfen, Log.e, errorMessage = "Fehler beim Laden der Historie." (keine Exception nach außen).
+   - Keine Dialoge, keine weiteren Callbacks.
+3. DrawHistoryViewModelFactory(groupId, drawRepository, giftGroupRepository) wie bei Detail.
+4. DrawHistoryScreen: Signatur unverändert (state, onBack, onOpenDraw(drawId), modifier). Karten nutzen draw.drawnAt und draw.assignmentCount statt draw.createdAt und draw.assignments.size. Texte und Layout bleiben. Alle Previews auf DrawHistoryItemUiModel umstellen, sie müssen kompilieren.
+
+Gib am Ende die Liste der geänderten Dateien aus. Keine Tests, keine Route.\
+**Accepted**: As is.\
+**Checked**: Review durch Claude: CancellationException wird weitergeworfen, Log.e vorhanden, keine Platzhalter mehr. Offener Hinweis: Zwei Auslosungen am selben Tag sehen in der Liste gleich aus (nur Datum, keine Uhrzeit).\
+**Commits**: b6924e2
+
+Teamabsprache vorab (Nachricht von Viktoria): Die Foto-UI für Gruppen und Teilnehmer ist fast gleich und soll nur einmal gebaut werden, parametrisiert über den Bereich. Ich übernehme die gemeinsamen Bausteine.
+
+**Prompt 4**:
+Aufgabe: Erstelle gemeinsame, zustandslose (stateless) UI-Bausteine für die Foto-Funktion von Gruppen UND Teilnehmern. Es ist ein reiner UI-Schritt: keine Kamera, keine Berechtigungslogik, keine Dateizugriffe, kein ViewModel.
+
+STRIKTE REGELN
+- Führe keine git-Befehle aus (kein checkout, stash, reset, commit).
+- Erstelle NUR neue Dateien im neuen Paket ui/components/photo/ (siehe unten). Ändere KEINE bestehende Datei, insbesondere nicht GroupFormScreen.kt, ParticipantEditorDialog.kt, MainActivity.kt, AndroidManifest.xml, build.gradle.kts und nichts in data/domain.
+- Keine neuen Dependencies (kein Coil, kein Accompanist).
+- Alle Bausteine sind zustandslos: Zustand und Callbacks kommen von außen (State Hoisting). Kein remember von fachlichem Zustand.
+- Alle Texte auf Deutsch. Es gibt KEINE Galerie-Auswahl, nur die Kamera.
+- Jeder Baustein bekommt ein KDoc, eine Preview in WichtlyTheme und einen `modifier: Modifier = Modifier`.
+- Orientiere dich an Stil, Abständen und Typografie der vorhandenen Dialoge (ui/groups/detail/ParticipantDeleteDialog.kt, ParticipantEditorDialog.kt) und an Material 3.
+
+KONTEXT
+Das Foto wird sowohl im Gruppenformular als auch im Teilnehmer-Dialog verwendet. Die UI ist fast identisch, nur die Texte unterscheiden sich. Deshalb gibt es EINE Implementierung, parametrisiert über einen Bereich:
+
+enum class PhotoArea { GROUP, PARTICIPANT }
+
+Datei PhotoArea.kt mit dem enum und einer Texttabelle (z. B. interne Funktionen oder Properties am enum) für:
+- fieldTitle: GROUP "Gruppenfoto (optional)" / PARTICIPANT "Teilnehmerfoto (optional)"
+- emptyTitle: GROUP "Noch kein Gruppenfoto" / PARTICIPANT "Noch kein Foto"
+- emptyHint: GROUP "Die App funktioniert auch ohne Foto." / PARTICIPANT "Die Wunschliste und Verwaltung funktionieren auch ohne Foto."
+- dialogTitle: GROUP "Gruppenfoto" / PARTICIPANT "Teilnehmerfoto"
+
+BAUSTEINE (je eine Datei in ui/components/photo/)
+1. PhotoPickerField.kt: `PhotoPickerField(area: PhotoArea, hasPhoto: Boolean, onSelectClick: () -> Unit, modifier)`.
+   Gestrichelt umrandete Karte wie im Mockup: links ein "+"-Symbol in einem runden Feld, in der Mitte emptyTitle und emptyHint (bei hasPhoto == true stattdessen "Foto gespeichert" und "Tippe auf Ändern, um ein neues Foto aufzunehmen."), rechts ein Button "Auswählen" (bei hasPhoto "Ändern"). Über der Karte der Feldtitel (fieldTitle). Es wird KEIN Bild geladen; eine Vorschaubild-Anzeige kommt in einem späteren Schritt.
+2. PhotoSourceDialog.kt: `PhotoSourceDialog(area: PhotoArea, hasPhoto: Boolean, onTakePhoto: () -> Unit, onRemovePhoto: () -> Unit, onDismiss: () -> Unit, modifier)`.
+   Dialog mit dialogTitle und dem Hinweis "Das Foto wird nur auf diesem Gerät gespeichert.". Eintrag "Foto aufnehmen" mit Untertitel "Die Kamera wird erst jetzt angefragt." Wenn hasPhoto == true zusätzlich der Eintrag "Foto entfernen". Unten "Abbrechen".
+3. CameraPermissionDialog.kt: `CameraPermissionDialog(onAllow: () -> Unit, onDeny: () -> Unit, modifier)`.
+   AlertDialog, Titel "Kamerazugriff", Text "Kamerazugriff wird nur für die Fotoaufnahme benötigt. Eine Ablehnung blockiert weder das Formular noch die App – du kannst auch ohne Foto weiterarbeiten." Buttons "Nicht erlauben" (onDeny) und "Erlauben" (onAllow). onDismissRequest ruft onDeny auf.
+4. CameraPermissionDeniedHint.kt: `CameraPermissionDeniedHint(onOpenSettings: (() -> Unit)?, modifier)`.
+   Kleine Hinweiskarte (Warn-/Container-Farbe aus MaterialTheme) mit "Kamerazugriff wurde abgelehnt. Du kannst die App weiter ohne Foto nutzen." und, nur wenn onOpenSettings != null, einem TextButton "Einstellungen öffnen".
+
+PREVIEWS (privat, in WichtlyTheme)
+- PhotoPickerField: GROUP leer, PARTICIPANT leer, PARTICIPANT mit Foto.
+- PhotoSourceDialog: GROUP ohne Foto, PARTICIPANT mit Foto.
+- CameraPermissionDialog und CameraPermissionDeniedHint (mit und ohne Einstellungen-Button).
+
+Gib am Ende die Liste der neuen Dateien aus. Keine Tests, kein Einbau in bestehende Screens.\
+**Accepted**: Fünf Dateien (PhotoArea, PhotoPickerField, PhotoSourceDialog, CameraPermissionDialog, CameraPermissionDeniedHint).\
+**Changed**: Der Rahmen ist durchgezogen statt gestrichelt wie im Mockup (gestrichelt bräuchte ein Canvas, lohnt sich nicht).\
+**Commits**: 8e9244f
 
 ### 2026-11-19 (Viktoria)
 **Prompt 1**:
@@ -655,6 +928,26 @@ uiState.cameraDeniedGroupId?.let {
 }.filterValues { it.exists() }, .\
 **Geaendert**:      Komentare
 **Commits:**        94961c9
+
+### 2026-11-23 (Diana, Folz), Gemini in Android Studio, Claude.ai (pro)
+
+**Prompt 1**:
+Aufgabe: Die Buttons „Auslosung durchführen →“ und „Ansehen“ (Historie) im Gruppendetail haben leere onClick-Blöcke. Gib dem Screen zwei Callbacks, reiche sie bis zu den Buttons durch und über die GroupDetailRoute nach außen. Die eigentliche Navigation baut Person A, nicht hier.
+
+STRIKTE REGELN
+- Führe keine git-Befehle aus (kein checkout, stash, reset, commit).
+- Erlaubte Änderungen: GroupDetailScreen.kt, GroupDetailRoute.kt und in navigation/AppNavHost.kt ausschließlich der Aufruf von GroupDetailRoute. Nichts sonst, keine neuen Dependencies, Button-Texte unverändert lassen.
+- Der Screen bleibt zustandslos und kennt keine IDs und keine Navigation.
+
+1. GroupDetailScreen: neue Parameter `onPrepareDraw: () -> Unit` und `onOpenHistory: () -> Unit` ohne Standardwerte, durchgereicht über GroupDetailContentState bis DrawAndHistorySection und dort als onClick der beiden Buttons. KDoc ergänzen.
+2. Alle 8 @Preview-Funktionen: `onPrepareDraw = {}` und `onOpenHistory = {}` ergänzen.
+3. GroupDetailRoute: `onPrepareDraw: (groupId: String) -> Unit` und `onOpenHistory: (groupId: String) -> Unit`, Aufruf mit `{ onPrepareDraw(groupId) }` (gleiches Muster wie onEditGroupClick).
+4. AppNavHost.kt: vorläufig zwei Platzhalter mit `TODO(A)`.
+5. Weitere Aufrufer per Grep suchen und nennen.\
+**Accepted**: As is.\
+**Changed**: Vor dem Prompt hat Claude die echten Dateien gelesen. Die Buttons liegen in einem privaten Composable zwei Ebenen tief, der erste Prompt-Entwurf hätte das übersehen. Auf meine Frage, ob ich damit in A's AppNavHost etwas kaputt mache: nein, es sind nur zwei Platzhalter. A ersetzt sie durch die echten Ziele (`Routes.preparation(id)`, `Routes.drawHistory(id)`).\
+**Checked**: Review der drei Dateien durch Claude, Build, alle Tests grün.\
+**Commits**: a6c62cd
 
 
 ### 2026-11-23 (Viktoria)
