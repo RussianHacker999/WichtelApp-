@@ -1171,7 +1171,14 @@ self-made projects or Android).
 - Data model (DB, entities, fields) requires especially careful review.
 
 **Diana**
-- *To be added.*
+- Scope: name the exact files Gemini may touch, everything else is off-limits
+- Rules in every prompt: no !!, no silent catch, rethrow CancellationException, IDs instead of names, no new dependencies
+- Git stays with me: Gemini never commits, resets or checks out
+- Plan first: use /plan or "analyse only, change nothing" before larger changes
+- Verify facts: let Gemini read the real code and not invent class or method names
+- Review before every commit: build, previews, emulator, and Claude reading the changed files
+- Tests as a counter-check: red tests are analysed first, not "fixed" by changing the test
+- Ownership: no edits to other people's files (e.g. AppNavHost) beyond placeholders, and tell them about it
 
 **Melissa**
 - *To be added.*
