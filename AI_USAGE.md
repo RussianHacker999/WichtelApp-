@@ -1509,7 +1509,9 @@ WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
 - There was a focus on the lecture content (Android Studio with Grandel, Kotlin, Material 3, Emulator 
   (I worked with a virtual device: Pixel 8 with Android 17.0 and API 37.0 - as slides 01)
 - The elements from Material 3 are great for creating a beautiful app design
+- The elements drom Material 3 (and AI) helped us building faster a pretty UI. Without it, we would have spent more time implementing UI components ourselves. In addition, this gives our app the familiar Google design
 - We separate the UI, logic and data (e.g.by MVVM, repositorys and DAO)
+- At first, I worked exclusively with the free version of Copilot AI. As the project progressed, I signed up for GitHub Education. This allowed me to use an integrated AI agent in the project. I found that this enabled me to write code faster and with higher quality.
 
 **Team**
 - Some members wanted to begin with free assistants, that is why no common start setup was possible.
@@ -1545,7 +1547,8 @@ self-made projects or Android).
   I can control a virtual Device.
 - I understand the data flow behind our MVVM models
 - I learned about permissions (e.g. for camera access)
-- I learnd tha you can save Date permanent via Database. In Android Studio a greate solution is Room.
+- I learnd tha you can save Data permanent via Database. Before this project I mainly worked with temporary data.
+  In Android Studio a greate solution is Room. Room provides various annotations, such as @Entity, @Dao, and @Database, allowing         you to interact with an SQL database using concise code.
 
 **Team**
 
@@ -1580,7 +1583,13 @@ self-made projects or Android).
   - missing context about other people's code, e.g. missing GroupsScreen callbacks
 
 **Melissa**
-- *To be added.*
+- Helped:
+  - It helped me understand by explaining individual parts of the code from ver KI.
+  - Integrated AI agents can create beautiful UI elements
+- Got in the way:
+  - When I had a merge conflict, resolving it took a long time.
+    Going forward, we'll coordinate who will edit a file and when. 
+    We'll also merge the individual edits more often to avoid conflicts and make progress visible.
 
 **Team**
 - Helped:
@@ -1615,7 +1624,9 @@ let agents criticise own decisions more thoroughly.
 - Use one (Gemini) chat per feature so the history stays easy to follow
 
 **Melissa**
-- *To be added.*
+- For the next project, I would plan the architecture in more detail earlier on.
+- I would also define the functionality and navigation paths for each screen before starting to code.
+- Next time, I would use an integrated AI agent from the very beginning, because it can be tailored specifically to the project.
 
 **Team**
 - Instruct AI to keep files small(er)
