@@ -120,6 +120,11 @@ fun WichtlyDialog(
     )
 }
 
+/**
+ * Design for an icon in WichtlyDialog
+ * @param icon icon to show
+ * @param destructive whether the icon would have the color in MaterialTheme.colorScheme.error
+ */
 @Composable
 private fun DialogIcon(icon: ImageVector, destructive: Boolean) {
     val tint = if (destructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
