@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.dp
  *
  * Base scale: xxs 2 · xs 4 · tight 6 · s 8 · inline 10 · m 12 · relaxed 14 · l 16 · xl 24 · xxl 32 dp.
  * The intermediate steps (tight, inline, relaxed) are named after their use in the design.
- * Role tokens (screen, section, cardGap, cardPadding) describe recurring layout positions.
+ * Role tokens (screen, cardGap, cardPadding) describe recurring layout positions.
  * Exception: fixed dimensions of a single building block (gift tag, start image) are named
  * constants in its own file. Sizes (avatar, icon, button) are not spacing.
  */
@@ -32,9 +32,6 @@ object Spacing {
 
     /** Side margin (left/right) of the list screens. */
     val screen = 16.dp
-
-    /** Gap between two sections of a screen. */
-    val section = 24.dp
 
     /** Gap between two cards in a list. */
     val cardGap = 12.dp

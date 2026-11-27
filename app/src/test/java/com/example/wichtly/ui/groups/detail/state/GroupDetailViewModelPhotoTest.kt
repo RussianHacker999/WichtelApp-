@@ -1,7 +1,6 @@
 package com.example.wichtly.ui.groups.detail.state
 
 import androidx.lifecycle.SavedStateHandle
-import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.repository.ParticipantRepository
