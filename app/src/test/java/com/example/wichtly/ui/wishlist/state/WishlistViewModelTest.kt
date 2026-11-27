@@ -10,7 +10,6 @@ import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.MainDispatcherRule
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -31,7 +30,6 @@ import org.junit.Test
  * must actively subscribe to the state via `backgroundScope.launch { viewModel.uiState.collect {} }`
  * before accessing `viewModel.uiState.value`.
  */
-@OptIn(ExperimentalCoroutinesApi::class)
 class WishlistViewModelTest {
 
     @get:Rule
