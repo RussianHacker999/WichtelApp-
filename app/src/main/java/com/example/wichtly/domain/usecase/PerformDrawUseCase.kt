@@ -51,7 +51,10 @@ class PerformDrawUseCase(
         }
         if (errors.isNotEmpty()) {
             // The UI disables "Draw" in these cases; a call that still arrives here is suspicious
-            AppLog.w(TAG, "Draw for group $groupId rejected: ${errors.joinToString()} (${participants.size} participants, draw day ${group.drawDay})")
+            AppLog.w(
+                TAG,
+                "Draw for group $groupId rejected: ${errors.joinToString()} (${participants.size} participants, draw day ${group.drawDay})",
+            )
             return DrawResult.ValidationError(errors)
         }
 

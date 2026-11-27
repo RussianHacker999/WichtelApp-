@@ -13,23 +13,15 @@ import kotlinx.coroutines.flow.map
  * Room implementation of [GiftGroupRepository]. Persistence only: validation happens
  * beforehand in SaveGiftGroupUseCase.
  */
-class GiftGroupRepositoryImpl(
-    private val giftGroupDao: GiftGroupDao,
-) : GiftGroupRepository {
+class GiftGroupRepositoryImpl(private val giftGroupDao: GiftGroupDao) : GiftGroupRepository {
 
-    override fun observeGiftGroups(): Flow<List<GiftGroup>> {
-        return giftGroupDao.observeGiftGroups().map { it.toDomainModels() }
-    }
+    override fun observeGiftGroups(): Flow<List<GiftGroup>> = giftGroupDao.observeGiftGroups().map { it.toDomainModels() }
 
-    override fun observeGiftGroupById(id: String): Flow<GiftGroup?> {
-        return giftGroupDao.observeGiftGroupById(id).map { it?.toDomainModel() }
-    }
+    override fun observeGiftGroupById(id: String): Flow<GiftGroup?> = giftGroupDao.observeGiftGroupById(id).map { it?.toDomainModel() }
 
-    override suspend fun getGiftGroups(): List<GiftGroup> =
-        giftGroupDao.getGiftGroups().toDomainModels()
+    override suspend fun getGiftGroups(): List<GiftGroup> = giftGroupDao.getGiftGroups().toDomainModels()
 
-    override suspend fun getGiftGroupById(id: String): GiftGroup? =
-        giftGroupDao.getGiftGroupById(id)?.toDomainModel()
+    override suspend fun getGiftGroupById(id: String): GiftGroup? = giftGroupDao.getGiftGroupById(id)?.toDomainModel()
 
     override suspend fun getAllPhotoPaths(): List<String> = giftGroupDao.getAllPhotoPaths()
 
@@ -38,8 +30,7 @@ class GiftGroupRepositoryImpl(
     }
 
     // @Update returns the number of updated rows; 0 means the group does not exist (any more)
-    override suspend fun updateGiftGroup(group: GiftGroup): Boolean =
-        giftGroupDao.updateGiftGroup(group.toEntity()) > 0
+    override suspend fun updateGiftGroup(group: GiftGroup): Boolean = giftGroupDao.updateGiftGroup(group.toEntity()) > 0
 
     override suspend fun deleteGiftGroup(id: String) {
         giftGroupDao.deleteGiftGroupById(id)

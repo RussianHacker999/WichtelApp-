@@ -15,10 +15,7 @@ private const val TAG = "SecretSantaDrawAlgorithm"
  * @param random source of randomness; tests pass a seeded instance.
  * @param maxAttempts number of random shuffles before the ring fallback is used.
  */
-class SecretSantaDrawAlgorithm(
-    private val random: Random = Random.Default,
-    private val maxAttempts: Int = 100,
-) {
+class SecretSantaDrawAlgorithm(private val random: Random = Random.Default, private val maxAttempts: Int = 100) {
     /**
      * Creates a random derangement (giverId -> receiverId) for the given participant IDs.
      *

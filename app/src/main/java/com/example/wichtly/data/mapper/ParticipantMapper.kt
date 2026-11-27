@@ -8,7 +8,7 @@ fun ParticipantEntity.toDomainModel(): Participant = Participant(
     id = id,
     groupId = groupId,
     name = name,
-    photoPath = photoPath
+    photoPath = photoPath,
 )
 
 /** Converts the domain model into a Room row. */
@@ -16,7 +16,7 @@ fun Participant.toEntity(): ParticipantEntity = ParticipantEntity(
     id = id,
     groupId = groupId,
     name = name,
-    photoPath = photoPath
+    photoPath = photoPath,
 )
 
 /** Converts a list of Room rows into domain models, keeping the order. */

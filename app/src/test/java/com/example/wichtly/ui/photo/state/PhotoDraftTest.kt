@@ -5,6 +5,7 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import java.io.File
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -12,7 +13,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 /**
  * Unit tests for [PhotoDraft]: which photos are deleted when replacing, discarding and saving,

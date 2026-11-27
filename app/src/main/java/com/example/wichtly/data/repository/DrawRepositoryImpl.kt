@@ -15,21 +15,14 @@ import kotlinx.coroutines.flow.map
  * Room implementation of [DrawRepository]. Persistence only: whether a draw is allowed and what
  * the assignment looks like is decided by PerformDrawUseCase.
  */
-class DrawRepositoryImpl(
-    private val drawDao: DrawDao,
-) : DrawRepository {
-    override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> {
-        return drawDao.observeDrawsByGroupId(groupId)
-            .map { it.toSummaries() }
-    }
+class DrawRepositoryImpl(private val drawDao: DrawDao) : DrawRepository {
+    override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> = drawDao.observeDrawsByGroupId(groupId)
+        .map { it.toSummaries() }
 
-    override fun observeDrawDetailById(drawId: String): Flow<DrawDetail?> {
-        return drawDao.observeDrawDetailById(drawId)
-            .map { it?.toDomainModel() }
-    }
+    override fun observeDrawDetailById(drawId: String): Flow<DrawDetail?> = drawDao.observeDrawDetailById(drawId)
+        .map { it?.toDomainModel() }
 
-    override suspend fun getDrawSource(groupId: String): DrawSource? =
-        drawDao.getDrawSource(groupId)?.toDomainModel()
+    override suspend fun getDrawSource(groupId: String): DrawSource? = drawDao.getDrawSource(groupId)?.toDomainModel()
 
     override suspend fun insertDraw(draw: DrawDetail) {
         // Draw, assignments and wishlist snapshots in one transaction (DrawDao.insertCompleteDraw)

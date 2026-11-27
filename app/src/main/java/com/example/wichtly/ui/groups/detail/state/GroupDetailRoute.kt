@@ -11,7 +11,6 @@ import com.example.wichtly.ui.groups.detail.screen.GroupDetailActions
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorActions
 
-
 /**
  * Stateful route of the group detail screen.
  *
@@ -47,7 +46,6 @@ fun GroupDetailRoute(
             viewModel.onGroupDeletedHandled()
         }
     }
-
 
     val actions = GroupDetailActions(
         onBack = onBack,

@@ -16,10 +16,9 @@ import kotlinx.coroutines.flow.map
  * @param tag log tag of the ViewModel.
  * @param logMessage description for the log (without personal data).
  */
-fun <T> Flow<T>.asResult(tag: String, logMessage: String): Flow<Result<T>> =
-    map { Result.success(it) }
-        .catch { e ->
-            if (e is CancellationException) throw e
-            AppLog.e(tag, logMessage, e)
-            emit(Result.failure(e))
-        }
+fun <T> Flow<T>.asResult(tag: String, logMessage: String): Flow<Result<T>> = map { Result.success(it) }
+    .catch { e ->
+        if (e is CancellationException) throw e
+        AppLog.e(tag, logMessage, e)
+        emit(Result.failure(e))
+    }

@@ -13,32 +13,20 @@ import java.time.LocalDate
  */
 class Converters {
     @TypeConverter
-    fun fromString(value: String?): LocalDate? {
-        return value?.let { LocalDate.parse(it) }
-    }
+    fun fromString(value: String?): LocalDate? = value?.let { LocalDate.parse(it) }
 
     @TypeConverter
-    fun dateToString(date: LocalDate?): String? {
-        return date?.toString()
-    }
+    fun dateToString(date: LocalDate?): String? = date?.toString()
 
     @TypeConverter
-    fun fromTimestamp(value: Long?): Instant? {
-        return value?.let { Instant.ofEpochMilli(it) }
-    }
+    fun fromTimestamp(value: Long?): Instant? = value?.let { Instant.ofEpochMilli(it) }
 
     @TypeConverter
-    fun instantToTimestamp(instant: Instant?): Long? {
-        return instant?.toEpochMilli()
-    }
+    fun instantToTimestamp(instant: Instant?): Long? = instant?.toEpochMilli()
 
     @TypeConverter
-    fun fromDrawType(drawType: DrawType?): String? {
-        return drawType?.name
-    }
+    fun fromDrawType(drawType: DrawType?): String? = drawType?.name
 
     @TypeConverter
-    fun toDrawType(value: String?): DrawType? {
-        return value?.let { DrawType.valueOf(it) }
-    }
+    fun toDrawType(value: String?): DrawType? = value?.let { DrawType.valueOf(it) }
 }

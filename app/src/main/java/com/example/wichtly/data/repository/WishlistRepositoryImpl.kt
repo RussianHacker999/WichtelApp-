@@ -12,14 +12,11 @@ import kotlinx.coroutines.flow.map
  * Room implementation of [WishlistRepository]. Persistence only: validation happens
  * beforehand in SaveWishlistItemUseCase.
  */
-class WishlistRepositoryImpl(
-    private val wishlistItemDao: WishlistItemDao,
-) : WishlistRepository {
+class WishlistRepositoryImpl(private val wishlistItemDao: WishlistItemDao) : WishlistRepository {
 
-    override fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>> {
-        return wishlistItemDao.observeWishlistItemsByParticipantId(participantId)
+    override fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>> =
+        wishlistItemDao.observeWishlistItemsByParticipantId(participantId)
             .map { it.toDomainModels() }
-    }
 
     override suspend fun getWishlistItems(participantId: String): List<WishlistItem> =
         wishlistItemDao.getWishlistItemsByParticipantId(participantId).toDomainModels()
@@ -29,10 +26,8 @@ class WishlistRepositoryImpl(
     }
 
     // @Update returns the number of updated rows; 0 means the wish does not exist (any more)
-    override suspend fun updateWishlistItem(item: WishlistItem): Boolean =
-        wishlistItemDao.updateWishlistItem(item.toEntity()) > 0
+    override suspend fun updateWishlistItem(item: WishlistItem): Boolean = wishlistItemDao.updateWishlistItem(item.toEntity()) > 0
 
     // The DELETE query returns the number of deleted rows; 0 means the wish does not exist (any more)
-    override suspend fun deleteWishlistItem(id: String): Boolean =
-        wishlistItemDao.deleteWishlistItemById(id) > 0
+    override suspend fun deleteWishlistItem(id: String): Boolean = wishlistItemDao.deleteWishlistItemById(id) > 0
 }

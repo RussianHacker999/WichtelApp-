@@ -17,12 +17,7 @@ import com.example.wichtly.ui.draws.preparation.screen.PreparationScreen
  * @param onDrawStarted navigates to the result as soon as the draw is saved.
  */
 @Composable
-fun PreparationRoute(
-    groupId: String,
-    onBack: () -> Unit,
-    onDrawStarted: (drawId: String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun PreparationRoute(groupId: String, onBack: () -> Unit, onDrawStarted: (drawId: String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: PreparationViewModel = viewModel(
         key = groupId,
         factory = PreparationViewModel.factory(appContainer(), groupId),

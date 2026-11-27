@@ -46,6 +46,7 @@ import com.example.wichtly.ui.components.controls.PrimaryButton
 import com.example.wichtly.ui.components.controls.SectionActionButton
 import com.example.wichtly.ui.components.display.ChipTone
 import com.example.wichtly.ui.components.display.ListItemText
+import com.example.wichtly.ui.components.display.PhotoThumbnail
 import com.example.wichtly.ui.components.display.StatusChip
 import com.example.wichtly.ui.components.display.areaSparkles
 import com.example.wichtly.ui.components.display.formatCentsForInput
@@ -59,7 +60,6 @@ import com.example.wichtly.ui.components.layout.PageHeader
 import com.example.wichtly.ui.components.layout.SectionHeader
 import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.screenContentPadding
-import com.example.wichtly.ui.components.display.PhotoThumbnail
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
@@ -215,15 +215,15 @@ private fun HeroGroupCard(
                     modifier = Modifier.fillMaxSize(),
                     shape = RectangleShape,
                 )
-            // Without a photo file (no photo set or file missing): a gradient with sparkles and the initials
+                // Without a photo file (no photo set or file missing): a gradient with sparkles and the initials
             } else {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
                             Brush.linearGradient(
-                                listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary)
-                            )
+                                listOf(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.primary),
+                            ),
                         )
                         .areaSparkles(seed = group.id.hashCode()),
                 )
@@ -236,7 +236,11 @@ private fun HeroGroupCard(
                         .background(Color.White.copy(alpha = 0.92f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(text = initialsOf(group.name), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.inverseOnSurface)
+                    Text(
+                        text = initialsOf(group.name),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.inverseOnSurface,
+                    )
                 }
             }
             if (selected) {
@@ -271,7 +275,11 @@ private fun HeroGroupCard(
         ) {
             ListItemText(
                 title = group.name,
-                subtitle = stringResource(R.string.groups_card_subtitle, formatCentsForInput(group.budgetCents), stringResource(group.drawType.labelRes())),
+                subtitle = stringResource(
+                    R.string.groups_card_subtitle,
+                    formatCentsForInput(group.budgetCents),
+                    stringResource(group.drawType.labelRes()),
+                ),
                 // Takes all the remaining width; the Row's padding provides the gap to the card edge
                 modifier = Modifier.weight(1f),
             )
@@ -291,7 +299,13 @@ private fun HeroGroupCard(
 private fun GroupsScreenPreview() {
     val groups = listOf(
         GiftGroup(id = "1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24)),
-        GiftGroup(id = "2", name = "Büro Wichteln 2026", budgetCents = 1500, drawDay = LocalDate.of(2026, 12, 15), drawType = DrawType.JUNK),
+        GiftGroup(
+            id = "2",
+            name = "Büro Wichteln 2026",
+            budgetCents = 1500,
+            drawDay = LocalDate.of(2026, 12, 15),
+            drawType = DrawType.JUNK,
+        ),
         GiftGroup(id = "3", name = "Buchclub", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 8)),
     )
     WichtlyTheme {

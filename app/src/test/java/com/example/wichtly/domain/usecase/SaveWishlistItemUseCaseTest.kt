@@ -17,8 +17,7 @@ class SaveWishlistItemUseCaseTest {
 
     private val participantId = "p1"
 
-    private fun errorsOf(result: WishlistItemResult): List<WishlistValidationError> =
-        (result as WishlistItemResult.ValidationError).errors
+    private fun errorsOf(result: WishlistItemResult): List<WishlistValidationError> = (result as WishlistItemResult.ValidationError).errors
 
     @Test
     fun neuerWunschWirdHintenAngehaengt() = runTest {

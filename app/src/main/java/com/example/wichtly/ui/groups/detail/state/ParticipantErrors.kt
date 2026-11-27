@@ -12,10 +12,7 @@ import com.example.wichtly.domain.validation.ParticipantValidationError
  * @property nameError error message for the name input field in the dialog.
  * @property generalError general error message (e.g. "Participant not found").
  */
-data class ParticipantUiErrors(
-    @StringRes val nameError: Int? = null,
-    @StringRes val generalError: Int? = null
-)
+data class ParticipantUiErrors(@StringRes val nameError: Int? = null, @StringRes val generalError: Int? = null)
 
 /**
  * Translates a list of [ParticipantValidationError] from SaveParticipantUseCase into [ParticipantUiErrors].
@@ -27,9 +24,7 @@ data class ParticipantUiErrors(
  * Same pattern as the other error mappers: every error has exactly one text via `when`
  * ([messageRes]); if there are several errors of the same kind, the first in the list wins.
  */
-fun mapParticipantValidationErrors(
-    errors: List<ParticipantValidationError>,
-): ParticipantUiErrors = ParticipantUiErrors(
+fun mapParticipantValidationErrors(errors: List<ParticipantValidationError>): ParticipantUiErrors = ParticipantUiErrors(
     nameError = errors.firstOrNull { it.isNameError() }?.messageRes(),
     generalError = errors.firstOrNull { !it.isNameError() }?.messageRes(),
 )
@@ -37,9 +32,12 @@ fun mapParticipantValidationErrors(
 private fun ParticipantValidationError.isNameError(): Boolean = when (this) {
     ParticipantValidationError.EmptyName,
     ParticipantValidationError.NameTooLong,
-    ParticipantValidationError.DuplicateName -> true
+    ParticipantValidationError.DuplicateName,
+    -> true
+
     ParticipantValidationError.ParticipantNotFound,
-    ParticipantValidationError.GroupNotFound -> false
+    ParticipantValidationError.GroupNotFound,
+    -> false
 }
 
 @StringRes

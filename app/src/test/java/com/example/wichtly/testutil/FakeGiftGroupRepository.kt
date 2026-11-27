@@ -67,8 +67,7 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         return groupsFlow.value.find { it.id == id }
     }
 
-    override suspend fun getAllPhotoPaths(): List<String> =
-        groupsFlow.value.mapNotNull { it.photoPath }
+    override suspend fun getAllPhotoPaths(): List<String> = groupsFlow.value.mapNotNull { it.photoPath }
 
     override suspend fun insertGiftGroup(group: GiftGroup) {
         insertCalls++

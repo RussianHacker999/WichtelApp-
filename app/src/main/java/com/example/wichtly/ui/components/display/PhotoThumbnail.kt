@@ -28,10 +28,10 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.R
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.theme.WichtlyTheme
+import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 private const val TAG = "PhotoThumbnail"
 
@@ -47,11 +47,7 @@ private const val TAG = "PhotoThumbnail"
  * @param shape shape of the frame (default is [CircleShape]).
  */
 @Composable
-fun PhotoThumbnail(
-    file: File?,
-    modifier: Modifier = Modifier,
-    shape: Shape = CircleShape,
-) {
+fun PhotoThumbnail(file: File?, modifier: Modifier = Modifier, shape: Shape = CircleShape) {
     val bitmapState = produceState<ImageBitmap?>(initialValue = null, key1 = file) {
         value = withContext(Dispatchers.IO) {
             if (file == null || (!file.exists())) {
@@ -123,44 +119,42 @@ fun PhotoThumbnail(
  *
  * The old intermediate bitmap is recycled if a new rotated bitmap was created.
  */
-private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap {
-    return try {
-        val exifInterface = ExifInterface(filePath)
-        val orientation = exifInterface.getAttributeInt(
-            ExifInterface.TAG_ORIENTATION,
-            ExifInterface.ORIENTATION_NORMAL,
-        )
+private fun rotateBitmapIfNeeded(bitmap: Bitmap, filePath: String): Bitmap = try {
+    val exifInterface = ExifInterface(filePath)
+    val orientation = exifInterface.getAttributeInt(
+        ExifInterface.TAG_ORIENTATION,
+        ExifInterface.ORIENTATION_NORMAL,
+    )
 
-        val rotationDegrees = when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
-            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
-            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
-            else -> 0f
-        }
-
-        if (rotationDegrees == 0f) {
-            bitmap
-        } else {
-            val matrix = Matrix().apply { postRotate(rotationDegrees) }
-            val rotatedBitmap = Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.width,
-                bitmap.height,
-                matrix,
-                true
-            )
-            if (rotatedBitmap != bitmap) {
-                bitmap.recycle()
-            }
-            rotatedBitmap
-        }
-    } catch (e: Exception) {
-        // No rethrow of CancellationException: this is a plain function, not a coroutine
-        AppLog.w(TAG, "Could not read EXIF orientation, showing photo unrotated: ${filePath.substringAfterLast('/')}", e)
-        bitmap
+    val rotationDegrees = when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+        else -> 0f
     }
+
+    if (rotationDegrees == 0f) {
+        bitmap
+    } else {
+        val matrix = Matrix().apply { postRotate(rotationDegrees) }
+        val rotatedBitmap = Bitmap.createBitmap(
+            bitmap,
+            0,
+            0,
+            bitmap.width,
+            bitmap.height,
+            matrix,
+            true,
+        )
+        if (rotatedBitmap != bitmap) {
+            bitmap.recycle()
+        }
+        rotatedBitmap
+    }
+} catch (e: Exception) {
+    // No rethrow of CancellationException: this is a plain function, not a coroutine
+    AppLog.w(TAG, "Could not read EXIF orientation, showing photo unrotated: ${filePath.substringAfterLast('/')}", e)
+    bitmap
 }
 
 /**

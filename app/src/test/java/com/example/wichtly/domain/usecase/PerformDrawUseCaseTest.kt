@@ -10,12 +10,12 @@ import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for [PerformDrawUseCase]: checks before the draw and building the snapshot.
@@ -32,8 +32,7 @@ class PerformDrawUseCaseTest {
         drawType = DrawType.JUNK,
     )
 
-    private fun teilnehmer(anzahl: Int) =
-        (1..anzahl).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") }
+    private fun teilnehmer(anzahl: Int) = (1..anzahl).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") }
 
     @Test
     fun auslosungKopiertNamenUndWuenscheUndSpeichert() = runTest {
@@ -43,12 +42,18 @@ class PerformDrawUseCaseTest {
                 listOf(
                     WishlistItem(id = "w2", participantId = "p1", text = "Schal", sortOrder = 1),
                     WishlistItem(id = "w1", participantId = "p1", text = "Buch", sortOrder = 0),
-                )
+                ),
             )
         }
         val drawRepository = FakeDrawRepository()
         val useCase = PerformDrawUseCase(
-            drawRepository.withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(participants) }, wishes),
+            drawRepository.withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(participants) },
+                wishes,
+            ),
             today = { heute },
         )
 
@@ -71,7 +76,13 @@ class PerformDrawUseCaseTest {
     fun zuWenigeTeilnehmerWerdenAbgelehnt() = runTest {
         val drawRepository = FakeDrawRepository()
         val useCase = PerformDrawUseCase(
-            drawRepository.withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(teilnehmer(2)) }, FakeWishlistRepository()),
+            drawRepository.withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(teilnehmer(2)) },
+                FakeWishlistRepository(),
+            ),
             today = { heute },
         )
 
@@ -85,7 +96,13 @@ class PerformDrawUseCaseTest {
     fun unbekannteGruppeWirdAbgelehnt() = runTest {
         val drawRepository = FakeDrawRepository()
         val useCase = PerformDrawUseCase(
-            drawRepository.withSources(FakeGiftGroupRepository(), FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) }, FakeWishlistRepository()),
+            drawRepository.withSources(
+                FakeGiftGroupRepository(),
+                FakeParticipantRepository().apply {
+                    setParticipants(teilnehmer(3))
+                },
+                FakeWishlistRepository(),
+            ),
             today = { heute },
         )
 
@@ -99,7 +116,13 @@ class PerformDrawUseCaseTest {
     fun nachDemWichteltagWirdNichtGelost() = runTest {
         val drawRepository = FakeDrawRepository()
         val useCase = PerformDrawUseCase(
-            drawRepository.withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) }, FakeWishlistRepository()),
+            drawRepository.withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
+                FakeWishlistRepository(),
+            ),
             today = { gruppe.drawDay.plusDays(1) },
         )
 
@@ -113,7 +136,13 @@ class PerformDrawUseCaseTest {
     fun amWichteltagSelbstDarfGelostWerden() = runTest {
         val drawRepository = FakeDrawRepository()
         val useCase = PerformDrawUseCase(
-            drawRepository.withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) }, FakeWishlistRepository()),
+            drawRepository.withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(teilnehmer(3)) },
+                FakeWishlistRepository(),
+            ),
             today = { gruppe.drawDay },
         )
 

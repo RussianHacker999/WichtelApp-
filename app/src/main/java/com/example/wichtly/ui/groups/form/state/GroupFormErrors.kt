@@ -17,12 +17,8 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
  *
  * @return a new [GroupFormUiState] with the error texts per field.
  */
-fun applyDomainValidationErrors(
-    state: GroupFormUiState,
-    errors: List<GiftGroupValidationError>,
-): GroupFormUiState {
-    fun firstMessageFor(field: GroupFormField): Int? =
-        errors.firstOrNull { it.field() == field }?.messageRes()
+fun applyDomainValidationErrors(state: GroupFormUiState, errors: List<GiftGroupValidationError>): GroupFormUiState {
+    fun firstMessageFor(field: GroupFormField): Int? = errors.firstOrNull { it.field() == field }?.messageRes()
 
     return state.copy(
         nameError = firstMessageFor(GroupFormField.NAME),
@@ -38,13 +34,19 @@ private enum class GroupFormField { NAME, BUDGET, DRAW_DAY, GENERAL }
 private fun GiftGroupValidationError.field(): GroupFormField = when (this) {
     GiftGroupValidationError.EmptyName,
     GiftGroupValidationError.NameTooLong,
-    GiftGroupValidationError.DuplicateName -> GroupFormField.NAME
+    GiftGroupValidationError.DuplicateName,
+    -> GroupFormField.NAME
+
     GiftGroupValidationError.InvalidBudgetFormat,
     GiftGroupValidationError.InvalidBudget,
-    GiftGroupValidationError.BudgetTooHigh -> GroupFormField.BUDGET
+    GiftGroupValidationError.BudgetTooHigh,
+    -> GroupFormField.BUDGET
+
     GiftGroupValidationError.InvalidDateFormat,
     GiftGroupValidationError.DateInPast,
-    GiftGroupValidationError.DateTooFarInFuture -> GroupFormField.DRAW_DAY
+    GiftGroupValidationError.DateTooFarInFuture,
+    -> GroupFormField.DRAW_DAY
+
     GiftGroupValidationError.GroupNotFound -> GroupFormField.GENERAL
 }
 

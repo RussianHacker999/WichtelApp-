@@ -9,6 +9,7 @@ import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -18,8 +19,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
-
 
 /**
  * Checks the repository data and the minimum number of participants for drawing.
@@ -44,8 +43,8 @@ class PreparationViewModelTest {
                         name = "Familie",
                         budgetCents = 2500,
                         drawDay = LocalDate.of(2026, 12, 24),
-                    )
-                )
+                    ),
+                ),
             )
         }
         val participantRepository = FakeParticipantRepository().apply {
@@ -54,14 +53,16 @@ class PreparationViewModelTest {
                     Participant(id = "p1", groupId = groupId, name = "Anna"),
                     Participant(id = "p2", groupId = groupId, name = "Ben"),
                     Participant(id = "p3", groupId = groupId, name = "Clara"),
-                )
+                ),
             )
         }
         val viewModel = PreparationViewModel(
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute }),
+            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = {
+                heute
+            }),
             today = { heute },
         )
 
@@ -83,8 +84,8 @@ class PreparationViewModelTest {
                         name = "Familie",
                         budgetCents = 2500,
                         drawDay = LocalDate.of(2026, 12, 24),
-                    )
-                )
+                    ),
+                ),
             )
         }
         val participantRepository = FakeParticipantRepository().apply {
@@ -92,14 +93,16 @@ class PreparationViewModelTest {
                 listOf(
                     Participant(id = "p1", groupId = groupId, name = "Anna"),
                     Participant(id = "p2", groupId = groupId, name = "Ben"),
-                )
+                ),
             )
         }
         val viewModel = PreparationViewModel(
             groupId,
             groupRepository,
             participantRepository,
-            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute }),
+            PerformDrawUseCase(FakeDrawRepository().withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = {
+                heute
+            }),
             today = { heute },
         )
 
@@ -108,6 +111,7 @@ class PreparationViewModelTest {
 
         assertFalse(viewModel.uiState.value.canStartDraw)
     }
+
     // Helper: builds a ViewModel with one group and the requested number of participants
     private fun erstelleViewModel(
         anzahlTeilnehmer: Int,
@@ -123,15 +127,18 @@ class PreparationViewModelTest {
                             name = "Familie",
                             budgetCents = 2500,
                             drawDay = LocalDate.of(2026, 12, 24),
-                        )
-                    )
+                        ),
+                    ),
                 )
             }
         }
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants((1..anzahlTeilnehmer).map { Participant(id = "p$it", groupId = groupId, name = "Person $it") })
         }
-        val performDraw = PerformDrawUseCase(drawRepository.withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = { heute })
+        val performDraw =
+            PerformDrawUseCase(drawRepository.withSources(groupRepository, participantRepository, FakeWishlistRepository()), today = {
+                heute
+            })
         return PreparationViewModel(groupId, groupRepository, participantRepository, performDraw, today = { heute })
     }
 

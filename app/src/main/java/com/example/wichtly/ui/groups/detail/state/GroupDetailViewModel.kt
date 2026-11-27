@@ -22,10 +22,12 @@ import com.example.wichtly.domain.usecase.SaveParticipantUseCase
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
-import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
-import com.example.wichtly.ui.photo.state.PhotoDraft
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailUiState
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorUiState
+import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import com.example.wichtly.ui.photo.state.PhotoDraft
+import java.io.File
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -38,8 +40,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import java.time.LocalDate
 
 private const val TAG = "GroupDetailViewModel"
 
@@ -68,13 +68,13 @@ class GroupDetailViewModel(
 ) : ViewModel() {
 
     // An open editor is restored from the SavedStateHandle (process death in the background)
-    private val _localState = MutableStateFlow(
-        GroupDetailLocalState(editor = ParticipantEditorSavedState.restore(savedStateHandle))
+    private val localStateFlow = MutableStateFlow(
+        GroupDetailLocalState(editor = ParticipantEditorSavedState.restore(savedStateHandle)),
     )
 
     init {
         // Save every change of the editor right away; the SavedStateHandle persists it when paused
-        _localState
+        localStateFlow
             .map { it.editor }
             .distinctUntilChanged()
             .onEach { editor -> ParticipantEditorSavedState.write(savedStateHandle, editor) }
@@ -100,10 +100,10 @@ class GroupDetailViewModel(
             // Check photo files only when the participants change, not on every keystroke
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
         // Resolve the photo in the editor again only when its path changes
-        _localState.map { it.editor?.photo?.path }
+        localStateFlow.map { it.editor?.photo?.path }
             .distinctUntilChanged()
             .map { path -> photoRepository.getFileForRelativePath(path) },
-        _localState,
+        localStateFlow,
     ) { groupResult, (participantsResult, photoFilesMap), resolvedPhotoFile, localState ->
         buildGroupDetailUiState(groupResult, participantsResult, photoFilesMap, resolvedPhotoFile, localState, today())
     }.stateIn(
@@ -113,14 +113,13 @@ class GroupDetailViewModel(
     )
 
     /** Photo file per participant ID; only for participants whose photo exists on the device. */
-    private suspend fun resolvePhotoFiles(participants: List<Participant>): Map<String, File> =
-        participants.mapNotNull { participant ->
-            photoRepository.getFileForRelativePath(participant.photoPath)?.let { file -> participant.id to file }
-        }.toMap()
+    private suspend fun resolvePhotoFiles(participants: List<Participant>): Map<String, File> = participants.mapNotNull { participant ->
+        photoRepository.getFileForRelativePath(participant.photoPath)?.let { file -> participant.id to file }
+    }.toMap()
 
     /** Changes the open editor; does nothing if none is open. */
     private fun updateEditor(transform: (ParticipantEditorUiState) -> ParticipantEditorUiState) {
-        _localState.update { state -> state.editor?.let { state.copy(editor = transform(it)) } ?: state }
+        localStateFlow.update { state -> state.editor?.let { state.copy(editor = transform(it)) } ?: state }
     }
 
     /** Changes the photo field of the open editor; does nothing if none is open. */
@@ -131,14 +130,14 @@ class GroupDetailViewModel(
     /** Opens the participant editor in add mode. */
     fun onAddParticipantClick() {
         photoDraft.start(committedPath = null)
-        _localState.update { it.copy(editor = ParticipantEditorUiState()) }
+        localStateFlow.update { it.copy(editor = ParticipantEditorUiState()) }
     }
 
     /** Opens the participant editor in edit mode if the participant exists in the current list. */
     fun onEditParticipantClick(participantId: String) {
         val participantToEdit = uiState.value.participants.find { it.id == participantId } ?: return
         photoDraft.start(committedPath = participantToEdit.photoPath)
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 editor = ParticipantEditorUiState(
                     editingParticipantId = participantId,
@@ -159,10 +158,10 @@ class GroupDetailViewModel(
      * that has not been saved yet is deleted.
      */
     fun onDismissParticipantEditor() {
-        if (_localState.value.isSaving) return
-        photoDraft.discard(_localState.value.editor?.photo?.path)
+        if (localStateFlow.value.isSaving) return
+        photoDraft.discard(localStateFlow.value.editor?.photo?.path)
         photoDraft.start(committedPath = null)
-        _localState.update { it.copy(editor = null) }
+        localStateFlow.update { it.copy(editor = null) }
     }
 
     /**
@@ -171,7 +170,7 @@ class GroupDetailViewModel(
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
-            val current = _localState.value.editor?.photo ?: return@launch
+            val current = localStateFlow.value.editor?.photo ?: return@launch
             val photo = photoDraft.capture(tempFile, current)
             updateEditorPhoto { photo }
         }
@@ -179,7 +178,7 @@ class GroupDetailViewModel(
 
     /** Removes the photo from the editor. A saved photo is deleted only when saving. */
     fun onRemovePhoto() {
-        photoDraft.discard(_localState.value.editor?.photo?.path)
+        photoDraft.discard(localStateFlow.value.editor?.photo?.path)
         updateEditorPhoto { it.withoutPhoto() }
     }
 
@@ -190,10 +189,10 @@ class GroupDetailViewModel(
      * existence of group and participant; here its errors are only translated into texts.
      */
     fun onSaveParticipantClick() {
-        if (_localState.value.isSaving) return
-        val editor = _localState.value.editor ?: return
+        if (localStateFlow.value.isSaving) return
+        val editor = localStateFlow.value.editor ?: return
 
-        _localState.update { state ->
+        localStateFlow.update { state ->
             state.copy(
                 isSaving = true,
                 editor = state.editor?.let { it.copy(nameError = null, photo = it.photo.copy(error = null)) },
@@ -212,12 +211,13 @@ class GroupDetailViewModel(
                     is ParticipantResult.Success -> {
                         // Delete a replaced or removed old photo only after a successful save
                         photoDraft.commit(savedPath = editor.photo.path)
-                        _localState.update { it.copy(isSaving = false, editor = null) }
+                        localStateFlow.update { it.copy(isSaving = false, editor = null) }
                     }
+
                     is ParticipantResult.ValidationError -> {
                         val translated = mapParticipantValidationErrors(result.errors)
                         val errorMessage = translated.nameError ?: translated.generalError ?: R.string.error_participant_validate
-                        _localState.update { it.copy(isSaving = false) }
+                        localStateFlow.update { it.copy(isSaving = false) }
                         updateEditor { it.copy(nameError = errorMessage) }
                     }
                 }
@@ -225,7 +225,7 @@ class GroupDetailViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to save the participant", e)
-                _localState.update { it.copy(isSaving = false) }
+                localStateFlow.update { it.copy(isSaving = false) }
                 updateEditor { it.copy(nameError = saveErrorMessage(e, R.string.error_participant_save)) }
             }
         }
@@ -233,13 +233,13 @@ class GroupDetailViewModel(
 
     /** Remembers the ID of the participant to delete and opens the delete dialog. */
     fun onDeleteParticipantClick(participantId: String) {
-        _localState.update { it.copy(pendingDeleteParticipantId = participantId, participantDeleteError = null) }
+        localStateFlow.update { it.copy(pendingDeleteParticipantId = participantId, participantDeleteError = null) }
     }
 
     /** Closes the delete dialog (only if no save is running). */
     fun onDismissParticipantDelete() {
-        if (_localState.value.isSaving) return
-        _localState.update { it.copy(pendingDeleteParticipantId = null, participantDeleteError = null) }
+        if (localStateFlow.value.isSaving) return
+        localStateFlow.update { it.copy(pendingDeleteParticipantId = null, participantDeleteError = null) }
     }
 
     /**
@@ -248,15 +248,15 @@ class GroupDetailViewModel(
      * If it was already deleted, the goal is reached as well and the dialog closes.
      */
     fun onConfirmParticipantDelete() {
-        if (_localState.value.isSaving) return
-        val pendingId = _localState.value.pendingDeleteParticipantId ?: return
+        if (localStateFlow.value.isSaving) return
+        val pendingId = localStateFlow.value.pendingDeleteParticipantId ?: return
 
-        _localState.update { it.copy(isSaving = true, participantDeleteError = null) }
+        localStateFlow.update { it.copy(isSaving = true, participantDeleteError = null) }
 
         viewModelScope.launch {
             try {
                 when (deleteParticipant(pendingId)) {
-                    DeleteResult.Deleted, DeleteResult.NotFound -> _localState.update {
+                    DeleteResult.Deleted, DeleteResult.NotFound -> localStateFlow.update {
                         it.copy(isSaving = false, pendingDeleteParticipantId = null, participantDeleteError = null)
                     }
                 }
@@ -264,21 +264,21 @@ class GroupDetailViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to delete the participant", e)
-                _localState.update { it.copy(isSaving = false, participantDeleteError = R.string.error_participant_delete) }
+                localStateFlow.update { it.copy(isSaving = false, participantDeleteError = R.string.error_participant_delete) }
             }
         }
     }
 
     /** Opens the confirmation dialog for deleting the group. */
     fun onDeleteGroupClick() {
-        if (_localState.value.isSaving || _localState.value.isDeletingGroup) return
-        _localState.update { it.copy(showGroupDeleteDialog = true, groupDeleteError = null) }
+        if (localStateFlow.value.isSaving || localStateFlow.value.isDeletingGroup) return
+        localStateFlow.update { it.copy(showGroupDeleteDialog = true, groupDeleteError = null) }
     }
 
     /** Closes the group delete dialog unless a delete is running. */
     fun onDismissGroupDelete() {
-        if (_localState.value.isDeletingGroup) return
-        _localState.update { it.copy(showGroupDeleteDialog = false, groupDeleteError = null) }
+        if (localStateFlow.value.isDeletingGroup) return
+        localStateFlow.update { it.copy(showGroupDeleteDialog = false, groupDeleteError = null) }
     }
 
     /**
@@ -287,15 +287,15 @@ class GroupDetailViewModel(
      * Afterwards isGroupDeleted tells the route to navigate back.
      */
     fun onConfirmGroupDelete() {
-        if (_localState.value.isDeletingGroup) return
-        _localState.update { it.copy(isDeletingGroup = true, groupDeleteError = null) }
+        if (localStateFlow.value.isDeletingGroup) return
+        localStateFlow.update { it.copy(isDeletingGroup = true, groupDeleteError = null) }
 
         viewModelScope.launch {
             try {
                 when (deleteGiftGroup(groupId)) {
                     // NotFound means it was already deleted elsewhere; for the user the goal is reached.
                     DeleteResult.Deleted, DeleteResult.NotFound -> {
-                        _localState.update {
+                        localStateFlow.update {
                             it.copy(isDeletingGroup = false, showGroupDeleteDialog = false, isGroupDeleted = true, groupWasDeleted = true)
                         }
                     }
@@ -304,7 +304,7 @@ class GroupDetailViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to delete the group", e)
-                _localState.update { it.copy(isDeletingGroup = false, groupDeleteError = R.string.error_group_delete) }
+                localStateFlow.update { it.copy(isDeletingGroup = false, groupDeleteError = R.string.error_group_delete) }
             }
         }
     }
@@ -314,7 +314,7 @@ class GroupDetailViewModel(
      * (same pattern as onSavedHandled in the form and onDrawHandled in the preparation).
      */
     fun onGroupDeletedHandled() {
-        _localState.update { it.copy(isGroupDeleted = false) }
+        localStateFlow.update { it.copy(isGroupDeleted = false) }
     }
 
     companion object {

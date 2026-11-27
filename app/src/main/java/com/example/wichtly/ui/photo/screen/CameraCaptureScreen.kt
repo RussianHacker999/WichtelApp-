@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -48,7 +49,6 @@ import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.theme.Spacing
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
-import androidx.camera.core.Preview as CameraPreview
 
 private const val TAG = "CameraCaptureScreen"
 
@@ -113,7 +113,7 @@ internal fun CameraCaptureScreen(
                         }
                         val resolutionSelector = ResolutionSelector.Builder()
                             .setResolutionStrategy(
-                                ResolutionStrategy(CaptureTargetSize, ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER)
+                                ResolutionStrategy(CaptureTargetSize, ResolutionStrategy.FALLBACK_RULE_CLOSEST_LOWER_THEN_HIGHER),
                             )
                             .build()
                         val capture = ImageCapture.Builder().setResolutionSelector(resolutionSelector).build()
@@ -132,7 +132,7 @@ internal fun CameraCaptureScreen(
                             lifecycleOwner,
                             cameraSelector,
                             preview,
-                            capture
+                            capture,
                         )
                         AppLog.d(TAG) { "Camera bound" }
                     } catch (e: Exception) {
@@ -143,7 +143,7 @@ internal fun CameraCaptureScreen(
 
                 previewView
             },
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
 
         // Close button (X, cancels the capture) and title at the top left (with statusBarsPadding)
@@ -153,7 +153,7 @@ internal fun CameraCaptureScreen(
                 .statusBarsPadding()
                 .padding(horizontal = Spacing.s, vertical = Spacing.s)
                 .align(Alignment.TopStart),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = onCancel) {
                 Icon(imageVector = Icons.Filled.Close, contentDescription = stringResource(R.string.common_cancel), tint = Color.White)
@@ -198,7 +198,7 @@ internal fun CameraCaptureScreen(
                             photoFile.delete()
                             onCaptureError()
                         }
-                    }
+                    },
                 )
             },
             // Shutter: white circle with a gold ring

@@ -25,12 +25,7 @@ private const val TAG = "PhotoCaptureFlow"
  * @param onPhotoCaptured a new photo was captured (temporary file of the camera).
  */
 @Composable
-internal fun PhotoCaptureFlow(
-    flow: PhotoFlowState,
-    hasPhoto: Boolean,
-    onPhotoCaptured: (File) -> Unit,
-    onRemovePhoto: () -> Unit,
-) {
+internal fun PhotoCaptureFlow(flow: PhotoFlowState, hasPhoto: Boolean, onPhotoCaptured: (File) -> Unit, onRemovePhoto: () -> Unit) {
     val context = LocalContext.current
 
     // System permission launcher for CAMERA

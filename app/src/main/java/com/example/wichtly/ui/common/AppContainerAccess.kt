@@ -10,5 +10,4 @@ import com.example.wichtly.di.AppContainer
  * use cases (manual dependency injection without a framework).
  */
 @Composable
-fun appContainer(): AppContainer =
-    (LocalContext.current.applicationContext as WichtlyApplication).container
+fun appContainer(): AppContainer = (LocalContext.current.applicationContext as WichtlyApplication).container

@@ -27,12 +27,7 @@ class SaveParticipantUseCase(
      * @param name name as typed; normalised here.
      * @param photoPath relative path of the photo, or null.
      */
-    suspend operator fun invoke(
-        participantId: String?,
-        groupId: String,
-        name: String,
-        photoPath: String?,
-    ): ParticipantResult {
+    suspend operator fun invoke(participantId: String?, groupId: String, name: String, photoPath: String?): ParticipantResult {
         AppLog.d(TAG) { if (participantId == null) "Saving new participant in group $groupId" else "Saving participant $participantId" }
         if (giftGroupRepository.getGiftGroupById(groupId) == null) {
             AppLog.w(TAG, "Group $groupId not found, participant not saved")

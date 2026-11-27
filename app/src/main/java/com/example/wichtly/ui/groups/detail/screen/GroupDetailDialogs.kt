@@ -15,10 +15,7 @@ import java.time.LocalDate
  * Which dialog is open is defined completely by [GroupDetailUiState].
  */
 @Composable
-internal fun GroupDetailDialogs(
-    state: GroupDetailUiState,
-    actions: GroupDetailActions,
-) {
+internal fun GroupDetailDialogs(state: GroupDetailUiState, actions: GroupDetailActions) {
     val group = state.group
     val editor = state.participantEditor
     if (editor != null) {

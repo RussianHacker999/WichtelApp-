@@ -93,7 +93,7 @@ class ParticipantErrorsTest {
     fun mapParticipantValidationErrors_multipleNameErrors_returnsSingleFirstNameError() {
         val errors = listOf(
             ParticipantValidationError.EmptyName,
-            ParticipantValidationError.NameTooLong
+            ParticipantValidationError.NameTooLong,
         )
         val result = mapParticipantValidationErrors(errors)
 

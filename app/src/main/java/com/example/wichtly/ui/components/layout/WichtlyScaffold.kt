@@ -112,10 +112,7 @@ fun WichtlyTopBar(
 /** Top bar of the group list: the "Wichtly" wordmark with a sparkle, without a back arrow. (The start screen has no top bar.) */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrandTopBar(
-    modifier: Modifier = Modifier,
-    actions: @Composable RowScope.() -> Unit = {},
-) {
+fun BrandTopBar(modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
         modifier = modifier,
         title = {
@@ -141,11 +138,7 @@ fun BrandTopBar(
  * @param hint optional short line above the buttons, e.g. why the main button is disabled.
  */
 @Composable
-fun BottomActionBar(
-    modifier: Modifier = Modifier,
-    hint: String? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
+fun BottomActionBar(modifier: Modifier = Modifier, hint: String? = null, content: @Composable RowScope.() -> Unit) {
     Column(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         if (hint != null) {

@@ -18,5 +18,5 @@ data class GiftGroup(
     val budgetCents: Long,
     val drawDay: LocalDate,
     val drawType: DrawType = DrawType.NORMAL,
-    val photoPath: String? = null
+    val photoPath: String? = null,
 )

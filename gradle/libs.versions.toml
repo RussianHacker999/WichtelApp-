@@ -12,6 +12,7 @@ composeBom = "2026.09.00"
 coroutines = "1.9.0"
 camerax = "1.4.1"
 coreSplashscreen = "1.2.0"
+ktlintGradle = "14.2.0"
 
 
 [libraries]
@@ -43,4 +44,5 @@ androidx-camera-view = { group = "androidx.camera", name = "camera-view", versio
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 

@@ -7,6 +7,9 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -14,9 +17,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * Unit tests for [DrawHistoryViewModel].
@@ -42,11 +42,7 @@ class DrawHistoryViewModelTest {
         drawType = DrawType.NORMAL,
     )
 
-    private fun createSampleDraw(
-        id: String,
-        groupId: String = this.groupId,
-        instant: Instant,
-    ) = DrawDetail(
+    private fun createSampleDraw(id: String, groupId: String = this.groupId, instant: Instant) = DrawDetail(
         id = id,
         groupId = groupId,
         drawnAt = instant,
@@ -98,7 +94,7 @@ class DrawHistoryViewModelTest {
                 listOf(
                     createSampleDraw(id = "d-old", instant = olderInstant),
                     createSampleDraw(id = "d-new", instant = newerInstant),
-                )
+                ),
             )
         }
 
@@ -241,7 +237,7 @@ class DrawHistoryViewModelTest {
                 listOf(
                     createSampleDraw(id = "d-target", groupId = groupId, instant = Instant.now()),
                     createSampleDraw(id = "d-other", groupId = "other-group", instant = Instant.now()),
-                )
+                ),
             )
         }
 

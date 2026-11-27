@@ -13,6 +13,8 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.domain.repository.PhotoRepository
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.groups.list.screen.GroupsUiState
+import java.io.File
+import java.time.LocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,17 +22,13 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import java.io.File
-import java.time.LocalDate
 
 private const val TAG = "GroupsViewModel"
 
 /**
  * Local state of the group list that does not come from the database.
  */
-private data class GroupsLocalState(
-    val selectedGroupId: String? = null,
-)
+private data class GroupsLocalState(val selectedGroupId: String? = null)
 
 /**
  * ViewModel of the group list; the start screen uses it as the data source for its info line.
@@ -51,14 +49,14 @@ class GroupsViewModel(
     private val today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(GroupsLocalState())
+    private val localStateFlow = MutableStateFlow(GroupsLocalState())
 
     val uiState: StateFlow<GroupsUiState> = combine(
         repository.observeGiftGroups()
             .asResult(TAG, "Failed to load the groups")
             // Check photo files only when the groups change, not when a card is tapped
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
-        _localState,
+        localStateFlow,
     ) { (groupsResult, photoFiles), localState ->
         val groups = groupsResult.getOrDefault(emptyList())
         val selectedGroup = groups.firstOrNull { it.id == localState.selectedGroupId }
@@ -79,14 +77,13 @@ class GroupsViewModel(
     )
 
     /** Only groups whose photo file exists get an image; all others show initials. */
-    private suspend fun resolvePhotoFiles(groups: List<GiftGroup>): Map<String, File> =
-        groups.mapNotNull { group ->
-            photoRepository.getFileForRelativePath(group.photoPath)?.let { file -> group.id to file }
-        }.toMap()
+    private suspend fun resolvePhotoFiles(groups: List<GiftGroup>): Map<String, File> = groups.mapNotNull { group ->
+        photoRepository.getFileForRelativePath(group.photoPath)?.let { file -> group.id to file }
+    }.toMap()
 
     /** Remembers the tapped group card for the later "Draw" click. */
     fun onGroupClick(groupId: String) {
-        _localState.update { it.copy(selectedGroupId = groupId) }
+        localStateFlow.update { it.copy(selectedGroupId = groupId) }
     }
 
     companion object {

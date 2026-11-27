@@ -13,11 +13,11 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryItemUiModel
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryUiState
+import java.time.ZoneId
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.time.ZoneId
 
 private const val TAG = "DrawHistoryViewModel"
 
@@ -65,12 +65,10 @@ class DrawHistoryViewModel(
         initialValue = DrawHistoryUiState(isLoading = true),
     )
 
-    private fun mapSummaryToUiModel(summary: DrawSummary): DrawHistoryItemUiModel {
-        return DrawHistoryItemUiModel(
-            id = summary.id,
-            drawnAt = summary.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
-        )
-    }
+    private fun mapSummaryToUiModel(summary: DrawSummary): DrawHistoryItemUiModel = DrawHistoryItemUiModel(
+        id = summary.id,
+        drawnAt = summary.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
+    )
 
     companion object {
         /**

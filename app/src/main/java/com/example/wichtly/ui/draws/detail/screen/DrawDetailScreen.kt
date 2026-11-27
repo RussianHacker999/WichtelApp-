@@ -65,6 +65,7 @@ fun DrawDetailScreen(
         when {
             // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.draw_detail_loading))
+
             // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
@@ -74,6 +75,7 @@ fun DrawDetailScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
+
             // 3. Draw not found
             state.notFound || draw == null -> MessageState(
                 title = stringResource(R.string.draw_detail_not_found_title),
@@ -83,6 +85,7 @@ fun DrawDetailScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
+
             // 4. Content: one LazyColumn with page header, section row and the assignment cards
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -111,7 +114,9 @@ fun DrawDetailScreen(
                         subtitle = stringResource(R.string.draw_detail_gives_hidden),
                         leading = { NumberAvatar(number = index + 1) },
                         trailing = {
-                            WichtlyTextButton(text = stringResource(R.string.draw_detail_peek), onClick = { onGiverClick(assignment.giverId) })
+                            WichtlyTextButton(text = stringResource(R.string.draw_detail_peek), onClick = {
+                                onGiverClick(assignment.giverId)
+                            })
                         },
                         onClick = { onGiverClick(assignment.giverId) },
                     )

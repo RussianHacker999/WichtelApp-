@@ -17,11 +17,7 @@ import com.example.wichtly.ui.draws.detail.screen.DrawDetailScreen
  * @param drawId the saved draw to show.
  */
 @Composable
-fun DrawDetailRoute(
-    drawId: String,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DrawDetailRoute(drawId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: DrawDetailViewModel = viewModel(
         key = drawId,
         factory = DrawDetailViewModel.factory(appContainer(), drawId),

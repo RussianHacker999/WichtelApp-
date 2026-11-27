@@ -1,6 +1,8 @@
 package com.example.wichtly.data.local.storage
 
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
+import java.io.File
+import java.time.Instant
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -10,8 +12,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
-import java.io.File
-import java.time.Instant
 
 /**
  * Tests for [LocalPhotoStorageManager] on a temporary folder instead of filesDir.

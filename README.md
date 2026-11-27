@@ -53,7 +53,12 @@ Outside Android Studio, set `ANDROID_HOME` or create `local.properties` with `sd
 ```bash
 ./gradlew :app:testDebugUnitTest    # JVM unit tests, no device needed
 ./gradlew :app:lintDebug            # Android Lint (report in app/build/reports/)
+./gradlew ktlintCheck               # Kotlin code style (ktlint)
+./gradlew ktlintFormat              # fix style violations automatically
 ```
+
+The code style is ktlint with the Android Studio style, a line limit of 140 and trailing commas; the rules are
+in [`.editorconfig`](.editorconfig), which Android Studio's formatter reads as well.
 
 The unit tests cover the draw algorithm, business rules and validators, all use cases and ViewModels, the
 error mappers, the navigation routes and the logging facade. Repositories are replaced by in-memory fakes,

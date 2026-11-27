@@ -16,6 +16,7 @@ import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.draws.detail.screen.DrawAssignmentUiModel
 import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiModel
 import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiState
+import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import java.time.ZoneId
 
 private const val TAG = "DrawDetailViewModel"
 
@@ -38,9 +38,7 @@ private const val TAG = "DrawDetailViewModel"
  *
  * Loading errors are not stored here; they come from the Flow via asResult.
  */
-private data class DrawDetailLocalState(
-    val revealedGiverId: String? = null,
-)
+private data class DrawDetailLocalState(val revealedGiverId: String? = null)
 
 /**
  * ViewModel of the detail screen of a saved draw.
@@ -59,7 +57,7 @@ class DrawDetailViewModel(
     private val giftGroupRepository: GiftGroupRepository,
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(DrawDetailLocalState())
+    private val localStateFlow = MutableStateFlow(DrawDetailLocalState())
 
     /**
      * The draw together with the name of its group.
@@ -92,7 +90,7 @@ class DrawDetailViewModel(
 
     val uiState: StateFlow<DrawDetailUiState> = combine(
         drawWithGroupName,
-        _localState,
+        localStateFlow,
     ) { (drawResult, groupName), localState ->
         val domainDraw = drawResult.getOrNull()
         val loadError = if (drawResult.isFailure) R.string.error_draw_load else null
@@ -102,7 +100,7 @@ class DrawDetailViewModel(
         // Check that the IDs from the dialog state exist in the current assignment list
         val currentAssignments = uiDraw?.assignments ?: emptyList()
         val isRevealedGiverPresent = (localState.revealedGiverId != null) &&
-                currentAssignments.any { it.giverId == localState.revealedGiverId }
+            currentAssignments.any { it.giverId == localState.revealedGiverId }
 
         val validRevealedGiverId = if (isRevealedGiverPresent) localState.revealedGiverId else null
 
@@ -116,7 +114,7 @@ class DrawDetailViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = DrawDetailUiState(isLoading = true)
+        initialValue = DrawDetailUiState(isLoading = true),
     )
 
     /**
@@ -127,7 +125,7 @@ class DrawDetailViewModel(
     fun onGiverClick(giverId: String) {
         val currentAssignments = uiState.value.draw?.assignments ?: emptyList()
         if (currentAssignments.any { it.giverId == giverId }) {
-            _localState.update { it.copy(revealedGiverId = giverId) }
+            localStateFlow.update { it.copy(revealedGiverId = giverId) }
         }
     }
 
@@ -135,7 +133,7 @@ class DrawDetailViewModel(
      * Closes the result tag.
      */
     fun onDismissResult() {
-        _localState.update {
+        localStateFlow.update {
             it.copy(revealedGiverId = null)
         }
     }
@@ -144,7 +142,7 @@ class DrawDetailViewModel(
      * Closes all dialogs when the app is stopped (ON_STOP), so nobody sees a result by accident.
      */
     fun onAppStopped() {
-        _localState.update { it.copy(revealedGiverId = null) }
+        localStateFlow.update { it.copy(revealedGiverId = null) }
     }
 
     /**
@@ -159,7 +157,7 @@ class DrawDetailViewModel(
         val sortedAssignments = domainDraw.assignments
             .sortedWith(
                 compareBy<DrawAssignment, String>(String.CASE_INSENSITIVE_ORDER) { it.giverName }
-                    .thenBy { it.giverId }
+                    .thenBy { it.giverId },
             )
             .map { assignment ->
                 val sortedWishes = assignment.receiverWishlistItems
@@ -172,7 +170,7 @@ class DrawDetailViewModel(
                     giverName = assignment.giverName,
                     receiverId = assignment.receiverId,
                     receiverName = assignment.receiverName,
-                    wishes = sortedWishes
+                    wishes = sortedWishes,
                 )
             }
 
@@ -182,7 +180,7 @@ class DrawDetailViewModel(
             groupName = groupName,
             drawnAt = domainDraw.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
             drawType = domainDraw.drawType,
-            assignments = sortedAssignments
+            assignments = sortedAssignments,
         )
     }
 

@@ -14,11 +14,7 @@ import java.io.File
  * @property file resolved image file for the preview (null = no photo, or the file is missing on the device).
  * @property error error while saving the captured photo to app storage.
  */
-data class PhotoFieldUiState(
-    val path: String? = null,
-    val file: File? = null,
-    @StringRes val error: Int? = null,
-) {
+data class PhotoFieldUiState(val path: String? = null, val file: File? = null, @StringRes val error: Int? = null) {
     val hasPhoto: Boolean get() = path != null
 
     /** Removes the photo from the form (the [com.example.wichtly.ui.photo.state.PhotoDraft] deletes the file). */

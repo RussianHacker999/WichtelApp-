@@ -5,9 +5,7 @@ package com.example.wichtly.domain.model.photo
  *
  * @property value used as the subfolder name and as the file name prefix.
  */
-enum class PhotoOwnerType(
-    val value: String,
-) {
+enum class PhotoOwnerType(val value: String) {
     GROUPS("groups"),
     PARTICIPANTS("participants"),
 }

@@ -19,10 +19,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param onOpenSettings optional callback that opens the system settings (null = no link).
  */
 @Composable
-internal fun CameraPermissionDeniedHint(
-    onOpenSettings: (() -> Unit)?,
-    modifier: Modifier = Modifier,
-) {
+internal fun CameraPermissionDeniedHint(onOpenSettings: (() -> Unit)?, modifier: Modifier = Modifier) {
     HintBar(
         text = stringResource(R.string.camera_denied_hint),
         actionLabel = if (onOpenSettings != null) stringResource(R.string.camera_open_settings) else null,

@@ -5,6 +5,7 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,7 +16,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 class GroupsViewModelTest {
 

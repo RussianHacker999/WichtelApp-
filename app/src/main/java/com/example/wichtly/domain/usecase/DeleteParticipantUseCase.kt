@@ -18,10 +18,7 @@ private const val TAG = "DeleteParticipantUseCase"
  * read from the database, not from the screen state, so the photo that is currently saved is
  * always the one deleted.
  */
-class DeleteParticipantUseCase(
-    private val participantRepository: ParticipantRepository,
-    private val photoRepository: PhotoRepository,
-) {
+class DeleteParticipantUseCase(private val participantRepository: ParticipantRepository, private val photoRepository: PhotoRepository) {
     /**
      * @return [DeleteResult.Deleted], or [DeleteResult.NotFound] if the participant does not exist (any more).
      */

@@ -22,11 +22,7 @@ import java.time.LocalDate
  * @param onCreateGroup navigation to the "New group" form.
  */
 @Composable
-fun StartRoute(
-    onOpenGroups: () -> Unit,
-    onCreateGroup: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun StartRoute(onOpenGroups: () -> Unit, onCreateGroup: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: GroupsViewModel = viewModel(
         factory = GroupsViewModel.factory(appContainer()),
     )

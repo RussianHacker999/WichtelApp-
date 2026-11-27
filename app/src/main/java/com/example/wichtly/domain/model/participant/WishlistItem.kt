@@ -8,9 +8,4 @@ import java.util.UUID
  * @property participantId ID of the participant the wish belongs to.
  * @property sortOrder position in the list; a new wish gets the highest existing position + 1.
  */
-data class WishlistItem(
-    val id: String = UUID.randomUUID().toString(),
-    val participantId: String,
-    val text: String,
-    val sortOrder: Int = 0,
-)
+data class WishlistItem(val id: String = UUID.randomUUID().toString(), val participantId: String, val text: String, val sortOrder: Int = 0)

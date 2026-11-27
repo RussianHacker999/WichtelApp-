@@ -5,10 +5,10 @@ import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for [CleanUpOrphanPhotosUseCase]: only photos without a reference from a group or participant are removed.
@@ -21,7 +21,17 @@ class CleanUpOrphanPhotosUseCaseTest {
 
     private fun useCase(photos: FakePhotoRepository) = CleanUpOrphanPhotosUseCase(
         giftGroupRepository = FakeGiftGroupRepository().apply {
-            setGroups(listOf(GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24), photoPath = gruppenFoto)))
+            setGroups(
+                listOf(
+                    GiftGroup(
+                        id = "g1",
+                        name = "Familie",
+                        budgetCents = 2000,
+                        drawDay = LocalDate.of(2026, 12, 24),
+                        photoPath = gruppenFoto,
+                    ),
+                ),
+            )
         },
         participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = teilnehmerFoto)))

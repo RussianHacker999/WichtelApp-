@@ -8,7 +8,7 @@ fun WishlistItemEntity.toDomainModel(): WishlistItem = WishlistItem(
     id = id,
     participantId = participantId,
     text = text,
-    sortOrder = sortOrder
+    sortOrder = sortOrder,
 )
 
 /** Converts the domain model into a Room row. */
@@ -16,7 +16,7 @@ fun WishlistItem.toEntity(): WishlistItemEntity = WishlistItemEntity(
     id = id,
     participantId = participantId,
     text = text,
-    sortOrder = sortOrder
+    sortOrder = sortOrder,
 )
 
 /** Converts a list of Room rows into domain models, keeping the order. */

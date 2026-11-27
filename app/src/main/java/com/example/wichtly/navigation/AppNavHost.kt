@@ -38,10 +38,7 @@ private const val TAG = "AppNavHost"
  * they are triggered exactly once by the ViewModel or a LaunchedEffect.
  */
 @Composable
-fun AppNavHost(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-) {
+fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
     // Log every destination change (only the route pattern, no arguments)
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
@@ -122,9 +119,11 @@ fun AppNavHost(
         // 5) Wishlist
         composable(
             route = Routes.WISHLIST,
-            arguments = listOf(navArgument(Routes.ARG_PARTICIPANT_ID) {
-                type = NavType.StringType
-            }),
+            arguments = listOf(
+                navArgument(Routes.ARG_PARTICIPANT_ID) {
+                    type = NavType.StringType
+                },
+            ),
         ) { backStackEntry ->
             val participantId =
                 requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_PARTICIPANT_ID))
@@ -144,7 +143,7 @@ fun AppNavHost(
                 drawId = drawId,
                 onBack = dropUnlessResumed { navController.popBackStack() },
 
-                )
+            )
         }
 
         // 7) Draw history

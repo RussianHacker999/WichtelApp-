@@ -12,13 +12,7 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
  *
  * Error texts and the loading state are not saved; they are created again on the next save.
  */
-internal data class FormInputs(
-    val name: String,
-    val budget: String,
-    val drawDay: String,
-    val drawType: DrawType,
-    val photoPath: String?,
-) {
+internal data class FormInputs(val name: String, val budget: String, val drawDay: String, val drawType: DrawType, val photoPath: String?) {
     fun applyTo(state: GroupFormUiState): GroupFormUiState = state.copy(
         name = name,
         budget = budget,

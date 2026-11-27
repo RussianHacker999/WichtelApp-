@@ -30,5 +30,5 @@ data class ParticipantEntity(
     val id: String,
     val groupId: String,
     val name: String,
-    val photoPath: String?
+    val photoPath: String?,
 )

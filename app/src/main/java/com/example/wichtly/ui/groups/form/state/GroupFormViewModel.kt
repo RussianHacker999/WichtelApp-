@@ -20,9 +20,11 @@ import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.saveErrorMessage
+import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import com.example.wichtly.ui.photo.state.PhotoDraft
-import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
+import java.io.File
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,8 +34,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import java.time.LocalDate
 
 private const val TAG = "GroupFormViewModel"
 
@@ -81,7 +81,7 @@ class GroupFormViewModel(
         GroupFormUiState(
             isEditMode = groupId != null,
             isLoading = groupId != null,
-        ).let { initial -> if (groupId == null) restoredInputs?.applyTo(initial) ?: initial else initial }
+        ).let { initial -> if (groupId == null) restoredInputs?.applyTo(initial) ?: initial else initial },
     )
     val uiState: StateFlow<GroupFormUiState> = _uiState.asStateFlow()
 
@@ -220,6 +220,7 @@ class GroupFormViewModel(
                         photoDraft.commit(savedPath = currentState.photo.path)
                         _uiState.update { it.copy(isSaving = false, savedGroupId = result.giftGroup.id) }
                     }
+
                     is GiftGroupResult.ValidationError -> {
                         _uiState.update { state ->
                             applyDomainValidationErrors(state, result.errors).copy(isSaving = false)
@@ -287,4 +288,3 @@ class GroupFormViewModel(
         }
     }
 }
-

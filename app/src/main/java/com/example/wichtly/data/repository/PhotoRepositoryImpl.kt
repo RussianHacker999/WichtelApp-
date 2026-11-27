@@ -7,22 +7,16 @@ import java.io.File
 import java.time.Instant
 
 /** Implementation of [PhotoRepository] that stores photos as files via [LocalPhotoStorageManager]. */
-class PhotoRepositoryImpl(
-    private val storageManager: LocalPhotoStorageManager,
-) : PhotoRepository {
+class PhotoRepositoryImpl(private val storageManager: LocalPhotoStorageManager) : PhotoRepository {
 
-    override suspend fun getFileForRelativePath(relativePath: String?): File? {
-        return storageManager.getFileForRelativePath(relativePath)
-    }
+    override suspend fun getFileForRelativePath(relativePath: String?): File? = storageManager.getFileForRelativePath(relativePath)
 
-    override suspend fun savePhoto(sourceFile: File, ownerType: PhotoOwnerType): String {
-        return storageManager.savePhotoFile(sourceFile, ownerType)
-    }
+    override suspend fun savePhoto(sourceFile: File, ownerType: PhotoOwnerType): String =
+        storageManager.savePhotoFile(sourceFile, ownerType)
 
     override suspend fun deletePhoto(relativePath: String?) {
         storageManager.deletePhotoFile(relativePath)
     }
 
-    override suspend fun listPhotoPaths(olderThan: Instant): List<String> =
-        storageManager.listPhotoPaths(olderThan)
+    override suspend fun listPhotoPaths(olderThan: Instant): List<String> = storageManager.listPhotoPaths(olderThan)
 }

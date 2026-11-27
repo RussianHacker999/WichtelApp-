@@ -17,7 +17,8 @@ internal val previewGroupDetailActions = GroupDetailActions(
     onAddParticipantClick = { },
     onEditParticipantClick = { _ -> },
     onDeleteParticipantClick = { _ -> },
-    participantEditor = ParticipantEditorActions(onNameChange = { _ -> }, onSave = { }, onDismiss = { }, onPhotoCaptured = { }, onRemovePhoto = { }),
+    participantEditor = ParticipantEditorActions(onNameChange = { _ ->
+    }, onSave = { }, onDismiss = { }, onPhotoCaptured = { }, onRemovePhoto = { }),
     onConfirmParticipantDelete = { },
     onDismissParticipantDelete = { },
     onPrepareDrawClick = { },
@@ -28,7 +29,9 @@ internal val previewGroupDetailActions = GroupDetailActions(
 )
 
 private val previewGroup = GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))
-private val previewParticipants = listOf("Mara", "Jonas Weiß", "Leonie").mapIndexed { i, n -> Participant(id = "p$i", groupId = "g1", name = n) }
+private val previewParticipants = listOf("Mara", "Jonas Weiß", "Leonie").mapIndexed { i, n ->
+    Participant(id = "p$i", groupId = "g1", name = n)
+}
 
 @Composable
 private fun PreviewScreen(state: GroupDetailUiState) {
@@ -93,9 +96,11 @@ private fun GroupDetailScreenErrorPreview() {
 private fun GroupDetailScreenWithParticipantEditorPreview() {
     PreviewScreen(
         GroupDetailUiState(
-            isLoading = false, group = previewGroup, participants = previewParticipants,
+            isLoading = false,
+            group = previewGroup,
+            participants = previewParticipants,
             participantEditor = ParticipantEditorUiState(nameInput = "Maria"),
-        )
+        ),
     )
 }
 
@@ -107,9 +112,11 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
 private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
     PreviewScreen(
         GroupDetailUiState(
-            isLoading = false, group = previewGroup, participants = previewParticipants,
+            isLoading = false,
+            group = previewGroup,
+            participants = previewParticipants,
             pendingDeleteParticipantId = "p0",
-        )
+        ),
     )
 }
 

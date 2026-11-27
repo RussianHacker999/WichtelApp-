@@ -5,12 +5,12 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.domain.result.GiftGroupResult
 import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.testutil.FakeGiftGroupRepository
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for [SaveGiftGroupUseCase], the only place where gift groups are validated.
@@ -19,17 +19,12 @@ class SaveGiftGroupUseCaseTest {
 
     private val heute = LocalDate.of(2026, 11, 25)
 
-    private fun input(
-        name: String = "Familie",
-        budget: String = "25,50",
-        drawDay: String = "24.12.2026",
-    ) = GiftGroupInput(name = name, budget = budget, drawDay = drawDay, drawType = DrawType.NORMAL, photoPath = null)
+    private fun input(name: String = "Familie", budget: String = "25,50", drawDay: String = "24.12.2026") =
+        GiftGroupInput(name = name, budget = budget, drawDay = drawDay, drawType = DrawType.NORMAL, photoPath = null)
 
-    private fun useCase(repository: FakeGiftGroupRepository) =
-        SaveGiftGroupUseCase(repository, today = { heute })
+    private fun useCase(repository: FakeGiftGroupRepository) = SaveGiftGroupUseCase(repository, today = { heute })
 
-    private fun errorsOf(result: GiftGroupResult): List<GiftGroupValidationError> =
-        (result as GiftGroupResult.ValidationError).errors
+    private fun errorsOf(result: GiftGroupResult): List<GiftGroupValidationError> = (result as GiftGroupResult.ValidationError).errors
 
     @Test
     fun gueltigeEingabenLegenGruppeMitGeparstenWertenAn() = runTest {

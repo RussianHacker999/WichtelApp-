@@ -7,8 +7,4 @@ import java.time.Instant
  *
  * Assignments, wishes and the draw type are loaded only in the detail view ([DrawDetail]).
  */
-data class DrawSummary(
-    val id: String,
-    val groupId: String,
-    val drawnAt: Instant,
-)
+data class DrawSummary(val id: String, val groupId: String, val drawnAt: Instant)

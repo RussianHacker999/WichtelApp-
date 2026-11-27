@@ -125,12 +125,7 @@ fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
  *   so adding sits right next to the list it changes.
  */
 @Composable
-fun SectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-    count: Int? = null,
-    action: (@Composable () -> Unit)? = null,
-) {
+fun SectionHeader(title: String, modifier: Modifier = Modifier, count: Int? = null, action: (@Composable () -> Unit)? = null) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -185,7 +180,7 @@ private fun HeadersPreview() {
                         listOf(
                             MetaItem(Icons.Filled.Event, "24.12.2026"),
                             MetaItem(Icons.Filled.Redeem, "Klassisch"),
-                        )
+                        ),
                     )
                 },
             )

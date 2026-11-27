@@ -2,10 +2,10 @@ package com.example.wichtly.ui.start.screen
 
 import com.example.wichtly.R
 import com.example.wichtly.domain.model.group.GiftGroup
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Unit tests for the info line of the start screen ([startSummaryOf], [daysUntilSpecialRes]).
@@ -14,8 +14,7 @@ class StartSummaryTest {
 
     private val today = LocalDate.of(2026, 11, 24)
 
-    private fun group(id: String, name: String, day: LocalDate) =
-        GiftGroup(id = id, name = name, budgetCents = 2000, drawDay = day)
+    private fun group(id: String, name: String, day: LocalDate) = GiftGroup(id = id, name = name, budgetCents = 2000, drawDay = day)
 
     /** Test 1: without groups there is the invitation "No group yet". */
     @Test

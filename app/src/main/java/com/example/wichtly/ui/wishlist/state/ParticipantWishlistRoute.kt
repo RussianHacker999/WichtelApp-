@@ -18,11 +18,7 @@ import com.example.wichtly.ui.wishlist.screen.ParticipantWishlistScreen
  * @param participantId ID of the participant whose wishlist is shown.
  */
 @Composable
-fun ParticipantWishlistRoute(
-    participantId: String,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ParticipantWishlistRoute(participantId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: WishlistViewModel = viewModel(
         key = participantId,
         factory = WishlistViewModel.factory(appContainer(), participantId),

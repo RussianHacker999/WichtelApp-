@@ -25,13 +25,7 @@ private const val TAG = "SaveGiftGroupUseCase"
  * @property drawDay draw day as typed, in the format [com.example.wichtly.domain.validation.DRAW_DAY_INPUT_PATTERN].
  * @property photoPath relative path of the photo, or null.
  */
-data class GiftGroupInput(
-    val name: String,
-    val budget: String,
-    val drawDay: String,
-    val drawType: DrawType,
-    val photoPath: String?,
-)
+data class GiftGroupInput(val name: String, val budget: String, val drawDay: String, val drawType: DrawType, val photoPath: String?)
 
 /**
  * Creates or updates a gift group. The only place where groups are validated.

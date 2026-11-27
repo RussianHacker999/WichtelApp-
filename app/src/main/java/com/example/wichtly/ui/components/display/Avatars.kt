@@ -49,12 +49,7 @@ private fun AvatarCircle(size: Dp, modifier: Modifier, content: @Composable () -
 
 /** Round avatar: the photo if there is one, otherwise the initials of [name]. */
 @Composable
-fun InitialsAvatar(
-    name: String?,
-    modifier: Modifier = Modifier,
-    photoFile: File? = null,
-    size: Dp = AvatarSize,
-) {
+fun InitialsAvatar(name: String?, modifier: Modifier = Modifier, photoFile: File? = null, size: Dp = AvatarSize) {
     if (photoFile != null) {
         PhotoThumbnail(file = photoFile, modifier = modifier.size(size))
     } else {

@@ -75,78 +75,70 @@ val SparkleStripWidth: Dp = 64.dp
  * The layout follows from [seed]: the same title always gets the same sparkles, different titles
  * usually look different (equal hash values would give the same pattern).
  */
-fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = OnGoldContainer): Modifier =
-    drawWithContent {
-        drawContent()
-        val r = Random(seed)
-        fun between(a: Float, b: Float) = a + (b - a) * r.nextFloat()
-        val stripStart = (size.width - SparkleStripWidth.toPx()).coerceAtLeast(0f)
-        val count = 1 + r.nextInt(3)
-        repeat(count) { index ->
-            val big = index == 0
-            val sizeDp = if (big) between(14f, 22f) else between(6f, 11f)
-            val radius = sizeDp.dp.toPx() / 2f
-            // Element too narrow: no room for the sparkle; coerceIn would crash with an empty range otherwise
-            if (size.width < 2 * radius) return@repeat
-            // x and y are clamped, so the whole sparkle lies inside the element
-            val x = (stripStart + (size.width - stripStart) * between(0.15f, 0.85f))
-                .coerceIn(radius, size.width - radius)
-            val y = (if (big) between(2f, 14f) else between(0f, 30f)).dp.toPx() + radius
-            drawSparkle(
-                center = Offset(x, y.coerceAtMost(size.height - radius)),
-                radius = sizeDp.dp.toPx() / 2f,
-                color = if (r.nextInt(3) == 0) highlight else color,
-                alpha = between(0.55f, 1f),
-                rotationDegrees = between(-25f, 25f),
-                withRays = r.nextBoolean(),
-            )
-        }
-        if (r.nextFloat() < 0.35f) {
-            val sizeDp = between(6f, 9f)
-            drawSparkle(
-                center = Offset(
-                    (size.width * between(0.84f, 0.96f)).coerceAtMost(size.width - sizeDp.dp.toPx() / 2f),
-                    size.height - between(6f, 16f).dp.toPx(),
-                ),
-                radius = sizeDp.dp.toPx() / 2f,
-                color = color,
-                alpha = between(0.55f, 1f),
-                rotationDegrees = between(-25f, 25f),
-            )
-        }
+fun Modifier.headerSparkles(seed: Int, color: Color = Gold, highlight: Color = OnGoldContainer): Modifier = drawWithContent {
+    drawContent()
+    val r = Random(seed)
+    fun between(a: Float, b: Float) = a + (b - a) * r.nextFloat()
+    val stripStart = (size.width - SparkleStripWidth.toPx()).coerceAtLeast(0f)
+    val count = 1 + r.nextInt(3)
+    repeat(count) { index ->
+        val big = index == 0
+        val sizeDp = if (big) between(14f, 22f) else between(6f, 11f)
+        val radius = sizeDp.dp.toPx() / 2f
+        // Element too narrow: no room for the sparkle; coerceIn would crash with an empty range otherwise
+        if (size.width < 2 * radius) return@repeat
+        // x and y are clamped, so the whole sparkle lies inside the element
+        val x = (stripStart + (size.width - stripStart) * between(0.15f, 0.85f))
+            .coerceIn(radius, size.width - radius)
+        val y = (if (big) between(2f, 14f) else between(0f, 30f)).dp.toPx() + radius
+        drawSparkle(
+            center = Offset(x, y.coerceAtMost(size.height - radius)),
+            radius = sizeDp.dp.toPx() / 2f,
+            color = if (r.nextInt(3) == 0) highlight else color,
+            alpha = between(0.55f, 1f),
+            rotationDegrees = between(-25f, 25f),
+            withRays = r.nextBoolean(),
+        )
     }
+    if (r.nextFloat() < 0.35f) {
+        val sizeDp = between(6f, 9f)
+        drawSparkle(
+            center = Offset(
+                (size.width * between(0.84f, 0.96f)).coerceAtMost(size.width - sizeDp.dp.toPx() / 2f),
+                size.height - between(6f, 16f).dp.toPx(),
+            ),
+            radius = sizeDp.dp.toPx() / 2f,
+            color = color,
+            alpha = between(0.55f, 1f),
+            rotationDegrees = between(-25f, 25f),
+        )
+    }
+}
 
 /**
  * Places 1–3 sparkles across the middle of an area (used on the coloured group cards without a photo).
  */
-fun Modifier.areaSparkles(seed: Int, color: Color = Color.White): Modifier =
-    drawWithContent {
-        drawContent()
-        val r = Random(seed)
-        fun between(a: Float, b: Float) = a + (b - a) * r.nextFloat()
-        val count = 1 + r.nextInt(3)
-        repeat(count) { index ->
-            val sizeDp = if (index == 0) between(14f, 22f) else between(6f, 11f)
-            drawSparkle(
-                center = Offset(size.width * between(0.30f, 0.78f), size.height * between(0.20f, 0.75f)),
-                radius = sizeDp.dp.toPx() / 2f,
-                color = color,
-                alpha = between(0.55f, 1f),
-                rotationDegrees = between(-25f, 25f),
-                withRays = r.nextBoolean(),
-            )
-        }
+fun Modifier.areaSparkles(seed: Int, color: Color = Color.White): Modifier = drawWithContent {
+    drawContent()
+    val r = Random(seed)
+    fun between(a: Float, b: Float) = a + (b - a) * r.nextFloat()
+    val count = 1 + r.nextInt(3)
+    repeat(count) { index ->
+        val sizeDp = if (index == 0) between(14f, 22f) else between(6f, 11f)
+        drawSparkle(
+            center = Offset(size.width * between(0.30f, 0.78f), size.height * between(0.20f, 0.75f)),
+            radius = sizeDp.dp.toPx() / 2f,
+            color = color,
+            alpha = between(0.55f, 1f),
+            rotationDegrees = between(-25f, 25f),
+            withRays = r.nextBoolean(),
+        )
     }
+}
 
 /** A single, freely placed sparkle, e.g. next to the "Wichtly" wordmark. */
 @Composable
-fun Sparkle(
-    size: Dp,
-    modifier: Modifier = Modifier,
-    color: Color = Gold,
-    rotationDegrees: Float = 0f,
-    alpha: Float = 1f,
-) {
+fun Sparkle(size: Dp, modifier: Modifier = Modifier, color: Color = Gold, rotationDegrees: Float = 0f, alpha: Float = 1f) {
     Canvas(modifier = modifier.size(size)) {
         drawSparkle(
             center = center,

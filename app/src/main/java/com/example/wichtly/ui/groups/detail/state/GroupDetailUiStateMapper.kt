@@ -39,7 +39,7 @@ internal fun buildGroupDetailUiState(
     // Close the editor if the group or the edited participant is gone in the meantime
     val editor = localState.editor
     val isEditedParticipantGone = editor?.editingParticipantId != null &&
-            participants.none { it.id == editor.editingParticipantId }
+        participants.none { it.id == editor.editingParticipantId }
     val visibleEditor = if (editor == null || isGroupNotFound || isEditedParticipantGone) {
         null
     } else {
@@ -47,7 +47,7 @@ internal fun buildGroupDetailUiState(
     }
 
     val isDeleteParticipantPresent = localState.pendingDeleteParticipantId == null ||
-            participants.any { it.id == localState.pendingDeleteParticipantId }
+        participants.any { it.id == localState.pendingDeleteParticipantId }
 
     return GroupDetailUiState(
         isLoading = false,

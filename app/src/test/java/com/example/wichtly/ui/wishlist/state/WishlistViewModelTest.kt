@@ -181,7 +181,7 @@ class WishlistViewModelTest {
             id = "wish-uuid-123",
             participantId = participantId,
             text = "Altem Text",
-            sortOrder = 5
+            sortOrder = 5,
         )
         val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
@@ -282,7 +282,7 @@ class WishlistViewModelTest {
             id = "wish-delete-me",
             participantId = participantId,
             text = "Kaffeebohnen",
-            sortOrder = 0
+            sortOrder = 0,
         )
         val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
@@ -428,12 +428,28 @@ class WishlistViewModelTest {
         }
         val wishlistRepository = FakeWishlistRepository()
         val handle = SavedStateHandle()
-        val vorher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
+        val vorher =
+            WishlistViewModel(
+                participantId,
+                participantRepository,
+                wishlistRepository,
+                SaveWishlistItemUseCase(wishlistRepository),
+                DeleteWishlistItemUseCase(wishlistRepository),
+                handle,
+            )
         vorher.onAddClick()
         vorher.onEditorTextChange("Wollsocken")
 
         // New ViewModel with the same handle, as after a process death
-        val nachher = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
+        val nachher =
+            WishlistViewModel(
+                participantId,
+                participantRepository,
+                wishlistRepository,
+                SaveWishlistItemUseCase(wishlistRepository),
+                DeleteWishlistItemUseCase(wishlistRepository),
+                handle,
+            )
         backgroundScope.launch { nachher.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 

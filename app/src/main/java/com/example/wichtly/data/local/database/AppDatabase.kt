@@ -86,18 +86,16 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         /** Builds the single database instance of the app (called once by the AppContainer). */
-        fun create(context: Context): AppDatabase {
-            return Room.databaseBuilder(
-                context.applicationContext,
-                AppDatabase::class.java,
-                "wichtly_database",
-            )
-                // Only for versions without an exported schema; every later version migrates automatically
-                .fallbackToDestructiveMigrationFrom(true, 1, 2, 3)
-                // There is no backwards migration
-                .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
-                .addCallback(LoggingCallback)
-                .build()
-        }
+        fun create(context: Context): AppDatabase = Room.databaseBuilder(
+            context.applicationContext,
+            AppDatabase::class.java,
+            "wichtly_database",
+        )
+            // Only for versions without an exported schema; every later version migrates automatically
+            .fallbackToDestructiveMigrationFrom(true, 1, 2, 3)
+            // There is no backwards migration
+            .fallbackToDestructiveMigrationOnDowngrade(dropAllTables = true)
+            .addCallback(LoggingCallback)
+            .build()
     }
 }

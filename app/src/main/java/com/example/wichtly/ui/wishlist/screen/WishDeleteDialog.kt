@@ -78,7 +78,7 @@ private fun WishDeleteDialogWithErrorPreview() {
             errorMessage = "Fehler beim Löschen des Wunsches. Bitte erneut versuchen.",
             isBusy = false,
             onConfirm = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

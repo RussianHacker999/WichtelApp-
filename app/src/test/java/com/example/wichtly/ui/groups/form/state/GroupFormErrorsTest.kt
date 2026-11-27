@@ -33,7 +33,7 @@ class GroupFormErrorsTest {
         // Two name errors in the list
         val errors = listOf(
             GiftGroupValidationError.EmptyName,
-            GiftGroupValidationError.NameTooLong
+            GiftGroupValidationError.NameTooLong,
         )
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
@@ -46,7 +46,7 @@ class GroupFormErrorsTest {
         val errors = listOf(
             GiftGroupValidationError.InvalidBudget,
             GiftGroupValidationError.DateInPast,
-            GiftGroupValidationError.GroupNotFound
+            GiftGroupValidationError.GroupNotFound,
         )
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
@@ -80,7 +80,7 @@ class GroupFormErrorsTest {
     fun applyDomainValidationErrors_mapsDuplicateName() {
         val updated = applyDomainValidationErrors(
             initialState,
-            listOf(GiftGroupValidationError.DuplicateName)
+            listOf(GiftGroupValidationError.DuplicateName),
         )
         assertEquals(R.string.error_group_name_duplicate, updated.nameError)
     }
@@ -91,7 +91,7 @@ class GroupFormErrorsTest {
             nameError = R.string.error_group_save,
             budgetError = R.string.error_group_save,
             drawDayError = R.string.error_group_save,
-            generalError = R.string.error_group_save
+            generalError = R.string.error_group_save,
         )
         val updated = applyDomainValidationErrors(withErrors, emptyList())
 

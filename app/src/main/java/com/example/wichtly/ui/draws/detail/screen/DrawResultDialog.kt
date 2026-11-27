@@ -99,12 +99,7 @@ fun DrawResultDialog(
 }
 
 @Composable
-private fun GiftTagReveal(
-    assignment: DrawAssignmentUiModel,
-    onDismiss: () -> Unit,
-    startOpened: Boolean,
-    modifier: Modifier = Modifier,
-) {
+private fun GiftTagReveal(assignment: DrawAssignmentUiModel, onDismiss: () -> Unit, startOpened: Boolean, modifier: Modifier = Modifier) {
     var opened by rememberSaveable(assignment.giverId) { mutableStateOf(startOpened) }
     val tagColor = MaterialTheme.colorScheme.primary
     val onTag = MaterialTheme.colorScheme.onPrimary
@@ -161,7 +156,12 @@ private fun GiftTagReveal(
                     }
                 }
                 Sparkle(size = 24.dp, rotationDegrees = 14f, modifier = Modifier.align(Alignment.TopStart).offset(x = (-30).dp, y = 64.dp))
-                Sparkle(size = 11.dp, rotationDegrees = -20f, alpha = 0.75f, modifier = Modifier.align(Alignment.TopEnd).offset(x = 18.dp, y = 180.dp))
+                Sparkle(
+                    size = 11.dp,
+                    rotationDegrees = -20f,
+                    alpha = 0.75f,
+                    modifier = Modifier.align(Alignment.TopEnd).offset(x = 18.dp, y = 180.dp),
+                )
             }
         }
     }

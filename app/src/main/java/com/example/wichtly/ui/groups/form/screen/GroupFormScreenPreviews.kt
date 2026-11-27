@@ -42,8 +42,12 @@ private fun GroupFormScreenEditPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(
-                isEditMode = true, isLoading = false, name = "Büro Wichteln 2026",
-                budget = "25,00", drawDay = "24.12.2026", drawType = DrawType.NORMAL,
+                isEditMode = true,
+                isLoading = false,
+                name = "Büro Wichteln 2026",
+                budget = "25,00",
+                drawDay = "24.12.2026",
+                drawType = DrawType.NORMAL,
             ),
             actions = previewActions,
         )
@@ -80,8 +84,13 @@ private fun GroupFormScreenSavingPreview() {
     WichtlyTheme {
         GroupFormScreen(
             state = GroupFormUiState(
-                isEditMode = true, isLoading = false, isSaving = true, name = "Familie Wichteln",
-                budget = "50,00", drawDay = "31.12.2026", drawType = DrawType.JUNK,
+                isEditMode = true,
+                isLoading = false,
+                isSaving = true,
+                name = "Familie Wichteln",
+                budget = "50,00",
+                drawDay = "31.12.2026",
+                drawType = DrawType.JUNK,
             ),
             actions = previewActions,
         )

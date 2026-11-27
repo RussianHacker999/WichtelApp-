@@ -15,9 +15,7 @@ private const val TAG = "DeleteWishlistItemUseCase"
  * A separate use case although only one row is deleted: this way every write of the app goes
  * through a use case, and the ViewModels use repositories for reading only.
  */
-class DeleteWishlistItemUseCase(
-    private val repository: WishlistRepository,
-) {
+class DeleteWishlistItemUseCase(private val repository: WishlistRepository) {
     /**
      * @return [DeleteResult.Deleted], or [DeleteResult.NotFound] if the wish does not exist (any more).
      */

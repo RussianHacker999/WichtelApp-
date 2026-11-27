@@ -29,7 +29,7 @@ fun WishEditorDialog(
     onTextChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     WichtlyDialog(
         onDismissRequest = onDismiss,
@@ -74,7 +74,8 @@ private fun WishEditorDialogAddEmptyPreview() {
 @Composable
 private fun WishEditorDialogEditWithTextPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isBusy = false, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }
 
@@ -85,7 +86,8 @@ private fun WishEditorDialogEditWithTextPreview() {
 @Composable
 private fun WishEditorDialogWithErrorPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isBusy = false, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }
 
@@ -96,6 +98,7 @@ private fun WishEditorDialogWithErrorPreview() {
 @Composable
 private fun WishEditorDialogSavingPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isBusy = true, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isBusy = true, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }

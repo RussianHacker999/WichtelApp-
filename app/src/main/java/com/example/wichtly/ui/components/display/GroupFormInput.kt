@@ -1,8 +1,8 @@
 package com.example.wichtly.ui.components.display
 
+import com.example.wichtly.domain.validation.DrawDayInputFormatter
 import java.math.BigDecimal
 import java.math.RoundingMode
-import com.example.wichtly.domain.validation.DrawDayInputFormatter
 import java.time.LocalDate
 
 /*

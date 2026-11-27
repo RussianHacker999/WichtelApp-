@@ -9,8 +9,4 @@ import java.util.UUID
  *
  * @property sortOrder display position, taken over from the wishlist.
  */
-data class DrawWishlistItemSnapshot(
-    val id: String = UUID.randomUUID().toString(),
-    val text: String,
-    val sortOrder: Int,
-)
+data class DrawWishlistItemSnapshot(val id: String = UUID.randomUUID().toString(), val text: String, val sortOrder: Int)

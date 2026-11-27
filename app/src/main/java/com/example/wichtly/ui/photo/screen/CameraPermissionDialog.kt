@@ -22,12 +22,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
  * @param onDismiss the dialog was closed without a decision.
  */
 @Composable
-internal fun CameraPermissionDialog(
-    onAllow: () -> Unit,
-    onDeny: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun CameraPermissionDialog(onAllow: () -> Unit, onDeny: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.PhotoCamera,

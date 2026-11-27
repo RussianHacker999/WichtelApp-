@@ -27,11 +27,7 @@ import com.example.wichtly.ui.components.layout.WichtlyTopBar
  * @param actions all user actions of the screen, see [GroupDetailActions].
  */
 @Composable
-fun GroupDetailScreen(
-    state: GroupDetailUiState,
-    actions: GroupDetailActions,
-    modifier: Modifier = Modifier,
-) {
+fun GroupDetailScreen(state: GroupDetailUiState, actions: GroupDetailActions, modifier: Modifier = Modifier) {
     val group = state.group
     val ready = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
     // The modifier is applied only to the top-level WichtlyScaffold.
@@ -46,7 +42,12 @@ fun GroupDetailScreen(
                         ItemMenu(
                             actions = listOf(
                                 MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, actions.onEditGroupClick),
-                                MenuAction(stringResource(R.string.group_delete), Icons.Filled.Delete, actions.onDeleteGroupClick, destructive = true),
+                                MenuAction(
+                                    stringResource(R.string.group_delete),
+                                    Icons.Filled.Delete,
+                                    actions.onDeleteGroupClick,
+                                    destructive = true,
+                                ),
                             ),
                         )
                     }
@@ -79,6 +80,7 @@ fun GroupDetailScreen(
         when {
             // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.group_detail_loading))
+
             // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
@@ -88,6 +90,7 @@ fun GroupDetailScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
+
             // 3. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
@@ -97,8 +100,10 @@ fun GroupDetailScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
+
             // Group was just deleted here and the route navigates back: show nothing
             group == null -> Unit
+
             // 4. Content
             else -> GroupDetailContent(
                 group = group,

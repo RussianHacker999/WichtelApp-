@@ -39,10 +39,7 @@ class ParticipantValidator {
     }
 
     /** Checks all rules for a participant. */
-    fun validate(
-        participant: Participant,
-        existingParticipantsInGroup: List<Participant>,
-    ): List<ParticipantValidationError> = buildList {
+    fun validate(participant: Participant, existingParticipantsInGroup: List<Participant>): List<ParticipantValidationError> = buildList {
         addAll(validateName(participant.name))
         addAll(validateUniqueName(participant.name, participant.id, existingParticipantsInGroup))
     }

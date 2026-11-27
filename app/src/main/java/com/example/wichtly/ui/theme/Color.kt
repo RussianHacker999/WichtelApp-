@@ -63,12 +63,7 @@ val OnWarningAmber = Color(0xFF2A1E02)
  * Accessible via `WichtlyTheme.extendedColors`.
  */
 @Immutable
-data class ExtendedColors(
-    val success: Color,
-    val onSuccess: Color,
-    val warning: Color,
-    val onWarning: Color,
-)
+data class ExtendedColors(val success: Color, val onSuccess: Color, val warning: Color, val onWarning: Color)
 
 val EvergreenExtendedColors = ExtendedColors(
     success = SuccessGreen,

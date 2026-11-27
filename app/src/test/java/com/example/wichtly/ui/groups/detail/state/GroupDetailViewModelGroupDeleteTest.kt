@@ -9,6 +9,7 @@ import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,7 +17,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for deleting the whole group in [GroupDetailViewModel].

@@ -26,7 +26,7 @@ fun ParticipantDeleteDialog(
     isBusy: Boolean,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     WichtlyDialog(
         onDismissRequest = onDismiss,

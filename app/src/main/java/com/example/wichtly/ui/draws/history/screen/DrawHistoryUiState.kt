@@ -8,10 +8,7 @@ import java.time.LocalDateTime
  *
  * @property drawnAt date and time of the draw (local time zone).
  */
-data class DrawHistoryItemUiModel(
-    val id: String,
-    val drawnAt: LocalDateTime,
-)
+data class DrawHistoryItemUiModel(val id: String, val drawnAt: LocalDateTime)
 
 /**
  * UI state of the draw history of a gift group (DrawHistoryScreen).

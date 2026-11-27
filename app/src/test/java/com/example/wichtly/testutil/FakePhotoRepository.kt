@@ -72,6 +72,5 @@ class FakePhotoRepository : PhotoRepository {
     /** Paths that [listPhotoPaths] reports as "old enough"; default: all existing ones. */
     var oldPaths: Set<String>? = null
 
-    override suspend fun listPhotoPaths(olderThan: Instant): List<String> =
-        (oldPaths ?: mutableExistingPaths).toList()
+    override suspend fun listPhotoPaths(olderThan: Instant): List<String> = (oldPaths ?: mutableExistingPaths).toList()
 }

@@ -10,6 +10,7 @@ package com.example.wichtly.domain.result
 sealed interface DeleteResult {
     /** The entry existed and was deleted. */
     data object Deleted : DeleteResult
+
     /** There was nothing to delete; the entry did not exist (any more). */
     data object NotFound : DeleteResult
 }

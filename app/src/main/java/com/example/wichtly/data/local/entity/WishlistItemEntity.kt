@@ -18,15 +18,15 @@ import androidx.room.PrimaryKey
             entity = ParticipantEntity::class,
             parentColumns = ["id"],
             childColumns = ["participantId"],
-            onDelete = ForeignKey.CASCADE
-        )
+            onDelete = ForeignKey.CASCADE,
+        ),
     ],
-    indices = [Index(value = ["participantId"])]
+    indices = [Index(value = ["participantId"])],
 )
 data class WishlistItemEntity(
     @PrimaryKey
     val id: String,
     val participantId: String,
     val text: String,
-    val sortOrder: Int
+    val sortOrder: Int,
 )

@@ -32,5 +32,5 @@ data class DrawAssignmentUiModel(
     val giverName: String,
     val receiverId: String,
     val receiverName: String,
-    val wishes: List<String>
+    val wishes: List<String>,
 )

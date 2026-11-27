@@ -16,12 +16,7 @@ import com.example.wichtly.ui.draws.history.screen.DrawHistoryScreen
  * @param onOpenDraw navigates to a saved draw.
  */
 @Composable
-fun DrawHistoryRoute(
-    groupId: String,
-    onBack: () -> Unit,
-    onOpenDraw: (drawId: String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DrawHistoryRoute(groupId: String, onBack: () -> Unit, onOpenDraw: (drawId: String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: DrawHistoryViewModel = viewModel(
         key = groupId,
         factory = DrawHistoryViewModel.factory(appContainer(), groupId),

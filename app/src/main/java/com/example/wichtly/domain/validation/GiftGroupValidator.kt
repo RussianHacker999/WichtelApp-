@@ -37,11 +37,7 @@ class GiftGroupValidator {
      * Rule: no other group has the same name (case-insensitive).
      * When editing, the group itself ([groupId]) does not count as a duplicate.
      */
-    fun validateUniqueName(
-        raw: String,
-        groupId: String?,
-        existingGroups: List<GiftGroup>,
-    ): List<GiftGroupValidationError> = buildList {
+    fun validateUniqueName(raw: String, groupId: String?, existingGroups: List<GiftGroup>): List<GiftGroupValidationError> = buildList {
         val name = normalizeName(raw)
         val isDuplicate = existingGroups
             .filter { it.id != groupId }
@@ -68,11 +64,7 @@ class GiftGroupValidator {
      *
      * @param previousDay stored date when editing, null when creating.
      */
-    fun validateDrawDay(
-        day: LocalDate,
-        previousDay: LocalDate?,
-        today: LocalDate,
-    ): List<GiftGroupValidationError> = buildList {
+    fun validateDrawDay(day: LocalDate, previousDay: LocalDate?, today: LocalDate): List<GiftGroupValidationError> = buildList {
         val isUnchanged = previousDay != null && day == previousDay
         if (isUnchanged) return@buildList
         if (!day.isAfter(today)) add(GiftGroupValidationError.DateInPast)

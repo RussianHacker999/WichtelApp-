@@ -26,23 +26,17 @@ class WishlistValidator {
      * Rule: a participant has no wish twice (case-insensitive).
      * When editing, the wish itself ([itemId]) does not count as a duplicate.
      */
-    fun validateUniqueText(
-        raw: String,
-        itemId: String?,
-        existingItemsOfParticipant: List<WishlistItem>,
-    ): List<WishlistValidationError> = buildList {
-        val text = normalizeText(raw)
-        val isDuplicate = existingItemsOfParticipant
-            .filter { it.id != itemId }
-            .any { normalizeText(it.text).equals(text, ignoreCase = true) }
-        if (isDuplicate) add(WishlistValidationError.DuplicateText)
-    }
+    fun validateUniqueText(raw: String, itemId: String?, existingItemsOfParticipant: List<WishlistItem>): List<WishlistValidationError> =
+        buildList {
+            val text = normalizeText(raw)
+            val isDuplicate = existingItemsOfParticipant
+                .filter { it.id != itemId }
+                .any { normalizeText(it.text).equals(text, ignoreCase = true) }
+            if (isDuplicate) add(WishlistValidationError.DuplicateText)
+        }
 
     /** Checks all rules for a wish against the other wishes of the same participant. */
-    fun validate(
-        item: WishlistItem,
-        existingItemsOfParticipant: List<WishlistItem>,
-    ): List<WishlistValidationError> = buildList {
+    fun validate(item: WishlistItem, existingItemsOfParticipant: List<WishlistItem>): List<WishlistValidationError> = buildList {
         addAll(validateText(item.text))
         addAll(validateUniqueText(item.text, item.id, existingItemsOfParticipant))
     }

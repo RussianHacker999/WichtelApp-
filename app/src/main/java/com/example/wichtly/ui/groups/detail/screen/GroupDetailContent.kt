@@ -45,7 +45,6 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
 
-
 /**
  * Content of the group detail screen: page header, metrics, participant list
  * (with "Add" in the section header) and the "History" section.
@@ -81,7 +80,7 @@ internal fun GroupDetailContent(
                         items = listOf(
                             MetaItem(Icons.Filled.Event, formatDateForInput(group.drawDay)),
                             MetaItem(Icons.Filled.Redeem, stringResource(group.drawType.labelRes())),
-                        )
+                        ),
                     )
                 },
             )
@@ -89,7 +88,11 @@ internal fun GroupDetailContent(
         item {
             // 2. Metrics: participants and budget
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                StatTile(value = participants.size.toString(), label = stringResource(R.string.common_participants), modifier = Modifier.weight(1f))
+                StatTile(
+                    value = participants.size.toString(),
+                    label = stringResource(R.string.common_participants),
+                    modifier = Modifier.weight(1f),
+                )
                 StatTile(
                     value = stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
                     label = stringResource(R.string.group_detail_budget_label),
@@ -130,8 +133,12 @@ internal fun GroupDetailContent(
                         ItemMenu(
                             contentDescription = stringResource(R.string.group_detail_participant_actions, participant.name),
                             actions = listOf(
-                                MenuAction(stringResource(R.string.participant_edit), Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
-                                MenuAction(stringResource(R.string.participant_delete), Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
+                                MenuAction(stringResource(R.string.participant_edit), Icons.Filled.Edit, {
+                                    onEditParticipantClick(participant.id)
+                                }),
+                                MenuAction(stringResource(R.string.participant_delete), Icons.Filled.Delete, {
+                                    onDeleteParticipantClick(participant.id)
+                                }, destructive = true),
                             ),
                         )
                     },

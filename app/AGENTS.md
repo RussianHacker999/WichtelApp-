@@ -138,8 +138,11 @@ Drawing again with the same participants creates a new record and never overwrit
 Before a change is considered done:
 
 ```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug
+./gradlew :app:testDebugUnitTest :app:assembleDebug :app:lintDebug ktlintCheck
 ```
+
+- Code style is enforced with ktlint (`.editorconfig`: Android Studio style, max line length 140, trailing
+  commas on multi-line lists). Run `./gradlew ktlintFormat` before committing; `ktlintCheck` must pass.
 
 - New logic in use cases, validators, mappers and ViewModels gets JVM unit tests. Use the fakes in
   `app/src/test/.../testutil`; inject time (`today`, `now`) and randomness instead of using the real clock.

@@ -11,6 +11,8 @@ import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.io.File
+import java.time.LocalDate
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -20,18 +22,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
-import java.time.LocalDate
 
 /**
  * Wrapper around [FakeParticipantRepository] that holds saves (insert/update) until [gate] is opened.
  *
  * This keeps a running save (isSaving = true) in place during the test.
  */
-class GatedParticipantRepository(
-    private val delegate: FakeParticipantRepository,
-    val gate: CompletableDeferred<Unit>,
-) : ParticipantRepository by delegate {
+class GatedParticipantRepository(private val delegate: FakeParticipantRepository, val gate: CompletableDeferred<Unit>) :
+    ParticipantRepository by delegate {
     override suspend fun insertParticipant(participant: Participant) {
         gate.await()
         delegate.insertParticipant(participant)
@@ -74,7 +72,16 @@ class GroupDetailViewModelPhotoTest {
         val participantRepo = FakeParticipantRepository()
         val photoRepo = FakePhotoRepository()
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -99,7 +106,16 @@ class GroupDetailViewModelPhotoTest {
         val participantRepo = FakeParticipantRepository()
         val photoRepo = FakePhotoRepository()
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -132,7 +148,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -161,7 +186,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -193,7 +227,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -222,7 +265,16 @@ class GroupDetailViewModelPhotoTest {
         val participantRepo = FakeParticipantRepository()
         val photoRepo = FakePhotoRepository()
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -255,7 +307,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -288,7 +349,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -317,7 +387,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(oldPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -348,7 +427,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(photoPath))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -373,7 +461,16 @@ class GroupDetailViewModelPhotoTest {
         }
         val photoRepo = FakePhotoRepository()
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -398,7 +495,16 @@ class GroupDetailViewModelPhotoTest {
             shouldThrowOnSave = true
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -425,7 +531,16 @@ class GroupDetailViewModelPhotoTest {
             shouldThrowOnDelete = true
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -442,9 +557,6 @@ class GroupDetailViewModelPhotoTest {
 
         assertNull(viewModel.uiState.value.participantEditor)
     }
-
-
-
 
     /**
      * Test 17: participantPhotoFiles contains only participants whose photo file exists (p1), not p2,
@@ -470,7 +582,16 @@ class GroupDetailViewModelPhotoTest {
             setExistingPaths(setOf(path1))
         }
 
-        val viewModel = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo))
+        val viewModel =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+            )
 
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -482,7 +603,6 @@ class GroupDetailViewModelPhotoTest {
         assertTrue(!state.participantPhotoFiles.containsKey("p2"))
     }
 
-
     @Test
     fun restoredEditor_keepsInputsAndDoesNotDeleteCommittedPhoto() = runTest {
         val committed = "photos/participants/anna.jpg"
@@ -492,7 +612,17 @@ class GroupDetailViewModelPhotoTest {
         }
         val photoRepo = FakePhotoRepository().apply { setExistingPaths(setOf(committed)) }
         val handle = SavedStateHandle()
-        val vorher = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo), savedStateHandle = handle)
+        val vorher =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+                savedStateHandle = handle,
+            )
         backgroundScope.launch { vorher.uiState.collect {} }
         testScheduler.advanceUntilIdle()
         vorher.onEditParticipantClick(participantId)
@@ -500,7 +630,17 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         // Process death: new ViewModel with the same handle, then close without saving
-        val nachher = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo), savedStateHandle = handle)
+        val nachher =
+            GroupDetailViewModel(
+                groupId,
+                groupRepo,
+                participantRepo,
+                photoRepo,
+                SaveParticipantUseCase(participantRepo, groupRepo),
+                DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo),
+                DeleteParticipantUseCase(participantRepo, photoRepo),
+                savedStateHandle = handle,
+            )
         backgroundScope.launch { nachher.uiState.collect {} }
         testScheduler.advanceUntilIdle()
         assertNotNull(nachher.uiState.value.participantEditor)

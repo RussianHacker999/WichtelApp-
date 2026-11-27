@@ -61,12 +61,7 @@ fun PhotoField(
 
 /** Visible part of the photo field (without dialogs), separated for the previews. */
 @Composable
-private fun PhotoFieldContent(
-    photo: PhotoFieldUiState,
-    flow: PhotoFlowState,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
+private fun PhotoFieldContent(photo: PhotoFieldUiState, flow: PhotoFlowState, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val context = LocalContext.current
     val error = photo.error ?: if (flow.captureFailed) R.string.error_photo_capture else null
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
@@ -156,6 +151,10 @@ private fun PhotoFieldCameraDeniedPreview() {
 @Composable
 private fun PhotoFieldWithPhotoPreview() {
     WichtlyTheme {
-        PhotoFieldContent(photo = PhotoFieldUiState(path = "photos/preview.jpg"), flow = PhotoFlowState(), modifier = Modifier.padding(16.dp))
+        PhotoFieldContent(
+            photo = PhotoFieldUiState(path = "photos/preview.jpg"),
+            flow = PhotoFlowState(),
+            modifier = Modifier.padding(16.dp),
+        )
     }
 }

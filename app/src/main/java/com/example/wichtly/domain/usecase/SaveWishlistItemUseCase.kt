@@ -16,20 +16,13 @@ private const val TAG = "SaveWishlistItemUseCase"
  * normalise the text and check it (including duplicates) → write only if there are no errors.
  * A new wish is appended at the end (highest sortOrder + 1); when editing, id and sortOrder are kept.
  */
-class SaveWishlistItemUseCase(
-    private val repository: WishlistRepository,
-    private val validator: WishlistValidator = WishlistValidator(),
-) {
+class SaveWishlistItemUseCase(private val repository: WishlistRepository, private val validator: WishlistValidator = WishlistValidator()) {
     /**
      * @param itemId null creates a new wish; otherwise this wish is updated.
      * @param participantId participant who owns the wishlist.
      * @param text wish text as typed; normalised here.
      */
-    suspend operator fun invoke(
-        itemId: String?,
-        participantId: String,
-        text: String,
-    ): WishlistItemResult {
+    suspend operator fun invoke(itemId: String?, participantId: String, text: String): WishlistItemResult {
         AppLog.d(TAG) { if (itemId == null) "Saving new wish for participant $participantId" else "Saving wish $itemId" }
         val currentItems = repository.getWishlistItems(participantId)
         val stored = itemId?.let { id ->

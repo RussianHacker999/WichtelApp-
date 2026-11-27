@@ -9,6 +9,8 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.Instant
+import java.time.LocalDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -17,8 +19,6 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
 
 /**
  * Unit tests for [DrawDetailViewModel].
@@ -207,7 +207,6 @@ class DrawDetailViewModelTest {
         assertEquals(false, state.notFound)
     }
 
-
     /**
      * Test 6: a giver click opens the gift tag directly (revealedGiverId), without an intermediate dialog.
      */
@@ -369,7 +368,9 @@ class DrawDetailViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        groupRepository.setGroups(listOf(GiftGroup(id = groupId, name = "Team 2026", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
+        groupRepository.setGroups(
+            listOf(GiftGroup(id = groupId, name = "Team 2026", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))),
+        )
         testScheduler.advanceUntilIdle()
 
         assertEquals("Team 2026", viewModel.uiState.value.draw?.groupName)

@@ -30,11 +30,7 @@ import com.example.wichtly.ui.components.layout.WichtlyTopBar
  * @param actions all user actions of the screen, see [GroupFormActions].
  */
 @Composable
-fun GroupFormScreen(
-    state: GroupFormUiState,
-    actions: GroupFormActions,
-    modifier: Modifier = Modifier,
-) {
+fun GroupFormScreen(state: GroupFormUiState, actions: GroupFormActions, modifier: Modifier = Modifier) {
     val showForm = !state.isLoading && !state.notFound && !state.loadFailed
     // The modifier is applied only to the top-level WichtlyScaffold.
     WichtlyScaffold(
@@ -61,7 +57,7 @@ fun GroupFormScreen(
                                 state.isSaving -> R.string.group_form_saving
                                 state.isEditMode -> R.string.common_save
                                 else -> R.string.group_form_create
-                            }
+                            },
                         ),
                         onClick = actions.onSaveClick,
                         loading = state.isSaving,
@@ -74,6 +70,7 @@ fun GroupFormScreen(
         when {
             // 1. Loading (edit mode)
             state.isLoading -> Box(Modifier.fillMaxSize()) { LoadingState(text = stringResource(R.string.group_form_loading)) }
+
             // 2. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
@@ -83,6 +80,7 @@ fun GroupFormScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
+
             // 3. Loading error in edit mode: replaces the form, so no empty fields of an existing group appear
             state.loadFailed -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
@@ -92,6 +90,7 @@ fun GroupFormScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
+
             // 4. Form
             else -> GroupFormContent(
                 state = state,

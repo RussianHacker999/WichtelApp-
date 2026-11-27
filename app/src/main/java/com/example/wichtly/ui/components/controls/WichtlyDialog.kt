@@ -65,7 +65,9 @@ fun WichtlyDialog(
         title = {
             Text(text = title, style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center)
         },
-        text = if (text == null && content == null && errorMessage == null) null else {
+        text = if (text == null && content == null && errorMessage == null) {
+            null
+        } else {
             {
                 Column(
                     modifier = Modifier
@@ -97,7 +99,11 @@ fun WichtlyDialog(
         },
         confirmButton = {
             if (confirmLabel == null) {
-                WichtlyTextButton(text = dismissLabel ?: stringResource(R.string.common_cancel), onClick = onDismiss, enabled = dismissEnabled)
+                WichtlyTextButton(
+                    text = dismissLabel ?: stringResource(R.string.common_cancel),
+                    onClick = onDismiss,
+                    enabled = dismissEnabled,
+                )
             } else if (destructive) {
                 DangerButton(text = confirmLabel, onClick = onConfirm, enabled = confirmEnabled, loading = confirmLoading, compact = true)
             } else {

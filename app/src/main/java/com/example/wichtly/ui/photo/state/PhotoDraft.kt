@@ -8,10 +8,10 @@ import com.example.wichtly.domain.repository.deletePhotoQuietly
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import java.io.File
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import java.io.File
 
 /**
  * Photo draft of a form or editor. A newly captured photo is in app storage right away, but in the
@@ -55,19 +55,18 @@ class PhotoDraft(
      * (or with an error text if saving fails). An unsaved photo that was in the field before is deleted;
      * the saved one stays until [commit]. The temporary camera file is removed in every case.
      */
-    suspend fun capture(tempFile: File, photo: PhotoFieldUiState): PhotoFieldUiState =
-        try {
-            val newPath = photoRepository.savePhoto(tempFile, ownerType)
-            if (isUncommitted(photo.path)) photoRepository.deletePhotoQuietly(photo.path, tag)
-            photo.copy(path = newPath, file = photoRepository.getFileForRelativePath(newPath), error = null)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            AppLog.e(tag, "Failed to save the photo (${ownerType.value})", e)
-            photo.copy(error = saveErrorMessage(e, R.string.error_photo_save))
-        } finally {
-            deleteTempFile(tempFile)
-        }
+    suspend fun capture(tempFile: File, photo: PhotoFieldUiState): PhotoFieldUiState = try {
+        val newPath = photoRepository.savePhoto(tempFile, ownerType)
+        if (isUncommitted(photo.path)) photoRepository.deletePhotoQuietly(photo.path, tag)
+        photo.copy(path = newPath, file = photoRepository.getFileForRelativePath(newPath), error = null)
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        AppLog.e(tag, "Failed to save the photo (${ownerType.value})", e)
+        photo.copy(error = saveErrorMessage(e, R.string.error_photo_save))
+    } finally {
+        deleteTempFile(tempFile)
+    }
 
     /** Photo removed or form discarded: delete an unsaved photo, keep a saved one. */
     fun discard(path: String?) {

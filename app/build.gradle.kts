@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -42,6 +43,15 @@ android {
 // This is the basis for later migrations instead of a destructive recreation, see AppDatabase.
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+// Kotlin style check: ./gradlew ktlintCheck (report) and ./gradlew ktlintFormat (auto-fix).
+// The rules are configured in the root .editorconfig.
+ktlint {
+    version.set("1.8.0")
+    filter {
+        exclude { it.file.path.contains("${File.separator}build${File.separator}") }
+    }
 }
 
 dependencies {

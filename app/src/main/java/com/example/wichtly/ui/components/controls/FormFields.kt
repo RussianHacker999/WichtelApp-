@@ -83,7 +83,9 @@ fun WichtlyTextField(
             shape = MaterialTheme.shapes.medium,
             placeholder = placeholder?.let { { Text(text = it) } },
             trailingIcon = trailingIcon,
-            supportingText = if (helper == null && maxLength == null) null else {
+            supportingText = if (helper == null && maxLength == null) {
+                null
+            } else {
                 {
                     Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
                         Text(text = helper.orEmpty(), modifier = Modifier.weight(1f))
@@ -197,7 +199,11 @@ private fun FormFieldsPreview() {
             WichtlyTextField(label = "Geschenkbudget (€) *", value = "25,5x", onValueChange = {}, errorText = "Ungültiges Budget.")
             ChoiceCard(title = "Klassisch", description = "Jeder schenkt einer Person.", selected = true, onClick = {})
             ChoiceCard(title = "Schrottwichteln", description = "Kurioses statt Nützliches.", selected = false, onClick = {})
-            HintBar(text = "Kamerazugriff wurde abgelehnt. Du kannst ohne Foto fortfahren.", actionLabel = "Einstellungen öffnen", onAction = {})
+            HintBar(
+                text = "Kamerazugriff wurde abgelehnt. Du kannst ohne Foto fortfahren.",
+                actionLabel = "Einstellungen öffnen",
+                onAction = {},
+            )
         }
     }
 }

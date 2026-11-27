@@ -32,7 +32,6 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-
 /**
  * Stateless screen of the draw history of a gift group.
  *
@@ -58,6 +57,7 @@ fun DrawHistoryScreen(
         when {
             // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.draw_history_loading))
+
             // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
@@ -67,6 +67,7 @@ fun DrawHistoryScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+
             // 3. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
@@ -76,6 +77,7 @@ fun DrawHistoryScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+
             // 4. Content: one LazyColumn, so page header, cards and notes scroll together
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
@@ -126,7 +128,6 @@ fun DrawHistoryScreen(
     }
 }
 
-
 /**
  * Preview: history with three saved draws.
  */
@@ -139,7 +140,8 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
         DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30)),
     )
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {
+        }, onDrawClick = {})
     }
 }
 
@@ -151,7 +153,8 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
 private fun DrawHistoryScreenWithSingleDrawPreview() {
     val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42)))
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {
+        }, onDrawClick = {})
     }
 }
 
@@ -186,7 +189,8 @@ private fun DrawHistoryScreenErrorPreview() {
     WichtlyTheme {
         DrawHistoryScreen(
             state = DrawHistoryUiState(isLoading = false, errorMessage = R.string.error_history_load),
-            onBack = {}, onDrawClick = {},
+            onBack = {},
+            onDrawClick = {},
         )
     }
 }

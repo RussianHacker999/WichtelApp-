@@ -34,7 +34,10 @@ class AppLogTest {
         val sink = RecordingLogSink(minLevel = LogLevel.INFO).also { AppLog.install(it) }
         var nachrichtGebaut = false
 
-        AppLog.d("Tag") { nachrichtGebaut = true; "debug" }
+        AppLog.d("Tag") {
+            nachrichtGebaut = true
+            "debug"
+        }
         AppLog.i("Tag", "info")
 
         assertFalse(nachrichtGebaut)

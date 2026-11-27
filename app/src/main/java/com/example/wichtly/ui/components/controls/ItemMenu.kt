@@ -25,12 +25,7 @@ import com.example.wichtly.R
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /** One entry of an [ItemMenu]. Destructive entries (delete) are shown in red. */
-data class MenuAction(
-    val label: String,
-    val icon: ImageVector,
-    val onClick: () -> Unit,
-    val destructive: Boolean = false,
-)
+data class MenuAction(val label: String, val icon: ImageVector, val onClick: () -> Unit, val destructive: Boolean = false)
 
 /**
  * The ⋮ button with its drop-down menu. Card-level actions (edit, delete, open) live here,
@@ -81,7 +76,7 @@ private fun ItemMenuPreview() {
             actions = listOf(
                 MenuAction("Wunsch bearbeiten", Icons.Filled.Edit, {}),
                 MenuAction("Wunsch löschen", Icons.Filled.Delete, {}, destructive = true),
-            )
+            ),
         )
     }
 }

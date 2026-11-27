@@ -70,17 +70,17 @@ class WishlistViewModel(
 ) : ViewModel() {
 
     // An open editor is restored from the SavedStateHandle (process death in the background)
-    private val _localState = MutableStateFlow(
+    private val localStateFlow = MutableStateFlow(
         WishlistLocalState(
             showEditor = savedStateHandle[KEY_EDITOR_OPEN] ?: false,
             editingItemId = savedStateHandle[KEY_EDITING_ID],
             editorText = savedStateHandle[KEY_EDITOR_TEXT] ?: "",
-        )
+        ),
     )
 
     init {
         // Save every change of the editor right away; the SavedStateHandle persists it when paused
-        _localState
+        localStateFlow
             .onEach { state ->
                 savedStateHandle[KEY_EDITOR_OPEN] = state.showEditor
                 savedStateHandle[KEY_EDITING_ID] = state.editingItemId
@@ -94,7 +94,7 @@ class WishlistViewModel(
             .asResult(TAG, "Failed to load the participant"),
         wishlistRepository.observeWishlistItems(participantId)
             .asResult(TAG, "Failed to load the wishlist"),
-        _localState
+        localStateFlow,
     ) { participantResult, itemsResult, localState ->
         val participant = participantResult.getOrNull()
         val items = itemsResult.getOrDefault(emptyList())
@@ -107,9 +107,9 @@ class WishlistViewModel(
 
         // Check whether the wish being edited or marked for deletion is still in the list
         val isEditingItemPresent = localState.editingItemId == null ||
-                items.any { it.id == localState.editingItemId }
+            items.any { it.id == localState.editingItemId }
         val isDeleteItemPresent = localState.pendingDeleteItemId == null ||
-                items.any { it.id == localState.pendingDeleteItemId }
+            items.any { it.id == localState.pendingDeleteItemId }
 
         // If the participant was deleted or the item no longer exists, close the affected dialogs
         val validShowEditor = localState.showEditor && !isParticipantNotFound && isEditingItemPresent
@@ -128,24 +128,24 @@ class WishlistViewModel(
             editorText = if (!isEditingItemPresent) "" else localState.editorText,
             editorError = if (!isEditingItemPresent) null else localState.editorError,
             pendingDeleteItemId = validPendingDeleteId,
-            deleteError = if (!isDeleteItemPresent) null else localState.deleteError
+            deleteError = if (!isDeleteItemPresent) null else localState.deleteError,
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = WishlistUiState(isLoading = true)
+        initialValue = WishlistUiState(isLoading = true),
     )
 
     /**
      * Opens the wish editor in add mode.
      */
     fun onAddClick() {
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 showEditor = true,
                 editingItemId = null,
                 editorText = "",
-                editorError = null
+                editorError = null,
             )
         }
     }
@@ -157,12 +157,12 @@ class WishlistViewModel(
         val currentItems = uiState.value.items
         val itemToEdit = currentItems.find { it.id == itemId }
         if (itemToEdit != null) {
-            _localState.update {
+            localStateFlow.update {
                 it.copy(
                     showEditor = true,
                     editingItemId = itemId,
                     editorText = itemToEdit.text,
-                    editorError = null
+                    editorError = null,
                 )
             }
         }
@@ -172,10 +172,10 @@ class WishlistViewModel(
      * Updates the text in the input field and clears an existing validation error.
      */
     fun onEditorTextChange(text: String) {
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 editorText = text,
-                editorError = null
+                editorError = null,
             )
         }
     }
@@ -184,13 +184,13 @@ class WishlistViewModel(
      * Closes the wish editor (only if no save is running) and resets the input.
      */
     fun onDismissEditor() {
-        if (_localState.value.isSaving) return
-        _localState.update {
+        if (localStateFlow.value.isSaving) return
+        localStateFlow.update {
             it.copy(
                 showEditor = false,
                 editingItemId = null,
                 editorText = "",
-                editorError = null
+                editorError = null,
             )
         }
     }
@@ -199,10 +199,10 @@ class WishlistViewModel(
      * Remembers the ID of the wish to delete and opens the delete dialog.
      */
     fun onDeleteClick(itemId: String) {
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 pendingDeleteItemId = itemId,
-                deleteError = null
+                deleteError = null,
             )
         }
     }
@@ -211,11 +211,11 @@ class WishlistViewModel(
      * Closes the delete dialog (only if no save is running).
      */
     fun onDismissDelete() {
-        if (_localState.value.isSaving) return
-        _localState.update {
+        if (localStateFlow.value.isSaving) return
+        localStateFlow.update {
             it.copy(
                 pendingDeleteItemId = null,
-                deleteError = null
+                deleteError = null,
             )
         }
     }
@@ -231,14 +231,14 @@ class WishlistViewModel(
      */
     fun onSaveClick() {
         // Synchronous guard against double submits
-        if (_localState.value.isSaving) return
+        if (localStateFlow.value.isSaving) return
 
-        val localState = _localState.value
+        val localState = localStateFlow.value
 
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 isSaving = true,
-                editorError = null
+                editorError = null,
             )
         }
 
@@ -252,23 +252,24 @@ class WishlistViewModel(
 
                 when (result) {
                     is WishlistItemResult.Success -> {
-                        _localState.update {
+                        localStateFlow.update {
                             it.copy(
                                 isSaving = false,
                                 showEditor = false,
                                 editingItemId = null,
                                 editorText = "",
-                                editorError = null
+                                editorError = null,
                             )
                         }
                     }
+
                     is WishlistItemResult.ValidationError -> {
                         val mappedError = mapWishlistValidationErrors(result.errors)
                             ?: R.string.error_wish_validate
-                        _localState.update {
+                        localStateFlow.update {
                             it.copy(
                                 isSaving = false,
-                                editorError = mappedError
+                                editorError = mappedError,
                             )
                         }
                     }
@@ -277,10 +278,10 @@ class WishlistViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to save the wish", e)
-                _localState.update {
+                localStateFlow.update {
                     it.copy(
                         isSaving = false,
-                        editorError = saveErrorMessage(e, R.string.error_wish_save)
+                        editorError = saveErrorMessage(e, R.string.error_wish_save),
                     )
                 }
             }
@@ -298,25 +299,25 @@ class WishlistViewModel(
      */
     fun onConfirmDelete() {
         // Synchronous guard against double submits
-        if (_localState.value.isSaving) return
+        if (localStateFlow.value.isSaving) return
 
-        val pendingId = _localState.value.pendingDeleteItemId ?: return
+        val pendingId = localStateFlow.value.pendingDeleteItemId ?: return
 
-        _localState.update {
+        localStateFlow.update {
             it.copy(
                 isSaving = true,
-                deleteError = null
+                deleteError = null,
             )
         }
 
         viewModelScope.launch {
             try {
                 when (deleteWishlistItem(pendingId)) {
-                    DeleteResult.Deleted, DeleteResult.NotFound -> _localState.update {
+                    DeleteResult.Deleted, DeleteResult.NotFound -> localStateFlow.update {
                         it.copy(
                             isSaving = false,
                             pendingDeleteItemId = null,
-                            deleteError = null
+                            deleteError = null,
                         )
                     }
                 }
@@ -324,10 +325,10 @@ class WishlistViewModel(
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Failed to delete the wish", e)
-                _localState.update {
+                localStateFlow.update {
                     it.copy(
                         isSaving = false,
-                        deleteError = R.string.error_wish_delete
+                        deleteError = R.string.error_wish_delete,
                     )
                 }
             }

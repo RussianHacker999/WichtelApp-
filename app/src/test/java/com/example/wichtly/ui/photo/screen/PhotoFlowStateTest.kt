@@ -54,7 +54,10 @@ class PhotoFlowStateTest {
 
     @Test
     fun aufnahmefehlerSchliesstUndZeigtFehler() {
-        val flow = PhotoFlowState().apply { open(); requestCamera(permissionGranted = true) }
+        val flow = PhotoFlowState().apply {
+            open()
+            requestCamera(permissionGranted = true)
+        }
 
         flow.onCaptureFailed()
 

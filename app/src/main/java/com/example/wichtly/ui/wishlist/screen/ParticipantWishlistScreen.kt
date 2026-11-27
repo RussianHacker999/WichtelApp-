@@ -89,6 +89,7 @@ fun ParticipantWishlistScreen(
         when {
             // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.wishlist_loading))
+
             // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
@@ -98,6 +99,7 @@ fun ParticipantWishlistScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+
             // 3. Participant not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.wishlist_participant_missing_title),
@@ -107,7 +109,9 @@ fun ParticipantWishlistScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
+
             participantName == null -> Unit
+
             // 4. Ready (loaded successfully, whether or not there are wishes)
             else -> WishlistContent(
                 participantName = participantName,
@@ -206,7 +210,9 @@ private fun WishlistContent(
                             contentDescription = stringResource(R.string.wishlist_item_actions, index + 1),
                             actions = listOf(
                                 MenuAction(stringResource(R.string.wishlist_edit), Icons.Filled.Edit, { onEditClick(item.id) }),
-                                MenuAction(stringResource(R.string.wishlist_delete), Icons.Filled.Delete, { onDeleteClick(item.id) }, destructive = true),
+                                MenuAction(stringResource(R.string.wishlist_delete), Icons.Filled.Delete, {
+                                    onDeleteClick(item.id)
+                                }, destructive = true),
                             ),
                         )
                     },
@@ -215,7 +221,6 @@ private fun WishlistContent(
         }
     }
 }
-
 
 private val sampleItems = listOf(
     WishlistItem(id = "1", participantId = "p1", text = "Ein gutes Notizbuch", sortOrder = 0),
@@ -279,10 +284,11 @@ private fun ParticipantWishlistScreenLongTextPreview() {
                 WishlistItem(
                     id = "1",
                     participantId = "p1",
-                    text = "Sehr langer Wunschtext über mehrere Zeilen: Ein handgebundenes Skizzenbuch im Format A4 mit festem Einband und einem dunkelgrünen Lesezeichenband.",
+                    text = "Sehr langer Wunschtext über mehrere Zeilen: Ein handgebundenes Skizzenbuch im Format A4 " +
+                        "mit festem Einband und einem dunkelgrünen Lesezeichenband.",
                 ),
             ),
-        )
+        ),
     )
 }
 
@@ -292,7 +298,15 @@ private fun ParticipantWishlistScreenLongTextPreview() {
 @Preview(showBackground = true, heightDp = 860)
 @Composable
 private fun ParticipantWishlistScreenWithEditorPreview() {
-    PreviewScreen(WishlistUiState(isLoading = false, participantName = "Mara", items = sampleItems, showEditor = true, editorText = "Warme Wollsocken"))
+    PreviewScreen(
+        WishlistUiState(
+            isLoading = false,
+            participantName = "Mara",
+            items = sampleItems,
+            showEditor = true,
+            editorText = "Warme Wollsocken",
+        ),
+    )
 }
 
 @Preview(showBackground = true, heightDp = 860)
@@ -316,6 +330,8 @@ private fun ParticipantWishlistScreenSingleItemPreview() {
 @Preview(showBackground = true, heightDp = 1400)
 @Composable
 private fun ParticipantWishlistScreenTwelveItemsPreview() {
-    val items = (1..12).map { WishlistItem(id = "$it", participantId = "p1", text = "Wunschidee Nummer $it zum Verschenken", sortOrder = it) }
+    val items = (1..12).map {
+        WishlistItem(id = "$it", participantId = "p1", text = "Wunschidee Nummer $it zum Verschenken", sortOrder = it)
+    }
     PreviewScreen(WishlistUiState(isLoading = false, participantName = "Mara", items = items))
 }

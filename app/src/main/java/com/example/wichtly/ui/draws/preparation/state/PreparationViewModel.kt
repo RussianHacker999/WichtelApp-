@@ -17,6 +17,7 @@ import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.draws.preparation.screen.PreparationUiState
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +26,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 private const val TAG = "PreparationViewModel"
 
@@ -55,7 +55,7 @@ class PreparationViewModel(
 
     // State that changes at runtime: is the draw running, was there an error,
     // was a draw saved (one-time event for the navigation)?
-    private val _localState = MutableStateFlow(PreparationLocalState())
+    private val localStateFlow = MutableStateFlow(PreparationLocalState())
 
     /**
      * UI state of the preparation. Every change of group, participants or local state creates a new
@@ -66,7 +66,7 @@ class PreparationViewModel(
             .asResult(TAG, "Failed to load the group"),
         participantRepository.observeParticipantsByGroupId(groupId)
             .asResult(TAG, "Failed to load the participants"),
-        _localState,
+        localStateFlow,
     ) { groupResult, participantsResult, localState ->
         val group = groupResult.getOrNull()
         val participants = participantsResult.getOrDefault(emptyList())
@@ -98,6 +98,7 @@ class PreparationViewModel(
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PreparationUiState(isLoading = true),
     )
+
     /**
      * Starts the draw. Whether a draw is allowed (group exists, draw day not over, at least three
      * participants) is checked by PerformDrawUseCase. On success the ID of the new draw is in
@@ -105,26 +106,27 @@ class PreparationViewModel(
      */
     fun onStartDrawClick() {
         // If the draw is already running, nothing happens (protection against double taps)
-        if (_localState.value.isDrawing) return
-        _localState.update { it.copy(isDrawing = true, drawError = null) }
+        if (localStateFlow.value.isDrawing) return
+        localStateFlow.update { it.copy(isDrawing = true, drawError = null) }
 
         viewModelScope.launch {
             try {
                 when (val result = performDraw(groupId)) {
-                    is DrawResult.Success -> _localState.update { it.copy(completedDrawId = result.draw.id) }
+                    is DrawResult.Success -> localStateFlow.update { it.copy(completedDrawId = result.draw.id) }
+
                     is DrawResult.ValidationError -> {
                         // PerformDrawUseCase has already logged the details
                         AppLog.d(TAG) { "Draw for group $groupId not started: ${result.errors.joinToString()}" }
-                        _localState.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
+                        localStateFlow.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Draw failed", e)
-                _localState.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
+                localStateFlow.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
             } finally {
-                _localState.update { it.copy(isDrawing = false) }
+                localStateFlow.update { it.copy(isDrawing = false) }
             }
         }
     }
@@ -135,7 +137,7 @@ class PreparationViewModel(
      * Without the reset the app would navigate a second time after a rotation.
      */
     fun onDrawHandled() {
-        _localState.update { it.copy(completedDrawId = null) }
+        localStateFlow.update { it.copy(completedDrawId = null) }
     }
 
     companion object {

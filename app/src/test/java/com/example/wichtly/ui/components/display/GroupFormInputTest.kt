@@ -2,10 +2,10 @@ package com.example.wichtly.ui.components.display
 
 import com.example.wichtly.domain.validation.parseBudgetToCents
 import com.example.wichtly.domain.validation.parseDate
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Unit tests for converting the form texts: parsing (domain/validation/GiftGroupInputParsing.kt)

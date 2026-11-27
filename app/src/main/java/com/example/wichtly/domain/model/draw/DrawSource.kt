@@ -12,15 +12,9 @@ import com.example.wichtly.domain.model.participant.WishlistItem
  *
  * @property participants all participants of the group with their wishlists, sorted by name.
  */
-data class DrawSource(
-    val group: GiftGroup,
-    val participants: List<ParticipantWithWishlist>,
-)
+data class DrawSource(val group: GiftGroup, val participants: List<ParticipantWithWishlist>)
 
 /**
  * A participant with their wishlist, sorted by sortOrder.
  */
-data class ParticipantWithWishlist(
-    val participant: Participant,
-    val wishlist: List<WishlistItem>,
-)
+data class ParticipantWithWishlist(val participant: Participant, val wishlist: List<WishlistItem>)

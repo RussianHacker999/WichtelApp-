@@ -55,7 +55,12 @@ internal fun PhotoSourceDialog(
             PhotoOption(icon = Icons.Filled.PhotoCamera, label = stringResource(R.string.photo_take), onClick = onTakePhoto)
             // Option: remove the photo (only if there is one)
             if (hasPhoto) {
-                PhotoOption(icon = Icons.Filled.Delete, label = stringResource(R.string.photo_remove), onClick = onRemovePhoto, destructive = true)
+                PhotoOption(
+                    icon = Icons.Filled.Delete,
+                    label = stringResource(R.string.photo_remove),
+                    onClick = onRemovePhoto,
+                    destructive = true,
+                )
             }
         },
         // The options are the actions themselves; only "Cancel" stays at the bottom.
@@ -99,7 +104,7 @@ private fun PhotoSourceDialogGroupEmptyPreview() {
             hasPhoto = false,
             onTakePhoto = {},
             onRemovePhoto = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
@@ -115,7 +120,7 @@ private fun PhotoSourceDialogParticipantWithPhotoPreview() {
             hasPhoto = true,
             onTakePhoto = {},
             onRemovePhoto = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

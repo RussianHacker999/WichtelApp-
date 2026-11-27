@@ -11,6 +11,7 @@ shared by all coding assistants are in `app/AGENTS.md` and apply here in full:
 ./gradlew :app:testDebugUnitTest                      # JVM unit tests
 ./gradlew :app:assembleDebug                          # debug build
 ./gradlew :app:lintDebug                              # Android Lint, report in app/build/reports/
+./gradlew ktlintFormat ktlintCheck                    # format, then verify the Kotlin code style
 ./gradlew :app:testDebugUnitTest --tests "*PerformDrawUseCaseTest"   # single test class
 ```
 

@@ -6,12 +6,12 @@ import com.example.wichtly.domain.result.DeleteResult
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
+import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for [DeleteGiftGroupUseCase]: deleting a group and cleaning up photo files.

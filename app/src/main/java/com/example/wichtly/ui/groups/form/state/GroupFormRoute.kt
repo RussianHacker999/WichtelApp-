@@ -24,12 +24,7 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormScreen
  * @param onSaved called after a successful save; receives the ID of the saved group.
  */
 @Composable
-fun GroupFormRoute(
-    groupId: String?,
-    onBack: () -> Unit,
-    onSaved: (groupId: String) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun GroupFormRoute(groupId: String?, onBack: () -> Unit, onSaved: (groupId: String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: GroupFormViewModel = viewModel(
         key = groupId ?: "new",
         factory = GroupFormViewModel.factory(appContainer(), groupId),

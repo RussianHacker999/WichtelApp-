@@ -3,12 +3,12 @@ package com.example.wichtly.data.local.storage
 import android.content.Context
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.time.Instant
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val TAG = "LocalPhotoStorageManager"
 
@@ -16,9 +16,7 @@ private const val TAG = "LocalPhotoStorageManager"
  * Manages photo files in the app's private internal storage under `filesDir/photos/groups/`
  * and `filesDir/photos/participants/`.
  */
-class LocalPhotoStorageManager(
-    private val filesDir: File,
-) {
+class LocalPhotoStorageManager(private val filesDir: File) {
     constructor(context: Context) : this(context.filesDir)
 
     private val photosRoot: File get() = File(filesDir, "photos")
@@ -40,11 +38,9 @@ class LocalPhotoStorageManager(
         }
     }
 
-    private fun getPhotosDirFor(ownerType: PhotoOwnerType): File {
-        return File(filesDir, "photos/${ownerType.value}").apply {
-            if (!exists()) {
-                mkdirs()
-            }
+    private fun getPhotosDirFor(ownerType: PhotoOwnerType): File = File(filesDir, "photos/${ownerType.value}").apply {
+        if (!exists()) {
+            mkdirs()
         }
     }
 

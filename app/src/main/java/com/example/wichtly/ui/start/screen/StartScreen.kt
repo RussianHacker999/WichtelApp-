@@ -71,12 +71,7 @@ private val HeroSidePadding = 28.dp
  * @param onCreateGroup opens the form for a new group.
  */
 @Composable
-fun StartScreen(
-    summary: StartSummary?,
-    onOpenGroups: () -> Unit,
-    onCreateGroup: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun StartScreen(summary: StartSummary?, onOpenGroups: () -> Unit, onCreateGroup: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -87,7 +82,7 @@ fun StartScreen(
                         colors = listOf(Pine700, Pine900, Pine950),
                         center = Offset(size.width / 2f, 0f),
                         radius = size.maxDimension * 0.85f,
-                    )
+                    ),
                 )
                 drawRect(NightSkyBrush)
             },
@@ -218,10 +213,13 @@ private fun InfoPill(summary: StartSummary) {
     val (prefix, highlight) = when (summary) {
         StartSummary.NoGroups ->
             stringResource(R.string.start_info_no_groups) to stringResource(R.string.start_info_no_groups_highlight)
+
         is StartSummary.NextEvent ->
             summary.groupName to daysUntilText(summary.daysUntil)
+
         StartSummary.Unavailable ->
             stringResource(R.string.start_info_unavailable) to null
+
         is StartSummary.OnlyPast ->
             pluralStringResource(R.plurals.start_info_group_count, summary.groupCount, summary.groupCount) to
                 stringResource(R.string.start_info_next_round)
@@ -248,9 +246,8 @@ private fun InfoPill(summary: StartSummary) {
 
 /** "today", "tomorrow" or "in N days" (texts and plural in strings.xml). */
 @Composable
-private fun daysUntilText(days: Long): String =
-    daysUntilSpecialRes(days)?.let { stringResource(it) }
-        ?: pluralStringResource(R.plurals.start_days_in, days.toInt(), days)
+private fun daysUntilText(days: Long): String = daysUntilSpecialRes(days)?.let { stringResource(it) }
+    ?: pluralStringResource(R.plurals.start_days_in, days.toInt(), days)
 
 /** Still snow: 70 fixed points spread by a seed over the upper 80 % of the area (no animation). */
 @Composable

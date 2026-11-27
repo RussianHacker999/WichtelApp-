@@ -11,6 +11,7 @@ import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.RecordingLogSink
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -18,7 +19,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Checks the log levels of the use cases and the privacy rule (no names in logs).
@@ -53,7 +53,10 @@ class UseCaseLoggingTest {
     fun gespeicherteGruppeIstInfoOhneGruppennamen() = runTest {
         val useCase = SaveGiftGroupUseCase(FakeGiftGroupRepository(), today = { LocalDate.of(2026, 11, 25) })
 
-        useCase(null, GiftGroupInput(name = "Familie Geheim", budget = "20", drawDay = "24.12.2026", drawType = DrawType.NORMAL, photoPath = null))
+        useCase(
+            null,
+            GiftGroupInput(name = "Familie Geheim", budget = "20", drawDay = "24.12.2026", drawType = DrawType.NORMAL, photoPath = null),
+        )
 
         assertEquals(1, sink.atLevel(LogLevel.INFO).size)
         assertFalse(sink.entries.any { "Familie Geheim" in it.message })
@@ -63,7 +66,13 @@ class UseCaseLoggingTest {
     fun auslosungLoggtNurAnzahlenUndKeineNamen() = runTest {
         val teilnehmer = listOf("Anna", "Ben", "Clara").mapIndexed { i, name -> Participant(id = "p$i", groupId = "g1", name = name) }
         val useCase = PerformDrawUseCase(
-            FakeDrawRepository().withSources(FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }, FakeParticipantRepository().apply { setParticipants(teilnehmer) }, FakeWishlistRepository()),
+            FakeDrawRepository().withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(teilnehmer) },
+                FakeWishlistRepository(),
+            ),
             today = { LocalDate.of(2026, 11, 25) },
         )
 

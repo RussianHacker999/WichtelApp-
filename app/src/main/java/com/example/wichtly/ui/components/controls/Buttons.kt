@@ -37,8 +37,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 private val ButtonHeight = 48.dp
 private val CompactButtonHeight = 40.dp
 
-private fun buttonPadding(compact: Boolean) =
-    PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
+private fun buttonPadding(compact: Boolean) = PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
 
 @Composable
 private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, loadingColor: Color) {

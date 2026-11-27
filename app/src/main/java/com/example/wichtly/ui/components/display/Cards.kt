@@ -185,7 +185,10 @@ private fun CardsPreview() {
                 title = "Auslosung vom 01.12.2026",
                 subtitle = "6 Teilnehmer · Klassisch",
                 leading = { IconAvatar(icon = Icons.Filled.Redeem) },
-                trailing = { StatusChip(text = "Gespeichert"); ChevronIcon() },
+                trailing = {
+                    StatusChip(text = "Gespeichert")
+                    ChevronIcon()
+                },
                 onClick = {},
             )
             ListItemCard(title = "Mara", subtitle = "Wunschliste öffnen", leading = { InitialsAvatar(name = "Mara") }, selected = true)
