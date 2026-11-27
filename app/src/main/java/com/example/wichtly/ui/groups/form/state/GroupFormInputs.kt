@@ -8,16 +8,11 @@ import com.example.wichtly.ui.components.display.formatDateForInput
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 
 /**
- * Die Eingaben des Formulars, wie sie im SavedStateHandle liegen.
- * Fehlertexte und Ladezustand werden nicht gesichert; sie entstehen beim nächsten Speichern neu.
+ * The input of the form as it is stored in the SavedStateHandle.
+ *
+ * Error texts and the loading state are not saved; they are created again on the next save.
  */
-internal data class FormInputs(
-    val name: String,
-    val budget: String,
-    val drawDay: String,
-    val drawType: DrawType,
-    val photoPath: String?,
-) {
+internal data class FormInputs(val name: String, val budget: String, val drawDay: String, val drawType: DrawType, val photoPath: String?) {
     fun applyTo(state: GroupFormUiState): GroupFormUiState = state.copy(
         name = name,
         budget = budget,
@@ -45,7 +40,7 @@ internal data class FormInputs(
 
         fun of(state: GroupFormUiState) = FormInputs(state.name, state.budget, state.drawDay, state.drawType, state.photo.path)
 
-        /** Die Eingaben, wie sie die gespeicherte Gruppe vorgibt (Bearbeiten-Modus). */
+        /** The input as given by the saved group (edit mode). */
         fun of(group: GiftGroup) = FormInputs(
             name = group.name,
             budget = formatCentsForInput(group.budgetCents),

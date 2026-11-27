@@ -13,21 +13,12 @@ import com.example.wichtly.ui.components.controls.WichtlyTextField
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wunschzettel-Eintrags.
+ * Stateless dialog for adding and editing a wishlist entry.
  *
- * Warum zustandslos?
- * Gemäß Unidirectional Data Flow (UDF) besitzt dieser Dialog keinen eigenen internen Zustand.
- * Sämtliche Daten (Text, Modus, Fehler, Speicher-Zustand) werden von der übergeordneten Screen/ViewModel-Ebene
- * hineingereicht. Dadurch bleibt die UI-Komponente vorhersagbar, leicht testbar und frei von Seiteneffekten.
- *
- * @param isEditMode Steuert den Dialogtitel: false = "Wunsch hinzufügen", true = "Wunsch bearbeiten".
- * @param text Aktueller Inhalt des Textfeldes.
- * @param errorMessage Optionale Fehlermeldung zur Anzeige direkt unter dem Eingabefeld.
- * @param isBusy Deaktiviert Interaktionen (wie den Speichern-Button) während eines aktiven Speichervorgangs.
- * @param onTextChange Callback bei Texteingaben im Textfeld.
- * @param onSave Callback beim Bestätigen/Speichern.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
- * @param modifier Optionaler Layout-Modifier.
+ * @param isEditMode controls the title: false = "Add wish", true = "Edit wish".
+ * @param text current content of the text field.
+ * @param errorMessage optional error message directly below the input field.
+ * @param isBusy disables interaction (such as the save button) while saving.
  */
 @Composable
 fun WishEditorDialog(
@@ -38,23 +29,21 @@ fun WishEditorDialog(
     onTextChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Redeem,
-        // Warum dynamischer Titel: Eindeutige Kennzeichnung der Nutzer-Aktion (Neu vs. Bearbeiten).
         title = stringResource(if (isEditMode) R.string.wishlist_edit else R.string.wishlist_add),
         confirmLabel = stringResource(R.string.common_save),
         onConfirm = onSave,
-        // Warum disabled bei isBusy: Verhindert Mehrfachklicks und unbeabsichtigte doppelte Aufrufe während des Speicherns.
+        // Disabled while busy: prevents double taps and duplicate calls while saving.
         confirmEnabled = !isBusy,
         confirmLoading = isBusy,
         dismissEnabled = !isBusy,
         modifier = modifier,
     ) {
-        // Einzeiliges Textfeld (WichtlyTextField, intern ein OutlinedTextField) für die Eingabe des Wunschtextes.
-        // errorText setzt isError und supportingText und liefert so sofort visuelles Feedback bei Validierungsfehlern.
+        // errorText sets isError and supportingText, so validation errors are shown right away.
         WichtlyTextField(
             label = stringResource(R.string.wishlist_item_label),
             value = text,
@@ -67,15 +56,8 @@ fun WishEditorDialog(
     }
 }
 
-/* ============================================================================
- * Previews (Vorschaudarstellungen in WichtlyTheme)
- * Warum: Ermöglicht die visuelle Überprüfung aller UI-Zustände im Android Studio
- * Preview-Fenster ohne App-Start. Verwendet ausschließlich lokale Fake-Daten.
- * ============================================================================ */
-
 /**
- * Preview 1: Modus "Wunsch hinzufügen" mit leerem Textfeld.
- * Warum: Überprüft den initialen Zustand beim Anlegen eines neuen Wunsches.
+ * Preview: "Add wish" mode with an empty text field.
  */
 @Preview
 @Composable
@@ -86,37 +68,37 @@ private fun WishEditorDialogAddEmptyPreview() {
 }
 
 /**
- * Preview 2: Modus "Wunsch bearbeiten" mit vorbelegtem Text.
- * Warum: Überprüft die korrekte Titelanzeige ("Wunsch bearbeiten") und die Textvorbelegung.
+ * Preview: "Edit wish" mode with prefilled text.
  */
 @Preview
 @Composable
 private fun WishEditorDialogEditWithTextPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Warme Wollsocken", errorMessage = null, isBusy = false, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }
 
 /**
- * Preview 3: Dialog im Fehlerzustand mit angezeigtem Validierungsfehler.
- * Warum: Überprüft die visuelle Hervorhebung des Textfelds (isError) sowie die Darstellung des supportingText.
+ * Preview: dialog with a validation error.
  */
 @Preview
 @Composable
 private fun WishEditorDialogWithErrorPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isBusy = false, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = false, text = "", errorMessage = "Der Wunsch darf nicht leer sein.", isBusy = false, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }
 
 /**
- * Preview 4: Dialog während des aktiven Speichervorgangs (isBusy = true).
- * Warum: Überprüft das Deaktivieren der Interaktionsbuttons und des Eingabefeldes bei laufendem Ladevorgang.
+ * Preview: dialog while saving (isBusy = true).
  */
 @Preview
 @Composable
 private fun WishEditorDialogSavingPreview() {
     WichtlyTheme {
-        WishEditorDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isBusy = true, onTextChange = {}, onSave = {}, onDismiss = {})
+        WishEditorDialog(isEditMode = true, text = "Ein spannendes Buch", errorMessage = null, isBusy = true, onTextChange = {
+        }, onSave = {}, onDismiss = {})
     }
 }

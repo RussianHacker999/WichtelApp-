@@ -10,9 +10,8 @@ import org.junit.Test
 /**
  * Unit tests for GroupFormErrors.kt.
  *
- * Why these tests matter:
- * Ensures that domain validation errors are correctly mapped to the intended error fields of the UI state
- * and that exactly one error message is always shown per field.
+ * Makes sure that domain validation errors end up in the right error fields of the UI state and
+ * that each field always shows exactly one error message.
  */
 class GroupFormErrorsTest {
 
@@ -34,11 +33,11 @@ class GroupFormErrorsTest {
         // Two name errors in the list
         val errors = listOf(
             GiftGroupValidationError.EmptyName,
-            GiftGroupValidationError.NameTooLong
+            GiftGroupValidationError.NameTooLong,
         )
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
-        // Ensures that only the first error message is used for the field (exactly one text)
+        // Only the first error message is taken over for the field (exactly one text)
         assertEquals(R.string.error_group_name_empty, updatedState.nameError)
     }
 
@@ -47,7 +46,7 @@ class GroupFormErrorsTest {
         val errors = listOf(
             GiftGroupValidationError.InvalidBudget,
             GiftGroupValidationError.DateInPast,
-            GiftGroupValidationError.GroupNotFound
+            GiftGroupValidationError.GroupNotFound,
         )
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
@@ -59,7 +58,7 @@ class GroupFormErrorsTest {
 
     @Test
     fun formatErrors_mapToFormatMessages() {
-        // Format errors now also come from the use case; the texts (with DD.MM.YYYY and 25,50) are in strings.xml
+        // Format errors also come from the use case; the texts (with DD.MM.YYYY and 25,50) are in strings.xml
         val updatedState = applyDomainValidationErrors(
             GroupFormUiState(),
             listOf(GiftGroupValidationError.InvalidBudgetFormat, GiftGroupValidationError.InvalidDateFormat),
@@ -81,7 +80,7 @@ class GroupFormErrorsTest {
     fun applyDomainValidationErrors_mapsDuplicateName() {
         val updated = applyDomainValidationErrors(
             initialState,
-            listOf(GiftGroupValidationError.DuplicateName)
+            listOf(GiftGroupValidationError.DuplicateName),
         )
         assertEquals(R.string.error_group_name_duplicate, updated.nameError)
     }
@@ -92,7 +91,7 @@ class GroupFormErrorsTest {
             nameError = R.string.error_group_save,
             budgetError = R.string.error_group_save,
             drawDayError = R.string.error_group_save,
-            generalError = R.string.error_group_save
+            generalError = R.string.error_group_save,
         )
         val updated = applyDomainValidationErrors(withErrors, emptyList())
 
@@ -103,7 +102,7 @@ class GroupFormErrorsTest {
     }
 
     @Test
-    fun budgetAndDateUpperLimitsLandOnCorrectField() {
+    fun obergrenzenFuerBudgetUndDatumLandenAmRichtigenFeld() {
         val updatedState = applyDomainValidationErrors(
             GroupFormUiState(),
             listOf(GiftGroupValidationError.BudgetTooHigh, GiftGroupValidationError.DateTooFarInFuture),

@@ -11,6 +11,7 @@ import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.RecordingLogSink
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -18,7 +19,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Checks the log levels of the use cases and the privacy rule (no names in logs).
@@ -27,7 +27,7 @@ class UseCaseLoggingTest {
 
     private lateinit var sink: RecordingLogSink
 
-    private val group = GiftGroup(id = "g1", name = "Secret Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))
+    private val gruppe = GiftGroup(id = "g1", name = "Familie Geheim", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))
 
     @Before
     fun setUp() {
@@ -40,7 +40,7 @@ class UseCaseLoggingTest {
     }
 
     @Test
-    fun rejectedInputIsDebugNotWarning() = runTest {
+    fun abgelehnteEingabenSindDebugUndKeineWarnung() = runTest {
         val useCase = SaveGiftGroupUseCase(FakeGiftGroupRepository(), today = { LocalDate.of(2026, 11, 25) })
 
         useCase(null, GiftGroupInput(name = "", budget = "", drawDay = "", drawType = DrawType.NORMAL, photoPath = null))
@@ -50,20 +50,29 @@ class UseCaseLoggingTest {
     }
 
     @Test
-    fun savedGroupIsInfoWithoutGroupName() = runTest {
+    fun gespeicherteGruppeIstInfoOhneGruppennamen() = runTest {
         val useCase = SaveGiftGroupUseCase(FakeGiftGroupRepository(), today = { LocalDate.of(2026, 11, 25) })
 
-        useCase(null, GiftGroupInput(name = "Secret Family", budget = "20", drawDay = "24.12.2026", drawType = DrawType.NORMAL, photoPath = null))
+        useCase(
+            null,
+            GiftGroupInput(name = "Familie Geheim", budget = "20", drawDay = "24.12.2026", drawType = DrawType.NORMAL, photoPath = null),
+        )
 
         assertEquals(1, sink.atLevel(LogLevel.INFO).size)
-        assertFalse(sink.entries.any { "Secret Family" in it.message })
+        assertFalse(sink.entries.any { "Familie Geheim" in it.message })
     }
 
     @Test
-    fun drawLogsOnlyCountsAndNoNames() = runTest {
-        val participants = listOf("Anna", "Ben", "Clara").mapIndexed { i, name -> Participant(id = "p$i", groupId = "g1", name = name) }
+    fun auslosungLoggtNurAnzahlenUndKeineNamen() = runTest {
+        val teilnehmer = listOf("Anna", "Ben", "Clara").mapIndexed { i, name -> Participant(id = "p$i", groupId = "g1", name = name) }
         val useCase = PerformDrawUseCase(
-            FakeDrawRepository().withSources(FakeGiftGroupRepository().apply { setGroups(listOf(group)) }, FakeParticipantRepository().apply { setParticipants(participants) }, FakeWishlistRepository()),
+            FakeDrawRepository().withSources(
+                FakeGiftGroupRepository().apply {
+                    setGroups(listOf(gruppe))
+                },
+                FakeParticipantRepository().apply { setParticipants(teilnehmer) },
+                FakeWishlistRepository(),
+            ),
             today = { LocalDate.of(2026, 11, 25) },
         )
 
@@ -71,21 +80,21 @@ class UseCaseLoggingTest {
 
         val info = sink.atLevel(LogLevel.INFO).single()
         assertTrue("3 assignments" in info.message)
-        assertFalse(sink.entries.any { entry -> participants.any { it.name in entry.message } })
+        assertFalse(sink.entries.any { entry -> teilnehmer.any { it.name in entry.message } })
     }
 
     @Test
-    fun undeletablePhotoIsWarningWithCause() = runTest {
+    fun nichtLoeschbaresFotoIstWarnungMitUrsache() = runTest {
         val useCase = DeleteGiftGroupUseCase(
-            FakeGiftGroupRepository().apply { setGroups(listOf(group.copy(photoPath = "photos/groups/g.jpg"))) },
+            FakeGiftGroupRepository().apply { setGroups(listOf(gruppe.copy(photoPath = "photos/groups/g.jpg"))) },
             FakeParticipantRepository(),
             FakePhotoRepository().apply { shouldThrowOnDelete = true },
         )
 
         useCase("g1")
 
-        val warning = sink.atLevel(LogLevel.WARN).single()
-        assertTrue("photos/groups/g.jpg" in warning.message)
-        assertTrue(warning.throwable is IllegalStateException)
+        val warnung = sink.atLevel(LogLevel.WARN).single()
+        assertTrue("photos/groups/g.jpg" in warnung.message)
+        assertTrue(warnung.throwable is IllegalStateException)
     }
 }

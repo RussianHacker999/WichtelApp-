@@ -10,27 +10,19 @@ import com.example.wichtly.logging.AppLog
 private const val TAG = "SaveWishlistItemUseCase"
 
 /**
- * Legt einen Wunsch an oder ändert ihn. Einzige Stelle, an der Wünsche geprüft werden.
+ * Creates or updates a wish. The only place where wishes are validated.
  *
- * Ablauf: Wunschliste des Teilnehmers laden → beim Bearbeiten muss der Wunsch existieren →
- * Text normalisieren und prüfen (auch gegen Duplikate) → nur bei fehlerfreiem Ergebnis schreiben.
- * Ein neuer Wunsch wird hinten angehängt (höchste sortOrder + 1); beim Bearbeiten bleiben id
- * und sortOrder erhalten.
+ * Flow: load the participant's wishlist → when editing, the wish must exist →
+ * normalise the text and check it (including duplicates) → write only if there are no errors.
+ * A new wish is appended at the end (highest sortOrder + 1); when editing, id and sortOrder are kept.
  */
-class SaveWishlistItemUseCase(
-    private val repository: WishlistRepository,
-    private val validator: WishlistValidator = WishlistValidator(),
-) {
+class SaveWishlistItemUseCase(private val repository: WishlistRepository, private val validator: WishlistValidator = WishlistValidator()) {
     /**
-     * @param itemId null legt einen neuen Wunsch an, sonst wird dieser Wunsch geändert.
-     * @param participantId Teilnehmer, dem die Wunschliste gehört.
-     * @param text Wunschtext wie eingegeben; wird hier normalisiert.
+     * @param itemId null creates a new wish; otherwise this wish is updated.
+     * @param participantId participant who owns the wishlist.
+     * @param text wish text as typed; normalised here.
      */
-    suspend operator fun invoke(
-        itemId: String?,
-        participantId: String,
-        text: String,
-    ): WishlistItemResult {
+    suspend operator fun invoke(itemId: String?, participantId: String, text: String): WishlistItemResult {
         AppLog.d(TAG) { if (itemId == null) "Saving new wish for participant $participantId" else "Saving wish $itemId" }
         val currentItems = repository.getWishlistItems(participantId)
         val stored = itemId?.let { id ->

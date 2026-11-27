@@ -37,8 +37,7 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 private val ButtonHeight = 48.dp
 private val CompactButtonHeight = 40.dp
 
-private fun buttonPadding(compact: Boolean) =
-    PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
+private fun buttonPadding(compact: Boolean) = PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
 
 @Composable
 private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, loadingColor: Color) {
@@ -53,9 +52,9 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(Spacing.xs))
     }
-    // Damit die Beschriftung möglichst nicht abgeschnitten wird, verkleinert autoSize sie schrittweise bis 11sp,
-    // falls der Button schmal ist (zwei gleich breite Buttons, große Systemschrift). Reicht auch das nicht,
-    // wird sie mit „…“ gekürzt (TextOverflow.Ellipsis).
+    // So the label is not cut off, autoSize shrinks it step by step down to 11sp if the button is
+    // narrow (two buttons of equal width, large system font). If that is still not enough, it is
+    // shortened with "…" (TextOverflow.Ellipsis).
     val labelStyle = MaterialTheme.typography.labelLarge
     BasicText(
         text = text,
@@ -67,7 +66,7 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
     )
 }
 
-/** Goldener Pillen-Button für die Hauptaktion eines Screens oder Dialogs. */
+/** Gold pill button for the main action of a screen or dialog. */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -89,7 +88,7 @@ fun PrimaryButton(
     }
 }
 
-/** Umrandeter Pillen-Button für die Nebenaktion neben dem [PrimaryButton]. */
+/** Outlined pill button for the secondary action next to the [PrimaryButton]. */
 @Composable
 fun SecondaryButton(
     text: String,
@@ -112,7 +111,7 @@ fun SecondaryButton(
     }
 }
 
-/** Roter Pillen-Button zum Bestätigen eines Löschvorgangs. */
+/** Red pill button to confirm a delete. */
 @Composable
 fun DangerButton(
     text: String,
@@ -137,7 +136,7 @@ fun DangerButton(
     }
 }
 
-/** Goldener Text-Button, z. B. für „Abbrechen“ in Dialogen und für Links im Text. */
+/** Gold text button, e.g. for "Cancel" in dialogs and for links in text. */
 @Composable
 fun WichtlyTextButton(
     text: String,
@@ -158,8 +157,8 @@ fun WichtlyTextButton(
 }
 
 /**
- * Kleine, gold umrandete Pille für eine Aktion, die zu einem Abschnitt gehört (z. B. „+ Hinzufügen“ neben
- * der Teilnehmerliste). Hält die Aktionsleiste unten frei für die eine Hauptaktion des Screens.
+ * Small, gold-outlined pill for an action that belongs to a section (e.g. "+ Add" next to the
+ * participant list). Keeps the bottom action bar free for the one main action of the screen.
  */
 @Composable
 fun SectionActionButton(

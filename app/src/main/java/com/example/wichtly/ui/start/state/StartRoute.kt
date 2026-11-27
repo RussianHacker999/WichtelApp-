@@ -13,26 +13,23 @@ import com.example.wichtly.ui.start.screen.startSummaryOf
 import java.time.LocalDate
 
 /**
- * Zustandstragende Route der Startseite.
- * Nutzt den vorhandenen [GroupsViewModel] als Datenquelle (Gruppenliste) und leitet daraus
- * über [startSummaryOf] die Infozeile ab; es braucht dafür kein eigenes ViewModel.
+ * Stateful route of the start screen.
  *
- * @param onOpenGroups Navigation zur Gruppenliste.
- * @param onCreateGroup Navigation zum Formular "Neue Gruppe".
+ * Uses the existing [GroupsViewModel] as its data source (group list) and derives the info line
+ * from it via [startSummaryOf]; no separate ViewModel is needed for that.
+ *
+ * @param onOpenGroups navigation to the group list.
+ * @param onCreateGroup navigation to the "New group" form.
  */
 @Composable
-fun StartRoute(
-    onOpenGroups: () -> Unit,
-    onCreateGroup: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun StartRoute(onOpenGroups: () -> Unit, onCreateGroup: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: GroupsViewModel = viewModel(
         factory = GroupsViewModel.factory(appContainer()),
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Während des Ladens bleibt der Fuß leer, damit nicht kurz "Noch keine Gruppe" aufblitzt.
-    // Bei einem Ladefehler nicht fälschlich "Noch keine Gruppe" zeigen.
+    // While loading the footer stays empty, so "No group yet" does not flash up briefly.
+    // On a loading error, do not wrongly show "No group yet" either.
     val summary = when {
         state.isLoading -> null
         state.errorMessage != null -> StartSummary.Unavailable

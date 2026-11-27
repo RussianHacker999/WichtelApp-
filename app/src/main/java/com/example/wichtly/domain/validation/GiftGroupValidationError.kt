@@ -1,8 +1,8 @@
 package com.example.wichtly.domain.validation
 
 /**
- * Fachliche Fehler für Wichtelgruppen. Als data object, damit sie in Logs und Tests lesbar heißen.
- * Ergebnis des Speicherns: [com.example.wichtly.domain.result.GiftGroupResult].
+ * Business errors for gift groups. Declared as data objects so they have readable names in logs and tests.
+ * Result of saving: [com.example.wichtly.domain.result.GiftGroupResult].
  */
 sealed interface GiftGroupValidationError {
     data object EmptyName : GiftGroupValidationError

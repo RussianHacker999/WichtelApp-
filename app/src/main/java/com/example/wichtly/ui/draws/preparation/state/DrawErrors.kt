@@ -5,18 +5,17 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.validation.DrawValidationError
 
 /**
- * Übersetzt die Fehler des PerformDrawUseCase in einen Text für die Vorbereitung.
+ * Translates the errors of PerformDrawUseCase into a text for the preparation screen.
  *
- * Bei mehreren Fehlern gewinnt der erste. Der Text für zu wenige Teilnehmer enthält einen Platzhalter;
- * der Screen übergibt dafür DrawRules.MIN_PARTICIPANTS.
+ * If there are several errors, the first wins. The text for too few participants has a placeholder;
+ * the screen passes DrawRules.MIN_PARTICIPANTS for it.
  *
- * @return String-Ressource des Fehlertexts oder null, wenn keine Fehler vorliegen.
+ * @return string resource of the error text, or null if there are no errors.
  */
 @StringRes
-fun mapDrawValidationErrors(errors: List<DrawValidationError>): Int? =
-    when (errors.firstOrNull()) {
-        null -> null
-        DrawValidationError.GroupNotFound -> R.string.common_group_missing_text
-        DrawValidationError.DrawDayPassed -> R.string.common_draw_day_passed
-        DrawValidationError.NotEnoughParticipants -> R.string.preparation_min_participants
-    }
+fun mapDrawValidationErrors(errors: List<DrawValidationError>): Int? = when (errors.firstOrNull()) {
+    null -> null
+    DrawValidationError.GroupNotFound -> R.string.common_group_missing_text
+    DrawValidationError.DrawDayPassed -> R.string.common_draw_day_passed
+    DrawValidationError.NotEnoughParticipants -> R.string.preparation_min_participants
+}

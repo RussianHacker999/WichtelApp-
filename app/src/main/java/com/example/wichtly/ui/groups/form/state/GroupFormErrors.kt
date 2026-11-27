@@ -6,25 +6,19 @@ import com.example.wichtly.domain.validation.GiftGroupValidationError
 import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 
 /**
- * Übersetzt eine Liste von [GiftGroupValidationError] aus der Domain-Validierung in die Fehlerfelder von [GroupFormUiState].
+ * Translates a list of [GiftGroupValidationError] from domain validation into the error fields of [GroupFormUiState].
  *
- * Die Fehler kommen vollständig aus dem SaveGiftGroupUseCase (Format- und Fachfehler in einem
- * Durchlauf); das ViewModel prüft selbst nichts, es übersetzt nur.
+ * All errors come from SaveGiftGroupUseCase (format and business errors in one pass); the ViewModel
+ * checks nothing itself, it only translates.
  *
- * Gleiches Muster wie die übrigen Fehler-Mapper: Jeder Fehler hat per `when` genau einen Text
- * ([messageRes]); bei mehreren Fehlern auf demselben Feld gewinnt der erste in der Liste.
- * Felder ohne Fehler werden zurückgesetzt, auch ein früherer allgemeiner Fehler.
+ * Same pattern as the other error mappers: every error has exactly one text via `when`
+ * ([messageRes]); if a field has several errors, the first in the list wins.
+ * Fields without an error are reset, including an earlier general error.
  *
- * @param state Der aktuelle [GroupFormUiState].
- * @param errors Die Liste der aufgetretenen [GiftGroupValidationError]s.
- * @return Ein neues [GroupFormUiState] mit den Fehlertexten je Feld.
+ * @return a new [GroupFormUiState] with the error texts per field.
  */
-fun applyDomainValidationErrors(
-    state: GroupFormUiState,
-    errors: List<GiftGroupValidationError>,
-): GroupFormUiState {
-    fun firstMessageFor(field: GroupFormField): Int? =
-        errors.firstOrNull { it.field() == field }?.messageRes()
+fun applyDomainValidationErrors(state: GroupFormUiState, errors: List<GiftGroupValidationError>): GroupFormUiState {
+    fun firstMessageFor(field: GroupFormField): Int? = errors.firstOrNull { it.field() == field }?.messageRes()
 
     return state.copy(
         nameError = firstMessageFor(GroupFormField.NAME),
@@ -34,19 +28,25 @@ fun applyDomainValidationErrors(
     )
 }
 
-/** Wo im Formular ein Fehler angezeigt wird. */
+/** Where in the form an error is shown. */
 private enum class GroupFormField { NAME, BUDGET, DRAW_DAY, GENERAL }
 
 private fun GiftGroupValidationError.field(): GroupFormField = when (this) {
     GiftGroupValidationError.EmptyName,
     GiftGroupValidationError.NameTooLong,
-    GiftGroupValidationError.DuplicateName -> GroupFormField.NAME
+    GiftGroupValidationError.DuplicateName,
+    -> GroupFormField.NAME
+
     GiftGroupValidationError.InvalidBudgetFormat,
     GiftGroupValidationError.InvalidBudget,
-    GiftGroupValidationError.BudgetTooHigh -> GroupFormField.BUDGET
+    GiftGroupValidationError.BudgetTooHigh,
+    -> GroupFormField.BUDGET
+
     GiftGroupValidationError.InvalidDateFormat,
     GiftGroupValidationError.DateInPast,
-    GiftGroupValidationError.DateTooFarInFuture -> GroupFormField.DRAW_DAY
+    GiftGroupValidationError.DateTooFarInFuture,
+    -> GroupFormField.DRAW_DAY
+
     GiftGroupValidationError.GroupNotFound -> GroupFormField.GENERAL
 }
 

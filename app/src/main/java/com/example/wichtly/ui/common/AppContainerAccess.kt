@@ -6,9 +6,8 @@ import com.example.wichtly.WichtlyApplication
 import com.example.wichtly.di.AppContainer
 
 /**
- * Der [AppContainer] der App, aus Sicht einer Route. Einziger Weg, auf dem Routes an
- * Repositories und Use Cases kommen (manuelle Dependency Injection ohne Framework).
+ * The app's [AppContainer], as seen from a route. The only way routes reach repositories and
+ * use cases (manual dependency injection without a framework).
  */
 @Composable
-fun appContainer(): AppContainer =
-    (LocalContext.current.applicationContext as WichtlyApplication).container
+fun appContainer(): AppContainer = (LocalContext.current.applicationContext as WichtlyApplication).container

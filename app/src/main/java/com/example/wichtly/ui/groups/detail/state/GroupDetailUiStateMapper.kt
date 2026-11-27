@@ -9,14 +9,14 @@ import java.io.File
 import java.time.LocalDate
 
 /**
- * Setzt den [GroupDetailUiState] aus den beobachteten Daten und dem lokalen Zustand des ViewModels zusammen.
+ * Builds the [GroupDetailUiState] from the observed data and the local state of the ViewModel.
  *
- * - Lade- und "nicht gefunden"-Zustand der Gruppe.
- * - Editor schließen, wenn die Gruppe oder der bearbeitete Teilnehmer inzwischen fehlt.
- * - Lösch-Dialog schließen, wenn der vorgemerkte Teilnehmer inzwischen fehlt.
+ * - Loading and "not found" state of the group.
+ * - Closes the editor if the group or the edited participant is gone in the meantime.
+ * - Closes the delete dialog if the participant marked for deletion is gone in the meantime.
  *
- * @param resolvedPhotoFile Aufgelöste Fotodatei des offenen Editors (für die Vorschau).
- * @param today Das heutige Datum (Wichteltag vorbei?).
+ * @param resolvedPhotoFile resolved photo file of the open editor (for the preview).
+ * @param today today's date (has the draw day passed?).
  */
 internal fun buildGroupDetailUiState(
     groupResult: Result<GiftGroup?>,
@@ -33,13 +33,13 @@ internal fun buildGroupDetailUiState(
         participantsResult.isFailure -> R.string.error_participants_load
         else -> null
     }
-    // Nach dem eigenen Löschen ist die Gruppe gewollt weg: kein "nicht gefunden" bis zur Navigation
+    // After our own delete the group is gone on purpose: no "not found" until the navigation
     val isGroupNotFound = group == null && groupResult.isSuccess && !localState.groupWasDeleted
 
-    // Editor schließen, wenn die Gruppe oder der bearbeitete Teilnehmer inzwischen fehlt
+    // Close the editor if the group or the edited participant is gone in the meantime
     val editor = localState.editor
     val isEditedParticipantGone = editor?.editingParticipantId != null &&
-            participants.none { it.id == editor.editingParticipantId }
+        participants.none { it.id == editor.editingParticipantId }
     val visibleEditor = if (editor == null || isGroupNotFound || isEditedParticipantGone) {
         null
     } else {
@@ -47,7 +47,7 @@ internal fun buildGroupDetailUiState(
     }
 
     val isDeleteParticipantPresent = localState.pendingDeleteParticipantId == null ||
-            participants.any { it.id == localState.pendingDeleteParticipantId }
+        participants.any { it.id == localState.pendingDeleteParticipantId }
 
     return GroupDetailUiState(
         isLoading = false,

@@ -4,7 +4,7 @@ import com.example.wichtly.domain.model.draw.DrawDetail
 import com.example.wichtly.domain.validation.DrawValidationError
 
 /**
- * Ergebnis des PerformDrawUseCase: die gespeicherte Auslosung oder die Liste aller fachlichen Fehler.
+ * Result of PerformDrawUseCase: the saved draw, or the list of all business errors.
  */
 sealed interface DrawResult {
     data class Success(val draw: DrawDetail) : DrawResult

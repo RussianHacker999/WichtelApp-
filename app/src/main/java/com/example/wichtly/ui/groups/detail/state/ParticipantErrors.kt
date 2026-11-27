@@ -5,34 +5,26 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.validation.ParticipantValidationError
 
 /**
- * Datenklasse zur klaren Trennung von Fehlern des Namensfeldes und allgemeinen Fehlern
- * (Teilnehmer oder Gruppe nicht mehr vorhanden). Das GroupDetailViewModel zeigt beide im Editor-Dialog
- * am Namensfeld an; ein Feldfehler hat Vorrang.
+ * Separates errors of the name field from general errors (participant or group no longer exists).
  *
- * @property nameError Spezifische Fehlermeldung für das Namenseingabefeld im Dialog.
- * @property generalError Allgemeine Fehlermeldung (z. B. "Teilnehmer nicht gefunden").
+ * GroupDetailViewModel shows both at the name field of the editor dialog; a field error takes precedence.
+ *
+ * @property nameError error message for the name input field in the dialog.
+ * @property generalError general error message (e.g. "Participant not found").
  */
-data class ParticipantUiErrors(
-    @StringRes val nameError: Int? = null,
-    @StringRes val generalError: Int? = null
-)
+data class ParticipantUiErrors(@StringRes val nameError: Int? = null, @StringRes val generalError: Int? = null)
 
 /**
- * Übersetzt eine Liste von [ParticipantValidationError] aus dem SaveParticipantUseCase in strukturierte [ParticipantUiErrors].
+ * Translates a list of [ParticipantValidationError] from SaveParticipantUseCase into [ParticipantUiErrors].
  *
- * Zuordnung der Fehler:
- * - EmptyName, NameTooLong, DuplicateName -> gehören zum Namensfeld (nameError).
- * - ParticipantNotFound, GroupNotFound -> ergeben einen allgemeinen Fehler (generalError).
+ * Mapping:
+ * - EmptyName, NameTooLong, DuplicateName -> belong to the name field (nameError).
+ * - ParticipantNotFound, GroupNotFound -> become a general error (generalError).
  *
- * Gleiches Muster wie die übrigen Fehler-Mapper: Jeder Fehler hat per `when` genau einen Text
- * ([messageRes]); bei mehreren Fehlern derselben Art gewinnt der erste in der Liste.
- *
- * @param errors Die Liste der aufgetretenen Domain-Validierungsfehler.
- * @return Ein [ParticipantUiErrors]-Objekt mit getrennten Fehlertexten für Feld- und allgemeine Fehler.
+ * Same pattern as the other error mappers: every error has exactly one text via `when`
+ * ([messageRes]); if there are several errors of the same kind, the first in the list wins.
  */
-fun mapParticipantValidationErrors(
-    errors: List<ParticipantValidationError>,
-): ParticipantUiErrors = ParticipantUiErrors(
+fun mapParticipantValidationErrors(errors: List<ParticipantValidationError>): ParticipantUiErrors = ParticipantUiErrors(
     nameError = errors.firstOrNull { it.isNameError() }?.messageRes(),
     generalError = errors.firstOrNull { !it.isNameError() }?.messageRes(),
 )
@@ -40,9 +32,12 @@ fun mapParticipantValidationErrors(
 private fun ParticipantValidationError.isNameError(): Boolean = when (this) {
     ParticipantValidationError.EmptyName,
     ParticipantValidationError.NameTooLong,
-    ParticipantValidationError.DuplicateName -> true
+    ParticipantValidationError.DuplicateName,
+    -> true
+
     ParticipantValidationError.ParticipantNotFound,
-    ParticipantValidationError.GroupNotFound -> false
+    ParticipantValidationError.GroupNotFound,
+    -> false
 }
 
 @StringRes

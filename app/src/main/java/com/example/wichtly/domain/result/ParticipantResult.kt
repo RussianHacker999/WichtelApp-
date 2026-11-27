@@ -4,7 +4,7 @@ import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.validation.ParticipantValidationError
 
 /**
- * Ergebnis von SaveParticipantUseCase: Erfolg oder die Liste aller fachlichen Fehler.
+ * Result of SaveParticipantUseCase: success, or the list of all business errors.
  */
 sealed interface ParticipantResult {
     data class Success(val participant: Participant) : ParticipantResult

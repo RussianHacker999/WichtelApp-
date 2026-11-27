@@ -5,6 +5,14 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Room table `draw_wishlist_snapshots`: a copy of one wish of the receiver, taken at draw time.
+ *
+ * Later changes to the wishlist do not change past draws.
+ *
+ * @property assignmentId foreign key to [DrawAssignmentEntity.id]; deleted together with the assignment.
+ * @property sortOrder position in the receiver's wishlist at draw time.
+ */
 @Entity(
     tableName = "draw_wishlist_snapshots",
     foreignKeys = [

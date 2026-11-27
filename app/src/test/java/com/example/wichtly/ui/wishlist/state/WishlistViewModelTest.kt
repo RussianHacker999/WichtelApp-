@@ -10,6 +10,7 @@ import com.example.wichtly.domain.validation.WishlistValidator
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakeWishlistRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -21,15 +22,14 @@ import org.junit.Test
 /**
  * Unit tests for [WishlistViewModel].
  *
- * Why these tests matter:
- * They verify the reactive loading of participant and wishlist, input & domain validation,
- * error handling, the automatic dialog cancellation when the participant disappears,
- * the assignment of `sortOrder`, and the double-submit protection.
+ * Covers reactive loading of participant and wishlist, input and domain validation, error handling,
+ * closing the dialog automatically when the participant disappears, assigning `sortOrder`, and the
+ * guard against double submits.
  *
- * IMPORTANT: Since `uiState` is configured with `stateIn(WhileSubscribed(5_000))`, every test
- * must actively subscribe to the state via `backgroundScope.launch { viewModel.uiState.collect {} }`
- * before accessing `viewModel.uiState.value`.
+ * Because `uiState` uses `stateIn(WhileSubscribed(5_000))`, every test must subscribe to the state
+ * via `backgroundScope.launch { viewModel.uiState.collect {} }` before reading `viewModel.uiState.value`.
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 class WishlistViewModelTest {
 
     @get:Rule
@@ -38,12 +38,8 @@ class WishlistViewModelTest {
     private val participantId = "p-1"
     private val participantName = "Alex"
 
-    // =========================================================================
-    // TESTS 1 - 5 (EXISTING)
-    // =========================================================================
-
     /**
-     * Case (1): After startup, isLoading is false and participantName is set.
+     * Case (1): after the start isLoading is false and participantName is set.
      */
     @Test
     fun initialState_loadsParticipantSuccessfully() = runTest {
@@ -70,7 +66,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (2): An unknown participant results in participantName null and no errorMessage.
+     * Case (2): an unknown participant gives participantName null and no errorMessage.
      */
     @Test
     fun unknownParticipant_resultsInNullNameAndNoErrorMessage() = runTest {
@@ -96,7 +92,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (3): Empty text on save sets editorError and insertCalls stays 0.
+     * Case (3): empty text on save sets editorError and insertCalls stays 0.
      */
     @Test
     fun saveEmptyText_setsEditorErrorAndDoesNotCallRepository() = runTest {
@@ -127,7 +123,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (4): Three wishes added one after another get sortOrder 0, 1 and 2.
+     * Case (4): three wishes added one after another get sortOrder 0, 1 and 2.
      */
     @Test
     fun addThreeWishesSequentially_assignsSortOrders01And2() = runTest {
@@ -148,33 +144,33 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("Wish A")
+        viewModel.onEditorTextChange("Wunsch A")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("Wish B")
+        viewModel.onEditorTextChange("Wunsch B")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("Wish C")
+        viewModel.onEditorTextChange("Wunsch C")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         val items = viewModel.uiState.value.items
         assertEquals(3, items.size)
         assertEquals(0, items[0].sortOrder)
-        assertEquals("Wish A", items[0].text)
+        assertEquals("Wunsch A", items[0].text)
         assertEquals(1, items[1].sortOrder)
-        assertEquals("Wish B", items[1].text)
+        assertEquals("Wunsch B", items[1].text)
         assertEquals(2, items[2].sortOrder)
-        assertEquals("Wish C", items[2].text)
+        assertEquals("Wunsch C", items[2].text)
         assertEquals(3, wishlistRepository.insertCalls)
     }
 
     /**
-     * Case (5): Editing keeps id and sortOrder.
+     * Case (5): editing keeps id and sortOrder.
      */
     @Test
     fun editWish_preservesIdAndSortOrder() = runTest {
@@ -184,8 +180,8 @@ class WishlistViewModelTest {
         val initialItem = WishlistItem(
             id = "wish-uuid-123",
             participantId = participantId,
-            text = "Old text",
-            sortOrder = 5
+            text = "Altem Text",
+            sortOrder = 5,
         )
         val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
@@ -203,7 +199,7 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         viewModel.onEditClick("wish-uuid-123")
-        viewModel.onEditorTextChange("Updated text")
+        viewModel.onEditorTextChange("Aktualisierter Text")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
@@ -211,16 +207,12 @@ class WishlistViewModelTest {
         assertEquals(1, items.size)
         assertEquals("wish-uuid-123", items[0].id)
         assertEquals(5, items[0].sortOrder)
-        assertEquals("Updated text", items[0].text)
+        assertEquals("Aktualisierter Text", items[0].text)
         assertEquals(1, wishlistRepository.updateCalls)
     }
 
-    // =========================================================================
-    // ADDITIONAL TESTS 6 - 11
-    // =========================================================================
-
     /**
-     * Case (6): A flow error (failFlows) results in errorMessage, participantName stays null, notFound does not apply.
+     * Case (6): a Flow error (failFlows) gives errorMessage; participantName stays null and notFound does not apply.
      */
     @Test
     fun flowError_setsErrorMessage_participantNameIsNull_notFoundIsFalse() = runTest {
@@ -246,7 +238,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (7): A ValidationError from the use case (text too long) keeps the editor open, sets editorError
+     * Case (7): a ValidationError from the use case (text too long) keeps the editor open, sets editorError
      * and writes nothing.
      */
     @Test
@@ -289,8 +281,8 @@ class WishlistViewModelTest {
         val initialItem = WishlistItem(
             id = "wish-delete-me",
             participantId = participantId,
-            text = "Coffee beans",
-            sortOrder = 0
+            text = "Kaffeebohnen",
+            sortOrder = 0,
         )
         val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(initialItem))
@@ -319,7 +311,7 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (9): If the participant is removed while the editor is open, the editor closes.
+     * Case (9): if the participant is removed while the editor is open, the editor closes.
      */
     @Test
     fun participantRemoved_whileEditorIsOpen_closesEditor() = runTest {
@@ -343,7 +335,7 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
         assertEquals(true, viewModel.uiState.value.showEditor)
 
-        // Remove participant from the repository in the background
+        // Remove the participant from the repository in the background
         participantRepository.removeParticipant(participantId)
         testScheduler.advanceUntilIdle()
 
@@ -353,16 +345,16 @@ class WishlistViewModelTest {
     }
 
     /**
-     * Case (10): After deleting the middle of three wishes, a newly created one gets the highest sortOrder plus 1.
+     * Case (10): after deleting the middle one of three wishes, a new wish gets the highest sortOrder plus 1.
      */
     @Test
     fun deleteMiddleWish_newWishGetsHighestSortOrderPlusOne() = runTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
-        val item1 = WishlistItem(id = "w1", participantId = participantId, text = "Wish 1", sortOrder = 0)
-        val item2 = WishlistItem(id = "w2", participantId = participantId, text = "Wish 2", sortOrder = 1)
-        val item3 = WishlistItem(id = "w3", participantId = participantId, text = "Wish 3", sortOrder = 2)
+        val item1 = WishlistItem(id = "w1", participantId = participantId, text = "Wunsch 1", sortOrder = 0)
+        val item2 = WishlistItem(id = "w2", participantId = participantId, text = "Wunsch 2", sortOrder = 1)
+        val item3 = WishlistItem(id = "w3", participantId = participantId, text = "Wunsch 3", sortOrder = 2)
 
         val wishlistRepository = FakeWishlistRepository().apply {
             setItems(listOf(item1, item2, item3))
@@ -379,26 +371,26 @@ class WishlistViewModelTest {
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        // Delete middle wish (sortOrder 1)
+        // Delete the middle wish (sortOrder 1)
         viewModel.onDeleteClick("w2")
         viewModel.onConfirmDelete()
         testScheduler.advanceUntilIdle()
 
-        // Add new wish
+        // Add a new wish
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("New wish 4")
+        viewModel.onEditorTextChange("Neuer Wunsch 4")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
         val items = viewModel.uiState.value.items
         assertEquals(3, items.size) // w1 (0), w3 (2), new (3)
-        val newItem = items.find { it.text == "New wish 4" }
+        val newItem = items.find { it.text == "Neuer Wunsch 4" }
         assertNotNull(newItem)
-        assertEquals(3, newItem?.sortOrder) // Highest sortOrder (2) + 1 = 3
+        assertEquals(3, newItem?.sortOrder) // highest sortOrder (2) + 1 = 3
     }
 
     /**
-     * Case (11): Calling onSaveClick twice in a row results in exactly one repository call (insertCalls is 1).
+     * Case (11): calling onSaveClick twice in a row gives exactly one repository call (insertCalls is 1).
      */
     @Test
     fun doubleSaveClickImmediately_callsRepositoryOnlyOnce() = runTest {
@@ -419,9 +411,9 @@ class WishlistViewModelTest {
         testScheduler.advanceUntilIdle()
 
         viewModel.onAddClick()
-        viewModel.onEditorTextChange("Double click test")
+        viewModel.onEditorTextChange("Doppelklick Test")
 
-        // Call twice directly and synchronously
+        // Call twice in a row, synchronously
         viewModel.onSaveClick()
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
@@ -430,22 +422,38 @@ class WishlistViewModelTest {
     }
 
     @Test
-    fun openEditorSurvivesProcessDeath() = runTest {
+    fun offenerEditorUeberstehtProzesstod() = runTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = participantId, groupId = "g-1", name = participantName)))
         }
         val wishlistRepository = FakeWishlistRepository()
         val handle = SavedStateHandle()
-        val before = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
-        before.onAddClick()
-        before.onEditorTextChange("Wool socks")
+        val vorher =
+            WishlistViewModel(
+                participantId,
+                participantRepository,
+                wishlistRepository,
+                SaveWishlistItemUseCase(wishlistRepository),
+                DeleteWishlistItemUseCase(wishlistRepository),
+                handle,
+            )
+        vorher.onAddClick()
+        vorher.onEditorTextChange("Wollsocken")
 
         // New ViewModel with the same handle, as after a process death
-        val after = WishlistViewModel(participantId, participantRepository, wishlistRepository, SaveWishlistItemUseCase(wishlistRepository), DeleteWishlistItemUseCase(wishlistRepository), handle)
-        backgroundScope.launch { after.uiState.collect {} }
+        val nachher =
+            WishlistViewModel(
+                participantId,
+                participantRepository,
+                wishlistRepository,
+                SaveWishlistItemUseCase(wishlistRepository),
+                DeleteWishlistItemUseCase(wishlistRepository),
+                handle,
+            )
+        backgroundScope.launch { nachher.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
-        assertEquals(true, after.uiState.value.showEditor)
-        assertEquals("Wool socks", after.uiState.value.editorText)
+        assertEquals(true, nachher.uiState.value.showEditor)
+        assertEquals("Wollsocken", nachher.uiState.value.editorText)
     }
 }

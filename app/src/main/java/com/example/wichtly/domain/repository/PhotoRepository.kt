@@ -2,52 +2,58 @@ package com.example.wichtly.domain.repository
 
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.logging.AppLog
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.time.Instant
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 /**
- * Repository für Fotodateien: speichern, auflösen, löschen und auflisten.
+ * Repository for photo files: save, resolve, delete and list.
  */
 interface PhotoRepository {
     /**
-     * Löst einen relativen Fotopfad (z. B. "photos/groups/groups_123.jpg") in eine Datei im privaten
-     * internen Speicher auf. Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt
-     * oder die Datei nicht existiert oder nicht lesbar ist. Wirft nicht; ein unlesbares Foto gilt als "kein Foto".
-     * suspend, weil auf das Dateisystem zugegriffen wird; Implementierungen wechseln auf einen I/O-Thread.
+     * Resolves a relative photo path (e.g. "photos/groups/groups_123.jpg") to a file in private
+     * internal storage.
+     *
+     * Never throws; an unreadable photo counts as "no photo". Suspends because it accesses the
+     * file system; implementations switch to an I/O thread.
+     *
+     * @return null if the path is null or empty, lies outside the photo folder, or the file
+     * does not exist or cannot be read.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File?
 
     /**
-     * Verschiebt (notfalls kopiert) eine temporär aufgenommene Fotodatei in den privaten internen Speicher
-     * ("photos/<ownerType.value>/<ownerType.value>_<uuid>.jpg")
-     * und liefert den relativen Pfad (z. B. "photos/groups/groups_uuid.jpg").
+     * Moves (or, if that fails, copies) a temporarily captured photo file into private internal storage
+     * ("photos/<ownerType.value>/<ownerType.value>_<uuid>.jpg").
+     *
+     * @return the relative path, e.g. "photos/groups/groups_uuid.jpg".
      */
     suspend fun savePhoto(sourceFile: File, ownerType: PhotoOwnerType): String
 
     /**
-     * Löscht eine Fotodatei aus dem internen Speicher (beim Löschen oder Ersetzen eines Fotos).
-     * Pfade außerhalb des Fotoordners werden ignoriert. Aufrufer verwenden [deletePhotoQuietly].
+     * Deletes a photo file from internal storage (when a photo is deleted or replaced).
+     *
+     * Paths outside the photo folder are ignored. Callers use [deletePhotoQuietly].
      */
     suspend fun deletePhoto(relativePath: String?)
 
     /**
-     * Relative Pfade aller gespeicherten Fotos, die zuletzt vor [olderThan] geändert wurden.
-     * Verwendet von: CleanUpOrphanPhotosUseCase.
+     * Relative paths of all stored photos that were last modified before [olderThan].
+     * Used by CleanUpOrphanPhotosUseCase.
      */
     suspend fun listPhotoPaths(olderThan: Instant): List<String>
 }
 
 /**
- * Löscht ein Foto als Best Effort: läuft auch weiter, wenn der Aufrufer abgebrochen wird
- * (z. B. Screen verlassen), und meldet Fehler nur als Warnung. Eine liegengebliebene Datei ist harmlos;
- * sie wird beim nächsten Start vom CleanUpOrphanPhotosUseCase entfernt.
+ * Deletes a photo on a best-effort basis: keeps running even if the caller is cancelled
+ * (e.g. the screen is left) and reports failures only as a warning. A leftover file is harmless;
+ * CleanUpOrphanPhotosUseCase removes it on the next start.
  *
- * Einziger Weg, auf dem ViewModels und Use Cases Fotos löschen.
+ * This is the only way ViewModels and use cases delete photos.
  *
- * @param relativePath Pfad des Fotos; null bedeutet "kein Foto" und tut nichts.
- * @param tag Log-Tag des Aufrufers, damit die Warnung der richtigen Stelle zugeordnet ist.
+ * @param relativePath path of the photo; null means "no photo" and does nothing.
+ * @param tag log tag of the caller, so the warning is attributed to the right place.
  */
 suspend fun PhotoRepository.deletePhotoQuietly(relativePath: String?, tag: String) {
     if (relativePath == null) return

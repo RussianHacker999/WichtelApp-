@@ -24,14 +24,14 @@ import androidx.compose.ui.unit.sp
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-/** Farbvarianten für [StatusChip]. */
+/** Colour variants for [StatusChip]. */
 enum class ChipTone { Gold, Berry, Success, Neutral, OnImage }
 
 /**
- * Chip in Form eines Geschenkanhängers: links spitz mit kleinem gestanztem Loch, rechts abgerundet.
+ * Chip shaped like a gift tag: pointed on the left with a small punched hole, rounded on the right.
  *
- * @param holeColor Farbe der Fläche, auf der der Chip liegt (das „Loch“ zeigt sie). Bei [ChipTone.OnImage]
- *   wird stattdessen ein halbtransparentes Weiß verwendet.
+ * @param holeColor colour of the surface the chip lies on (the "hole" shows it). With [ChipTone.OnImage]
+ *   a semi-transparent white is used instead.
  */
 @Composable
 fun StatusChip(
@@ -65,13 +65,13 @@ fun StatusChip(
     )
 }
 
-/** Kleine Brücke, damit der Chip die zusätzliche Erfolgsfarbe aus dem Theme lesen kann. */
+/** Small bridge so the chip can read the extra success colour from the theme. */
 private object WichtlyThemeColors {
     @Composable
     fun success(): Color = com.example.wichtly.ui.theme.WichtlyTheme.extendedColors.success
 }
 
-/** Umriss des Anhängers: links eine Spitze, rechts abgerundete Ecken. */
+/** Outline of the tag: a point on the left, rounded corners on the right. */
 object GiftTagShape : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         val notch = with(density) { 7.dp.toPx() }

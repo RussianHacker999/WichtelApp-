@@ -20,23 +20,17 @@ import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 
 /**
- * Zustandsloser Composable-Screen für die Gruppen-Detailansicht (Gruppenstammdaten und Teilnehmerliste).
+ * Stateless screen for the group detail view (group details and participant list).
  *
- * @param state Der aktuelle UI-Zustand des Bildschirms.
- * @param actions Alle Nutzeraktionen des Screens, siehe [GroupDetailActions].
- * @param modifier Äußerer Modifier für den Screen.
+ * Content: [GroupDetailContent]; dialogs: [GroupDetailDialogs]; previews: GroupDetailScreenPreviews.kt.
  *
- * Inhalt: [GroupDetailContent]; Dialoge: [GroupDetailDialogs]; Previews: GroupDetailScreenPreviews.kt.
+ * @param actions all user actions of the screen, see [GroupDetailActions].
  */
 @Composable
-fun GroupDetailScreen(
-    state: GroupDetailUiState,
-    actions: GroupDetailActions,
-    modifier: Modifier = Modifier,
-) {
+fun GroupDetailScreen(state: GroupDetailUiState, actions: GroupDetailActions, modifier: Modifier = Modifier) {
     val group = state.group
     val ready = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
-    // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
+    // The modifier is applied only to the top-level WichtlyScaffold.
     WichtlyScaffold(
         modifier = modifier,
         topBar = {
@@ -48,7 +42,12 @@ fun GroupDetailScreen(
                         ItemMenu(
                             actions = listOf(
                                 MenuAction(stringResource(R.string.common_edit_group), Icons.Filled.Edit, actions.onEditGroupClick),
-                                MenuAction(stringResource(R.string.group_delete), Icons.Filled.Delete, actions.onDeleteGroupClick, destructive = true),
+                                MenuAction(
+                                    stringResource(R.string.group_delete),
+                                    Icons.Filled.Delete,
+                                    actions.onDeleteGroupClick,
+                                    destructive = true,
+                                ),
                             ),
                         )
                     }
@@ -57,8 +56,8 @@ fun GroupDetailScreen(
         },
         bottomBar = {
             if (ready) {
-                // "Losen" ist die EINE Hauptaktion des Screens (wie in der Gruppenliste).
-                // Teilnehmer hinzufügen sitzt direkt am Teilnehmer-Abschnitt.
+                // "Draw" is the one main action of the screen (as in the group list).
+                // Adding participants sits directly at the participant section.
                 val enoughParticipants = DrawRules.canDraw(state.participants.size)
                 val canDraw = enoughParticipants && !state.drawDayPassed
                 val hint = when {
@@ -79,11 +78,10 @@ fun GroupDetailScreen(
         },
     ) { innerPadding ->
         when {
-            // 1. ZUSTAND: Laden
-            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
+            // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.group_detail_loading))
-            // 2. ZUSTAND: Fehler aufgetreten
-            // UI-Darstellung im Fehlerfall (gemeinsamer MessageState).
+
+            // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -92,8 +90,8 @@ fun GroupDetailScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
-            // 3. ZUSTAND: Gruppe nicht gefunden
-            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
+
+            // 3. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
@@ -102,9 +100,11 @@ fun GroupDetailScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
-            // Gruppe wurde gerade hier gelöscht, die Route navigiert zurück: nichts mehr anzeigen
+
+            // Group was just deleted here and the route navigates back: show nothing
             group == null -> Unit
-            // 4. ZUSTAND: Inhalt
+
+            // 4. Content
             else -> GroupDetailContent(
                 group = group,
                 participants = state.participants,
@@ -119,6 +119,6 @@ fun GroupDetailScreen(
         }
     }
 
-    // Dialoge als Overlay über dem Inhalt
+    // Dialogs as an overlay above the content
     GroupDetailDialogs(state = state, actions = actions)
 }

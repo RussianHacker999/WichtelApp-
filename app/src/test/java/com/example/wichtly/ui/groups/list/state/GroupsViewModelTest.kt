@@ -5,6 +5,7 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -15,17 +16,16 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 class GroupsViewModelTest {
 
-    // replaces the Android main thread so viewModelScope works in tests
+    // Replaces the Android main thread, so viewModelScope works in the test
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val family = GiftGroup(
+    private val familie = GiftGroup(
         id = "g1",
-        name = "Family",
+        name = "Familie",
         budgetCents = 2000,
         drawDay = LocalDate.of(2026, 12, 6),
     )
@@ -37,34 +37,34 @@ class GroupsViewModelTest {
     )
 
     @Test
-    fun showsGroupsFromRepository() = runTest {
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(family, uni)) }
+    fun zeigtGruppenAusDemRepository() = runTest {
+        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(familie, uni)) }
         val viewModel = GroupsViewModel(groupRepository, FakePhotoRepository())
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
 
         assertFalse(viewModel.uiState.value.isLoading)
-        assertEquals(listOf(family, uni), viewModel.uiState.value.groups)
+        assertEquals(listOf(familie, uni), viewModel.uiState.value.groups)
     }
 
     @Test
-    fun updatesListWhenDatabaseChanges() = runTest {
+    fun aktualisiertListeWennSichDatenbankAendert() = runTest {
         val groupRepository = FakeGiftGroupRepository()
         val viewModel = GroupsViewModel(groupRepository, FakePhotoRepository())
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.groups.isEmpty())
 
-        // simulates: a new group was saved
-        groupRepository.setGroups(listOf(family))
+        // Simulates that a new group was saved
+        groupRepository.setGroups(listOf(familie))
         testScheduler.advanceUntilIdle()
 
-        assertEquals(listOf(family), viewModel.uiState.value.groups)
+        assertEquals(listOf(familie), viewModel.uiState.value.groups)
     }
 
     @Test
-    fun tappingGroupRemembersSelectedGroup() = runTest {
-        val viewModel = GroupsViewModel(FakeGiftGroupRepository().apply { setGroups(listOf(family, uni)) }, FakePhotoRepository())
+    fun gruppeAntippenMerktSichAusgewaehlteGruppe() = runTest {
+        val viewModel = GroupsViewModel(FakeGiftGroupRepository().apply { setGroups(listOf(familie, uni)) }, FakePhotoRepository())
         backgroundScope.launch { viewModel.uiState.collect {} }
 
         viewModel.onGroupClick("g1")
@@ -74,7 +74,7 @@ class GroupsViewModelTest {
     }
 
     @Test
-    fun loadErrorIsShownAsErrorMessage() = runTest {
+    fun ladefehlerWirdAlsFehlermeldungGezeigt() = runTest {
         val viewModel = GroupsViewModel(FakeGiftGroupRepository().apply { failFlows = true }, FakePhotoRepository())
         backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
@@ -84,8 +84,8 @@ class GroupsViewModelTest {
     }
 
     @Test
-    fun deletedGroupIsNoLongerSelected() = runTest {
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(family, uni)) }
+    fun geloeschteGruppeIstNichtMehrAusgewaehlt() = runTest {
+        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(familie, uni)) }
         val viewModel = GroupsViewModel(groupRepository, FakePhotoRepository())
         backgroundScope.launch { viewModel.uiState.collect {} }
         viewModel.onGroupClick("g1")
@@ -98,11 +98,11 @@ class GroupsViewModelTest {
     }
 
     @Test
-    fun drawIsBlockedForGroupWithPastDrawDay() = runTest {
+    fun losenIstFuerGruppeMitVergangenemWichteltagGesperrt() = runTest {
         val viewModel = GroupsViewModel(
-            FakeGiftGroupRepository().apply { setGroups(listOf(family)) },
+            FakeGiftGroupRepository().apply { setGroups(listOf(familie)) },
             FakePhotoRepository(),
-            today = { family.drawDay.plusDays(1) },
+            today = { familie.drawDay.plusDays(1) },
         )
         backgroundScope.launch { viewModel.uiState.collect {} }
         viewModel.onGroupClick("g1")
@@ -113,24 +113,24 @@ class GroupsViewModelTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun loadErrorDisappearsAfterSuccessfulReload() = runTest {
+    fun ladefehlerVerschwindetNachErfolgreichemNeuladen() = runTest {
         val repository = FakeGiftGroupRepository().apply {
-            setGroups(listOf(family))
+            setGroups(listOf(familie))
             failFlows = true
         }
         val viewModel = GroupsViewModel(repository, FakePhotoRepository())
-        val firstVisit = backgroundScope.launch { viewModel.uiState.collect {} }
+        val ersterBesuch = backgroundScope.launch { viewModel.uiState.collect {} }
         testScheduler.advanceUntilIdle()
         assertEquals(R.string.error_groups_load, viewModel.uiState.value.errorMessage)
 
-        // Leave the screen, database readable again, open the screen again
-        firstVisit.cancel()
+        // Leave the screen, make the database readable again, open the screen again
+        ersterBesuch.cancel()
         testScheduler.advanceTimeBy(6_000)
         repository.failFlows = false
         // Start eagerly: advanceUntilIdle does not run pure background tasks
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
 
         assertNull(viewModel.uiState.value.errorMessage)
-        assertEquals(listOf(family), viewModel.uiState.value.groups)
+        assertEquals(listOf(familie), viewModel.uiState.value.groups)
     }
 }

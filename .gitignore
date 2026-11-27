@@ -1,28 +1,44 @@
-# IntelliJ / Android Studio
-# Ignores any directory named .idea/libraries, no matter where it is in the repository.
+# Gradle and Kotlin
+.gradle/
+.kotlin/
+**/build/
+
+# Android Studio / IntelliJ (shared project settings in .idea stay versioned)
 *.iml
-.gradle
 .idea/.name
-.idea/caches
-.idea/libraries
+.idea/caches/
+.idea/libraries/
+.idea/modules/
 .idea/modules.xml
 .idea/workspace.xml
 .idea/navEditor.xml
 .idea/assetWizardSettings.xml
 .idea/deviceManager.xml
+.idea/deploymentTargetSelector.xml
+.idea/appInsightsSettings.xml
+.idea/studiobot.xml
+.idea/other.xml
 
-# Local configuration
+# Local configuration and secrets
 local.properties
+*.jks
+*.keystore
 
-# macOS
+# Native builds and captures
+.externalNativeBuild/
+.cxx/
+/captures/
+
+# Generated artifacts
+*.apk
+*.aab
+*.hprof
+
+# Operating systems
 .DS_Store
+Thumbs.db
 
-# Build output
-**/build/
-.externalNativeBuild
-.cxx
-/captures
-
-# Eigene Dateien
-VikoNotes.md
-repomix-output.md
+# Personal notes and generated working files (not part of the submission)
+/VikoNotes.md
+/repomix-output.md
+/docs/

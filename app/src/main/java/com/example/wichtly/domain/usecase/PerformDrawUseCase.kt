@@ -15,16 +15,16 @@ import java.time.LocalDate
 private const val TAG = "PerformDrawUseCase"
 
 /**
- * Führt eine Auslosung durch. Einzige Stelle, an der geprüft wird, ob gelost werden darf.
+ * Performs a draw. The only place that checks whether a draw is allowed.
  *
- * Ablauf: Gruppe, Teilnehmer und Wünsche in einer Transaktion lesen ([DrawRepository.getDrawSource]) →
- * Gruppe muss existieren → Wichteltag darf nicht vorbei sein → mindestens
- * [DrawRules.MIN_PARTICIPANTS] Teilnehmer →
- * Zuordnung per [SecretSantaDrawAlgorithm] → Namen und Wunschlisten der Empfänger als
- * unveränderlichen Snapshot kopieren → atomar über [DrawRepository.insertDraw] speichern.
+ * Flow: read group, participants and wishes in one transaction ([DrawRepository.getDrawSource]) →
+ * the group must exist → the draw day must not have passed → at least
+ * [DrawRules.MIN_PARTICIPANTS] participants →
+ * assignment via [SecretSantaDrawAlgorithm] → copy the receivers' names and wishlists as an
+ * immutable snapshot → save atomically via [DrawRepository.insertDraw].
  *
- * @param now Liefert den Zeitpunkt der Auslosung; in Tests durch einen festen Wert ersetzbar.
- * @param today Liefert das heutige Datum für die Prüfung des Wichteltags; in Tests ersetzbar.
+ * @param now supplies the time of the draw; replaced by a fixed value in tests.
+ * @param today supplies today's date for the draw day check; replaceable in tests.
  */
 class PerformDrawUseCase(
     private val drawRepository: DrawRepository,
@@ -32,6 +32,10 @@ class PerformDrawUseCase(
     private val now: () -> Instant = { Instant.now() },
     private val today: () -> LocalDate = { LocalDate.now() },
 ) {
+    /**
+     * @return [DrawResult.Success] with the saved draw, or [DrawResult.ValidationError] with all
+     * reasons why the group cannot be drawn.
+     */
     suspend operator fun invoke(groupId: String): DrawResult {
         AppLog.d(TAG) { "Draw for group $groupId started" }
         val source = drawRepository.getDrawSource(groupId)
@@ -46,8 +50,11 @@ class PerformDrawUseCase(
             if (!DrawRules.canDraw(participants.size)) add(DrawValidationError.NotEnoughParticipants)
         }
         if (errors.isNotEmpty()) {
-            // Die UI sperrt "Losen" in diesen Fällen; kommt der Aufruf trotzdem an, ist das auffällig
-            AppLog.w(TAG, "Draw for group $groupId rejected: ${errors.joinToString()} (${participants.size} participants, draw day ${group.drawDay})")
+            // The UI disables "Draw" in these cases; a call that still arrives here is suspicious
+            AppLog.w(
+                TAG,
+                "Draw for group $groupId rejected: ${errors.joinToString()} (${participants.size} participants, draw day ${group.drawDay})",
+            )
             return DrawResult.ValidationError(errors)
         }
 
@@ -76,7 +83,7 @@ class PerformDrawUseCase(
             assignments = assignments,
         )
         drawRepository.insertDraw(draw)
-        // Datenschutz: nur Anzahlen, niemals wer wen beschenkt
+        // Privacy: log only counts, never who gives to whom
         AppLog.i(TAG, "Draw ${draw.id} for group $groupId saved (${assignments.size} assignments)")
         return DrawResult.Success(draw)
     }

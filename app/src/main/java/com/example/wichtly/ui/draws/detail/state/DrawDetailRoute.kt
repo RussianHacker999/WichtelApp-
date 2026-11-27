@@ -11,32 +11,23 @@ import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.draws.detail.screen.DrawDetailScreen
 
 /**
- * Zustandsbehaftete Route einer gespeicherten Auslosung: erzeugt das [DrawDetailViewModel] (eins je Auslosung),
- * verbindet es mit dem zustandslosen [DrawDetailScreen] und schließt den Geschenkanhänger, wenn die App
- * in den Hintergrund geht.
+ * Stateful route of a saved draw: creates the [DrawDetailViewModel] (one per draw), connects it
+ * with the stateless [DrawDetailScreen] and closes the gift tag when the app goes to the background.
  *
- * @param drawId Gespeicherte Auslosung, die gezeigt wird.
- * @param onBack Zurück-Navigation.
- * @param modifier Äußerer Modifier.
+ * @param drawId the saved draw to show.
  */
 @Composable
-fun DrawDetailRoute(
-    drawId: String,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DrawDetailRoute(drawId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: DrawDetailViewModel = viewModel(
         key = drawId,
         factory = DrawDetailViewModel.factory(appContainer(), drawId),
     )
 
-    // Zustand aus dem StateFlow einsammeln
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     LifecycleEventEffect(Lifecycle.Event.ON_STOP) {
         viewModel.onAppStopped()
     }
 
-    // Screen aufrufen: Navigation von außen, Aktionen aus dem ViewModel
     DrawDetailScreen(
         state = state,
         onBack = onBack,

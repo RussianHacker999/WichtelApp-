@@ -7,6 +7,13 @@ import androidx.room.PrimaryKey
 import com.example.wichtly.domain.model.group.DrawType
 import java.time.Instant
 
+/**
+ * Room table `draws`: one completed draw of a group.
+ *
+ * @property groupId foreign key to [GiftGroupEntity.id]; the draw is deleted together with the group.
+ * @property drawnAt time of the draw; the history is sorted by it.
+ * @property drawType draw type of the group at the time of the draw.
+ */
 @Entity(
     tableName = "draws",
     foreignKeys = [

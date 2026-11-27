@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
-/** Standardgröße eines Avatars in Listenkarten. */
+/** Default size of an avatar in list cards. */
 val AvatarSize = 42.dp
 
-/** Initialen für einen Avatar: Anfangsbuchstaben der ersten beiden Wörter („Anna Ludwig“ → „AL“), ohne Namen „?“. */
+/** Initials for an avatar: first letters of the first two words ("Anna Ludwig" → "AL"); "?" without a name. */
 fun initialsOf(name: String?): String {
     val parts = name.orEmpty().trim().split("\\s+".toRegex()).filter { it.isNotEmpty() }
     return when {
@@ -47,14 +47,9 @@ private fun AvatarCircle(size: Dp, modifier: Modifier, content: @Composable () -
     ) { content() }
 }
 
-/** Runder Avatar: das Foto, falls vorhanden, sonst die Initialen von [name]. */
+/** Round avatar: the photo if there is one, otherwise the initials of [name]. */
 @Composable
-fun InitialsAvatar(
-    name: String?,
-    modifier: Modifier = Modifier,
-    photoFile: File? = null,
-    size: Dp = AvatarSize,
-) {
+fun InitialsAvatar(name: String?, modifier: Modifier = Modifier, photoFile: File? = null, size: Dp = AvatarSize) {
     if (photoFile != null) {
         PhotoThumbnail(file = photoFile, modifier = modifier.size(size))
     } else {
@@ -68,7 +63,7 @@ fun InitialsAvatar(
     }
 }
 
-/** Runder Avatar mit einer Positionsnummer (Wünsche, Schenker einer Auslosung). */
+/** Round avatar with a position number (wishes, givers of a draw). */
 @Composable
 fun NumberAvatar(number: Int, modifier: Modifier = Modifier, size: Dp = AvatarSize) {
     AvatarCircle(size, modifier) {
@@ -80,7 +75,7 @@ fun NumberAvatar(number: Int, modifier: Modifier = Modifier, size: Dp = AvatarSi
     }
 }
 
-/** Runder Avatar mit einem Icon (Auslosungen, Historie). */
+/** Round avatar with an icon (draws, history). */
 @Composable
 fun IconAvatar(icon: ImageVector, modifier: Modifier = Modifier, size: Dp = AvatarSize) {
     AvatarCircle(size, modifier) {

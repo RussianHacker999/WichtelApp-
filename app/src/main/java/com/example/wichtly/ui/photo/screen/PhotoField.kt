@@ -36,17 +36,15 @@ import java.io.File
 private const val TAG = "PhotoField"
 
 /**
- * Das komplette Fotofeld eines Formulars, der einzige Einstieg in das Foto-Paket für Bildschirme.
+ * The complete photo field of a form; the only entry point into the photo package for screens.
  *
- * Zeigt Vorschau und "Foto hinzufügen/ändern", darunter den Hinweis bei abgelehnter Kamera (mit Link zu den
- * Einstellungen) und ggf. einen Fehler. Den Ablauf dahinter (Quelle → Berechtigung → Kamera) steuert das Feld
- * selbst ([PhotoFlowState], [PhotoCaptureFlow]); nach außen gehen nur die beiden Ergebnisse.
+ * Shows the preview and "Add/Change photo", below it the hint when the camera was denied (with a link to
+ * the settings) and an error if there is one. The field controls the flow behind it itself
+ * (source → permission → camera, via [PhotoFlowState] and [PhotoCaptureFlow]); only the two results go out.
  *
- * @param photo Fachlicher Zustand aus dem ViewModel (Pfad, Vorschaudatei, Speicherfehler).
- * @param onPhotoCaptured Neues Foto aufgenommen (temporäre Datei der Kamera); das ViewModel übernimmt es.
- * @param onRemovePhoto Foto entfernen.
- * @param modifier Optionaler Layout-Modifier.
- * @param enabled Deaktiviert das Feld, z. B. während gespeichert wird.
+ * @param photo state from the ViewModel (path, preview file, save error).
+ * @param onPhotoCaptured a new photo was captured (temporary file of the camera); the ViewModel takes it over.
+ * @param enabled disables the field, e.g. while saving.
  */
 @Composable
 fun PhotoField(
@@ -61,14 +59,9 @@ fun PhotoField(
     PhotoCaptureFlow(flow = flow, hasPhoto = photo.hasPhoto, onPhotoCaptured = onPhotoCaptured, onRemovePhoto = onRemovePhoto)
 }
 
-/** Sichtbarer Teil des Fotofelds (ohne Dialoge), getrennt für die Previews. */
+/** Visible part of the photo field (without dialogs), separated for the previews. */
 @Composable
-private fun PhotoFieldContent(
-    photo: PhotoFieldUiState,
-    flow: PhotoFlowState,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
+private fun PhotoFieldContent(photo: PhotoFieldUiState, flow: PhotoFlowState, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val context = LocalContext.current
     val error = photo.error ?: if (flow.captureFailed) R.string.error_photo_capture else null
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
@@ -88,17 +81,12 @@ private fun PhotoFieldContent(
 }
 
 /**
- * Zeile aus Foto-Vorschau und "Foto hinzufügen" bzw. "Foto ändern" (zustandslos).
+ * Stateless row of photo preview and "Add photo" or "Change photo".
  *
- * Warum zustandslos?
- * Gemäß State Hoisting kommen der Speicherzustand ([hasPhoto]), die optionale Datei ([photoFile])
- * und Interaktions-Callbacks ([onSelectClick]) vollständig von der übergeordneten Ebene.
- *
- * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist.
- * @param onSelectClick Callback beim Klick auf das Foto oder auf "Foto hinzufügen" bzw. "Foto ändern".
- * @param modifier Optionaler Layout-Modifier.
- * @param photoFile Optionale Bilddatei zur Anzeige im [PhotoThumbnail].
- * @param enabled Deaktiviert das Feld, z. B. während gespeichert wird.
+ * @param hasPhoto whether a photo is currently set.
+ * @param onSelectClick called on a tap on the photo or on "Add photo" / "Change photo".
+ * @param photoFile optional image file shown in the [PhotoThumbnail].
+ * @param enabled disables the row, e.g. while saving.
  */
 @Composable
 private fun PhotoPickerField(
@@ -111,7 +99,6 @@ private fun PhotoPickerField(
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(Spacing.tight)) {
         FieldLabel(text = stringResource(R.string.photo_label))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-            // Runder Foto-Thumbnail oder Platzhalter
             PhotoThumbnail(
                 file = if (hasPhoto) photoFile else null,
                 modifier = Modifier
@@ -119,8 +106,7 @@ private fun PhotoPickerField(
                     .clip(CircleShape)
                     .clickable(enabled = enabled, role = Role.Button, onClick = onSelectClick),
             )
-            // kein eigener Titel/Hilfetext mehr: das Label "Foto" steht über der Zeile
-            // Aktionsbutton (Foto hinzufügen / Foto ändern)
+            // The "Photo" label above the row replaces a separate title or helper text
             WichtlyTextButton(
                 text = stringResource(if (hasPhoto) R.string.photo_change else R.string.photo_add),
                 onClick = onSelectClick,
@@ -130,7 +116,7 @@ private fun PhotoPickerField(
     }
 }
 
-/** Öffnet die System-Einstellungen dieser App (um den Kamerazugriff doch noch zu erlauben). */
+/** Opens the system settings of this app (to allow camera access after all). */
 private fun openAppSettings(context: Context) {
     try {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -142,11 +128,7 @@ private fun openAppSettings(context: Context) {
     }
 }
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// -----------------------------------------------------------------------------
-
-/** Preview 1: Fotofeld ohne Foto. */
+/** Preview: photo field without a photo. */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoFieldEmptyPreview() {
@@ -155,7 +137,7 @@ private fun PhotoFieldEmptyPreview() {
     }
 }
 
-/** Preview 2: Fotofeld nach abgelehnter Kamera (Hinweis mit Einstellungen-Link). */
+/** Preview: photo field after the camera was denied (hint with a settings link). */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoFieldCameraDeniedPreview() {
@@ -164,11 +146,15 @@ private fun PhotoFieldCameraDeniedPreview() {
     }
 }
 
-/** Preview 3: Fotofeld mit hinterlegtem Foto. */
+/** Preview: photo field with a photo. */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22)
 @Composable
 private fun PhotoFieldWithPhotoPreview() {
     WichtlyTheme {
-        PhotoFieldContent(photo = PhotoFieldUiState(path = "photos/preview.jpg"), flow = PhotoFlowState(), modifier = Modifier.padding(16.dp))
+        PhotoFieldContent(
+            photo = PhotoFieldUiState(path = "photos/preview.jpg"),
+            flow = PhotoFlowState(),
+            modifier = Modifier.padding(16.dp),
+        )
     }
 }

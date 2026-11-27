@@ -2,12 +2,10 @@ package com.example.wichtly.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -27,13 +25,21 @@ import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
 
 private const val TAG = "AppNavHost"
 
-
+/**
+ * Navigation graph of the app.
+ *
+ * Protection against double taps: every navigation a user triggers by tapping is wrapped in
+ * [dropUnlessResumed] or [dropUnlessResumedWithArg]. During the transition animation the old screen
+ * is still visible and tappable, but its back stack entry is no longer RESUMED. Otherwise a second
+ * tap on "Back" would remove another entry (down to an empty start destination), and a second tap
+ * on a card would put the destination on the stack twice.
+ *
+ * Navigations that follow from an event (onSaved, onGroupDeleted, onDrawStarted) are not wrapped:
+ * they are triggered exactly once by the ViewModel or a LaunchedEffect.
+ */
 @Composable
-fun AppNavHost(
-    modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-) {
-    // Log every destination change (route pattern only, no arguments)
+fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+    // Log every destination change (only the route pattern, no arguments)
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
             AppLog.d(TAG) { "Destination: ${destination.route}" }
@@ -47,7 +53,7 @@ fun AppNavHost(
         startDestination = Routes.START,
         modifier = modifier,
     ) {
-        // 0) Start screen (large title, leads to the group list or the group form)
+        // 0) Start screen (big wordmark, leads to the group list or the form)
         composable(Routes.START) {
             StartRoute(
                 onOpenGroups = dropUnlessResumed { navController.navigate(Routes.GROUPS) { launchSingleTop = true } },
@@ -65,7 +71,7 @@ fun AppNavHost(
             )
         }
 
-        // 2) Form: create a new group
+        // 2) Form: new group
         composable(Routes.GROUP_CREATE) {
             GroupFormRoute(
                 groupId = null,
@@ -79,18 +85,17 @@ fun AppNavHost(
             )
         }
 
-        // 3) Form: edit an existing group
+        // 3) Form: edit group
         composable(
             route = Routes.GROUP_EDIT,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
-                GroupFormRoute(
-                    groupId = groupId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                    onSaved = { navController.popBackStack() },
-                )
-            }
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            GroupFormRoute(
+                groupId = groupId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onSaved = { navController.popBackStack() },
+            )
         }
 
         // 4) Group detail
@@ -98,58 +103,60 @@ fun AppNavHost(
             route = Routes.GROUP_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
-                GroupDetailRoute(
-                    groupId = groupId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                    onEditGroup = dropUnlessResumedWithArg { id -> navController.navigate(Routes.groupEdit(id)) },
-                    onOpenWishlist = dropUnlessResumedWithArg { participantId -> navController.navigate(Routes.wishlist(participantId)) },
-                    onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) }, // go to draw preparation
-                    onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) }, // go to the group's draw history
-                    // Group deleted: go back to where the user came from (group list or start screen)
-                    onGroupDeleted = { navController.popBackStack() },
-                )
-            }
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            GroupDetailRoute(
+                groupId = groupId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onEditGroup = dropUnlessResumedWithArg { id -> navController.navigate(Routes.groupEdit(id)) },
+                onOpenWishlist = dropUnlessResumedWithArg { participantId -> navController.navigate(Routes.wishlist(participantId)) },
+                onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) },
+                onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) },
+                // Group deleted: go back to where the user came from (group list or start screen)
+                onGroupDeleted = { navController.popBackStack() },
+            )
         }
 
-        // 5) Wishlist of a participant
+        // 5) Wishlist
         composable(
             route = Routes.WISHLIST,
-            arguments = listOf(navArgument(Routes.ARG_PARTICIPANT_ID) { type = NavType.StringType }),
+            arguments = listOf(
+                navArgument(Routes.ARG_PARTICIPANT_ID) {
+                    type = NavType.StringType
+                },
+            ),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_PARTICIPANT_ID, navController) { participantId ->
-                ParticipantWishlistRoute(
-                    participantId = participantId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                )
-            }
+            val participantId =
+                requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_PARTICIPANT_ID))
+            ParticipantWishlistRoute(
+                participantId = participantId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+            )
         }
 
-        // 6) Draw detail (reveal who gives a gift to whom)
+        // 6) Draw detail
         composable(
             route = Routes.DRAW_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_DRAW_ID) { type = NavType.StringType }),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_DRAW_ID, navController) { drawId ->
-                DrawDetailRoute(
-                    drawId = drawId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                )
-            }
+            val drawId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_DRAW_ID))
+            DrawDetailRoute(
+                drawId = drawId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+
+            )
         }
 
-        // 7) Draw history of a group
+        // 7) Draw history
         composable(
             route = Routes.DRAW_HISTORY,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
-                DrawHistoryRoute(
-                    groupId = groupId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                    onOpenDraw = dropUnlessResumedWithArg { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
-                )
-            }
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            DrawHistoryRoute(
+                groupId = groupId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onOpenDraw = dropUnlessResumedWithArg { drawId -> navController.navigate(Routes.drawDetail(drawId)) },
+            )
         }
 
         // 8) Draw preparation
@@ -157,29 +164,29 @@ fun AppNavHost(
             route = Routes.PREPARATION,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
         ) { backStackEntry ->
-            WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
-                PreparationRoute(
-                    groupId = groupId,
-                    onBack = dropUnlessResumed { navController.popBackStack() },
-                    onDrawStarted = { drawId ->
-                        // After the draw, "Back" must not return to the preparation but to the group detail.
-                        // Remove the preparation from the stack; if the group detail is already below it,
-                        // it is reused (launchSingleTop), otherwise (started from the group list) it is added below.
-                        navController.navigate(Routes.groupDetail(groupId)) {
-                            popUpTo(Routes.PREPARATION) { inclusive = true }
-                            launchSingleTop = true
-                        }
-                        navController.navigate(Routes.drawDetail(drawId))
-                    },
-                )
-            }
+            val groupId = requireNotNull(backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID))
+            PreparationRoute(
+                groupId = groupId,
+                onBack = dropUnlessResumed { navController.popBackStack() },
+                onDrawStarted = { drawId ->
+                    // After the draw, "Back" must lead to the group detail, not to the preparation.
+                    // Remove the preparation from the stack; if the group detail is already below it, it is
+                    // reused (launchSingleTop), otherwise (started from the group list) it is placed below anew.
+                    navController.navigate(Routes.groupDetail(groupId)) {
+                        popUpTo(Routes.PREPARATION) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                    navController.navigate(Routes.drawDetail(drawId))
+                },
+            )
         }
     }
 }
 
 /**
  * Like [dropUnlessResumed], but for callbacks with one argument (e.g. a group ID).
- * The click is ignored as long as the current back stack entry is not RESUMED.
+ *
+ * The click is ignored while the current back stack entry is not RESUMED.
  */
 @Composable
 private fun <T> dropUnlessResumedWithArg(block: (T) -> Unit): (T) -> Unit {
@@ -187,30 +194,6 @@ private fun <T> dropUnlessResumedWithArg(block: (T) -> Unit): (T) -> Unit {
     return { value ->
         if (lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
             block(value)
-        }
-    }
-}
-
-/**
- * Reads a required argument from the current route.
- * If present, the screen is shown. If missing, the error is logged and the user
- * is navigated back instead of crashing the app.
- */
-@Composable
-private fun WithArgument(
-    backStackEntry: NavBackStackEntry,
-    key: String,
-    navController: NavController,
-    content: @Composable (String) -> Unit,
-) {
-    // Argument found: show the screen with the value
-    backStackEntry.arguments?.getString(key)?.let { value ->
-        content(value)
-    } ?: run {
-        // Argument missing: navigation must not happen during composition, so use a LaunchedEffect
-        LaunchedEffect(key) {
-            AppLog.e(TAG, "Missing navigation argument '$key' for ${backStackEntry.destination.route}")
-            navController.popBackStack()
         }
     }
 }

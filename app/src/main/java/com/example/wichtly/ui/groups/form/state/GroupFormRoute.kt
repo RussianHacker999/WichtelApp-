@@ -12,37 +12,26 @@ import com.example.wichtly.ui.groups.form.screen.GroupFormActions
 import com.example.wichtly.ui.groups.form.screen.GroupFormScreen
 
 /**
- * Stateful Route Composable für das Gruppen-Formular.
+ * Stateful route of the group form.
  *
- * Architektur-Hinweise (MVVM & Clean Architecture):
- * - Diese Route fungiert als Bindeglied (Stateful Component) zwischen der Anwendungs-Infrastruktur
- *   (DI / AppContainer, ViewModel, Lifecycle) und dem zustandslosen [GroupFormScreen].
- * - Der [GroupFormScreen] bleibt dadurch zu 100 % zustandslos und frei von ViewModel- und Repository-Wissen,
- *   was die Testbarkeit und Previews erheblich vereinfacht.
- * - Repositories und Use Case kommen über [appContainer] aus dem AppContainer der WichtlyApplication (manuelle DI).
- * - Beim Verlassen ohne Speichern (Zurück-Pfeil, Abbrechen, System-Zurück) verwirft das ViewModel ein
- *   neu aufgenommenes, noch nicht gespeichertes Gruppenfoto.
- * - Das ViewModel entsteht über [GroupFormViewModel.factory] mit der Inhalts-ID als Key (`groupId ?: "new"`).
+ * Connects the app infrastructure (AppContainer, ViewModel, lifecycle) with the stateless
+ * [GroupFormScreen], so the screen knows nothing about ViewModels or repositories.
+ * The ViewModel is created via [GroupFormViewModel.factory] with the content ID as key
+ * (`groupId ?: "new"`). When the form is left without saving (back arrow, cancel, system back),
+ * the ViewModel discards a newly captured group photo that has not been saved yet.
  *
- * @param groupId Die ID der Wichtelgruppe (null = Erstellen-Modus, sonst Bearbeiten-Modus).
- * @param onBack Callback für die Zurück-Navigation.
- * @param onSaved Callback beim erfolgreichen Speichern; erhält die ID der gespeicherten Gruppe.
- * @param modifier Äußerer Modifier.
+ * @param groupId ID of the gift group (null = create mode, otherwise edit mode).
+ * @param onSaved called after a successful save; receives the ID of the saved group.
  */
 @Composable
-fun GroupFormRoute(
-    groupId: String?,
-    onBack: () -> Unit,
-    onSaved: (groupId: String) -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun GroupFormRoute(groupId: String?, onBack: () -> Unit, onSaved: (groupId: String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: GroupFormViewModel = viewModel(
         key = groupId ?: "new",
         factory = GroupFormViewModel.factory(appContainer(), groupId),
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Einmalige Auslösung von onSaved bei erfolgreichem Speichern
+    // Trigger onSaved exactly once after a successful save
     LaunchedEffect(state.savedGroupId) {
         state.savedGroupId?.let { groupId ->
             onSaved(groupId)

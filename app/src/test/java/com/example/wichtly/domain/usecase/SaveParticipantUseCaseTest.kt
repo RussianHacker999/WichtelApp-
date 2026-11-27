@@ -7,11 +7,11 @@ import com.example.wichtly.domain.validation.ParticipantValidationError
 import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
+import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for [SaveParticipantUseCase], the only place where participants are validated.
@@ -23,8 +23,7 @@ class SaveParticipantUseCaseTest {
         setGroups(listOf(GiftGroup(id = groupId, name = "Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
     }
 
-    private fun errorsOf(result: ParticipantResult): List<ParticipantValidationError> =
-        (result as ParticipantResult.ValidationError).errors
+    private fun errorsOf(result: ParticipantResult): List<ParticipantValidationError> = (result as ParticipantResult.ValidationError).errors
 
     @Test
     fun newParticipantIsSavedNormalized() = runTest {

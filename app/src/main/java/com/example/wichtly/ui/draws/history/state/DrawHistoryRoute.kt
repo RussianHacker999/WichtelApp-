@@ -9,30 +9,21 @@ import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryScreen
 
 /**
- * Zustandsbehaftete Route der Auslosungshistorie: erzeugt das [DrawHistoryViewModel] (eins je Gruppe)
- * und verbindet dessen Zustand mit dem zustandslosen [DrawHistoryScreen].
+ * Stateful route of the draw history: creates the [DrawHistoryViewModel] (one per group)
+ * and connects its state with the stateless [DrawHistoryScreen].
  *
- * @param groupId Gruppe, deren Auslosungen gezeigt werden.
- * @param onBack Zurück-Navigation.
- * @param onOpenDraw Navigation zu einer gespeicherten Auslosung.
- * @param modifier Äußerer Modifier.
+ * @param groupId group whose draws are shown.
+ * @param onOpenDraw navigates to a saved draw.
  */
 @Composable
-fun DrawHistoryRoute(
-    groupId: String,
-    onBack: () -> Unit,
-    onOpenDraw: (drawId: String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun DrawHistoryRoute(groupId: String, onBack: () -> Unit, onOpenDraw: (drawId: String) -> Unit, modifier: Modifier = Modifier) {
     val viewModel: DrawHistoryViewModel = viewModel(
         key = groupId,
         factory = DrawHistoryViewModel.factory(appContainer(), groupId),
     )
 
-    // Zustand aus dem StateFlow einsammeln
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Screen aufrufen: Zurück und Eintrag öffnen sind beides Navigation
     DrawHistoryScreen(
         state = state,
         onBack = onBack,

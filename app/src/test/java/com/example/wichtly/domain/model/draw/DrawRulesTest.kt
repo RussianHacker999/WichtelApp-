@@ -6,7 +6,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /** The minimum number of participants is 3 everywhere. */
-
 class DrawRulesTest {
 
     @Test

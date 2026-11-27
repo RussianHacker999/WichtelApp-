@@ -40,8 +40,8 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Das Grundgerüst aller Screens außer der Startseite (die ein eigenes Vollbild-Layout hat):
- * 1. Top-Leiste, 2. Seitenkopf und 3. Inhalt (beide in [content]), 4. optionale Aktionsleiste unten.
+ * The basic frame of all screens except the start screen (which has its own full-screen layout):
+ * 1. top bar, 2. page header and 3. content (both in [content]), 4. optional action bar at the bottom.
  */
 @Composable
 fun WichtlyScaffold(
@@ -61,8 +61,8 @@ fun WichtlyScaffold(
 }
 
 /**
- * Innenabstand für die scrollende Liste eines Screens: Abstände des Scaffolds (Top- und Aktionsleiste)
- * plus seitlicher Rand ([Spacing.screen]) und etwas Luft unten ([Spacing.xl]).
+ * Content padding for the scrolling list of a screen: the scaffold insets (top and action bar)
+ * plus the side margin ([Spacing.screen]) and some extra space at the bottom ([Spacing.xl]).
  */
 fun screenContentPadding(innerPadding: PaddingValues): PaddingValues = PaddingValues(
     start = Spacing.screen,
@@ -72,7 +72,7 @@ fun screenContentPadding(innerPadding: PaddingValues): PaddingValues = PaddingVa
 )
 
 /**
- * Top-Leiste mit Zurück-Pfeil (wenn [onBack] gesetzt ist), einzeiligem Titel und optionalen Aktionen rechts.
+ * Top bar with a back arrow (if [onBack] is set), a single-line title and optional actions on the right.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,13 +109,10 @@ fun WichtlyTopBar(
     )
 }
 
-/** Top-Leiste der Gruppenliste: Schriftzug „Wichtly“ mit Sternchen, ohne Zurück-Pfeil. (Die Startseite hat keine Top-Leiste.) */
+/** Top bar of the group list: the "Wichtly" wordmark with a sparkle, without a back arrow. (The start screen has no top bar.) */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BrandTopBar(
-    modifier: Modifier = Modifier,
-    actions: @Composable RowScope.() -> Unit = {},
-) {
+fun BrandTopBar(modifier: Modifier = Modifier, actions: @Composable RowScope.() -> Unit = {}) {
     TopAppBar(
         modifier = modifier,
         title = {
@@ -135,17 +132,13 @@ fun BrandTopBar(
 }
 
 /**
- * Feste Aktionsleiste am unteren Rand eines Screens. Darin entweder ein [SecondaryButton] und ein [PrimaryButton]
- * (beide mit weight 1f, damit keine Beschriftung abgeschnitten wird) oder ein einzelner [PrimaryButton] mit weight 1f.
+ * Fixed action bar at the bottom of a screen. It holds either a [SecondaryButton] and a [PrimaryButton]
+ * (both with weight 1f, so no label is cut off) or a single [PrimaryButton] with weight 1f.
  *
- * @param hint Optionale kurze Zeile über den Buttons, z. B. warum der Hauptbutton deaktiviert ist.
+ * @param hint optional short line above the buttons, e.g. why the main button is disabled.
  */
 @Composable
-fun BottomActionBar(
-    modifier: Modifier = Modifier,
-    hint: String? = null,
-    content: @Composable RowScope.() -> Unit,
-) {
+fun BottomActionBar(modifier: Modifier = Modifier, hint: String? = null, content: @Composable RowScope.() -> Unit) {
     Column(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         if (hint != null) {

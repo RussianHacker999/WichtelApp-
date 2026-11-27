@@ -1,53 +1,53 @@
 package com.example.wichtly.domain.algorithm
 
+import kotlin.random.Random
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.random.Random
 
 class SecretSantaDrawAlgorithmTest {
 
-    // Hilfsfunktion: prüft alle Regeln einer gültigen Auslosung auf einmal
-    private fun checkValidDraw(teilnehmer: List<String>, ergebnis: Map<String, String>) {
-        // jeder Teilnehmer ist genau einmal Schenker
+    // Helper: checks all rules of a valid draw at once
+    private fun pruefeGueltigeAuslosung(teilnehmer: List<String>, ergebnis: Map<String, String>) {
+        // every participant is a giver exactly once
         assertEquals(teilnehmer.toSet(), ergebnis.keys)
-        // jeder Teilnehmer wird genau einmal beschenkt
+        // every participant receives exactly once
         assertEquals(teilnehmer.sorted(), ergebnis.values.sorted())
-        // niemand beschenkt sich selbst
+        // nobody gives to themselves
         for ((schenker, beschenkter) in ergebnis) {
             assertNotEquals(schenker, beschenkter)
         }
     }
 
     @Test
-    fun nobodyDrawsThemselves() {
-        // Arrange: Algorithmus und drei Teilnehmer vorbereiten
+    fun niemandZiehtSichSelbst() {
+        // Arrange: algorithm and three participants
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem")
 
-        // Act: auslosen
+        // Act: draw
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        // Assert: für jedes Paar prüfen, dass Schenker und Beschenkter verschieden sind
+        // Assert: for every pair, giver and receiver differ
         for ((schenker, beschenkter) in ergebnis) {
             assertNotEquals(schenker, beschenkter)
         }
     }
 
     @Test
-    fun eachGivesAndGetsOnce() {
+    fun jederSchenktUndWirdGenauEinmalBeschenkt() {
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem", "dana")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        checkValidDraw(teilnehmer, ergebnis)
+        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
     }
 
     @Test
-    fun lessThanThreeReturnsEmpty() {
-        // Mindestzahl kommt aus DrawRules.MIN_PARTICIPANTS (= 3)
+    fun wenigerAlsDreiTeilnehmerLiefertLeeresErgebnis() {
+        // The minimum comes from DrawRules.MIN_PARTICIPANTS (= 3)
         val algorithm = SecretSantaDrawAlgorithm()
 
         assertTrue(algorithm.generateDerangement(emptyList()).isEmpty())
@@ -56,39 +56,39 @@ class SecretSantaDrawAlgorithmTest {
     }
 
     @Test
-    fun `threeParticipantsAreValid()`() {
+    fun dreiTeilnehmerErgebenGueltigeAuslosung() {
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        checkValidDraw(teilnehmer, ergebnis)
+        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
     }
 
     @Test
-    fun fallbackReturnsValidDraw() {
-        // maxAttempts = 0: der Algorithmus überspringt das Mischen und nimmt sofort den Ring
+    fun notfallPlanLiefertGueltigeAuslosung() {
+        // maxAttempts = 0: the algorithm skips shuffling and takes the ring right away
         val algorithm = SecretSantaDrawAlgorithm(maxAttempts = 0)
         val teilnehmer = listOf("anna", "ben", "cem", "dana", "emil")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        checkValidDraw(teilnehmer, ergebnis)
+        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
     }
 
     @Test
-    fun worksForManyRunsAndSizes() {
+    fun funktioniertBeiVielenDurchlaeufenUndGruppengroessen() {
         val gruppengroessen = listOf(3, 4, 10)
 
         for (groesse in gruppengroessen) {
             val teilnehmer = (1..groesse).map { "person$it" }
-            // 100 verschiedene "Zufälle" pro Gruppengröße
+            // 100 different "random" runs per group size
             for (seed in 0 until 100) {
                 val algorithm = SecretSantaDrawAlgorithm(random = Random(seed))
 
                 val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-                checkValidDraw(teilnehmer, ergebnis)
+                pruefeGueltigeAuslosung(teilnehmer, ergebnis)
             }
         }
     }

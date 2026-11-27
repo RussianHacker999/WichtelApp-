@@ -7,6 +7,9 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import com.example.wichtly.testutil.FakeDrawRepository
 import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -14,18 +17,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * Unit tests for [DrawHistoryViewModel].
  *
- * Verifies reactive loading of the gift group and the draw history,
- * correct descending sorting (newest first), mapping of summary data
- * (date and time in the device's time zone; the test computes the expected value the same way and
- * therefore runs in any time zone), the behavior with an empty history,
- * an unknown group, as well as loading errors and reactive updates.
+ * Covers reactive loading of the gift group and the draw history, the descending order (newest first),
+ * mapping of the summary data (date and time in the device time zone; the test computes the expected
+ * value the same way and therefore runs in any time zone), the empty history, an unknown group,
+ * loading errors and reactive updates.
  */
 class DrawHistoryViewModelTest {
 
@@ -33,7 +32,7 @@ class DrawHistoryViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val groupId = "group-1"
-    private val groupName = "Family Secret Santa"
+    private val groupName = "Familie Wichteln"
 
     private fun createSampleGroup() = GiftGroup(
         id = groupId,
@@ -43,11 +42,7 @@ class DrawHistoryViewModelTest {
         drawType = DrawType.NORMAL,
     )
 
-    private fun createSampleDraw(
-        id: String,
-        groupId: String = this.groupId,
-        instant: Instant,
-    ) = DrawDetail(
+    private fun createSampleDraw(id: String, groupId: String = this.groupId, instant: Instant) = DrawDetail(
         id = id,
         groupId = groupId,
         drawnAt = instant,
@@ -56,7 +51,7 @@ class DrawHistoryViewModelTest {
     )
 
     /**
-     * Test 1: Loads the group name and draws successfully.
+     * Test 1: loads the group name and the draws successfully.
      */
     @Test
     fun loadsGroupNameAndDraws() = runTest {
@@ -81,7 +76,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 2: Draws keep the repository order (newest first), and fields are mapped correctly.
+     * Test 2: draws keep the repository order (newest first) and the fields are mapped correctly.
      */
     @Test
     fun drawsKeepRepositoryOrderNewestFirst() = runTest {
@@ -99,7 +94,7 @@ class DrawHistoryViewModelTest {
                 listOf(
                     createSampleDraw(id = "d-old", instant = olderInstant),
                     createSampleDraw(id = "d-new", instant = newerInstant),
-                )
+                ),
             )
         }
 
@@ -119,7 +114,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 3: An empty history is a valid state without errors.
+     * Test 3: an empty history is a valid state without an error.
      */
     @Test
     fun emptyHistory_isValidStateWithoutError() = runTest {
@@ -142,7 +137,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 4: An unknown group sets notFound to true.
+     * Test 4: an unknown group sets notFound to true.
      */
     @Test
     fun unknownGroup_setsGroupNotFound() = runTest {
@@ -162,7 +157,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 5: A draw flow error sets errorMessage.
+     * Test 5: a draw Flow error sets errorMessage.
      */
     @Test
     fun drawFlowError_setsErrorMessage() = runTest {
@@ -185,7 +180,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 6: A group flow error sets the same errorMessage.
+     * Test 6: a group Flow error sets the same errorMessage.
      */
     @Test
     fun groupFlowError_setsErrorMessage() = runTest {
@@ -206,7 +201,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 7: A new draw appears reactively in draws after addDraw.
+     * Test 7: a new draw appears reactively in draws after addDraw.
      */
     @Test
     fun newDrawAppears_reactively() = runTest {
@@ -230,7 +225,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 8: Only draws of the given group are shown.
+     * Test 8: only draws of the given group are shown.
      */
     @Test
     fun onlyDrawsOfThisGroupAreShown() = runTest {
@@ -242,7 +237,7 @@ class DrawHistoryViewModelTest {
                 listOf(
                     createSampleDraw(id = "d-target", groupId = groupId, instant = Instant.now()),
                     createSampleDraw(id = "d-other", groupId = "other-group", instant = Instant.now()),
-                )
+                ),
             )
         }
 

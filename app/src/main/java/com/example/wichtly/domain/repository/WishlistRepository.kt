@@ -4,34 +4,37 @@ import com.example.wichtly.domain.model.participant.WishlistItem
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Repository für Wünsche ([WishlistItem]).
- * Reine Persistenz: Fachregeln prüft vorher der SaveWishlistItemUseCase.
+ * Repository for wishes ([WishlistItem]).
+ *
+ * Pure persistence: business rules are checked beforehand by SaveWishlistItemUseCase.
  */
 interface WishlistRepository {
     /**
-     * Beobachtet die Wunschliste eines Teilnehmers (nach sortOrder sortiert).
+     * Observes the wishlist of a participant, sorted by sortOrder.
      */
     fun observeWishlistItems(participantId: String): Flow<List<WishlistItem>>
 
     /**
-     * Liest die Wunschliste eines Teilnehmers einmalig (nach sortOrder sortiert), z. B. zur Prüfung in einem Use Case.
+     * Reads the wishlist of a participant once, sorted by sortOrder (e.g. for validation in a use case).
      */
     suspend fun getWishlistItems(participantId: String): List<WishlistItem>
 
     /**
-     * Speichert einen neuen, bereits geprüften Wunsch.
+     * Inserts a new, already validated wish.
      */
     suspend fun insertWishlistItem(item: WishlistItem)
 
     /**
-     * Ändert einen bestehenden, bereits geprüften Wunsch.
-     * @return false, wenn es keinen Wunsch mit dieser ID (mehr) gibt.
+     * Updates an existing, already validated wish.
+     *
+     * @return false if there is no wish with this ID (any more).
      */
     suspend fun updateWishlistItem(item: WishlistItem): Boolean
 
     /**
-     * Löscht einen Wunsch anhand seiner ID. Verwendet von: DeleteWishlistItemUseCase.
-     * @return false, wenn es keinen Wunsch mit dieser ID (mehr) gibt.
+     * Deletes a wish by its ID. Used by DeleteWishlistItemUseCase.
+     *
+     * @return false if there is no wish with this ID (any more).
      */
     suspend fun deleteWishlistItem(id: String): Boolean
 }

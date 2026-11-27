@@ -32,27 +32,13 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-
 /**
- * Zustandsloser Composable-Screen für die Auslosungshistorie einer Wichtelgruppe.
+ * Stateless screen of the draw history of a gift group.
  *
- * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
- * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
- * - Sämtliche Zustände werden über [DrawHistoryUiState] übergeben.
- * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - Aufbau wie alle Screens:
- *   - Top-Leiste mit Zurück-Pfeil und Titel "Auslosungshistorie".
- *   - Seitenkopf mit Eyebrow "Alle Durchläufe", Titel "Schon mal gelost" und Untertitel.
- *   - Genau eine [LazyColumn] für das gemeinsame Scrollen aller Karten und Hinweise.
- *   - Karten für jeden Durchlauf mit Datum und Uhrzeit der Auslosung
- *     und Pfeil; ein Klick auf die Karte öffnet den Durchlauf.
- *   - Leerer Zustand ("Hier ist noch nichts ausgelost.") als Hinweis (MessageState) in der Liste.
- *   - Hinweisfeld bezüglich der Unveränderlichkeit historischer Snapshots.
+ * One [LazyColumn] scrolls the page header, one card per draw (date and time, opens the draw on tap),
+ * the empty state ("Nothing has been drawn here yet.") and a note that saved draws do not change.
  *
- * @param state Der aktuelle UI-Zustand der Auslosungshistorie.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onDrawClick Callback zum Öffnen eines spezifischen Auslosungsdurchlaufs (erhält drawId).
- * @param modifier Äußerer Modifier für den Screen.
+ * @param onDrawClick opens a specific draw (receives the drawId).
  */
 @Composable
 fun DrawHistoryScreen(
@@ -61,7 +47,7 @@ fun DrawHistoryScreen(
     onDrawClick: (drawId: String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    // Datum und Uhrzeit einer Ziehung, z. B. "01.12.2026, 18:42 Uhr"; das Muster steht in strings.xml
+    // Date and time of a draw, e.g. "01.12.2026, 18:42"; the pattern lives in strings.xml
     val dateTimePattern = stringResource(R.string.common_datetime_pattern)
     val historyDateTimeFormatter = remember(dateTimePattern) { DateTimeFormatter.ofPattern(dateTimePattern) }
     WichtlyScaffold(
@@ -69,11 +55,10 @@ fun DrawHistoryScreen(
         topBar = { WichtlyTopBar(title = stringResource(R.string.draw_history_title), onBack = onBack) },
     ) { innerPadding ->
         when {
-            // 1. ZUSTAND: Laden
-            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
+            // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.draw_history_loading))
-            // 2. ZUSTAND: Fehler aufgetreten
-            // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
+
+            // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -82,8 +67,8 @@ fun DrawHistoryScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
-            // 3. ZUSTAND: Gruppe nicht gefunden
-            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
+
+            // 3. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
@@ -92,25 +77,24 @@ fun DrawHistoryScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
-            // 4. ZUSTAND: Inhalt (Bereit)
-            // Hauptinhalt der Historien-Ansicht.
-            // Verwendet genau eine zentrale [LazyColumn], sodass Seitenkopf, Listen-Karten und Hinweise gemeinsam scrollen.
+
+            // 4. Content: one LazyColumn, so page header, cards and notes scroll together
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = screenContentPadding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 item {
-                    // (1) Seitenkopf mit Eyebrow und Titel
+                    // (1) Page header with eyebrow and title
                     PageHeader(
                         eyebrow = stringResource(R.string.draw_history_eyebrow),
                         title = stringResource(R.string.draw_history_header),
                         subtitle = stringResource(R.string.draw_history_subtitle),
                     )
                 }
-                // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
+                // (2) Section row with the count (number in the gold badge)
                 item { SectionHeader(title = stringResource(R.string.draw_history_section), count = state.draws.size) }
-                // (3) Auslosungs-Karten ODER Hinweis bei leerer Liste
+                // (3) Draw cards, or a hint for an empty list
                 if (state.draws.isEmpty()) {
                     item {
                         MessageState(
@@ -123,7 +107,7 @@ fun DrawHistoryScreen(
                     }
                 } else {
                     items(state.draws, key = { it.id }) { draw ->
-                        // Nur Datum und Uhrzeit: so lassen sich mehrere Ziehungen am selben Tag unterscheiden.
+                        // Only date and time: that is enough to tell several draws on the same day apart.
                         ListItemCard(
                             title = draw.drawnAt.format(historyDateTimeFormatter),
                             leading = { IconAvatar(icon = Icons.Filled.Redeem) },
@@ -133,7 +117,7 @@ fun DrawHistoryScreen(
                     }
                 }
                 item {
-                    // (4) Hinweisfeld am Ende
+                    // (4) Note at the end
                     NoteCard(
                         text = stringResource(R.string.draw_history_note),
                         modifier = Modifier.padding(top = Spacing.m),
@@ -144,14 +128,8 @@ fun DrawHistoryScreen(
     }
 }
 
-
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
-
 /**
- * Preview 1: Historie mit drei gespeicherten Durchläufen.
+ * Preview: history with three saved draws.
  */
 @Preview(showBackground = true, heightDp = 800)
 @Composable
@@ -162,24 +140,26 @@ private fun DrawHistoryScreenWithThreeDrawsPreview() {
         DrawHistoryItemUiModel(id = "d3", drawnAt = LocalDateTime.of(2025, 12, 3, 19, 30)),
     )
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {
+        }, onDrawClick = {})
     }
 }
 
 /**
- * Preview 2: Historie mit genau einem gespeicherten Durchlauf (der Zähler zeigt 1).
+ * Preview: history with exactly one saved draw (the counter shows 1).
  */
 @Preview(showBackground = true, heightDp = 700)
 @Composable
 private fun DrawHistoryScreenWithSingleDrawPreview() {
     val draws = listOf(DrawHistoryItemUiModel(id = "d1", drawnAt = LocalDateTime.of(2026, 12, 1, 18, 42)))
     WichtlyTheme {
-        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {}, onDrawClick = {})
+        DrawHistoryScreen(state = DrawHistoryUiState(isLoading = false, groupName = "Familie Wichteln", draws = draws), onBack = {
+        }, onDrawClick = {})
     }
 }
 
 /**
- * Preview 3: Leere Historie (noch keine Durchläufe vorhanden).
+ * Preview: empty history (no draws yet).
  */
 @Preview(showBackground = true, heightDp = 700)
 @Composable
@@ -190,7 +170,7 @@ private fun DrawHistoryScreenEmptyPreview() {
 }
 
 /**
- * Preview 4: Ladezustand der Historie.
+ * Preview: loading state.
  */
 @Preview(showBackground = true)
 @Composable
@@ -201,7 +181,7 @@ private fun DrawHistoryScreenLoadingPreview() {
 }
 
 /**
- * Preview 5: Fehlerzustand beim Laden der Historie.
+ * Preview: loading error.
  */
 @Preview(showBackground = true)
 @Composable
@@ -209,13 +189,14 @@ private fun DrawHistoryScreenErrorPreview() {
     WichtlyTheme {
         DrawHistoryScreen(
             state = DrawHistoryUiState(isLoading = false, errorMessage = R.string.error_history_load),
-            onBack = {}, onDrawClick = {},
+            onBack = {},
+            onDrawClick = {},
         )
     }
 }
 
 /**
- * Preview 6: Gruppe nicht gefunden.
+ * Preview: group not found.
  */
 @Preview(showBackground = true)
 @Composable

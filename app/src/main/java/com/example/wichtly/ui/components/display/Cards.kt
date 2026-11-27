@@ -32,9 +32,10 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Die einheitliche Listenkarte der App (Teilnehmer, Wünsche, Zuordnungen einer Auslosung, Historie,
- * Vorbereitung); Gruppen haben eine eigene Karte (HeroGroupCard in GroupsScreen):
- * Avatar links, Titel und Untertitel, rechts Chip, Button oder ⋮-Menü.
+ * The uniform list card of the app (participants, wishes, assignments of a draw, history,
+ * preparation); groups have their own card (HeroGroupCard in GroupsScreen).
+ *
+ * Avatar on the left, title and subtitle, and a chip, button or ⋮ menu on the right.
  */
 @Composable
 fun ListItemCard(
@@ -75,7 +76,7 @@ fun ListItemCard(
     }
 }
 
-/** Titel und optionaler Untertitel, wie in [ListItemCard] und der Gruppenkarte (HeroGroupCard) verwendet. */
+/** Title and optional subtitle, as used in [ListItemCard] and the group card (HeroGroupCard). */
 @Composable
 fun ListItemText(title: String, subtitle: String?, modifier: Modifier = Modifier, titleMaxLines: Int = 1) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(Spacing.xxs)) {
@@ -98,7 +99,7 @@ fun ListItemText(title: String, subtitle: String?, modifier: Modifier = Modifier
     }
 }
 
-/** Pfeil am rechten Rand für Karten, die einen anderen Screen öffnen. */
+/** Arrow on the right edge for cards that open another screen. */
 @Composable
 fun ChevronIcon() {
     Icon(
@@ -109,7 +110,7 @@ fun ChevronIcon() {
     )
 }
 
-/** Kleine Kennzahl-Kachel (z. B. „6 Teilnehmer“, „25,00 € Budget pro Geschenk“). */
+/** Small metric tile (e.g. "6 participants", "€25.00 budget per present"). */
 @Composable
 fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     Card(
@@ -124,7 +125,7 @@ fun StatTile(value: String, label: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** Umrandete Hinweiskarte mit Icon für kurze Erklärungen, z. B. am Ende eines Screens. */
+/** Outlined hint card with an icon for short explanations, e.g. at the end of a screen. */
 @Composable
 fun NoteCard(text: String, modifier: Modifier = Modifier, icon: ImageVector = Icons.Outlined.Info) {
     Row(
@@ -144,7 +145,7 @@ fun NoteCard(text: String, modifier: Modifier = Modifier, icon: ImageVector = Ic
     }
 }
 
-/** Karte mit Zeilen aus Bezeichnung und Wert (z. B. die Übersicht vor der Auslosung). */
+/** Card with rows of label and value (e.g. the overview before the draw). */
 @Composable
 fun InfoRowsCard(rows: List<Pair<String, String>>, modifier: Modifier = Modifier) {
     Card(
@@ -184,7 +185,10 @@ private fun CardsPreview() {
                 title = "Auslosung vom 01.12.2026",
                 subtitle = "6 Teilnehmer · Klassisch",
                 leading = { IconAvatar(icon = Icons.Filled.Redeem) },
-                trailing = { StatusChip(text = "Gespeichert"); ChevronIcon() },
+                trailing = {
+                    StatusChip(text = "Gespeichert")
+                    ChevronIcon()
+                },
                 onClick = {},
             )
             ListItemCard(title = "Mara", subtitle = "Wunschliste öffnen", leading = { InitialsAvatar(name = "Mara") }, selected = true)

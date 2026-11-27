@@ -6,12 +6,12 @@ import com.example.wichtly.data.local.entity.WishlistItemEntity
 import com.example.wichtly.data.local.relation.GiftGroupWithParticipants
 import com.example.wichtly.data.local.relation.ParticipantWithWishlistEntity
 import com.example.wichtly.domain.model.group.DrawType
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.LocalDate
 
 /**
- * Tests für das Lesemodell der Auslosung: Room liefert Relationen unsortiert, der Mapper sortiert.
+ * Tests for the draw read model: Room returns relations unsorted, the mapper sorts them.
  */
 class DrawMapperTest {
 

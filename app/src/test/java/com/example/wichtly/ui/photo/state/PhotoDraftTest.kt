@@ -5,6 +5,7 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.model.photo.PhotoOwnerType
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
+import java.io.File
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -12,17 +13,16 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.io.File
 
 /**
- * Unit-Tests für [PhotoDraft]: welche Fotos beim Ersetzen, Verwerfen und Speichern gelöscht werden
- * und welche liegen bleiben. Die ViewModel-Tests prüfen dieselben Regeln zusätzlich im Zusammenspiel.
+ * Unit tests for [PhotoDraft]: which photos are deleted when replacing, discarding and saving,
+ * and which ones stay. The ViewModel tests check the same rules again in combination.
  */
 class PhotoDraftTest {
 
     private val committed = "photos/groups/committed.jpg"
 
-    // Der Test-Scope selbst (nicht backgroundScope), damit advanceUntilIdle() die Löschvorgänge von discard ausführt
+    // The test scope itself (not backgroundScope), so advanceUntilIdle() runs the deletes of discard
     private fun TestScope.draft(photoRepo: FakePhotoRepository, handle: SavedStateHandle = SavedStateHandle()) =
         PhotoDraft(photoRepo, PhotoOwnerType.GROUPS, this, handle, "committed", "PhotoDraftTest")
 

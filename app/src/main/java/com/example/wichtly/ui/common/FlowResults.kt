@@ -7,19 +7,18 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 /**
- * Macht aus einem Lese-Flow einen Flow von [Result]: Daten als success, ein Fehler als failure.
- * Der Fehler wird als ERROR geloggt, der Flow endet danach wie zuvor.
+ * Turns a read Flow into a Flow of [Result]: data as success, an error as failure.
+ * The error is logged as ERROR; the Flow then completes as before.
  *
- * Warum: Der Ladefehler gehört zum Stand des Flows. Als Flag im lokalen Zustand blieb er stehen,
- * auch wenn der Screen später erneut abonniert und die Daten diesmal geladen werden.
+ * The loading error belongs to the state of the Flow. As a flag in the local state it would stay
+ * set, even when the screen subscribes again later and the data loads this time.
  *
- * @param tag Log-Tag des ViewModels.
- * @param logMessage Beschreibung für das Log (ohne personenbezogene Daten).
+ * @param tag log tag of the ViewModel.
+ * @param logMessage description for the log (without personal data).
  */
-fun <T> Flow<T>.asResult(tag: String, logMessage: String): Flow<Result<T>> =
-    map { Result.success(it) }
-        .catch { e ->
-            if (e is CancellationException) throw e
-            AppLog.e(tag, logMessage, e)
-            emit(Result.failure(e))
-        }
+fun <T> Flow<T>.asResult(tag: String, logMessage: String): Flow<Result<T>> = map { Result.success(it) }
+    .catch { e ->
+        if (e is CancellationException) throw e
+        AppLog.e(tag, logMessage, e)
+        emit(Result.failure(e))
+    }

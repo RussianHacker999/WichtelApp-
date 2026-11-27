@@ -5,16 +5,16 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import java.io.File
 
 /**
- * UI State der Gruppenliste.
+ * UI state of the group list.
  *
- * @property isLoading Die Gruppen werden noch geladen.
- * @property groups Alle Gruppen in der Reihenfolge der Datenbank (nach Wichteltag). Eine leere Liste ist
- *   ein gültiger Zustand (noch keine Gruppe angelegt).
- * @property photoFiles Fotodatei je Gruppen-ID; nur für Gruppen, deren Foto auf dem Gerät existiert.
- * @property selectedGroupId Zuletzt angetippte Gruppenkarte; der Button "Losen" öffnet deren Vorbereitung.
- *   Wird die Gruppe gelöscht, ist sie nicht mehr ausgewählt.
- * @property selectedDrawDayPassed Der Wichteltag der ausgewählten Gruppe ist vorbei; "Losen" ist gesperrt.
- * @property errorMessage Ladefehler als String-Ressource (null = kein Fehler).
+ * @property isLoading the groups are still being loaded.
+ * @property groups all groups in database order (by draw day). An empty list is a valid state
+ *   (no group created yet).
+ * @property photoFiles photo file per group ID; only for groups whose photo exists on the device.
+ * @property selectedGroupId the last tapped group card; the "Draw" button opens its preparation.
+ *   If the group is deleted, it is no longer selected.
+ * @property selectedDrawDayPassed the draw day of the selected group is over; "Draw" is disabled.
+ * @property errorMessage loading error as a string resource (null = no error).
  */
 data class GroupsUiState(
     val isLoading: Boolean = true,

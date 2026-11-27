@@ -4,31 +4,20 @@ import androidx.annotation.StringRes
 import java.time.LocalDateTime
 
 /**
- * UI-Modell für einen einzelnen Karteneintrag in der Auslosungshistorie.
+ * UI model of a single card in the draw history.
  *
- * @property id Eindeutige ID des Auslosungsdurchlaufs.
- * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
+ * @property drawnAt date and time of the draw (local time zone).
  */
-data class DrawHistoryItemUiModel(
-    val id: String,
-    val drawnAt: LocalDateTime,
-)
+data class DrawHistoryItemUiModel(val id: String, val drawnAt: LocalDateTime)
 
 /**
- * UI State für die Auslosungshistorie einer Wichtelgruppe (DrawHistoryScreen).
+ * UI state of the draw history of a gift group (DrawHistoryScreen).
  *
- * Erklärung der Zustände:
- * - `isLoading == true`: Die früheren Auslosungsdurchläufe werden aktuell noch aus der Datenbank geladen.
- * - `notFound == true`: Die Wichtelgruppe existiert nicht in der Datenbank oder wurde gelöscht.
- * - `draws`: Eine leere Liste (`draws.isEmpty()`) ist ein VOLLSTÄNDIG GÜLTIGER ZUSTAND
- *   (für diese Gruppe wurde bisher noch keine Auslosung durchgeführt) und stellt KEINEN Fehler dar!
- * - `errorMessage`: Enthält eine Fehlermeldung für Ladefehler auf Screen-Ebene.
- *
- * @property isLoading Zeigt an, ob die Historiendaten geladen werden.
- * @property groupName Name der Wichtelgruppe für den Titel (null, falls geladen wird oder Gruppe fehlt).
- * @property notFound Zeigt an, dass die Wichtelgruppe nicht gefunden wurde.
- * @property draws Liste aller bisher durchgeführten Auslosungsdurchläufe dieser Gruppe.
- * @property errorMessage String-Ressource der Fehlermeldung auf Screen-Ebene für Ladefehler.
+ * @property isLoading the history data is being loaded.
+ * @property groupName name of the gift group for the title (null while loading or if the group is missing).
+ * @property notFound the gift group does not exist or was deleted.
+ * @property draws all draws of this group so far. An empty list is a valid state (no draw yet), not an error.
+ * @property errorMessage string resource of the loading error at screen level.
  */
 data class DrawHistoryUiState(
     val isLoading: Boolean = true,

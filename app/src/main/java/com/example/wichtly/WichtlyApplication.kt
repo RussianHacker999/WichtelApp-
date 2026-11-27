@@ -13,19 +13,19 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
- * Einstiegspunkt des Prozesses: richtet Logging und den [AppContainer] ein und räumt verwaiste Fotos auf.
+ * Entry point of the process: sets up logging and the [AppContainer] and cleans up orphaned photos.
  */
 class WichtlyApplication : Application() {
     lateinit var container: AppContainer
         private set
 
-    // Lebt so lange wie der Prozess; nur für kurze Hintergrundaufgaben beim Start
+    // Lives as long as the process; only for short background tasks at start
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     override fun onCreate() {
         super.onCreate()
 
-        // Logging zuerst einrichten, damit auch der Aufbau des Containers geloggt werden kann.
-        // Debug-Builds (debuggable) zeigen alles ab DEBUG, Release-Builds erst ab INFO.
+        // Set up logging first, so that building the container can be logged as well.
+        // Debug builds (debuggable) show everything from DEBUG on, release builds from INFO on.
         val isDebuggable = (applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         AppLog.install(AndroidLogSink(minLevel = if (isDebuggable) LogLevel.DEBUG else LogLevel.INFO))
         AppLog.i(TAG, "App started (debuggable=$isDebuggable)")
@@ -39,7 +39,7 @@ class WichtlyApplication : Application() {
             try {
                 container.cleanUpOrphanPhotosUseCase()
             } catch (e: Exception) {
-                // Aufräumen ist optional; ein Fehler darf den Start nicht stören
+                // Cleaning up is optional; a failure must not disturb the start
                 AppLog.w(TAG, "Orphan photo cleanup failed", e)
             }
         }

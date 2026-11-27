@@ -3,16 +3,9 @@ package com.example.wichtly.domain.model.participant
 import java.util.UUID
 
 /**
- * A participant in a Secret Santa event.
+ * A participant of a gift group.
  *
- * @param id the unique identifier for the participant
- * @param groupId the unique identifier for the group the participant belongs to
- * @param name the name of the participant
- * @param photoPath the path to the photo of the participant (null is valid)
+ * @property groupId ID of the group the participant belongs to.
+ * @property photoPath path relative to the app's files directory; null if the participant has no photo.
  */
-data class Participant(
-    val id: String = UUID.randomUUID().toString(),
-    val groupId: String,
-    val name: String,
-    val photoPath: String? = null
-)
+data class Participant(val id: String = UUID.randomUUID().toString(), val groupId: String, val name: String, val photoPath: String? = null)

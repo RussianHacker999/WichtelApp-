@@ -9,18 +9,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [GiftGroupRepository] zu Testzwecken.
- * An in-memory fake for [GiftGroupRepository] for testing purposes.
+ * In-memory fake of [GiftGroupRepository] for tests.
  *
  * Pure persistence like the real repository (validation happens in SaveGiftGroupUseCase).
- * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
- * and helper methods for directly adding/removing test data.
+ * Supports test switches such as [shouldThrow] for simulated exceptions and [failFlows] for failing reads
+ * (Flows and get… methods), counters for writes, and helpers to add or remove test data directly.
  */
 class FakeGiftGroupRepository : GiftGroupRepository {
 
     private val groupsFlow = MutableStateFlow<List<GiftGroup>>(emptyList())
 
-    // Test-Schalter und Zähler
+    // Test switches and counters
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
@@ -32,20 +31,20 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         private set
 
     /**
-     * Sets the list of gift groups in memory directly.     */
-
+     * Sets the list of gift groups in memory directly.
+     */
     fun setGroups(groups: List<GiftGroup>) {
         groupsFlow.value = groups
     }
 
     /**
-     * Removes a gift group from memory directly (simulates it disappearing in the background).     */
-
+     * Removes a gift group from memory directly (simulates it disappearing in the background).
+     */
     fun removeGroup(id: String) {
         groupsFlow.value = groupsFlow.value.filter { it.id != id }
     }
 
-    // failFlows wird erst beim Sammeln geprüft: so lässt sich ein erneutes Abonnieren nach einem Fehler testen
+    // failFlows is checked only when collecting, so resubscribing after an error can be tested
     override fun observeGiftGroups(): Flow<List<GiftGroup>> = flow {
         if (failFlows) throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppen")
         emitAll(groupsFlow)
@@ -68,8 +67,7 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         return groupsFlow.value.find { it.id == id }
     }
 
-    override suspend fun getAllPhotoPaths(): List<String> =
-        groupsFlow.value.mapNotNull { it.photoPath }
+    override suspend fun getAllPhotoPaths(): List<String> = groupsFlow.value.mapNotNull { it.photoPath }
 
     override suspend fun insertGiftGroup(group: GiftGroup) {
         insertCalls++

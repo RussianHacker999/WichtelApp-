@@ -9,19 +9,19 @@ import com.example.wichtly.logging.AppLog
 private const val TAG = "DeleteParticipantUseCase"
 
 /**
- * Löscht einen Teilnehmer samt Wunschliste und Foto.
+ * Deletes a participant together with their wishlist and photo.
  *
- * Die Wunschliste löscht die Datenbank per Fremdschlüssel (CASCADE). Gespeicherte Auslosungen bleiben
- * unberührt, weil sie Namen und Wünsche als Snapshot ohne Fremdschlüssel auf den Teilnehmer halten.
+ * The database deletes the wishlist via foreign key (CASCADE). Saved draws stay unchanged, because
+ * they keep names and wishes as a snapshot without a foreign key to the participant.
  *
- * Gleiche Reihenfolge wie [DeleteGiftGroupUseCase]: erst die Datenbank, dann die Datei. Der Fotopfad
- * wird aus der Datenbank gelesen, nicht aus dem Bildschirmzustand, damit immer das aktuell gespeicherte
- * Foto gelöscht wird.
+ * Same order as [DeleteGiftGroupUseCase]: first the database, then the file. The photo path is
+ * read from the database, not from the screen state, so the photo that is currently saved is
+ * always the one deleted.
  */
-class DeleteParticipantUseCase(
-    private val participantRepository: ParticipantRepository,
-    private val photoRepository: PhotoRepository,
-) {
+class DeleteParticipantUseCase(private val participantRepository: ParticipantRepository, private val photoRepository: PhotoRepository) {
+    /**
+     * @return [DeleteResult.Deleted], or [DeleteResult.NotFound] if the participant does not exist (any more).
+     */
     suspend operator fun invoke(participantId: String): DeleteResult {
         AppLog.d(TAG) { "Deleting participant $participantId" }
         val participant = participantRepository.getParticipantById(participantId)
@@ -33,7 +33,7 @@ class DeleteParticipantUseCase(
         participantRepository.deleteParticipant(participantId)
         AppLog.i(TAG, "Participant $participantId deleted")
 
-        // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos
+        // Best effort and not cancellable: a leftover file is harmless
         photoRepository.deletePhotoQuietly(participant.photoPath, TAG)
         return DeleteResult.Deleted
     }

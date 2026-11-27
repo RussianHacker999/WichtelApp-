@@ -3,12 +3,12 @@ package com.example.wichtly.logging
 import android.util.Log
 
 /**
- * Schreibt die Ausgaben von [AppLog] nach Logcat.
+ * Writes the output of [AppLog] to Logcat.
  *
- * Jedes Tag erhält das Präfix "Wichtly/", damit sich alle App-Ausgaben in Logcat mit einem
- * Filter (tag:Wichtly) finden lassen.
+ * Every tag gets the prefix "Wichtly/", so all output of the app can be found in Logcat with one
+ * filter (tag:Wichtly).
  *
- * @param minLevel In Debug-Builds DEBUG, in Release-Builds INFO (siehe WichtlyApplication).
+ * @param minLevel DEBUG in debug builds, INFO in release builds (see WichtlyApplication).
  */
 class AndroidLogSink(override val minLevel: LogLevel) : LogSink {
 

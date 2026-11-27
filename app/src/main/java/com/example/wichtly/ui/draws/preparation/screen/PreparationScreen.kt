@@ -47,20 +47,13 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
 /**
- * Zustandsloser Screen zur Kontrolle vor dem Start der Auslosung.
+ * Stateless screen for checking everything before the draw starts.
  *
- * @param state Aktueller Zustand der Vorbereitung.
- * @param onBack "Zurück" (Pfeil in der Top-Leiste und Button in der Aktionsleiste).
- * @param onStartDrawClick Button "Jetzt losen".
- * @param modifier Äußerer Modifier.
+ * @param onBack "Back" (arrow in the top bar and button in the action bar).
+ * @param onStartDrawClick the "Draw now" button.
  */
 @Composable
-fun PreparationScreen(
-    state: PreparationUiState,
-    onBack: () -> Unit,
-    onStartDrawClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun PreparationScreen(state: PreparationUiState, onBack: () -> Unit, onStartDrawClick: () -> Unit, modifier: Modifier = Modifier) {
     val group = state.group
     val showContent = !state.isLoading && state.errorMessage == null && !state.notFound && group != null
     WichtlyScaffold(
@@ -68,10 +61,10 @@ fun PreparationScreen(
         topBar = { WichtlyTopBar(title = stringResource(R.string.preparation_title), onBack = onBack) },
         bottomBar = {
             if (showContent) {
-                // Die unteren Aktionen bleiben beim Scrollen sichtbar.
+                // The bottom actions stay visible while scrolling.
                 BottomActionBar {
                     SecondaryButton(text = stringResource(R.string.common_back), onClick = onBack, modifier = Modifier.weight(1f))
-                    // Der goldene Button "Jetzt losen" ist sichtbar, sobald der Inhalt geladen ist, aber nur aktiv, wenn alle Voraussetzungen erfüllt sind.
+                    // The gold "Draw now" button is visible once the content is loaded, but enabled only if all preconditions are met.
                     PrimaryButton(
                         text = stringResource(if (state.isDrawing) R.string.preparation_drawing else R.string.preparation_draw_now),
                         onClick = onStartDrawClick,
@@ -86,6 +79,7 @@ fun PreparationScreen(
     ) { innerPadding ->
         when {
             state.isLoading -> LoadingState(text = stringResource(R.string.common_loading_unpacking))
+
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -94,6 +88,7 @@ fun PreparationScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
+
             state.notFound || group == null -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
@@ -102,6 +97,7 @@ fun PreparationScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
+
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = screenContentPadding(innerPadding),
@@ -119,15 +115,16 @@ fun PreparationScreen(
                         rows = listOf(
                             stringResource(R.string.common_group) to group.name,
                             stringResource(R.string.preparation_row_draw_type) to stringResource(group.drawType.labelRes()),
-                            stringResource(R.string.preparation_row_budget) to stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
+                            stringResource(R.string.preparation_row_budget) to
+                                stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
                             stringResource(R.string.preparation_row_date) to formatDateForInput(group.drawDay),
                             stringResource(R.string.common_participants) to state.participants.size.toString(),
-                        )
+                        ),
                     )
                 }
                 item {
                     if (state.drawError != null) {
-                        // Aktionsfehler: Inhalt und Button bleiben, damit erneut gelost werden kann
+                        // Draw error: content and button stay, so the user can try again
                         StatusLine(
                             icon = Icons.Outlined.ErrorOutline,
                             text = stringResource(state.drawError, DrawRules.MIN_PARTICIPANTS),
@@ -152,7 +149,6 @@ fun PreparationScreen(
                     }
                 }
                 item { SectionHeader(title = stringResource(R.string.common_participants), count = state.participants.size) }
-                // Die Liste kommt über das PreparationViewModel aus dem ParticipantRepository.
                 items(state.participants, key = { it.id }) { participant ->
                     ListItemCard(
                         title = participant.name,
@@ -172,12 +168,11 @@ private fun StatusLine(icon: ImageVector, text: String, color: Color) {
     }
 }
 
-// =============================================================================
-// PREVIEWS
-// =============================================================================
-
-private val previewGroup = GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24), drawType = DrawType.NORMAL)
-private val previewParticipants = listOf("Mara", "Jonas", "Leonie", "Emil").mapIndexed { i, n -> Participant(id = "p$i", groupId = "g1", name = n) }
+private val previewGroup =
+    GiftGroup(id = "g1", name = "Familie Wichteln", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24), drawType = DrawType.NORMAL)
+private val previewParticipants = listOf("Mara", "Jonas", "Leonie", "Emil").mapIndexed { i, n ->
+    Participant(id = "p$i", groupId = "g1", name = n)
+}
 
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -185,7 +180,8 @@ private fun PreparationScreenReadyPreview() {
     WichtlyTheme {
         PreparationScreen(
             state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants, canStartDraw = true),
-            onBack = {}, onStartDrawClick = {},
+            onBack = {},
+            onStartDrawClick = {},
         )
     }
 }
@@ -195,8 +191,14 @@ private fun PreparationScreenReadyPreview() {
 private fun PreparationScreenTooFewPreview() {
     WichtlyTheme {
         PreparationScreen(
-            state = PreparationUiState(isLoading = false, group = previewGroup, participants = previewParticipants.take(2), canStartDraw = false),
-            onBack = {}, onStartDrawClick = {},
+            state = PreparationUiState(
+                isLoading = false,
+                group = previewGroup,
+                participants = previewParticipants.take(2),
+                canStartDraw = false,
+            ),
+            onBack = {},
+            onStartDrawClick = {},
         )
     }
 }

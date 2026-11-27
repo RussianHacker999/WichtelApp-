@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * An in-memory fake for [WishlistRepository] for testing purposes.
+ * In-memory fake of [WishlistRepository] for tests.
  *
  * Pure persistence like the real repository (validation happens in SaveWishlistItemUseCase).
- * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
- * and helper methods for directly adding wishlist items.
+ * Supports test switches such as [shouldThrow] for simulated exceptions and [failFlows] for failing reads
+ * (Flows and get… methods), counters for writes, and helpers to add wishlist entries directly.
  */
 class FakeWishlistRepository : WishlistRepository {
 
@@ -30,7 +30,8 @@ class FakeWishlistRepository : WishlistRepository {
         private set
 
     /**
-     * Sets the list of wishlist items in memory directly.     */
+     * Sets the list of wishlist entries in memory directly.
+     */
     fun setItems(items: List<WishlistItem>) {
         itemsFlow.value = items
     }

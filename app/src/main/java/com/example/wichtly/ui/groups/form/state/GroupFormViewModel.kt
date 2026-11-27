@@ -20,9 +20,11 @@ import com.example.wichtly.domain.usecase.GiftGroupInput
 import com.example.wichtly.domain.usecase.SaveGiftGroupUseCase
 import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.saveErrorMessage
+import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import com.example.wichtly.ui.photo.state.PhotoDraft
-import com.example.wichtly.ui.groups.form.screen.GroupFormUiState
+import java.io.File
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,44 +34,40 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import java.time.LocalDate
 
 private const val TAG = "GroupFormViewModel"
 
 /**
- * ViewModel für das Formular zum Erstellen und Bearbeiten einer Wichtelgruppe.
+ * ViewModel of the form for creating and editing a gift group.
  *
- * Warum MVVM & Clean Architecture?
- * Das ViewModel verwaltet den UI-Zustand ([GroupFormUiState]) entkoppelt von der UI.
- * Es nimmt Benutzereingaben entgegen, gibt sie unverändert an den [SaveGiftGroupUseCase] weiter
- * und übersetzt dessen Fehler in Texte. Geprüft wird ausschließlich im Use Case.
+ * Holds the [GroupFormUiState], takes user input, passes it unchanged to [SaveGiftGroupUseCase]
+ * and translates its errors into texts. Validation happens only in the use case.
  *
- * @param groupId ID der zu bearbeitenden Gruppe (null = Erstellen-Modus, sonst Bearbeiten-Modus).
- * @param repository Liest die zu bearbeitende Gruppe.
- * @param photoRepository Speichert, löst auf und löscht das Gruppenfoto.
- * @param saveGiftGroup Prüft und speichert die Gruppe.
- * @param savedStateHandle Hält die Eingaben, auch wenn Android den Prozess im Hintergrund beendet.
+ * @param groupId ID of the group to edit (null = create mode, otherwise edit mode).
+ * @param repository reads the group to edit.
+ * @param photoRepository saves, resolves and deletes the group photo.
+ * @param saveGiftGroup validates and saves the group.
+ * @param today supplies today's date (has the draw day passed?); replaceable in tests.
+ * @param savedStateHandle keeps the input, even if Android kills the process in the background.
  */
 class GroupFormViewModel(
     private val groupId: String?,
     private val repository: GiftGroupRepository,
     private val photoRepository: PhotoRepository,
     private val saveGiftGroup: SaveGiftGroupUseCase,
-    // liefert das heutige Datum (Wichteltag vorbei?); in Tests ersetzbar
     private val today: () -> LocalDate = { LocalDate.now() },
     private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
-    // Eingaben aus einem früheren Prozess; null, wenn das Formular frisch geöffnet wurde.
-    // Wird vor dem Start der Sicherung gelesen, damit sie nicht überschrieben werden.
+    // Input from an earlier process; null if the form was freshly opened.
+    // Read before the autosave starts, so it is not overwritten.
     private val restoredInputs: FormInputs? = FormInputs.readFrom(savedStateHandle)
 
-    // Geladene Gruppe im Bearbeiten-Modus; null, solange (noch) nichts geladen werden konnte
+    // Loaded group in edit mode; null as long as nothing could be loaded (yet)
     private var originalGroup: GiftGroup? = null
 
-    // Gruppenfoto als Entwurf: merkt sich das gespeicherte Foto und räumt ungespeicherte Fotos beim
-    // Ersetzen, Entfernen oder Verwerfen auf (dieselbe Klasse wie beim Teilnehmerfoto).
+    // Group photo as a draft: remembers the saved photo and cleans up unsaved photos when they are
+    // replaced, removed or discarded (the same class as for the participant photo).
     private val photoDraft = PhotoDraft(
         photoRepository = photoRepository,
         ownerType = PhotoOwnerType.GROUPS,
@@ -83,12 +81,12 @@ class GroupFormViewModel(
         GroupFormUiState(
             isEditMode = groupId != null,
             isLoading = groupId != null,
-        ).let { initial -> if (groupId == null) restoredInputs?.applyTo(initial) ?: initial else initial }
+        ).let { initial -> if (groupId == null) restoredInputs?.applyTo(initial) ?: initial else initial },
     )
     val uiState: StateFlow<GroupFormUiState> = _uiState.asStateFlow()
 
     init {
-        // Im Bearbeiten-Modus wird die bestehende Gruppe genau einmal geladen
+        // In edit mode the existing group is loaded exactly once
         if (groupId != null) {
             loadGroup(groupId)
         } else if (restoredInputs?.photoPath != null) {
@@ -97,8 +95,8 @@ class GroupFormViewModel(
                 _uiState.update { it.copy(photo = it.photo.copy(file = file)) }
             }
         }
-        // Eingaben laufend sichern, sobald das Formular steht (nicht während des Ladens). Nach einem Ladefehler
-        // nicht: Die leeren Felder würden sonst nach einem Prozesstod die Werte aus der Datenbank überschreiben.
+        // Keep saving the input once the form is ready (not while loading). Not after a loading error:
+        // the empty fields would otherwise overwrite the database values after a process death.
         _uiState
             .filter { !it.isLoading && !it.loadFailed }
             .onEach { FormInputs.of(it).writeTo(savedStateHandle) }
@@ -106,7 +104,7 @@ class GroupFormViewModel(
     }
 
     /**
-     * Lädt die Wichtelgruppe zum Bearbeiten genau einmal (repository.getGiftGroupById), ohne sie danach zu beobachten.
+     * Loads the gift group for editing exactly once (repository.getGiftGroupById) without observing it afterwards.
      */
     private fun loadGroup(id: String) {
         viewModelScope.launch {
@@ -120,7 +118,7 @@ class GroupFormViewModel(
                     originalGroup = loadedGroup
                     photoDraft.start(committedPath = loadedGroup.photoPath)
                     val fromDatabase = FormInputs.of(loadedGroup)
-                    // Nach einem Prozesstod gewinnen die zuletzt eingegebenen Werte
+                    // After a process death the last entered values win
                     val inputs = restoredInputs ?: fromDatabase
                     val photoFile = photoRepository.getFileForRelativePath(inputs.photoPath)
                     _uiState.update {
@@ -142,67 +140,60 @@ class GroupFormViewModel(
         }
     }
 
-    // =========================================================================
-    // EINGABE-CALLBACKS
-    // =========================================================================
-
     /**
-     * Setzt den neuen Gruppennamen und löscht den Fehler des Namensfeldes.
+     * Sets the new group name and clears the error of the name field.
      */
     fun onNameChange(newName: String) {
         _uiState.update { it.copy(name = newName, nameError = null) }
     }
 
     /**
-     * Setzt das neue Budget und löscht den Fehler des Budgetfeldes.
+     * Sets the new budget and clears the error of the budget field.
      */
     fun onBudgetChange(newBudget: String) {
         _uiState.update { it.copy(budget = newBudget, budgetError = null) }
     }
 
     /**
-     * Setzt das neue Auslosungsdatum und löscht den Fehler des Datumsfeldes.
+     * Sets the new draw day and clears the error of the date field.
      */
     fun onDrawDayChange(newDrawDay: String) {
         _uiState.update { it.copy(drawDay = newDrawDay, drawDayError = null) }
     }
 
     /**
-     * Setzt savedGroupId zurück, nachdem die Route das Signal verarbeitet hat.
-     * Warum: savedGroupId lebt im ViewModel und überlebt die Rotation. Ohne Zurücksetzen
-     * würde die Route nach einer Drehung onSaved ein zweites Mal auslösen.
+     * Resets savedGroupId after the route has handled the signal.
+     *
+     * savedGroupId lives in the ViewModel and survives a rotation; without the reset the route
+     * would trigger onSaved a second time after rotating.
      */
     fun onSavedHandled() {
         _uiState.update { it.copy(savedGroupId = null) }
     }
 
     /**
-     * Setzt den ausgewählten Wichtel-Typ.
+     * Sets the selected draw type.
      */
     fun onDrawTypeChange(newDrawType: DrawType) {
         _uiState.update { it.copy(drawType = newDrawType) }
     }
 
-    // =========================================================================
-    // SPEICHERN
-    // =========================================================================
-
     /**
-     * Löst den Speichervorgang aus.
+     * Starts saving.
      *
-     * Ablauf:
-     * 1. Synchroner Doppel-Submit-Schutz vor dem Starten der Coroutine.
-     * 2. Rohe Eingaben an den [SaveGiftGroupUseCase] übergeben. Er parst Budget und Datum, prüft alle
-     *    Regeln in einem Durchlauf und speichert nur bei fehlerfreiem Ergebnis.
-     * 3. Verarbeiten von Success (savedGroupId setzen), ValidationError (Fehlerübersetzung) und Exceptions.
+     * Steps:
+     * 1. Synchronous guard against double submits before the coroutine starts.
+     * 2. Pass the raw input to [SaveGiftGroupUseCase]. It parses budget and date, checks all rules
+     *    in one pass and saves only if there are no errors.
+     * 3. Handle Success (set savedGroupId), ValidationError (translate errors) and exceptions.
      */
     fun onSaveClick() {
         val currentState = _uiState.value
 
-        // Doppel-Submit-Schutz, synchron vor dem Start der Coroutine
+        // Guard against double submits, synchronously before the coroutine starts
         if (currentState.isSaving) return
 
-        // Bearbeiten ohne geladene Gruppe (Ladefehler): nicht speichern, Grund nennen
+        // Editing without a loaded group (loading error): do not save, give the reason
         if (groupId != null && originalGroup == null) {
             _uiState.update { it.copy(generalError = R.string.error_group_not_loaded_cannot_save) }
             return
@@ -217,7 +208,7 @@ class GroupFormViewModel(
             budget = currentState.budget,
             drawDay = currentState.drawDay,
             drawType = currentState.drawType,
-            // Foto neu, geändert oder entfernt: der aktuelle Stand des Formulars wird gespeichert
+            // Photo new, changed or removed: the current state of the form is saved
             photoPath = currentState.photo.path,
         )
 
@@ -225,10 +216,11 @@ class GroupFormViewModel(
             try {
                 when (val result = saveGiftGroup(groupId, input)) {
                     is GiftGroupResult.Success -> {
-                        // Ein ersetztes oder entferntes altes Foto erst nach erfolgreichem Speichern löschen
+                        // Delete a replaced or removed old photo only after a successful save
                         photoDraft.commit(savedPath = currentState.photo.path)
                         _uiState.update { it.copy(isSaving = false, savedGroupId = result.giftGroup.id) }
                     }
+
                     is GiftGroupResult.ValidationError -> {
                         _uiState.update { state ->
                             applyDomainValidationErrors(state, result.errors).copy(isSaving = false)
@@ -244,18 +236,14 @@ class GroupFormViewModel(
         }
     }
 
-    // =========================================================================
-    // FOTO (gleicher Ablauf wie beim Teilnehmerfoto; Dateien verwaltet der PhotoDraft)
-    // =========================================================================
-
-    /** Ändert das Fotofeld des Formulars. */
+    /** Changes the photo field of the form. */
     private fun updatePhoto(transform: (PhotoFieldUiState) -> PhotoFieldUiState) {
         _uiState.update { it.copy(photo = transform(it.photo)) }
     }
 
     /**
-     * Übernimmt ein neu aufgenommenes Foto ins Formular. Es wird sofort in den App-Speicher verschoben (notfalls kopiert),
-     * aber erst beim Speichern der Gruppe in der Datenbank eingetragen.
+     * Takes a newly captured photo into the form. It is moved into app storage right away (copied
+     * if necessary), but entered in the database only when the group is saved.
      */
     fun onPhotoCaptured(tempFile: File) {
         viewModelScope.launch {
@@ -264,17 +252,17 @@ class GroupFormViewModel(
         }
     }
 
-    /** Entfernt das Foto aus dem Formular. Ein gespeichertes Foto wird erst beim Speichern gelöscht. */
+    /** Removes the photo from the form. A saved photo is deleted only when saving. */
     fun onRemovePhoto() {
         photoDraft.discard(_uiState.value.photo.path)
         updatePhoto { it.withoutPhoto() }
     }
 
     /**
-     * Formular wird ohne Speichern verlassen: ein neu aufgenommenes, noch nicht gespeichertes Foto löschen.
+     * The form is left without saving: delete a newly captured photo that has not been saved yet.
      */
     fun onDiscard() {
-        // Während des Speicherns gehört das Foto womöglich schon zur gespeicherten Gruppe
+        // While saving, the photo may already belong to the saved group
         if (_uiState.value.isSaving) return
         photoDraft.discard(_uiState.value.photo.path)
     }
@@ -283,8 +271,9 @@ class GroupFormViewModel(
         internal const val KEY_COMMITTED_PHOTO = "group_form_committed_photo"
 
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
-         * @param groupId null = neue Gruppe, sonst die zu bearbeitende Gruppe.
+         * Creates the ViewModel with its dependencies from the [AppContainer].
+         *
+         * @param groupId null = new group, otherwise the group to edit.
          */
         fun factory(container: AppContainer, groupId: String?): ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -299,4 +288,3 @@ class GroupFormViewModel(
         }
     }
 }
-

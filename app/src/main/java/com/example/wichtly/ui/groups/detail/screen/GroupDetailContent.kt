@@ -45,14 +45,11 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 import java.time.LocalDate
 
-
 /**
- * UI-Darstellung für den Inhalt der Gruppen-Detailansicht: Seitenkopf, Kennzahlen, Teilnehmerliste
- * (mit "Hinzufügen" im Abschnittskopf) und der Bereich "Historie".
- * Gelost wird ausschließlich über den Button "Losen" in der Aktionsleiste.
+ * Content of the group detail screen: page header, metrics, participant list
+ * (with "Add" in the section header) and the "History" section.
  *
- * @param onAddParticipantClick Teilnehmer-Dialog zum Hinzufügen öffnen.
- * @param onHistoryClick Historie öffnen.
+ * Drawing happens only through the "Draw" button in the action bar.
  */
 @Composable
 internal fun GroupDetailContent(
@@ -72,39 +69,40 @@ internal fun GroupDetailContent(
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         item {
-            // 1. Eyebrow & Titel (Gruppenname) im Seitenkopf
+            // 1. Page header with eyebrow and title (group name)
             PageHeader(
                 eyebrow = stringResource(R.string.common_group),
                 title = group.name,
-                // Teil des Seitenkopfs: Stammdaten der Gruppe (Wichteltag und Wichtelart) als Zeile
-                // (das Budget steht in den Kennzahlen darunter, "Gruppe bearbeiten" im ⋮-Menü der Top-Leiste)
+                // Group details (draw day and draw type) as one row; the budget is in the metrics below,
+                // "Edit group" is in the ⋮ menu of the top bar
                 meta = {
                     MetaRow(
                         items = listOf(
                             MetaItem(Icons.Filled.Event, formatDateForInput(group.drawDay)),
                             MetaItem(Icons.Filled.Redeem, stringResource(group.drawType.labelRes())),
-                        )
+                        ),
                     )
                 },
             )
         }
         item {
-            // 2. Kennzahlen (2 Stat-Karten: Teilnehmer und Budget)
+            // 2. Metrics: participants and budget
             Row(horizontalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                // Stat 1: Teilnehmer
-                StatTile(value = participants.size.toString(), label = stringResource(R.string.common_participants), modifier = Modifier.weight(1f))
-                // Stat 2: Budget
+                StatTile(
+                    value = participants.size.toString(),
+                    label = stringResource(R.string.common_participants),
+                    modifier = Modifier.weight(1f),
+                )
                 StatTile(
                     value = stringResource(R.string.common_amount_euro, formatCentsForInput(group.budgetCents)),
                     label = stringResource(R.string.group_detail_budget_label),
                     modifier = Modifier.weight(1.7f),
                 )
-                // keine dritte Karte für Durchläufe: die gespeicherten Durchläufe stehen in der Auslosungshistorie
+                // No third tile for draws: saved draws are listed in the draw history
             }
         }
 
-        // 3. Kopfbereich des Teilnehmer-Abschnitts
-        // Kopfbereich für den Teilnehmer-Abschnitt mit Anzahl.
+        // 3. Header of the participant section with the count
         item {
             SectionHeader(
                 title = stringResource(R.string.common_participants),
@@ -112,10 +110,9 @@ internal fun GroupDetailContent(
                 action = { SectionActionButton(text = stringResource(R.string.group_detail_add), onClick = onAddParticipantClick) },
             )
         }
-        // 4. Hinweis bei leerer Liste ODER Teilnehmerkarten mit 3-Punkte-Menü
+        // 4. Hint for an empty list, or participant cards with the ⋮ menu
         if (participants.isEmpty()) {
             item {
-                // Hinweisansicht, wenn die Gruppe noch keine Teilnehmer hat.
                 MessageState(
                     title = stringResource(R.string.group_detail_empty_title),
                     text = stringResource(R.string.group_detail_empty_text),
@@ -126,25 +123,22 @@ internal fun GroupDetailContent(
             }
         } else {
             items(participants, key = { it.id }) { participant ->
-                // Einzelne Karte für ein Gruppenmitglied in der Teilnehmerliste.
-                // Zeigt entweder das Teilnehmerfoto (über [PhotoThumbnail]) oder einen Avatar mit den Namensinitialen,
-                // sowie das Drei-Punkte-Aktionsmenü (⋮) für Bearbeiten & Löschen.
-                // Die Wunschliste öffnet sich ausschließlich per Tippen auf die Karte (nur EIN Weg).
+                // The wishlist opens only by tapping the card (exactly one way); edit and delete are in the ⋮ menu.
                 ListItemCard(
                     title = participant.name,
                     subtitle = stringResource(R.string.group_detail_open_wishlist),
-                    // Avatar mit Foto oder Initialen
-                    // Die Initialen (bis zu 2 Buchstaben) berechnet initialsOf() in ui/components.
                     leading = { InitialsAvatar(name = participant.name, photoFile = participantPhotoFiles[participant.id]) },
-                    // Klick auf die ganze Karte öffnet die Wunschliste
                     onClick = { onWishlistClick(participant.id) },
                     trailing = {
-                        // Drei-Punkte-Aktionsmenü (⋮)
                         ItemMenu(
                             contentDescription = stringResource(R.string.group_detail_participant_actions, participant.name),
                             actions = listOf(
-                                MenuAction(stringResource(R.string.participant_edit), Icons.Filled.Edit, { onEditParticipantClick(participant.id) }),
-                                MenuAction(stringResource(R.string.participant_delete), Icons.Filled.Delete, { onDeleteParticipantClick(participant.id) }, destructive = true),
+                                MenuAction(stringResource(R.string.participant_edit), Icons.Filled.Edit, {
+                                    onEditParticipantClick(participant.id)
+                                }),
+                                MenuAction(stringResource(R.string.participant_delete), Icons.Filled.Delete, {
+                                    onDeleteParticipantClick(participant.id)
+                                }, destructive = true),
                             ),
                         )
                     },
@@ -152,10 +146,9 @@ internal fun GroupDetailContent(
             }
         }
 
-        // 5. Historie-Abschnitt (gelost wird nur über "Losen" in der Aktionsleiste)
+        // 5. History section (drawing happens only via "Draw" in the action bar)
         item { SectionHeader(title = stringResource(R.string.group_detail_history_section)) }
         item {
-            // Auslosungshistorie Karte
             ListItemCard(
                 title = stringResource(R.string.draw_history_title),
                 leading = { IconAvatar(icon = Icons.Filled.History) },
@@ -164,7 +157,6 @@ internal fun GroupDetailContent(
             )
         }
         item {
-            // Hinweisfeld
             NoteCard(text = stringResource(R.string.group_detail_history_note), modifier = Modifier.padding(top = Spacing.m))
         }
     }

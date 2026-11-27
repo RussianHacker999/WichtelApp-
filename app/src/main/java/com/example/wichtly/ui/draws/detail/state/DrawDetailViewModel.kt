@@ -16,6 +16,7 @@ import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.draws.detail.screen.DrawAssignmentUiModel
 import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiModel
 import com.example.wichtly.ui.draws.detail.screen.DrawDetailUiState
+import java.time.ZoneId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,31 +30,26 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import java.time.ZoneId
 
 private const val TAG = "DrawDetailViewModel"
 
 /**
- * Lokaler Zustand der Auslosungs-Detailansicht: welcher Geschenkanhänger gerade geöffnet ist.
- * Ladefehler stehen nicht hier, sie kommen über asResult aus dem Flow.
+ * Local state of the draw detail screen: which gift tag is currently open.
+ *
+ * Loading errors are not stored here; they come from the Flow via asResult.
  */
-private data class DrawDetailLocalState(
-    val revealedGiverId: String? = null,
-)
+private data class DrawDetailLocalState(val revealedGiverId: String? = null)
 
 /**
- * ViewModel für die Detailansicht eines gespeicherten Auslosungs-Durchlaufs.
+ * ViewModel of the detail screen of a saved draw.
  *
- * Architektur-Hinweise (MVVM & Clean Architecture):
- * - Der State wird reaktiv über [combine] aus dem Auslosungs-Flow des [DrawRepository]
- *   (ergänzt um den Gruppennamen aus dem [GiftGroupRepository]) und dem lokalen UI-Zustand erzeugt.
- * - [SharingStarted.WhileSubscribed(5_000)] hält den Flow bei Konfigurationsänderungen (z. B. Rotation) 5 Sekunden aktiv.
- * - Der Geschenkanhänger (Ergebnis-Popup) übersteht Bildschirmdrehungen,
- *   da sein Zustand im ViewModel verwaltet wird.
+ * The state is built reactively with [combine] from the draw Flow of the [DrawRepository]
+ * (plus the group name from the [GiftGroupRepository]) and the local UI state.
+ * [SharingStarted.WhileSubscribed] (5 seconds) keeps the Flow active across configuration changes such
+ * as a rotation. The gift tag survives rotations because its state is held in the ViewModel.
  *
- * @param drawId Die ID des gespeicherten Auslosungsdurchlaufs.
- * @param drawRepository Repository für Auslosungsdaten.
- * @param giftGroupRepository Repository für Gruppen; liefert den Namen der ausgelosten Gruppe.
+ * @param drawId ID of the saved draw.
+ * @param giftGroupRepository supplies the name of the drawn group.
  */
 class DrawDetailViewModel(
     private val drawId: String,
@@ -61,17 +57,17 @@ class DrawDetailViewModel(
     private val giftGroupRepository: GiftGroupRepository,
 ) : ViewModel() {
 
-    private val _localState = MutableStateFlow(DrawDetailLocalState())
+    private val localStateFlow = MutableStateFlow(DrawDetailLocalState())
 
     /**
-     * Auslosung zusammen mit dem Namen ihrer Gruppe.
+     * The draw together with the name of its group.
      *
-     * Bewusst kein Snapshot: Eine Auslosung gehört immer zu ihrer Gruppe und wird mit ihr gelöscht
-     * (Fremdschlüssel mit CASCADE). Eingefroren werden die Daten, die sich auf das Ergebnis auswirken
-     * (Namen der Teilnehmer, Zuordnungen, Wünsche, Wichtelart). Der Gruppenname dient nur als Überschrift
-     * und wird deshalb aktuell nachgeladen; wird die Gruppe umbenannt, zeigt auch die Auslosung den neuen Namen.
-     * Soll er später eingefroren werden: Spalte in DrawEntity plus AutoMigration (siehe AppDatabase).
-     * Scheitert nur das Laden des Namens, bleibt die Auslosung sichtbar und die UI zeigt den Platzhalter.
+     * Deliberately not a snapshot: a draw always belongs to its group and is deleted with it
+     * (foreign key with CASCADE). The data that affects the result is frozen (participant names,
+     * assignments, wishes, draw type). The group name is only a heading and is therefore loaded fresh;
+     * if the group is renamed, the draw shows the new name too. To freeze it later: add a column to
+     * DrawEntity plus an AutoMigration (see AppDatabase).
+     * If only loading the name fails, the draw stays visible and the UI shows the placeholder.
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     private val drawWithGroupName: Flow<Pair<Result<DrawDetail?>, String?>> = drawRepository.observeDrawDetailById(drawId)
@@ -94,17 +90,17 @@ class DrawDetailViewModel(
 
     val uiState: StateFlow<DrawDetailUiState> = combine(
         drawWithGroupName,
-        _localState,
+        localStateFlow,
     ) { (drawResult, groupName), localState ->
         val domainDraw = drawResult.getOrNull()
         val loadError = if (drawResult.isFailure) R.string.error_draw_load else null
         val uiDraw = domainDraw?.let { mapDomainToUiModel(it, groupName) }
         val isNotFound = domainDraw == null && loadError == null
 
-        // Prüfen, ob die IDs aus dem Dialog-Zustand in der aktuellen Zuordnungsliste existieren
+        // Check that the IDs from the dialog state exist in the current assignment list
         val currentAssignments = uiDraw?.assignments ?: emptyList()
         val isRevealedGiverPresent = (localState.revealedGiverId != null) &&
-                currentAssignments.any { it.giverId == localState.revealedGiverId }
+            currentAssignments.any { it.giverId == localState.revealedGiverId }
 
         val validRevealedGiverId = if (isRevealedGiverPresent) localState.revealedGiverId else null
 
@@ -118,56 +114,50 @@ class DrawDetailViewModel(
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = DrawDetailUiState(isLoading = true)
+        initialValue = DrawDetailUiState(isLoading = true),
     )
 
-    // =========================================================================
-    // DIALOG-CALLBACKS
-    // =========================================================================
-
     /**
-     * Öffnet den Geschenkanhänger für den gewählten Schenker, wenn die ID in den Zuordnungen existiert.
-     * Der Anhänger startet geschlossen und übernimmt damit die frühere Sicherheitsabfrage.
+     * Opens the gift tag for the selected giver if the ID exists in the assignments.
+     *
+     * The tag starts closed, which takes over the role of a separate confirmation.
      */
     fun onGiverClick(giverId: String) {
         val currentAssignments = uiState.value.draw?.assignments ?: emptyList()
         if (currentAssignments.any { it.giverId == giverId }) {
-            _localState.update { it.copy(revealedGiverId = giverId) }
+            localStateFlow.update { it.copy(revealedGiverId = giverId) }
         }
     }
 
     /**
-     * Schließt das Ergebnis-Popup.
+     * Closes the result tag.
      */
     fun onDismissResult() {
-        _localState.update {
+        localStateFlow.update {
             it.copy(revealedGiverId = null)
         }
     }
 
     /**
-     * Öffentliche Funktion zum Schließen aller Dialoge bei App-Stop (ON_STOP).
+     * Closes all dialogs when the app is stopped (ON_STOP), so nobody sees a result by accident.
      */
     fun onAppStopped() {
-        _localState.update { it.copy(revealedGiverId = null) }
+        localStateFlow.update { it.copy(revealedGiverId = null) }
     }
 
-    // =========================================================================
-    // MODELL-MAPPING
-    // =========================================================================
-
     /**
-     * Mappt ein [DrawDetail] aus dem Domain-Layer in das UI-Modell [DrawDetailUiModel].
-     * Sortiert Zuordnungen nach giverName (ohne Groß-/Kleinschreibung), dann nach giverId.
-     * Sortiert Wünsche nach sortOrder und extrahiert den reinen Text.
+     * Maps a domain [DrawDetail] to the UI model [DrawDetailUiModel].
      *
-     * @param groupName Aktueller Name der Gruppe oder null, falls er nicht geladen werden konnte.
+     * Sorts assignments by giverName (case-insensitive), then by giverId, and wishes by sortOrder,
+     * keeping only their text.
+     *
+     * @param groupName current name of the group, or null if it could not be loaded.
      */
     private fun mapDomainToUiModel(domainDraw: DrawDetail, groupName: String?): DrawDetailUiModel {
         val sortedAssignments = domainDraw.assignments
             .sortedWith(
                 compareBy<DrawAssignment, String>(String.CASE_INSENSITIVE_ORDER) { it.giverName }
-                    .thenBy { it.giverId }
+                    .thenBy { it.giverId },
             )
             .map { assignment ->
                 val sortedWishes = assignment.receiverWishlistItems
@@ -180,7 +170,7 @@ class DrawDetailViewModel(
                     giverName = assignment.giverName,
                     receiverId = assignment.receiverId,
                     receiverName = assignment.receiverName,
-                    wishes = sortedWishes
+                    wishes = sortedWishes,
                 )
             }
 
@@ -190,13 +180,13 @@ class DrawDetailViewModel(
             groupName = groupName,
             drawnAt = domainDraw.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
             drawType = domainDraw.drawType,
-            assignments = sortedAssignments
+            assignments = sortedAssignments,
         )
     }
 
     companion object {
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         * Creates the ViewModel with its dependencies from the [AppContainer].
          */
         fun factory(container: AppContainer, drawId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {

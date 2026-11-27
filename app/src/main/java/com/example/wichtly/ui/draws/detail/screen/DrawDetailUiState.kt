@@ -3,24 +3,16 @@ package com.example.wichtly.ui.draws.detail.screen
 import androidx.annotation.StringRes
 
 /**
- * UI State für die Detailansicht eines einzelnen Auslosungs-Durchlaufs (DrawDetailScreen).
+ * UI state of the detail screen of a single saved draw (DrawDetailScreen).
  *
- * Erklärung der Zustände:
- * - `isLoading == true`: Der Auslosungs-Snapshot wird geladen.
- * - `notFound == true`: Der angeforderte Auslosungsdurchlauf existiert nicht oder wurde gelöscht.
- * - `errorMessage`: Enthält eine Fehlermeldung auf Screen-Ebene für Ladefehler.
- * - `revealedGiverId`: Gibt an, dass der Geschenkanhänger für diesen Schenker geöffnet ist.
+ * Tapping a giver sets [revealedGiverId] directly. The tag starts closed ("For your eyes only … is
+ * this you?"), which takes over the role of a separate confirmation; only a second tap shows the receiver.
  *
- * ZUSTANDSFLUSS:
- * Ein Tippen auf einen Schenker setzt `revealedGiverId` direkt. Der Anhänger startet geschlossen
- * ("Nur für deine Augen … bist du das?") und übernimmt damit die frühere Sicherheitsabfrage;
- * erst nach erneutem Antippen zeigt er den Beschenkten.
- *
- * @property isLoading Zeigt an, ob die Auslosungsdaten geladen werden.
- * @property draw Der geladene Auslosungsdurchlauf mit allen Zuordnungen (null, falls geladen wird oder fehlt).
- * @property notFound Zeigt an, dass die Auslosung nicht gefunden wurde.
- * @property errorMessage String-Ressource der Fehlermeldung auf Screen-Ebene für Ladefehler.
- * @property revealedGiverId ID des Schenkers, für den der Geschenkanhänger geöffnet ist (null = kein Anhänger offen).
+ * @property isLoading the draw data is being loaded.
+ * @property draw the loaded draw with all assignments (null while loading or if it is missing).
+ * @property notFound the requested draw does not exist or was deleted.
+ * @property errorMessage string resource of the loading error at screen level.
+ * @property revealedGiverId ID of the giver whose gift tag is open (null = no tag open).
  */
 data class DrawDetailUiState(
     val isLoading: Boolean = true,

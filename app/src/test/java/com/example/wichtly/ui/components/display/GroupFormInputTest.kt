@@ -2,51 +2,43 @@ package com.example.wichtly.ui.components.display
 
 import com.example.wichtly.domain.validation.parseBudgetToCents
 import com.example.wichtly.domain.validation.parseDate
+import java.time.LocalDate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Unit tests for converting the form texts: parsing (domain/validation/GiftGroupInputParsing.kt)
  * and formatting for display (ui/components/display/GroupFormInput.kt).
  *
- * Why these tests matter:
- * Ensures that text input for budget and date is parsed and formatted correctly
- * and that invalid input (e.g. invalid dates or formats) is reliably caught
- * without exceptions crashing the app.
+ * Makes sure that budget and date input is parsed and formatted correctly and that invalid input
+ * (e.g. invalid dates or formats) is rejected reliably without exceptions crashing the app.
  */
 class GroupFormInputTest {
 
-    // =========================================================================
-    // TESTS FOR parseBudgetToCents
-    // =========================================================================
-
     /**
-     * Tests converting valid budget input in euros (with comma, dot or whole numbers)
-     * into the correct amount in cents (Long).
+     * Valid budget input in euros (with comma, dot or as an integer) becomes the correct amount in cents.
      */
     @Test
     fun parseBudgetToCents_validInputs_returnsCorrectCents() {
-        // Whole euro amount
+        // Whole euros
         assertEquals(2500L, parseBudgetToCents("25"))
 
-        // One decimal place with comma
+        // One decimal place with a comma
         assertEquals(2550L, parseBudgetToCents("25,5"))
 
-        // Two decimal places with dot
+        // Two decimal places with a dot
         assertEquals(2550L, parseBudgetToCents("25.50"))
 
         // Amount below 1 euro
         assertEquals(99L, parseBudgetToCents("0,99"))
 
-        // Input with leading/trailing spaces
+        // Input with leading and trailing spaces
         assertEquals(2500L, parseBudgetToCents("  25  "))
     }
 
     /**
-     * Tests that invalid, empty, negative or wrongly formatted budget input
-     * reliably returns null.
+     * Invalid, empty, negative or wrongly formatted budget input reliably returns null.
      */
     @Test
     fun parseBudgetToCents_invalidInputs_returnsNull() {
@@ -54,7 +46,7 @@ class GroupFormInputTest {
         assertNull(parseBudgetToCents(""))
         assertNull(parseBudgetToCents("   "))
 
-        // Non-numeric text input
+        // Non-numeric input
         assertNull(parseBudgetToCents("abc"))
 
         // Negative amount
@@ -63,16 +55,12 @@ class GroupFormInputTest {
         // More than two decimal places (e.g. "1,234")
         assertNull(parseBudgetToCents("1,234"))
 
-        // Multiple decimal separators (e.g. "12,5,3")
+        // Several decimal separators (e.g. "12,5,3")
         assertNull(parseBudgetToCents("12,5,3"))
     }
 
-    // =========================================================================
-    // TESTS FOR parseDate
-    // =========================================================================
-
     /**
-     * Tests correctly parsing a valid date in the format DD.MM.YYYY (DRAW_DAY_INPUT_PATTERN).
+     * A valid date in the format DD.MM.YYYY (DRAW_DAY_INPUT_PATTERN) is parsed correctly.
      */
     @Test
     fun parseDate_validDate_returnsLocalDate() {
@@ -82,8 +70,8 @@ class GroupFormInputTest {
     }
 
     /**
-     * Tests that invalid dates (e.g. invalid calendar days like 31.02. or wrong formats)
-     * reliably return null thanks to ResolverStyle.STRICT.
+     * Invalid dates (e.g. impossible calendar days such as 31.02. or wrong formats) reliably return null
+     * thanks to ResolverStyle.STRICT.
      */
     @Test
     fun parseDate_invalidDates_returnsNull() {
@@ -98,12 +86,8 @@ class GroupFormInputTest {
         assertNull(parseDate("abc"))
     }
 
-    // =========================================================================
-    // TESTS FOR CONVERTING BACK AND FORTH (ROUND-TRIP)
-    // =========================================================================
-
     /**
-     * Tests converting cent values back and forth using formatCentsForInput and parseBudgetToCents.
+     * Round trip of cent values through formatCentsForInput and parseBudgetToCents.
      */
     @Test
     fun budget_roundTrip_preservesValue() {
@@ -115,7 +99,7 @@ class GroupFormInputTest {
     }
 
     /**
-     * Tests converting LocalDate objects back and forth using formatDateForInput and parseDate.
+     * Round trip of LocalDate values through formatDateForInput and parseDate.
      */
     @Test
     fun date_roundTrip_preservesValue() {
@@ -128,14 +112,14 @@ class GroupFormInputTest {
 
     @Test
     fun parseBudgetToCents_zeroIsValidFormat() {
-        // The format is valid; "greater than 0" is checked by GiftGroupValidator, not the parser
+        // The format is valid; "above 0" is checked by GiftGroupValidator, not by the parser
         assertEquals(0L, parseBudgetToCents("0"))
         assertEquals(0L, parseBudgetToCents("0,00"))
     }
 
     @Test
     fun parseBudgetToCents_overflowAndOddFormats_returnNullWithoutCrash() {
-        // Written correctly but too large for Long: gets capped, the domain reports "too high"
+        // Written correctly but too large for Long: clamped, the domain reports "too high"
         assertEquals(Long.MAX_VALUE, parseBudgetToCents("99999999999999999999"))
         assertNull(parseBudgetToCents("1e3"))
         assertNull(parseBudgetToCents("25 €"))

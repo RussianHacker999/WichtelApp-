@@ -9,38 +9,23 @@ import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.wishlist.screen.ParticipantWishlistScreen
 
 /**
- * Zustandstragende (stateful) Route-Komponente für die Wunschliste eines Teilnehmers.
+ * Stateful route of a participant's wishlist.
  *
- * Architektur- & Design-Hinweise (MVVM & Clean Architecture & AGENTS.md):
- * - Warum eine eigene Route-Komponente?
- *   Diese Komponente dient als Bindeglied zwischen der Infrastruktur (ViewModel, Repositories, AppContainer)
- *   und dem rein zustandslosen [ParticipantWishlistScreen]. Dadurch bleibt der Screen vollständig frei von
- *   ViewModel- und Repository-Abhängigkeiten, was Previews und automatisierte UI-Tests extrem vereinfacht.
- * - Abhängigkeiten kommen über [appContainer] aus dem AppContainer (manuelle DI ohne Framework).
- * - Das ViewModel entsteht über [WishlistViewModel.factory] mit der Teilnehmer-ID als Key.
- * - Warum kein LaunchedEffect für Navigation nach dem Speichern?
- *   Der Nutzer verbleibt nach dem Hinzufügen, Bearbeiten oder Löschen von Wünschen direkt auf der Wunschliste,
- *   um weitere Wünsche zu verwalten.
+ * Connects the infrastructure (ViewModel, AppContainer) with the stateless [ParticipantWishlistScreen].
+ * The ViewModel is created via [WishlistViewModel.factory] with the participant ID as key.
+ * There is no navigation after saving: the user stays on the wishlist to manage more wishes.
  *
- * @param participantId Die ID des Teilnehmers, dessen Wunschliste angezeigt wird.
- * @param onBack Callback für die Zurück-Navigation zur vorherigen Ansicht.
- * @param modifier Äußerer Modifier für das Top-Level-Element.
+ * @param participantId ID of the participant whose wishlist is shown.
  */
 @Composable
-fun ParticipantWishlistRoute(
-    participantId: String,
-    onBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ParticipantWishlistRoute(participantId: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
     val viewModel: WishlistViewModel = viewModel(
         key = participantId,
         factory = WishlistViewModel.factory(appContainer(), participantId),
     )
 
-    // Reaktives Einsammeln des UI-States unter Berücksichtigung des Lifecycle
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Aufruf des zustandslosen Screens und Verdrahtung aller Callbacks
     ParticipantWishlistScreen(
         state = state,
         onBack = onBack,

@@ -11,18 +11,16 @@ import com.example.wichtly.ui.groups.detail.screen.GroupDetailActions
 import com.example.wichtly.ui.groups.detail.screen.GroupDetailScreen
 import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorActions
 
-
 /**
- * Zustandstragende (stateful) Route-Komponente für die Gruppen-Detailansicht.
+ * Stateful route of the group detail screen.
  *
- * @param groupId Die eindeutige ID der anzuzeigenden Wichtelgruppe.
- * @param onBack Callback für die Zurück-Navigation zum vorherigen Screen (meist Gruppenliste oder Startseite).
- * @param onEditGroup Callback zum Navigieren zum Formular für die Gruppenbearbeitung (erhält groupId).
- * @param onOpenWishlist Callback zum Navigieren zur Wunschliste eines Teilnehmers (erhält participantId).
- * @param onPrepareDraw Callback zum Öffnen der Auslosungs-Vorbereitung für diese Gruppe (erhält groupId).
- * @param onOpenHistory Callback zum Öffnen der Auslosungshistorie für diese Gruppe (erhält groupId).
- * @param onGroupDeleted Callback nach dem Löschen der Gruppe (Navigation weg von der gelöschten Gruppe).
- * @param modifier Äußerer Modifier für das Top-Level-Element.
+ * @param groupId ID of the gift group to show.
+ * @param onBack navigates back to the previous screen (usually the group list or the start screen).
+ * @param onEditGroup navigates to the form for editing the group (receives the groupId).
+ * @param onOpenWishlist navigates to the wishlist of a participant (receives the participantId).
+ * @param onPrepareDraw opens the draw preparation for this group (receives the groupId).
+ * @param onOpenHistory opens the draw history of this group (receives the groupId).
+ * @param onGroupDeleted called after the group was deleted (navigates away from it).
  */
 @Composable
 fun GroupDetailRoute(
@@ -41,14 +39,13 @@ fun GroupDetailRoute(
     )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Nach dem Löschen genau einmal zurücknavigieren und das Ereignis quittieren
+    // Navigate back exactly once after deleting, then acknowledge the event
     LaunchedEffect(state.isGroupDeleted) {
         if (state.isGroupDeleted) {
             onGroupDeleted()
             viewModel.onGroupDeletedHandled()
         }
     }
-
 
     val actions = GroupDetailActions(
         onBack = onBack,

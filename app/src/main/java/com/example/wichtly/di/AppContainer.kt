@@ -27,18 +27,18 @@ import com.example.wichtly.domain.validation.ParticipantValidator
 import com.example.wichtly.domain.validation.WishlistValidator
 
 /**
- * Composition Root der App.
+ * Composition root of the app: creates and holds all repositories and use cases.
  *
- * Lesen: über die Repositories. Die Repositories selbst sind reine Persistenz.
+ * Reading goes through the repositories, which are pure persistence.
  *
- * Schreiben: ausschließlich über die Use Cases (Anlegen und Ändern mit Validierung, Losen, Löschen).
- * Beim Löschen von Gruppe und Teilnehmer koordinieren sie zusätzlich Datenbank und Fotodateien;
- * das Löschen eines Wunsches hat keine Regeln, läuft der Einheitlichkeit halber aber ebenfalls über
- * einen Use Case. ViewModels nutzen Repositories damit nur zum Lesen.
+ * Writing goes exclusively through the use cases (create and update with validation, draw, delete).
+ * When a group or participant is deleted they also coordinate the database and the photo files.
+ * Deleting a wish has no rules, but it also goes through a use case for consistency. ViewModels
+ * therefore use repositories for reading only.
  *
- * Fotodateien sind davon getrennt: Entwurfsfotos speichern, auflösen und verwerfen die Foto-ViewModels
- * (Gruppenformular, Gruppendetail) direkt über das PhotoRepository; ein Foto wird erst mit dem Speichern
- * der Gruppe bzw. des Teilnehmers (über den Use Case) in der Datenbank eingetragen.
+ * Photo files are handled separately: the photo ViewModels (group form, group detail) save, resolve
+ * and discard draft photos directly via the PhotoRepository. A photo is entered in the database only
+ * when the group or participant is saved (via the use case).
  */
 interface AppContainer {
     val giftGroupRepository: GiftGroupRepository
@@ -57,6 +57,11 @@ interface AppContainer {
     val cleanUpOrphanPhotosUseCase: CleanUpOrphanPhotosUseCase
 }
 
+/**
+ * Production implementation of [AppContainer].
+ *
+ * Every dependency is created lazily on first access and then lives as long as the process.
+ */
 class DefaultAppContainer(private val context: Context) : AppContainer {
     private val database: AppDatabase by lazy {
         AppDatabase.create(context)
@@ -64,10 +69,6 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
     private val photoStorageManager: LocalPhotoStorageManager by lazy {
         LocalPhotoStorageManager(context)
     }
-
-    // =========================================================================
-    // REPOSITORIES (Persistenz)
-    // =========================================================================
 
     override val giftGroupRepository: GiftGroupRepository by lazy {
         GiftGroupRepositoryImpl(giftGroupDao = database.giftGroupDao())
@@ -86,10 +87,6 @@ class DefaultAppContainer(private val context: Context) : AppContainer {
             storageManager = photoStorageManager,
         )
     }
-
-    // =========================================================================
-    // USE CASES (Fachlogik und Validierung)
-    // =========================================================================
 
     override val saveGiftGroupUseCase: SaveGiftGroupUseCase by lazy {
         SaveGiftGroupUseCase(

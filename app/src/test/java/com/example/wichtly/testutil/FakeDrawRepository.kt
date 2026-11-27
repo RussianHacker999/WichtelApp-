@@ -12,12 +12,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * An in-memory fake for [DrawRepository] for testing purposes.
+ * In-memory fake of [DrawRepository] for tests.
  *
  * Pure persistence like the real repository (the draw itself happens in PerformDrawUseCase).
- * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for
- * failing read flows, as well as counters for save operations
- * and helper methods for directly adding/removing test data.
+ * Supports test switches such as [shouldThrow] for simulated exceptions and [failFlows] for failing
+ * read Flows, counters for saves, and helpers to add or remove test data directly.
  */
 class FakeDrawRepository : DrawRepository {
 
@@ -35,8 +34,8 @@ class FakeDrawRepository : DrawRepository {
     private var wishlists: FakeWishlistRepository? = null
 
     /**
-     * Connects this fake to the other fakes that [getDrawSource] reads from (like the real
-     * transaction across the three tables). Returns itself so the call fits inline.
+     * Connects the fake with the other fakes that [getDrawSource] reads from (like the real
+     * transaction over the three tables). Returns itself, so the call fits inline.
      */
     fun withSources(
         groups: FakeGiftGroupRepository,
@@ -71,7 +70,7 @@ class FakeDrawRepository : DrawRepository {
 
     override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> {
         if (failFlows) {
-            return flow { throw RuntimeException("Flow error while loading the draw history") }
+            return flow { throw RuntimeException("Flow-Fehler beim Laden der Auslosungshistorie") }
         }
         return drawsFlow.map { list ->
             list.filter { it.groupId == groupId }
@@ -88,7 +87,7 @@ class FakeDrawRepository : DrawRepository {
 
     override fun observeDrawDetailById(drawId: String): Flow<DrawDetail?> {
         if (failFlows) {
-            return flow { throw RuntimeException("Flow error while loading the draw details") }
+            return flow { throw RuntimeException("Flow-Fehler beim Laden der Auslosungsdetails") }
         }
         return drawsFlow.map { list -> list.find { it.id == drawId } }
     }
@@ -110,7 +109,7 @@ class FakeDrawRepository : DrawRepository {
     override suspend fun insertDraw(draw: DrawDetail) {
         insertDrawCalls++
         if (shouldThrow) {
-            throw IllegalStateException("Simulated error while saving the draw")
+            throw IllegalStateException("Simulierter Fehler beim Speichern der Auslosung")
         }
         drawsFlow.value += draw
     }

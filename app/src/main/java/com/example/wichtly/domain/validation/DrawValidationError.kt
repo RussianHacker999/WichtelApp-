@@ -1,11 +1,11 @@
 package com.example.wichtly.domain.validation
 
 /**
- * Fachliche Fehler einer Auslosung. Als data object, damit sie in Logs und Tests lesbar heißen.
+ * Business errors of a draw. Declared as data objects so they have readable names in logs and tests.
  *
- * Liegt bewusst unter `validation`: Alle drei Fälle sind Vorbedingungen, die der PerformDrawUseCase
- * vor dem Losen prüft (Gruppe vorhanden, Wichteltag offen, genug Teilnehmer). Das Ergebnis der
- * Auslosung selbst ist [com.example.wichtly.domain.result.DrawResult].
+ * Deliberately placed in `validation`: all three cases are preconditions that PerformDrawUseCase
+ * checks before drawing (group exists, draw day open, enough participants). The result of the
+ * draw itself is [com.example.wichtly.domain.result.DrawResult].
  */
 sealed interface DrawValidationError {
     data object GroupNotFound : DrawValidationError

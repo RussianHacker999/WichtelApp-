@@ -10,15 +10,15 @@ import com.example.wichtly.logging.AppLog
 private const val TAG = "DeleteGiftGroupUseCase"
 
 /**
- * Löscht eine Wichtelgruppe samt allem, was zu ihr gehört.
+ * Deletes a gift group with everything that belongs to it.
  *
- * Die Datenbank löscht per Fremdschlüssel (CASCADE) automatisch Teilnehmer, deren Wunschlisten
- * und die komplette Auslosungshistorie der Gruppe. Fotodateien kennt die Datenbank nicht; sie
- * werden hier entfernt.
+ * The database deletes participants, their wishlists and the complete draw history of the group
+ * automatically via foreign keys (CASCADE). The database does not know the photo files; they are
+ * removed here.
  *
- * Reihenfolge: erst die Datenbank, dann die Dateien. So zeigt nie ein gespeicherter Pfad auf eine
- * bereits gelöschte Datei. Scheitert das Löschen einer Datei, bleibt sie nur als ungenutzte Datei
- * liegen; die Gruppe ist trotzdem gelöscht.
+ * Order: first the database, then the files. That way a saved path never points to a file that
+ * is already deleted. If deleting a file fails, it only remains as an unused file; the group is
+ * deleted anyway.
  */
 class DeleteGiftGroupUseCase(
     private val giftGroupRepository: GiftGroupRepository,
@@ -26,7 +26,7 @@ class DeleteGiftGroupUseCase(
     private val photoRepository: PhotoRepository,
 ) {
     /**
-     * @return [DeleteResult.Deleted] oder [DeleteResult.NotFound], wenn es die Gruppe nicht (mehr) gibt.
+     * @return [DeleteResult.Deleted], or [DeleteResult.NotFound] if the group does not exist (any more).
      */
     suspend operator fun invoke(groupId: String): DeleteResult {
         AppLog.d(TAG) { "Deleting group $groupId" }
@@ -36,14 +36,14 @@ class DeleteGiftGroupUseCase(
             return DeleteResult.NotFound
         }
 
-        // Fotopfade vor dem Löschen einsammeln, danach sind die Teilnehmer nicht mehr lesbar
+        // Collect the photo paths before deleting; afterwards the participants can no longer be read
         val participants = participantRepository.getParticipantsByGroupId(groupId)
         val photoPaths = listOfNotNull(group.photoPath) + participants.mapNotNull { it.photoPath }
 
         giftGroupRepository.deleteGiftGroup(groupId)
         AppLog.i(TAG, "Group $groupId deleted (${participants.size} participants, ${photoPaths.size} photos)")
 
-        // Best Effort und nicht abbrechbar: eine liegengebliebene Datei ist harmlos, die Gruppe ist gelöscht
+        // Best effort and not cancellable: a leftover file is harmless, the group is deleted
         photoPaths.forEach { photoRepository.deletePhotoQuietly(it, TAG) }
         return DeleteResult.Deleted
     }

@@ -16,33 +16,36 @@ class AppLogTest {
     }
 
     @Test
-    fun allLevelsFromMinLevelAreLogged() {
+    fun alleStufenAbMinLevelWerdenAusgegeben() {
         val sink = RecordingLogSink(minLevel = LogLevel.DEBUG).also { AppLog.install(it) }
-        val exception = IllegalStateException("broken")
+        val fehler = IllegalStateException("kaputt")
 
         AppLog.d("Tag") { "debug" }
         AppLog.i("Tag", "info")
         AppLog.w("Tag", "warn")
-        AppLog.e("Tag", "error", exception)
+        AppLog.e("Tag", "error", fehler)
 
         assertEquals(listOf(LogLevel.DEBUG, LogLevel.INFO, LogLevel.WARN, LogLevel.ERROR), sink.entries.map { it.level })
-        assertSame(exception, sink.entries.last().throwable)
+        assertSame(fehler, sink.entries.last().throwable)
     }
 
     @Test
-    fun releaseLevelSuppressesDebugWithoutBuildingMessage() {
+    fun releaseStufeUnterdruecktDebugOhneDieNachrichtZuBauen() {
         val sink = RecordingLogSink(minLevel = LogLevel.INFO).also { AppLog.install(it) }
-        var messageBuilt = false
+        var nachrichtGebaut = false
 
-        AppLog.d("Tag") { messageBuilt = true; "debug" }
+        AppLog.d("Tag") {
+            nachrichtGebaut = true
+            "debug"
+        }
         AppLog.i("Tag", "info")
 
-        assertFalse(messageBuilt)
+        assertFalse(nachrichtGebaut)
         assertEquals(listOf(LogLevel.INFO), sink.entries.map { it.level })
     }
 
     @Test
-    fun withoutInstalledSinkNothingIsLoggedAndNothingThrown() {
+    fun ohneInstallierteSenkeWirdNichtsAusgegebenUndNichtsGeworfen() {
         AppLog.reset()
 
         AppLog.e("Tag", "error", RuntimeException())

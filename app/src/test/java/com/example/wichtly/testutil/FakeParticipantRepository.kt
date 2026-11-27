@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * An in-memory fake for [ParticipantRepository] for testing purposes.
+ * In-memory fake of [ParticipantRepository] for tests.
  *
  * Pure persistence like the real repository (validation happens in SaveParticipantUseCase).
- * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
- * and helper methods for directly adding/removing test data.
+ * Supports test switches such as [shouldThrow] for simulated exceptions and [failFlows] for failing reads
+ * (Flows and get… methods), counters for writes, and helpers to add or remove test data directly.
  */
 class FakeParticipantRepository : ParticipantRepository {
 
     private val participantsFlow = MutableStateFlow<List<Participant>>(emptyList())
 
-    // Test-Schalter und Zähler
+    // Test switches and counters
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
@@ -30,14 +30,15 @@ class FakeParticipantRepository : ParticipantRepository {
         private set
 
     /**
-     * Sets the list of wishlist items in memory directly.     */
-
+     * Sets the list of participants in memory directly.
+     */
     fun setParticipants(participants: List<Participant>) {
         participantsFlow.value = participants
     }
 
     /**
-     * Removes a participant from memory directly (simulates it disappearing in the background).     */
+     * Removes a participant from memory directly (simulates it disappearing in the background).
+     */
     fun removeParticipant(id: String) {
         participantsFlow.value = participantsFlow.value.filter { it.id != id }
     }
@@ -66,8 +67,7 @@ class FakeParticipantRepository : ParticipantRepository {
         return participantsFlow.value.find { it.id == id }
     }
 
-    override suspend fun getAllPhotoPaths(): List<String> =
-        participantsFlow.value.mapNotNull { it.photoPath }
+    override suspend fun getAllPhotoPaths(): List<String> = participantsFlow.value.mapNotNull { it.photoPath }
 
     override suspend fun insertParticipant(participant: Participant) {
         insertCalls++

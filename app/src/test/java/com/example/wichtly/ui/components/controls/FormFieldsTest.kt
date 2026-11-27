@@ -9,18 +9,18 @@ import org.junit.Test
 class FormFieldsTest {
 
     @Test
-    fun shortTextStaysUnchanged() {
+    fun kurzerTextBleibtUnveraendert() {
         assertEquals("Anna", limitToLength("Anna", 50))
     }
 
     @Test
-    fun longTextIsTruncatedToMaximum() {
+    fun langerTextWirdAufMaximumGekuerzt() {
         assertEquals("a".repeat(50), limitToLength("a".repeat(80), 50))
     }
 
     @Test
-    fun emojiAtLimitIsNotCutInHalf() {
-        // 49 letters + emoji (2 UTF-16 units) = 51 units; half an emoji must not be left over
+    fun emojiAnDerGrenzeWirdNichtZerschnitten() {
+        // 49 letters + emoji (2 UTF-16 units) = 51 units; half an emoji must not remain
         val text = "a".repeat(49) + "\uD83C\uDF84"
         assertEquals("a".repeat(49), limitToLength(text, 50))
     }

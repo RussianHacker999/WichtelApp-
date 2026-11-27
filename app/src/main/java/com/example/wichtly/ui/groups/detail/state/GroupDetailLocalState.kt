@@ -5,10 +5,10 @@ import com.example.wichtly.ui.groups.detail.screen.ParticipantEditorUiState
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 
 /**
- * Lokaler interner Zustand für Dialoge und Fehler der Gruppen-Detailansicht.
+ * Internal local state for the dialogs and errors of the group detail screen.
  *
- * @property editor Offener Teilnehmer-Editor (null = geschlossen). Die Fotodatei für die Vorschau löst
- *   [GroupDetailViewModel.uiState] aus dem Pfad auf; was hier in [PhotoFieldUiState.file] steht, wird dort ersetzt.
+ * @property editor open participant editor (null = closed). [GroupDetailViewModel.uiState] resolves the
+ *   preview photo file from the path; whatever is in [PhotoFieldUiState.file] here is replaced there.
  */
 internal data class GroupDetailLocalState(
     val isSaving: Boolean = false,
@@ -19,6 +19,6 @@ internal data class GroupDetailLocalState(
     val isDeletingGroup: Boolean = false,
     @StringRes val groupDeleteError: Int? = null,
     val isGroupDeleted: Boolean = false,
-    // Bleibt nach dem Quittieren des Ereignisses gesetzt: Die Gruppe ist gewollt weg, kein "nicht gefunden"
+    // Stays set after the event is acknowledged: the group is gone on purpose, so no "not found"
     val groupWasDeleted: Boolean = false,
 )

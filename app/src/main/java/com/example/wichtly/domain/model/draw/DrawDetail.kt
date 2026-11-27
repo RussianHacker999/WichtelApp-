@@ -5,13 +5,12 @@ import java.time.Instant
 import java.util.UUID
 
 /**
- * It stores the details for a specific Draw fom a group.
+ * A complete, saved draw of a group, including all assignments.
  *
- * @param id unique id from the DrawDetail object
- * @param groupId id from the group of the draw
- * @param drawnAt the time when the draw was made
- * @param drawType the type of the draw (Normal or Junk)
- * @param assignments the list of assignments for the draw
+ * Created by PerformDrawUseCase and never changed afterwards.
+ *
+ * @property drawnAt time of the draw.
+ * @property drawType draw type of the group at the time of the draw.
  */
 data class DrawDetail(
     val id: String = UUID.randomUUID().toString(),

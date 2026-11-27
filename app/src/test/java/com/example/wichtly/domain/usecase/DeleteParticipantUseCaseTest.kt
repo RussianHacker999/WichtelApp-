@@ -18,7 +18,7 @@ class DeleteParticipantUseCaseTest {
     private val anna = Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = "photos/participants/anna.jpg")
 
     @Test
-    fun deletesParticipantAndTheirPhoto() = runTest {
+    fun loeschtTeilnehmerUndSeinFoto() = runTest {
         val participantRepository = FakeParticipantRepository().apply { setParticipants(listOf(anna)) }
         val photoRepository = FakePhotoRepository()
 
@@ -30,20 +30,20 @@ class DeleteParticipantUseCaseTest {
     }
 
     @Test
-    fun photoPathComesFromDatabaseNotFromScreen() = runTest {
-        // The participant has since saved a different photo; the currently stored one gets deleted
+    fun fotoPfadKommtAusDerDatenbankNichtAusDemBildschirm() = runTest {
+        // The participant has saved a different photo in the meantime; the currently saved one is deleted
         val participantRepository = FakeParticipantRepository().apply {
-            setParticipants(listOf(anna.copy(photoPath = "photos/participants/new.jpg")))
+            setParticipants(listOf(anna.copy(photoPath = "photos/participants/neu.jpg")))
         }
         val photoRepository = FakePhotoRepository()
 
         DeleteParticipantUseCase(participantRepository, photoRepository)("p1")
 
-        assertEquals(listOf("photos/participants/new.jpg"), photoRepository.deletedPaths)
+        assertEquals(listOf("photos/participants/neu.jpg"), photoRepository.deletedPaths)
     }
 
     @Test
-    fun photoDeletionFailureDoesNotPreventDeletion() = runTest {
+    fun fehlerBeimFotoLoeschenVerhindertDasLoeschenNicht() = runTest {
         val participantRepository = FakeParticipantRepository().apply { setParticipants(listOf(anna)) }
         val photoRepository = FakePhotoRepository().apply { shouldThrowOnDelete = true }
 
@@ -54,11 +54,11 @@ class DeleteParticipantUseCaseTest {
     }
 
     @Test
-    fun unknownParticipantReturnsNotFoundAndDeletesNothing() = runTest {
+    fun unbekannterTeilnehmerMeldetNotFoundUndLoeschtNichts() = runTest {
         val participantRepository = FakeParticipantRepository()
         val photoRepository = FakePhotoRepository()
 
-        val result = DeleteParticipantUseCase(participantRepository, photoRepository)("does-not-exist")
+        val result = DeleteParticipantUseCase(participantRepository, photoRepository)("gibt-es-nicht")
 
         assertEquals(DeleteResult.NotFound, result)
         assertEquals(0, participantRepository.deleteCalls)

@@ -1,9 +1,9 @@
 package com.example.wichtly.ui.common
 
 import com.example.wichtly.R
+import java.io.IOException
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.io.IOException
 
 class SaveErrorsTest {
 

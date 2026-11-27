@@ -1,0 +1,23 @@
+root = true
+
+[*]
+charset = utf-8
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+# ktlint (./gradlew ktlintCheck / ktlintFormat) and the Android Studio formatter read these settings.
+ktlint_code_style = android_studio
+max_line_length = 140
+# The code base uses trailing commas in multi-line argument and parameter lists.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# Composable functions are named in PascalCase by convention.
+ktlint_function_naming_ignore_when_annotated_with = Composable
+# Files are named by role (*Errors.kt, *Inputs.kt, *ReadModels.kt), not after their single class.
+ktlint_standard_filename = disabled
+
+[*.md]
+trim_trailing_whitespace = false

@@ -5,29 +5,30 @@ import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 
 /**
- * UI State für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
+ * UI state of the group form (creating and editing a gift group).
  *
- * Erklärung der Felder (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
- * @property isLoading Zeigt an, ob die Gruppendaten im Bearbeiten-Modus noch aus der Datenbank geladen werden.
- * @property isEditMode false = neue Gruppe erstellen, true = bestehende Gruppe bearbeiten.
- * @property notFound true, wenn im Bearbeiten-Modus die angeforderte Gruppe nicht existiert oder gelöscht wurde.
- * @property loadFailed true, wenn im Bearbeiten-Modus das Laden der Gruppe mit einem Fehler gescheitert ist. Der Screen
- *   zeigt dann statt des (leeren) Formulars einen Fehlerzustand.
- * @property name Aktueller Textinhalt des Eingabefeldes für den Gruppennamen.
- * @property budget Aktueller Textinhalt des Eingabefeldes für das Budget (z. B. "25,50").
- * @property drawDay Aktueller Textinhalt des Eingabefeldes für das Auslosungsdatum (z. B. "24.12.2026").
- * @property drawType Ausgewählter Wichtel-Typ (DrawType.NORMAL = Klassisch, DrawType.JUNK = Schrottwichteln).
- * @property nameError Validierungs- oder Formatfehlermeldung für das Namensfeld (null = kein Fehler).
- * @property budgetError Validierungs- oder Formatfehlermeldung für das Budgetfeld (null = kein Fehler).
- * @property drawDayError Validierungs- oder Formatfehlermeldung für das Datumsfeld (null = kein Fehler).
- * @property generalError Allgemeine Fehlermeldung auf Formular-Ebene (z. B. "Gruppe nicht gefunden").
- * @property isSaving Zeigt einen laufenden Speichervorgang in der Datenbank an (deaktiviert Eingaben/Buttons).
- * @property savedGroupId Einmal-Ereignis: ID der gespeicherten Gruppe; die Route navigiert und quittiert
- *   mit onSavedHandled().
- * @property photo Fotofeld der Gruppe (gleicher Zustand wie im Teilnehmer-Editor; den Foto-Ablauf hält die UI). Der Pfad
- *   wird erst beim Speichern in die Datenbank übernommen.
- * @property drawDayPassed Beim Bearbeiten: Der gespeicherte Wichteltag ist vorbei. Das Formular erklärt
- *   dann am Datumsfeld, dass für eine neue Runde ein neues Datum nötig ist.
+ * All error fields are string resources from strings.xml.
+ *
+ * @property isLoading in edit mode, the group data is still being loaded from the database.
+ * @property isEditMode false = create a new group, true = edit an existing group.
+ * @property notFound in edit mode, the requested group does not exist or was deleted.
+ * @property loadFailed in edit mode, loading the group failed with an error. The screen then shows
+ *   an error state instead of the (empty) form.
+ * @property name current text of the group name field.
+ * @property budget current text of the budget field (e.g. "25,50").
+ * @property drawDay current text of the draw day field (e.g. "24.12.2026").
+ * @property drawType selected draw type (DrawType.NORMAL = classic, DrawType.JUNK = junk gift exchange).
+ * @property nameError validation or format error of the name field (null = no error).
+ * @property budgetError validation or format error of the budget field (null = no error).
+ * @property drawDayError validation or format error of the date field (null = no error).
+ * @property generalError general error at form level (e.g. "Group not found").
+ * @property isSaving a save to the database is running (disables input and buttons).
+ * @property savedGroupId one-time event: ID of the saved group; the route navigates and acknowledges
+ *   it with onSavedHandled().
+ * @property photo photo field of the group (same state as in the participant editor; the UI holds the
+ *   photo flow). The path is written to the database only when saving.
+ * @property drawDayPassed when editing: the stored draw day is over. The form then explains at the
+ *   date field that a new date is needed for a new round.
  */
 data class GroupFormUiState(
     val isLoading: Boolean = true,

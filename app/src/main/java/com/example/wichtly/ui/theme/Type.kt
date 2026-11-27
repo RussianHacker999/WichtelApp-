@@ -11,12 +11,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.wichtly.R
 
-/** Überschriften-Schrift: Young Serif (eine Strichstärke). Für display-, headline- und titleLarge-Stile. */
+/** Heading font: Young Serif (one weight). For the display, headline and titleLarge styles. */
 val YoungSerif = FontFamily(
     Font(R.font.young_serif_regular, FontWeight.Normal),
 )
 
-/** Text-Schrift: Instrument Sans (variable Schrift, hier mit den Gewichten 400 bis 700 genutzt). Für alle übrigen Stile. */
+/** Body font: Instrument Sans (variable font, used here with weights 400 to 700). For all other styles. */
 val InstrumentSans = FontFamily(
     instrumentSans(FontWeight.Normal),
     instrumentSans(FontWeight.Medium),
@@ -30,7 +30,7 @@ private fun instrumentSans(weight: FontWeight) = Font(
     variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)),
 )
 
-/** Harter, dunkler, versetzter Schatten hinter jedem Young-Serif-Titel. */
+/** Hard, dark, offset shadow behind every Young Serif title. */
 val TitleShadow = Shadow(
     color = PineShadow,
     offset = Offset(4f, 6f),
@@ -47,8 +47,9 @@ private fun serif(size: Int, lineHeight: Int, letterSpacing: Float = 0f) = TextS
 )
 
 /**
- * Eyebrow (kleine Überzeile über Titeln, z. B. "WAS WÜNSCHST DU DIR?"): EIN Stil für alle Screens.
- * Bewusst größer (13sp) und fett, damit sie auf dem dunklen Grund deutlich sichtbar ist.
+ * Eyebrow (small overline above titles, e.g. "WHAT DO YOU WISH FOR?"): one style for all screens.
+ *
+ * Deliberately larger (13sp) and bold, so it is clearly visible on the dark background.
  */
 val EyebrowStyle = TextStyle(
     fontFamily = InstrumentSans,
@@ -58,7 +59,7 @@ val EyebrowStyle = TextStyle(
     letterSpacing = 1.6.sp,
 )
 
-// Die komplette Material-Typografie der App: Young Serif für Titel, Instrument Sans für alle anderen Texte.
+/** The complete Material typography of the app: Young Serif for titles, Instrument Sans for all other text. */
 val Typography = Typography(
     displayLarge = serif(52, 58, -0.5f),
     displayMedium = serif(44, 50, -0.25f),
@@ -67,29 +68,60 @@ val Typography = Typography(
     headlineMedium = serif(30, 34),
     headlineSmall = serif(24, 30),
     titleLarge = serif(22, 28),
-    titleMedium = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 22.sp, letterSpacing = 0.1.sp),
-    titleSmall = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.1.sp),
-    bodyLarge = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Normal, fontSize = 16.sp, lineHeight = 24.sp, letterSpacing = 0.2.sp),
-    bodyMedium = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Normal, fontSize = 14.sp, lineHeight = 20.sp, letterSpacing = 0.2.sp),
-    bodySmall = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.3.sp),
-    labelLarge = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Bold, fontSize = 15.sp, lineHeight = 20.sp, letterSpacing = 0.2.sp),
-    labelMedium = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.SemiBold, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.4.sp),
-    labelSmall = TextStyle(fontFamily = InstrumentSans, fontWeight = FontWeight.Bold, fontSize = 11.sp, lineHeight = 14.sp, letterSpacing = 1.4.sp),
-    /* Vorlage aus Android Studio, wird nicht mehr verwendet: so sahen die Standard-Stile mit der Systemschrift
-       aus. Oben ist bereits jeder Stil der Skala gesetzt.
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    titleMedium = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 16.sp,
+        lineHeight = 22.sp,
+        letterSpacing = 0.1.sp,
+    ),
+    titleSmall = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.1.sp,
+    ),
+    bodyLarge = TextStyle(
+        fontFamily = InstrumentSans,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.2.sp,
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.2.sp,
+    ),
+    bodySmall = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.Normal,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.3.sp,
+    ),
+    labelLarge = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        letterSpacing = 0.2.sp,
+    ),
+    labelMedium = TextStyle(
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 12.sp,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp,
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontFamily = InstrumentSans,
+        fontWeight = FontWeight.Bold,
         fontSize = 11.sp,
-        lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
-    )
-    */
+        lineHeight = 14.sp,
+        letterSpacing = 1.4.sp,
+    ),
 )

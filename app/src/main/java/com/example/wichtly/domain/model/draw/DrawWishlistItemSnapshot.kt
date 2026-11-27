@@ -3,16 +3,10 @@ package com.example.wichtly.domain.model.draw
 import java.util.UUID
 
 /**
- *  A single wish made by a person, as a snapshot at the time of the drawing.
- *  The snapshot ensures that the drawing history remains the same,
- *  even if the recipient later changes or deletes their wish list.
+ * A copy of one wish of the receiver, taken at draw time.
  *
- *  @param id the unique identifier for the wish
- *  @param text the wish
- *  @param sortOrder the order in which the wish should be displayed
+ * The copy keeps the draw history unchanged, even if the receiver later edits or deletes their wishlist.
+ *
+ * @property sortOrder display position, taken over from the wishlist.
  */
-data class DrawWishlistItemSnapshot(
-    val id: String = UUID.randomUUID().toString(),
-    val text: String,
-    val sortOrder: Int,
-)
+data class DrawWishlistItemSnapshot(val id: String = UUID.randomUUID().toString(), val text: String, val sortOrder: Int)

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Regeln für Android 12 und neuer. android:allowBackup="false" schaltet dort nur die Cloud-Sicherung ab,
-    nicht die Übertragung auf ein neues Gerät. Damit Datenbank und Fotos wie beabsichtigt nur auf diesem
-    Gerät bleiben, sind beide Wege hier ausdrücklich ausgeschlossen.
+    Rules for Android 12 and newer. There, android:allowBackup="false" only turns off the cloud backup,
+    not the transfer to a new device. So that the database and photos stay on this device as intended,
+    both ways are explicitly excluded here.
 -->
 <data-extraction-rules>
     <cloud-backup>

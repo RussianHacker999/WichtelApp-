@@ -3,18 +3,19 @@ package com.example.wichtly.domain.validation
 import com.example.wichtly.domain.model.participant.Participant
 
 /**
- * Einzige Quelle aller Fachregeln für Teilnehmer. Aufgerufen vom SaveParticipantUseCase.
+ * Single source of all business rules for participants. Called by SaveParticipantUseCase.
  */
 class ParticipantValidator {
 
     companion object {
+        /** Maximum length of a participant name in characters. */
         const val MAX_NAME_LENGTH = 50
     }
 
-    /** Bringt einen eingegebenen Namen in die gespeicherte Form (heute: Leerraum am Rand entfernen). */
+    /** Brings an entered name into its stored form (currently: trims surrounding whitespace). */
     fun normalizeName(raw: String): String = raw.trim()
 
-    /** Regel: Name ist nicht leer und höchstens [MAX_NAME_LENGTH] Zeichen lang. */
+    /** Rule: the name is not empty and at most [MAX_NAME_LENGTH] characters long. */
     fun validateName(raw: String): List<ParticipantValidationError> = buildList {
         val name = normalizeName(raw)
         if (name.isEmpty()) add(ParticipantValidationError.EmptyName)
@@ -22,8 +23,8 @@ class ParticipantValidator {
     }
 
     /**
-     * Regel: Innerhalb einer Gruppe gibt es keinen zweiten Teilnehmer mit demselben Namen
-     * (Groß-/Kleinschreibung egal). Der Teilnehmer selbst ([participantId]) zählt beim Bearbeiten nicht.
+     * Rule: within a group there is no second participant with the same name (case-insensitive).
+     * When editing, the participant itself ([participantId]) does not count.
      */
     fun validateUniqueName(
         raw: String,
@@ -37,11 +38,8 @@ class ParticipantValidator {
         if (isDuplicate) add(ParticipantValidationError.DuplicateName)
     }
 
-    /** Prüft alle Regeln für einen Teilnehmer. */
-    fun validate(
-        participant: Participant,
-        existingParticipantsInGroup: List<Participant>,
-    ): List<ParticipantValidationError> = buildList {
+    /** Checks all rules for a participant. */
+    fun validate(participant: Participant, existingParticipantsInGroup: List<Participant>): List<ParticipantValidationError> = buildList {
         addAll(validateName(participant.name))
         addAll(validateUniqueName(participant.name, participant.id, existingParticipantsInGroup))
     }

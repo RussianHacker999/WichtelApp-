@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Backup-Regeln für Android 11 und älter (ab Android 12 gilt data_extraction_rules.xml).
-    Wichtly sichert bewusst nichts (passend zu android:allowBackup="false" im Manifest):
-    Datenbank und Fotos bleiben ausschließlich auf dem Gerät.
+    Backup rules for Android 11 and older (from Android 12 on, data_extraction_rules.xml applies).
+    Wichtly deliberately backs up nothing (matching android:allowBackup="false" in the manifest):
+    the database and photos stay on the device only.
 -->
 <full-backup-content>
     <exclude domain="root" path="." />

@@ -9,14 +9,13 @@ import org.junit.Test
 /**
  * Unit tests for WishlistErrors.kt.
  *
- * Why these tests matter:
- * Verifies the correct mapping of all [WishlistValidationError] types to user-friendly
- * error texts, as well as the priority rule (the first error wins).
+ * Covers the translation of every [WishlistValidationError] type into a user-facing error text
+ * and the priority rule (the first error wins).
  */
 class WishlistErrorsTest {
 
     /**
-     * Tests that an empty error list returns null.
+     * An empty error list returns null.
      */
     @Test
     fun mapWishlistValidationErrors_emptyList_returnsNull() {
@@ -27,7 +26,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Tests mapping EmptyText to the corresponding error text.
+     * EmptyText is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_emptyText_returnsCorrectError() {
@@ -38,7 +37,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Tests mapping TextTooLong to the corresponding error text.
+     * TextTooLong is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_textTooLong_returnsCorrectError() {
@@ -49,7 +48,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Tests mapping WishNotFound to the corresponding error text.
+     * WishNotFound is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_itemNotFound_returnsCorrectError() {
@@ -60,7 +59,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Tests that with multiple errors in the list, the first error always wins.
+     * With several errors in the list, the first one always wins.
      */
     @Test
     fun mapWishlistValidationErrors_multipleErrors_returnsFirstError() {
@@ -80,7 +79,7 @@ class WishlistErrorsTest {
     }
 
     @Test
-    fun duplicateWishReturnsDuplicateText() {
+    fun doppelterWunschErgibtDuplikatText() {
         assertEquals(R.string.error_wish_duplicate, mapWishlistValidationErrors(listOf(WishlistValidationError.DuplicateText)))
     }
 }

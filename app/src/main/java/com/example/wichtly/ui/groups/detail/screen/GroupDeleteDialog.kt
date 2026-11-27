@@ -11,18 +11,13 @@ import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Dialog zur Bestätigung des Löschens einer ganzen Wichtelgruppe.
+ * Stateless dialog that confirms deleting a whole gift group.
  *
- * Warum ein ausdrücklicher Hinweis?
- * Mit der Gruppe verschwinden auch alle Teilnehmer, Wunschlisten und die gespeicherten Auslosungen.
- * Das ist nicht rückgängig zu machen und muss vor dem Bestätigen klar gesagt werden.
+ * States explicitly that all participants, wishlists and saved draws disappear with the group,
+ * because this cannot be undone.
  *
- * @param groupName Name der zu löschenden Gruppe.
- * @param errorMessage Optionale Fehlermeldung, falls das Löschen fehlgeschlagen ist.
- * @param isBusy Deaktiviert die Buttons während des laufenden Löschvorgangs.
- * @param onConfirm Callback beim Bestätigen der Löschung.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
- * @param modifier Optionaler Layout-Modifier.
+ * @param errorMessage optional error message if deleting failed.
+ * @param isBusy disables the buttons while the delete is running.
  */
 @Composable
 fun GroupDeleteDialog(
@@ -41,7 +36,7 @@ fun GroupDeleteDialog(
         confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
-        // Verhindert Mehrfachklicks und Schließen während des Löschens
+        // Prevents double taps and closing the dialog while deleting
         confirmEnabled = !isBusy,
         confirmLoading = isBusy,
         dismissEnabled = !isBusy,

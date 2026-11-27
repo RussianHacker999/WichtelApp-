@@ -13,26 +13,23 @@ import com.example.wichtly.domain.repository.GiftGroupRepository
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryItemUiModel
 import com.example.wichtly.ui.draws.history.screen.DrawHistoryUiState
+import java.time.ZoneId
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import java.time.ZoneId
 
 private const val TAG = "DrawHistoryViewModel"
 
 /**
- * ViewModel für die Auslosungshistorie einer Wichtelgruppe.
+ * ViewModel of the draw history of a gift group.
  *
- * Architektur-Hinweise (MVVM & Clean Architecture):
- * - Der State wird reaktiv über [combine] aus dem Gruppen-Flow ([GiftGroupRepository])
- *   und dem Auslosungs-Summaries-Flow ([DrawRepository]) erzeugt.
- * - [SharingStarted.WhileSubscribed(5_000)] hält den Flow bei Konfigurationsänderungen (z. B. Rotation) 5 Sekunden aktiv.
- * - Mappt [DrawSummary] Objekte aus der Domain in [DrawHistoryItemUiModel] für die UI.
+ * The state is built reactively with [combine] from the group Flow ([GiftGroupRepository]) and the
+ * draw summary Flow ([DrawRepository]); [DrawSummary] objects are mapped to [DrawHistoryItemUiModel].
+ * [SharingStarted.WhileSubscribed] (5 seconds) keeps the Flow active across configuration changes such
+ * as a rotation.
  *
- * @param groupId Die ID der Wichtelgruppe.
- * @param drawRepository Repository für Auslosungsdaten.
- * @param giftGroupRepository Repository für Gruppendaten.
+ * @param groupId ID of the gift group.
  */
 class DrawHistoryViewModel(
     private val groupId: String,
@@ -68,16 +65,14 @@ class DrawHistoryViewModel(
         initialValue = DrawHistoryUiState(isLoading = true),
     )
 
-    private fun mapSummaryToUiModel(summary: DrawSummary): DrawHistoryItemUiModel {
-        return DrawHistoryItemUiModel(
-            id = summary.id,
-            drawnAt = summary.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
-        )
-    }
+    private fun mapSummaryToUiModel(summary: DrawSummary): DrawHistoryItemUiModel = DrawHistoryItemUiModel(
+        id = summary.id,
+        drawnAt = summary.drawnAt.atZone(ZoneId.systemDefault()).toLocalDateTime(),
+    )
 
     companion object {
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         * Creates the ViewModel with its dependencies from the [AppContainer].
          */
         fun factory(container: AppContainer, groupId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {

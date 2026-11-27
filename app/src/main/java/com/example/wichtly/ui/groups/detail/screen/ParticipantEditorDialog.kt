@@ -16,13 +16,12 @@ import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zum Hinzufügen und Bearbeiten eines Wichtelgruppen-Teilnehmers
- * inklusive Foto-Auswahl und Aufnahme-Workflow.
+ * Stateless dialog for adding and editing a participant of a gift group,
+ * including photo selection and the capture flow.
  *
- * @param editor Zustand des Editors: Modus (Titel), Name, Namensfehler und Fotofeld.
- * @param isBusy Deaktiviert Interaktionen während eines aktiven Speichervorgangs.
- * @param actions Alle Aktionen des Editors, siehe [ParticipantEditorActions].
- * @param modifier Optionaler Layout-Modifier.
+ * @param editor state of the editor: mode (title), name, name error and photo field.
+ * @param isBusy disables interaction while saving.
+ * @param actions all actions of the editor, see [ParticipantEditorActions].
  */
 @Composable
 fun ParticipantEditorDialog(
@@ -59,10 +58,6 @@ fun ParticipantEditorDialog(
         )
     }
 }
-
-/* ============================================================================
- * Previews (Vorschaudarstellungen in WichtlyTheme)
- * ============================================================================ */
 
 @Composable
 private fun PreviewDialog(editor: ParticipantEditorUiState, isBusy: Boolean = false) {

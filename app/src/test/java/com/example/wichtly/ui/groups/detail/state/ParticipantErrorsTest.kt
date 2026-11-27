@@ -9,14 +9,13 @@ import org.junit.Test
 /**
  * Unit tests for ParticipantErrors.kt.
  *
- * Why these tests matter:
- * Verifies the correct mapping of all [ParticipantValidationError] types to user-friendly
- * error texts, as well as the strict separation of field errors and general errors.
+ * Covers the translation of every [ParticipantValidationError] type into a user-facing error text
+ * and the strict separation of field errors and general errors.
  */
 class ParticipantErrorsTest {
 
     /**
-     * Tests that an empty error list returns neither field errors nor general errors.
+     * An empty error list returns neither a field error nor a general error.
      */
     @Test
     fun mapParticipantValidationErrors_emptyList_returnsNullErrors() {
@@ -28,7 +27,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests mapping EmptyName to the corresponding nameError.
+     * EmptyName is translated into the matching nameError.
      */
     @Test
     fun mapParticipantValidationErrors_emptyName_returnsCorrectNameError() {
@@ -40,7 +39,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests mapping NameTooLong to the corresponding nameError.
+     * NameTooLong is translated into the matching nameError.
      */
     @Test
     fun mapParticipantValidationErrors_nameTooLong_returnsCorrectNameError() {
@@ -52,7 +51,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests mapping DuplicateName to the corresponding nameError.
+     * DuplicateName is translated into the matching nameError.
      */
     @Test
     fun mapParticipantValidationErrors_duplicateNameInGroup_returnsCorrectNameError() {
@@ -64,7 +63,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests mapping ParticipantNotFound to the general error (generalError).
+     * ParticipantNotFound is translated into the general error (generalError).
      */
     @Test
     fun mapParticipantValidationErrors_participantNotFound_returnsCorrectGeneralError() {
@@ -76,7 +75,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests mapping GroupNotFound to the general error (generalError).
+     * GroupNotFound is translated into the general error (generalError).
      */
     @Test
     fun mapParticipantValidationErrors_groupNotFound_returnsCorrectGeneralError() {
@@ -88,13 +87,13 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Tests that with multiple name errors in the list, only the first one is used as nameError (exactly one text).
+     * With several name errors in the list, only the first one becomes the nameError (exactly one text).
      */
     @Test
     fun mapParticipantValidationErrors_multipleNameErrors_returnsSingleFirstNameError() {
         val errors = listOf(
             ParticipantValidationError.EmptyName,
-            ParticipantValidationError.NameTooLong
+            ParticipantValidationError.NameTooLong,
         )
         val result = mapParticipantValidationErrors(errors)
 

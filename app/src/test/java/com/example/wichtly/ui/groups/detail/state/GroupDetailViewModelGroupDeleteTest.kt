@@ -9,6 +9,7 @@ import com.example.wichtly.testutil.FakeGiftGroupRepository
 import com.example.wichtly.testutil.FakeParticipantRepository
 import com.example.wichtly.testutil.FakePhotoRepository
 import com.example.wichtly.testutil.MainDispatcherRule
+import java.time.LocalDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -16,7 +17,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
 
 /**
  * Tests for deleting the whole group in [GroupDetailViewModel].
@@ -43,11 +43,11 @@ class GroupDetailViewModelGroupDeleteTest {
     }
 
     private fun groupRepoWithGroup() = FakeGiftGroupRepository().apply {
-        setGroups(listOf(GiftGroup(id = groupId, name = "Family", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))))
+        setGroups(listOf(GiftGroup(id = groupId, name = "Familie", budgetCents = 2500, drawDay = LocalDate.of(2026, 12, 24))))
     }
 
     @Test
-    fun confirmedDeleteRemovesGroupAndSignalsNavigation() = runTest {
+    fun bestaetigtesLoeschenEntferntGruppeUndSignalisiertNavigation() = runTest {
         val groupRepo = groupRepoWithGroup()
         val viewModel = createViewModel(groupRepo)
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -67,7 +67,7 @@ class GroupDetailViewModelGroupDeleteTest {
         assertFalse(state.notFound)
         assertEquals(1, groupRepo.deleteCalls)
 
-        // After acknowledging, the event is gone, but "not found" still does not appear
+        // After the acknowledgement the event is gone, and "not found" still does not appear
         viewModel.onGroupDeletedHandled()
         testScheduler.advanceUntilIdle()
         assertFalse(viewModel.uiState.value.isGroupDeleted)
@@ -75,7 +75,7 @@ class GroupDetailViewModelGroupDeleteTest {
     }
 
     @Test
-    fun cancelClosesDialogWithoutDeleting() = runTest {
+    fun abbrechenSchliesstDialogOhneZuLoeschen() = runTest {
         val groupRepo = groupRepoWithGroup()
         val viewModel = createViewModel(groupRepo)
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -90,7 +90,7 @@ class GroupDetailViewModelGroupDeleteTest {
     }
 
     @Test
-    fun deleteErrorKeepsDialogOpenAndShowsError() = runTest {
+    fun fehlerBeimLoeschenLaesstDialogOffenUndZeigtFehler() = runTest {
         val groupRepo = groupRepoWithGroup()
         val viewModel = createViewModel(groupRepo)
         backgroundScope.launch { viewModel.uiState.collect {} }

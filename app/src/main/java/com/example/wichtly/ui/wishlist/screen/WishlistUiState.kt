@@ -4,37 +4,22 @@ import androidx.annotation.StringRes
 import com.example.wichtly.domain.model.participant.WishlistItem
 
 /**
- * UI State für den ParticipantWishlistScreen.
+ * UI state of the ParticipantWishlistScreen.
  *
- * Erklärung der Zustände (alle Fehlerfelder sind String-Ressourcen aus strings.xml):
- * - `isLoading == true`: Der Bildschirm lädt aktuell noch die Daten des Teilnehmers.
- * - `notFound == true`: Der Teilnehmer existiert nicht in der Datenbank oder wurde gelöscht.
- * - `items`: Eine leere Liste (`items.isEmpty()`) ist ein VOLLSTÄNDIG GÜLTIGER ZUSTAND
- *   (der Teilnehmer hat bisher noch keine Wünsche eingetragen) und stellt KEINEN Fehler dar!
- * - `errorMessage`: Enthält einen Fehlertext, falls beim Datenabruf ein Fehler aufgetreten ist.
- * - `isSaving`: Gibt an, ob aktuell ein Wunsch hinzugefügt, bearbeitet oder gelöscht wird.
- * - `showEditor`: Steuert die Sichtbarkeit des Dialogs/Editors zum Erstellen oder Bearbeiten eines Wunsches.
- * - `editingItemId`: Steuert den Modus des Editors:
- *   - `null`: Hinzufügen-Modus (neuer Wunsch wird angelegt).
- *   - `String` (ID): Bearbeiten-Modus für den Wunsch mit dieser ID.
- * - `editorText`: Aktueller Textinhalt im Eingabefeld des Editor-Dialogs.
- * - `editorError`: Enthält Validierungs- und Speicherfehler beim Hinzufügen oder Bearbeiten eines Wunsches,
- *   die direkt im Editor-Dialog angezeigt werden (und nicht den gesamten Screen ersetzen).
- * - `pendingDeleteItemId`: Eindeutige ID des Wunsches, für den die Löschen-Bestätigung angefordert wurde (null = kein Löschdialog aktiv).
- * - `deleteError`: Optionale Fehlermeldung, die direkt im Löschdialog angezeigt wird, falls das Löschen eines Wunsches fehlschlägt.
+ * All error fields are string resources from strings.xml.
  *
- * @property isLoading Zeigt an, ob die Erstdaten geladen werden.
- * @property participantName Name des Teilnehmers für die Überschrift (null, falls nicht vorhanden/gefunden).
- * @property notFound Der Teilnehmer existiert nicht (mehr).
- * @property items Liste der Wünsche des Teilnehmers.
- * @property errorMessage Fehlermeldung auf Screen-Ebene für Ladefehler.
- * @property isSaving Zeigt einen laufenden Speicher-/Löschvorgang an.
- * @property showEditor Steuert die Sichtbarkeit des Editor-Dialogs.
- * @property editingItemId ID des zu bearbeitenden Wunsches (null = Hinzufügen-Modus, ID = Bearbeiten-Modus).
- * @property editorText Der aktuell im Editor eingegebene Wunschtext.
- * @property editorError Validierungs- oder Speicherfehler im Editor-Dialog.
- * @property pendingDeleteItemId ID des zur Löschung vorgemerkten Wunsches für den Bestätigungsdialog.
- * @property deleteError Optionale Fehlermeldung zur Anzeige direkt im Lösch-Bestätigungsdialog.
+ * @property isLoading the initial data is being loaded.
+ * @property participantName name of the participant for the heading (null if missing or not found).
+ * @property notFound the participant does not exist (any more).
+ * @property items the participant's wishes. An empty list is a valid state (no wishes yet), not an error.
+ * @property errorMessage loading error at screen level.
+ * @property isSaving a wish is being added, edited or deleted.
+ * @property showEditor whether the editor dialog is shown.
+ * @property editingItemId ID of the wish being edited (null = add mode, ID = edit mode).
+ * @property editorText the wish text currently entered in the editor.
+ * @property editorError validation or save error, shown in the editor dialog (it does not replace the screen).
+ * @property pendingDeleteItemId ID of the wish marked for deletion in the confirmation dialog (null = no dialog).
+ * @property deleteError optional error message shown in the delete confirmation dialog.
  */
 data class WishlistUiState(
     val isLoading: Boolean = true,

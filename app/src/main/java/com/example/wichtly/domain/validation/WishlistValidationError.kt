@@ -1,8 +1,8 @@
 package com.example.wichtly.domain.validation
 
 /**
- * Fachliche Fehler für Wünsche. Als data object, damit sie in Logs und Tests lesbar heißen.
- * Ergebnis des Speicherns: [com.example.wichtly.domain.result.WishlistItemResult].
+ * Business errors for wishes. Declared as data objects so they have readable names in logs and tests.
+ * Result of saving: [com.example.wichtly.domain.result.WishlistItemResult].
  */
 sealed interface WishlistValidationError {
     data object EmptyText : WishlistValidationError

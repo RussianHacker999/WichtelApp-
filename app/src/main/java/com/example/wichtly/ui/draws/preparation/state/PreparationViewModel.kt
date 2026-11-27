@@ -17,6 +17,7 @@ import com.example.wichtly.logging.AppLog
 import com.example.wichtly.ui.common.asResult
 import com.example.wichtly.ui.common.saveErrorMessage
 import com.example.wichtly.ui.draws.preparation.screen.PreparationUiState
+import java.time.LocalDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,12 +26,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 private const val TAG = "PreparationViewModel"
 
 /**
- * Lokaler Zustand der Vorbereitung, der nicht aus der Datenbank kommt.
+ * Local state of the preparation that does not come from the database.
  */
 private data class PreparationLocalState(
     val isDrawing: Boolean = false,
@@ -39,11 +39,11 @@ private data class PreparationLocalState(
 )
 
 /**
- * Verbindet die ausgewählte Gruppe mit ihren Daten aus den Repositories und startet die Auslosung.
+ * Connects the selected group with its data from the repositories and starts the draw.
  *
- * @param groupId ID der Gruppe; kommt über die Navigation (Gruppenliste oder Gruppendetails).
- * @param performDraw Prüft, ob gelost werden darf, lost aus und speichert die Auslosung.
- * @param today Liefert das heutige Datum (Wichteltag vorbei?); in Tests ersetzbar.
+ * @param groupId ID of the group; comes from the navigation (group list or group detail).
+ * @param performDraw checks whether a draw is allowed, draws and saves the draw.
+ * @param today supplies today's date (has the draw day passed?); replaceable in tests.
  */
 class PreparationViewModel(
     private val groupId: String,
@@ -53,18 +53,20 @@ class PreparationViewModel(
     private val today: () -> LocalDate = { LocalDate.now() },
 ) : ViewModel() {
 
-    // Zustände, die sich während der Laufzeit ändern: läuft die Auslosung, gab es einen Fehler,
-    // wurde eine Auslosung gespeichert (Einmal-Ereignis für die Navigation)?
-    private val _localState = MutableStateFlow(PreparationLocalState())
+    // State that changes at runtime: is the draw running, was there an error,
+    // was a draw saved (one-time event for the navigation)?
+    private val localStateFlow = MutableStateFlow(PreparationLocalState())
 
-    // combine führt mehrere Flows zu einem zusammen: Jede Änderung von Gruppe, Teilnehmern oder lokalem
-    // Zustand erzeugt einen neuen PreparationUiState.
+    /**
+     * UI state of the preparation. Every change of group, participants or local state creates a new
+     * [PreparationUiState]. A StateFlow (not a plain Flow) because the screen always needs the current value.
+     */
     val uiState: StateFlow<PreparationUiState> = combine(
         giftGroupRepository.observeGiftGroupById(groupId)
             .asResult(TAG, "Failed to load the group"),
         participantRepository.observeParticipantsByGroupId(groupId)
             .asResult(TAG, "Failed to load the participants"),
-        _localState,
+        localStateFlow,
     ) { groupResult, participantsResult, localState ->
         val group = groupResult.getOrNull()
         val participants = participantsResult.getOrDefault(emptyList())
@@ -74,7 +76,7 @@ class PreparationViewModel(
             else -> null
         }
         val notFound = group == null && loadError == null
-        // Ob "Jetzt losen" aktiv angezeigt wird; verbindlich prüft der PerformDrawUseCase beim Losen
+        // Whether "Draw now" is shown as enabled; PerformDrawUseCase does the binding check when drawing
         val drawDayPassed = group != null && !DrawRules.isDrawDayOpen(group.drawDay, today())
         val canStartDraw = group != null && DrawRules.canDraw(participants.size) && !drawDayPassed
 
@@ -91,59 +93,56 @@ class PreparationViewModel(
             completedDrawId = localState.completedDrawId,
         )
     }.stateIn(
-        // viewModelScope: Wird das ViewModel zerstört, endet auch die Beobachtung
         scope = viewModelScope,
-        // Nur beobachten, solange mindestens ein Screen den Zustand anzeigt (5 s Puffer für Drehungen)
+        // Observe only while at least one screen shows the state (5 s buffer for rotations)
         started = SharingStarted.WhileSubscribed(5_000),
         initialValue = PreparationUiState(isLoading = true),
     )
-    /* Warum ein StateFlow statt eines Flows?
-     * Ein Flow ist ein Strom von Ereignissen ohne festen Wert. Der Screen braucht aber jederzeit den
-     * aktuellen Stand; ein StateFlow liefert ihn immer als value.
-     */
 
     /**
-     * Startet die Auslosung. Ob gelost werden darf (Gruppe vorhanden, Wichteltag nicht vorbei, mindestens
-     * drei Teilnehmer), prüft der PerformDrawUseCase. Bei Erfolg steht die ID der neuen Auslosung in
-     * [PreparationUiState.completedDrawId]; die Route navigiert dann zum Ergebnis.
+     * Starts the draw. Whether a draw is allowed (group exists, draw day not over, at least three
+     * participants) is checked by PerformDrawUseCase. On success the ID of the new draw is in
+     * [PreparationUiState.completedDrawId]; the route then navigates to the result.
      */
     fun onStartDrawClick() {
-        // Läuft die Auslosung schon, passiert nichts (Doppelklick-Schutz)
-        if (_localState.value.isDrawing) return
-        _localState.update { it.copy(isDrawing = true, drawError = null) }
+        // If the draw is already running, nothing happens (protection against double taps)
+        if (localStateFlow.value.isDrawing) return
+        localStateFlow.update { it.copy(isDrawing = true, drawError = null) }
 
         viewModelScope.launch {
             try {
                 when (val result = performDraw(groupId)) {
-                    is DrawResult.Success -> _localState.update { it.copy(completedDrawId = result.draw.id) }
+                    is DrawResult.Success -> localStateFlow.update { it.copy(completedDrawId = result.draw.id) }
+
                     is DrawResult.ValidationError -> {
-                        // Details hat der PerformDrawUseCase bereits geloggt
+                        // PerformDrawUseCase has already logged the details
                         AppLog.d(TAG) { "Draw for group $groupId not started: ${result.errors.joinToString()}" }
-                        _localState.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
+                        localStateFlow.update { it.copy(drawError = mapDrawValidationErrors(result.errors)) }
                     }
                 }
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 AppLog.e(TAG, "Draw failed", e)
-                _localState.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
+                localStateFlow.update { it.copy(drawError = saveErrorMessage(e, R.string.error_draw_failed)) }
             } finally {
-                _localState.update { it.copy(isDrawing = false) }
+                localStateFlow.update { it.copy(isDrawing = false) }
             }
         }
     }
 
     /**
-     * Setzt das Ereignis [PreparationUiState.completedDrawId] zurück, nachdem die Route navigiert hat.
-     * Ohne Zurücksetzen würde nach einer Drehung ein zweites Mal navigiert.
+     * Resets the event [PreparationUiState.completedDrawId] after the route has navigated.
+     *
+     * Without the reset the app would navigate a second time after a rotation.
      */
     fun onDrawHandled() {
-        _localState.update { it.copy(completedDrawId = null) }
+        localStateFlow.update { it.copy(completedDrawId = null) }
     }
 
     companion object {
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         * Creates the ViewModel with its dependencies from the [AppContainer].
          */
         fun factory(container: AppContainer, groupId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {

@@ -29,7 +29,7 @@ import com.example.wichtly.ui.components.display.Sparkle
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-/** Zentrierter Ladekreis mit kurzem Text. Auf allen Screens gleich. */
+/** Centred progress indicator with a short text. The same on every screen. */
 @Composable
 fun LoadingState(text: String, modifier: Modifier = Modifier) {
     Column(
@@ -53,10 +53,10 @@ fun LoadingState(text: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * Zentriertes Icon, Titel, Text und optionaler Button. Für Fehler-, Nicht-gefunden- und Leer-Zustände.
+ * Centred icon, title, text and optional button. For error, not-found and empty states.
  *
- * @param isError Zeigt das Icon in der Fehlerfarbe.
- * @param fillMaxSize false, wenn der Zustand innerhalb einer scrollenden Liste steht (leere Listen).
+ * @param isError shows the icon in the error colour.
+ * @param fillMaxSize false if the state sits inside a scrolling list (empty lists).
  */
 @Composable
 fun MessageState(

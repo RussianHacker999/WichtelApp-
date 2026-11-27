@@ -4,15 +4,12 @@ import com.example.wichtly.domain.model.group.DrawType
 import java.time.LocalDateTime
 
 /**
- * UI-Modell eines gespeicherten Auslosungs-Durchlaufs für die Detailansicht.
+ * UI model of a saved draw for the detail screen.
  *
- * @property id Eindeutige ID der Auslosung.
- * @property groupId ID der Wichtelgruppe.
- * @property groupName Aktueller Name der Wichtelgruppe (bewusst kein Snapshot, siehe DrawDetailViewModel).
- *   null = Name konnte nicht geladen werden; die UI zeigt dann den Platzhalter aus strings.xml.
- * @property drawnAt Datum und Uhrzeit der Auslosung (lokale Zeitzone).
- * @property drawType Gewählte Wichtelart (z. B. NORMAL oder JUNK).
- * @property assignments Liste der Zuordnungen (Wer schenkt wem) dieses Durchlaufs.
+ * @property groupName current name of the gift group (deliberately not a snapshot, see DrawDetailViewModel).
+ *   null = the name could not be loaded; the UI then shows the placeholder from strings.xml.
+ * @property drawnAt date and time of the draw (local time zone).
+ * @property assignments the assignments (who gives to whom) of this draw.
  */
 data class DrawDetailUiModel(
     val id: String,
@@ -24,15 +21,10 @@ data class DrawDetailUiModel(
 )
 
 /**
- * UI-Modell einer einzelnen Ziehungs-Zuordnung (Schenker -> Beschenkter)
- * inklusive der historischen Wunschliste des Beschenkten.
+ * UI model of a single assignment (giver -> receiver), including the receiver's wishlist at draw time.
  *
- * @property id Primärschlüssel der Zuordnung; eindeutiger Listen-Key, auch wenn eine Person doppelt vorkäme.
- * @property giverId ID der schenkenden Person.
- * @property giverName Name der schenkenden Person.
- * @property receiverId ID der beschenkten Person.
- * @property receiverName Name der beschenkten Person.
- * @property wishes Liste der Wunschtexte der beschenkten Person zum Zeitpunkt der Auslosung (Snapshot).
+ * @property id primary key of the assignment; a unique list key even if a person appeared twice.
+ * @property wishes the receiver's wish texts at draw time (snapshot).
  */
 data class DrawAssignmentUiModel(
     val id: String,
@@ -40,5 +32,5 @@ data class DrawAssignmentUiModel(
     val giverName: String,
     val receiverId: String,
     val receiverName: String,
-    val wishes: List<String>
+    val wishes: List<String>,
 )
