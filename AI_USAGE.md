@@ -1506,10 +1506,8 @@ WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
 - Tests as the main check
 
 **Melissa**
-- There was a focus on the lecture content (Android Studio with Grandel, Kotlin, Material 3, Emulator 
-  (I worked with a virtual device: Pixel 8 with Android 17.0 and API 37.0 - as slides 01)
-- The elements from Material 3 are great for creating a beautiful app design
-- The elements drom Material 3 (and AI) helped us building faster a pretty UI. Without it, we would have spent more time implementing UI components ourselves. In addition, this gives our app the familiar Google design
+- The was a focus on the lecture content (Android Studio with Grandel, Kotlin, Material 3, Emulator)
+- The elements from Material 3 (and AI) helped us building faster a pretty UI. Without it, we would have spent more time implementing UI components ourselves. In addition, Material 3 gives Wichtly the familiar Google design
 - We separate the UI, logic and data (e.g.by MVVM, repositorys and DAO)
 - At first, I worked exclusively with the free version of Copilot AI. As the project progressed, I signed up for GitHub Education. This allowed me to use an integrated AI agent in the project. I found that this enabled me to write code faster and with higher quality.
 
@@ -1543,11 +1541,11 @@ self-made projects or Android).
 
 **Melissa**
 - I learn to develop with Android Studio and Kotlin. 
-  I now understand the meaning of elements such as @Composable, Flow, @Suspend, Emit(), and so on.
-  I can control a virtual Device.
-- I understand the data flow behind our MVVM models
-- I learned about permissions (e.g. for camera access)
-- I learnd tha you can save Data permanent via Database. Before this project I mainly worked with temporary data.
+  Now i understand the meaning of importand mobile application elements such as @Composable, Flow, @Suspend, Emit() ... .
+  furthermore i can control a virtual Device.
+- I understand the data flow behind our MVVM models.
+- I learned about permissions. (e.g. Camera permissions)
+- I learnd that you can save Data permanent via Database. Before this project I mainly worked with temporary data.
   In Android Studio a greate solution is Room. Room provides various annotations, such as @Entity, @Dao, and @Database, allowing         you to interact with an SQL database using concise code.
 
 **Team**
@@ -1584,8 +1582,9 @@ self-made projects or Android).
 
 **Melissa**
 - Helped:
-  - It helped me understand by explaining individual parts of the code from ver KI.
-  - Integrated AI agents can create beautiful UI elements
+  - Explaining individual parts of the code from AI helped me with understanding
+  - Integrated AI agents can create pretty UI elements
+  - Asking my teammates for advice or help has made my work more efficient. My teammates and I worked well together as a team.
 - Got in the way:
   - When I had a merge conflict, resolving it took a long time.
     Going forward, we'll coordinate who will edit a file and when. 
