@@ -9,6 +9,10 @@ This document records every prompt we sent to an AI assistant for the project Wi
 Gemini in Android Studio until 2026-11-17, Claude Code (Claude Opus 5.5) from 2026-11-19.
 Entries that used a different tool name it in the heading.
 
+### Melissa 
+Over the course of the project, I switched my tools from the free version of Copilot to GitHub Education.
+Due to the change, I will not define my default tool.
+
 ### 2026-11-02 (Viktoria)
 **Prompt 1** : "Add all required dependencies needed for the database 
 layer with Room, according to our existing Kotlin-Setup/-Version.
@@ -122,13 +126,6 @@ for future date.\
 
 ### 2026-11-08 (Melissa, Meyer), Copilot von Microsoft (kostenlos)
 **Prompt 1**: Wie kann ich diese Methode im ViewModel nutzen? Die Methode gibt Daten aus einer Datenbank zurück. Ich möchte diese Daten im ViewModel nutzen. Muss ich einen bei jedem Auslesen ein neues GiftGroupRepositoryImpl-Objekt erstellen? ​‌
-class GiftGroupRepositoryImpl(
-    private val giftGroupDao: GiftGroupDao,
-    private val validator: GiftGroupValidator
-) : GiftGroupRepository {
-        override fun getGiftGroups(): Flow<List<GiftGroup>> {
-        return giftGroupDao.getAllGiftGroups().map { it.toDomainModelList() }
-    }} 
 **Promt 2**: Bitte erklaere mir die typischen Verwendungen im ViewModel genauer
 **Promt 3**: Ich brauche erstmal ausschließliche den Namen der Gruppe. Ist es sinnvoll nur den Namen der Gruppe zuspeichert oder sollte man trotzem alles speichern? fun GiftGroupEntity.toDomainModel(): GiftGroup = GiftGroup(
     id = id,
@@ -677,7 +674,6 @@ fun wishlist(participantId: String) = "wishlist/$participantId"
 **Accepted**: Schrittplan für GroupsUiState, GroupsViewModel, Factory, GroupsRoute, Callbacks.\
 **Commits**: -
 
-
 ### 2026-11-17 (Viktoria)
 
 **Prompt 1**: Tell me what exactly would belong to data- and domain sections of our camera feature. /plan
@@ -981,6 +977,7 @@ Danach soll eine LazyColumn zum Scrollen kommen, in der die Namen aller Teilnehm
 Schreibe den Code leicht verständlich und kommentiere ihn auf Deutsch.
 **Angenommen:**            ganzen Vorschlag (in spaeteren Commits angepasst und nachkommientiert
 **Commits:**               50ee8b3
+
  ### 2026-11-21 (Melissa, Meyer), Copilot (kostenlos)
 **Prompt 1**:Was muss ich in den Code einfügen, sodass sich die Card in einem Scrollbaren Bereich befinden? Beispielsitualtion: Die Card-Elemente nehmen mehr Platz ein als die Seite groß ist. Dann soll man durch scrollen die unteren Elemente erreichen können. Die Button sollen aber ihre Positon beibehalten. + Anhang (aktuelle Datei: GroupsScreen)..\
 **Geaendert**:          Column Modifier
@@ -1138,7 +1135,7 @@ Schreibe den Code leicht verständlich und kommentiere ihn auf Deutsch.
     scope = viewModelScope,
     started = SharingStarted.WhileSubscribed(5_000),
     initialValue = PreparationUiState(),
-) bitte zerlege mir die Funktion ein bischen mehr und erkläre mir was getan wird. Kann ich das auch einfacher schrieben?
+) Bitte zerlege mir die Funktion ein bischen mehr und erkläre mir was getan wird. Kann ich das auch einfacher schrieben?
 **Prompt 2**: Kann ich auch val notFound = (group == null && errorMessage == null) schreiben? Erkläre mir genauer, warum ich von Flow in StateFlow umwandelen sollte.
 **Prompt 3:**: Erklaere mir nun nocht die Parameter von .stateIn()
 **Prompt 4**: private val startingState = MutableStateFlow(false)
@@ -1307,8 +1304,6 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 "Refactor both Grouplist and Groupdetail so that "Losen" becomes main button (similar to proposal D) and adding actions are somewhetere else."
 "create possibility to close the ClosedTag component in case the person is not the one in question"\
 
-
-
 ### 2026-11-25 (Viktoria)
 
 **Prompt 1**: "Überführe alle hardcodierten Stringliterale in die strings xml"
@@ -1362,7 +1357,6 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Prompt 13**: schütze form/editor eingaben mit SavedStateHandle; erstelle einen prozess der verwaise photos bei Appstart aufräumt; erstelle ein grundlegendes README gemäß dem derzeitigen Codestand; stelle die viewmodel creation um auf viewModelFactory creation, lade alle daten für die auslösung zusammen inerhalb Transaktion, navigiere nach group create direkt ins detail, adde fehler handling für vollen speicher inklusive string, entferne stale ladefehler aus dem stateflow, beschränke die fotopfade auf filesDir/photos verzeichnis, stelle savephotofile auf verschieben statt kopieren um, trenne ladefehler von aktionsfehler beim losen, handle photocaptureerror als text,
 **Accepted**: as is.
 **Commits**: 60e30c0
-
 
 **Prompt 14**: erstelle eigenen DeleteParticipantUseCase (erst datenbank, dann foto), erstelle für alle usecases einheitliches deleteresult, kapsele den participant editor state im groupdetailuistate, passe backup/data extraction rules an no-backup an, vereinheitliche fehler-mapper in group, wishlist, participant; lösche dead code in mainactivity und ungeuste androidtest dependency
 **Accepted**: as is.
