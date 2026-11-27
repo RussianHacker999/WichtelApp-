@@ -1126,14 +1126,12 @@ Set up ktlint and run it through our code.
 **Accepted**: Improved comments, README, CLAUDE.md, AGENTS.md, ktlint.
 **Commits**: 7a45ff0, 5c13055, 5636f68
 
-
+**Prompt 3**
+Please prevent the DrawDetail popup card from closing on app rotation. 
+**Accepted**: Changes to state handling in route/vm.
+**Commits*: 1133ec0
 
 ## Reflection
-
-<!-- Part 3 of the log book (exam slides: "one to two pages" in total, "the part that counts most").
-     The four topics are the guiding questions from the slides; inside each topic one block per member,
-     then "Team" for what applies to all of us. Back every point with an entry or a commit.
-     This is a long draft: shorten it to about two pages before the submission. -->
 
 ### Why this setup, and how it changed
 
