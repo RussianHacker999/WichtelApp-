@@ -1443,7 +1443,7 @@ Please prevent the DrawDetail popup card from closing on app rotation.
 
 ### 2026-11-27 (Merve, Öztürk), Claude.ai (Opus 5.5)
 **Prompt 1**: "ich habe folgendes Problem: im NavHost gibt es einen Widerspruch – requireNotNull und ? im AppNavHost raus, das ?. macht keinen Sinn" (Anhang: Foto vom Pseudocode des Dozenten, umgesetzt am Beispiel DrawHistory)
-```kotlin
+```
 backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID)?.let { groupId ->
     DrawHistoryRoute(groupId = groupId, ...)
 } ?: run {
@@ -1465,7 +1465,7 @@ backStackEntry.arguments?.getString(Routes.ARG_GROUP_ID)?.let { groupId ->
 **Commits**: 279924a
 
 **Prompt 4**: Screenshot von Block 4 (Gruppendetail) mit "..." im Code
-```kotlin
+```
 WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
     GroupDetailRoute(
         groupId = groupId,
@@ -1489,7 +1489,9 @@ WithArgument(backStackEntry, Routes.ARG_GROUP_ID, navController) { groupId ->
 ### Why this setup, and how it changed
 
 **Merve**
-- *To be added.*
+- Only Claude.ai (Opus 5.5), used as a tutor for navigation and Kotlin, because I had little programming experience.
+- At first Claude produced a complete solution, including changes to other people's files. I rejected it and asked to work step by step, with an explanation for every line.
+- Shared real code, screenshots of errors and the git log so that Claude worked with the actual project state.
 
 **Viktoria**
 - Gemini in Android Studio directly in the IDE because it was free. Most work on data and domain was done here. 
@@ -1518,7 +1520,10 @@ self-made projects or Android).
 ### What you learned to control
 
 **Merve**
-- *To be added.*
+- Explanations first, then code: why a line is needed and what it affects.
+- Review my own code with Claude and fix the errors myself instead of copying a corrected version.
+- Basics of Kotlin and Jetpack Compose, especially how functions and callbacks work together and how to handle missing values safely.
+- Navigation pattern: the screen only reports clicks via callbacks, AppNavHost decides where to go.
 
 **Viktoria**
 - Switch between plan-only and implementation mode. 
@@ -1547,7 +1552,12 @@ self-made projects or Android).
 ### What helped, what got in the way
 
 **Merve**
-- *To be added.*
+- Helped:
+  - Step-by-step explanations with examples and flow diagrams (e.g. the data flow from the database to the detail screen).
+  - Code reviews of my drafts that explained the error instead of only fixing it.
+  - Routes of team members (e.g. GroupDetailRoute) as a template.
+- Got in the way:
+  - The AI often offered a finished solution right away instead of explaining first.
 
 **Viktoria**
 - Helped:
@@ -1588,7 +1598,9 @@ self-made projects or Android).
 ### What you would do differently
 
 **Merve**
-- *To be added.*
+- Write tests earlier, in parallel to the navigation.
+- Commit smaller steps right away instead of implementing a lot at once and committing afterwards.
+- Upload the lecture slides to the AI at the beginning, so that its solutions follow the slides and match the lecture content.
 
 **Viktoria**
 - Decide linting and CI as early as possible.
