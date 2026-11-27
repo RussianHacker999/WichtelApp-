@@ -1153,7 +1153,10 @@ Set up ktlint and run it through our code.
 - Tests as the main check
 
 **Melissa**
-- *To be added.*
+- There was a focus on the lecture content (Android Studio with Grandel, Kotlin, Material 3, Emulator 
+  (I worked with a virtual device: Pixel 8 with Android 17.0 and API 37.0 - as slides 01)
+- The elements from Material 3 are great for creating a beautiful app design
+- We separate the UI, logic and data (e.g.by MVVM, repositorys and DAO)
 
 **Team**
 - Some members wanted to begin with free assistants, that is why no common start setup was possible.
