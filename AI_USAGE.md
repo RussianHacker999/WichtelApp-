@@ -1239,7 +1239,9 @@ let agents criticise own decisions more thoroughly.
  
 
 **Diana**
-- *To be added.*
+- Merge main into my branch regularly instead of rarely and in large batches
+- Test each feature on the emulator right away, not only at the end
+- Use one (Gemini) chat per feature so the history stays easy to follow
 
 **Melissa**
 - *To be added.*
