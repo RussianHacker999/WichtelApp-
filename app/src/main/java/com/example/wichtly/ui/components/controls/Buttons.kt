@@ -34,14 +34,33 @@ import androidx.compose.ui.unit.sp
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
+/*
+ * Creates consistent buttons for the app.
+ * Buttons are pill-shaped and use [ButtonHeight], or [CompactButtonHeight] for horizontal padding when compact.
+ */
 private val ButtonHeight = 48.dp
 private val CompactButtonHeight = 40.dp
 
+/**
+ * Returns the padding for a button based on its compactnes.
+ * set the horizontal padding value on 10.dp, if compact is true, otherwise 12.dp
+ */
 private fun buttonPadding(compact: Boolean) = PaddingValues(horizontal = if (compact) 10.dp else 12.dp)
 
+/**
+ * Shows the button label and, when icon is set the icon beside.
+ * While loading, a spinner replaces the icon and the label stays visible.
+ * The font size of the label gets smaller to fit in the button if needed.
+ *
+ * @param text The label shown on the button.
+ * @param icon The optional icon shown beside the label.
+ * @param loading Whether to show a loading spinner instead of the icon - loading state
+ * @param loadingColor The spinner color while loading.
+ */
 @Composable
 private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, loadingColor: Color) {
     if (loading) {
+        // elemnet from Material 3 - loading circular
         CircularProgressIndicator(
             modifier = Modifier.size(18.dp),
             strokeWidth = 2.dp,
@@ -52,9 +71,10 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
         Icon(imageVector = icon, contentDescription = null, modifier = Modifier.size(18.dp))
         Spacer(modifier = Modifier.width(Spacing.xs))
     }
-    // So the label is not cut off, autoSize shrinks it step by step down to 11sp if the button is
-    // narrow (two buttons of equal width, large system font). If that is still not enough, it is
-    // shortened with "…" (TextOverflow.Ellipsis).
+    // To prevent the text from being cut off as much as possible,
+    // autoSize gradually reduces its size to 11sp if the button is narrow
+    // (two buttons of equal width, large system font).
+    // If that is not enough, the text is truncated with “…” (TextOverflow.Ellipsis).
     val labelStyle = MaterialTheme.typography.labelLarge
     BasicText(
         text = text,
@@ -66,7 +86,17 @@ private fun ButtonContent(text: String, icon: ImageVector?, loading: Boolean, lo
     )
 }
 
-/** Gold pill button for the main action of a screen or dialog. */
+/** A gold pill-shaped button for the main action on a screen or in a dialog.
+ * use ButtonContent
+ *
+ * @param text The label shown on the button.
+ * @param onClick The function to be called when the button is clicked.
+ * @param modifier The modifier to be applied to the button.
+ * @param icon The optional icon shown beside the label.
+ * @param enabled Whether the button is enabled.
+ * @param loading Whether to show a loading spinner instead of the icon - loading state
+ * @param compact Whether the button should have a small horizontal padding
+ */
 @Composable
 fun PrimaryButton(
     text: String,
@@ -88,7 +118,17 @@ fun PrimaryButton(
     }
 }
 
-/** Outlined pill button for the secondary action next to the [PrimaryButton]. */
+/** An outlined pill-shaped button for a secondary action next to a [PrimaryButton].
+ * use ButtonContent
+ *
+ * @param text The label shown on the button.
+ * @param onClick The function to be called when the button is clicked.
+ * @param modifier The modifier to be applied to the button.
+ * @param icon The optional icon shown beside the label.
+ * @param enabled Whether the button is enabled.
+ * @param loading Whether to show a loading spinner instead of the icon - loading state
+ * @param compact Whether the button should have a small horizontal padding
+ */
 @Composable
 fun SecondaryButton(
     text: String,
@@ -111,7 +151,16 @@ fun SecondaryButton(
     }
 }
 
-/** Red pill button to confirm a delete. */
+/** A red pill-shaped button for confirming a destructive action.
+ * use ButtonContent
+ *
+ * @param text The label shown on the button.
+ * @param onClick The function to be called when the button is clicked.
+ * @param modifier The modifier to be applied to the button.
+ * @param enabled Whether the button is enabled.
+ * @param loading Whether to show a loading spinner instead of the icon - loading state
+ * @param compact Whether the button should have a small horizontal padding
+ */
 @Composable
 fun DangerButton(
     text: String,
@@ -136,7 +185,15 @@ fun DangerButton(
     }
 }
 
-/** Gold text button, e.g. for "Cancel" in dialogs and for links in text. */
+/** A gold text button, for example for cancel actions in dialogs or text links.
+ * use ButtonContent
+ *
+ * @param text The label shown on the button.
+ * @param onClick The function to be called when the button is clicked.
+ * @param modifier The modifier to be applied to the button.
+ * @param enabled Whether the button is enabled.
+ * @param icon The optional icon shown beside the label.
+ */
 @Composable
 fun WichtlyTextButton(
     text: String,
@@ -157,8 +214,15 @@ fun WichtlyTextButton(
 }
 
 /**
- * Small, gold-outlined pill for an action that belongs to a section (e.g. "+ Add" next to the
- * participant list). Keeps the bottom action bar free for the one main action of the screen.
+ * A small, gold-outlined button for an action within a section, such as adding a participant.
+ * This keeps the bottom action bar free for the screen's main action.
+ * use ButtonContent
+ *
+ * @param text The label shown on the button.
+ * @param onClick The function to be called when the button is clicked.
+ * @param modifier The modifier to be applied to the button.
+ * @param icon The optional icon shown beside the label - default: Icons.Filled.Add
+ * @param enabled Whether the button is enabled.
  */
 @Composable
 fun SectionActionButton(

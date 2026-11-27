@@ -37,10 +37,9 @@ fun FieldLabel(text: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * Shortens [text] to at most [maxLength] characters without cutting an emoji (surrogate pair) in half.
- *
- * Used by [WichtlyTextField], so typing and pasting do not exceed the domain limit.
- */
+ * Limits [text] to [maxLength] characters without splitting a surrogate pair, such as an emoji.
+ *  * [WichtlyTextField] uses this for typed and pasted text.
+ *  */
 internal fun limitToLength(text: String, maxLength: Int): String {
     if (text.length <= maxLength) return text
     val cut = if (maxLength > 0 && Character.isHighSurrogate(text[maxLength - 1])) maxLength - 1 else maxLength
