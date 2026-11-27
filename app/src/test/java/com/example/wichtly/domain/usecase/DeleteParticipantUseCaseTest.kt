@@ -11,14 +11,14 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Tests für [DeleteParticipantUseCase]: Teilnehmer löschen und sein Foto aufräumen.
+ * Tests for [DeleteParticipantUseCase]: deleting a participant and cleaning up their photo.
  */
 class DeleteParticipantUseCaseTest {
 
     private val anna = Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = "photos/participants/anna.jpg")
 
     @Test
-    fun loeschtTeilnehmerUndSeinFoto() = runTest {
+    fun deletesParticipantAndTheirPhoto() = runTest {
         val participantRepository = FakeParticipantRepository().apply { setParticipants(listOf(anna)) }
         val photoRepository = FakePhotoRepository()
 
@@ -30,20 +30,20 @@ class DeleteParticipantUseCaseTest {
     }
 
     @Test
-    fun fotoPfadKommtAusDerDatenbankNichtAusDemBildschirm() = runTest {
-        // Der Teilnehmer hat inzwischen ein anderes Foto gespeichert; gelöscht wird das aktuell gespeicherte
+    fun photoPathComesFromDatabaseNotFromScreen() = runTest {
+        // The participant has since saved a different photo; the currently stored one gets deleted
         val participantRepository = FakeParticipantRepository().apply {
-            setParticipants(listOf(anna.copy(photoPath = "photos/participants/neu.jpg")))
+            setParticipants(listOf(anna.copy(photoPath = "photos/participants/new.jpg")))
         }
         val photoRepository = FakePhotoRepository()
 
         DeleteParticipantUseCase(participantRepository, photoRepository)("p1")
 
-        assertEquals(listOf("photos/participants/neu.jpg"), photoRepository.deletedPaths)
+        assertEquals(listOf("photos/participants/new.jpg"), photoRepository.deletedPaths)
     }
 
     @Test
-    fun fehlerBeimFotoLoeschenVerhindertDasLoeschenNicht() = runTest {
+    fun photoDeletionFailureDoesNotPreventDeletion() = runTest {
         val participantRepository = FakeParticipantRepository().apply { setParticipants(listOf(anna)) }
         val photoRepository = FakePhotoRepository().apply { shouldThrowOnDelete = true }
 
@@ -54,11 +54,11 @@ class DeleteParticipantUseCaseTest {
     }
 
     @Test
-    fun unbekannterTeilnehmerMeldetNotFoundUndLoeschtNichts() = runTest {
+    fun unknownParticipantReturnsNotFoundAndDeletesNothing() = runTest {
         val participantRepository = FakeParticipantRepository()
         val photoRepository = FakePhotoRepository()
 
-        val result = DeleteParticipantUseCase(participantRepository, photoRepository)("gibt-es-nicht")
+        val result = DeleteParticipantUseCase(participantRepository, photoRepository)("does-not-exist")
 
         assertEquals(DeleteResult.NotFound, result)
         assertEquals(0, participantRepository.deleteCalls)

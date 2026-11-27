@@ -10,12 +10,12 @@ class GiftGroupValidatorTest {
 
     private val validator = GiftGroupValidator()
 
-    // festes "Heute", damit der Test an jedem Tag gleich funktioniert
-    private val heute = LocalDate.of(2026, 11, 23)
+    // fixed "today" so the test behaves the same on every day
+    private val fixedToday = LocalDate.of(2026, 11, 23)
 
-    private val familie = GiftGroup(
+    private val family = GiftGroup(
         id = "g1",
-        name = "Familie",
+        name = "Family",
         budgetCents = 2000,
         drawDay = LocalDate.of(2026, 12, 6),
     )
@@ -23,95 +23,95 @@ class GiftGroupValidatorTest {
     // ----------------------------------------------------------------- Name
 
     @Test
-    fun gueltigerNameHatKeineFehler() {
-        assertTrue(validator.validateName("Familie").isEmpty())
+    fun validNameHasNoErrors() {
+        assertTrue(validator.validateName("Family").isEmpty())
     }
 
     @Test
-    fun leererNameIstFehler() {
+    fun emptyNameIsError() {
         assertTrue(GiftGroupValidationError.EmptyName in validator.validateName("   "))
     }
 
     @Test
-    fun nameMitMaximalLaengeIstErlaubtEinZeichenMehrNicht() {
+    fun maxLengthNameIsAllowedOneCharacterMoreIsNot() {
         val max = GiftGroupValidator.MAX_NAME_LENGTH
         assertTrue(validator.validateName("a".repeat(max)).isEmpty())
         assertTrue(GiftGroupValidationError.NameTooLong in validator.validateName("a".repeat(max + 1)))
     }
 
     @Test
-    fun normalizeNameEntferntLeerraumAmRand() {
-        assertEquals("Familie", validator.normalizeName("  Familie \t"))
+    fun normalizeNameTrimsSurroundingWhitespace() {
+        assertEquals("Family", validator.normalizeName("  Family \t"))
     }
 
-    // ----------------------------------------------------------------- Duplikat
+    // ----------------------------------------------------------------- Duplicate
 
     @Test
-    fun doppelterNameIstFehlerAuchMitAndererGrossschreibung() {
-        val vorhanden = listOf(familie.copy(id = "g2", name = "FAMILIE"))
-        val fehler = validator.validateUniqueName("Familie", groupId = null, existingGroups = vorhanden)
-        assertTrue(GiftGroupValidationError.DuplicateName in fehler)
+    fun duplicateNameIsErrorEvenWithDifferentCase() {
+        val existing = listOf(family.copy(id = "g2", name = "FAMILY"))
+        val errors = validator.validateUniqueName("Family", groupId = null, existingGroups = existing)
+        assertTrue(GiftGroupValidationError.DuplicateName in errors)
     }
 
     @Test
-    fun eigenerNameBeimBearbeitenIstKeinDuplikat() {
-        val fehler = validator.validateUniqueName("Familie", groupId = "g1", existingGroups = listOf(familie))
-        assertTrue(fehler.isEmpty())
+    fun ownNameWhenEditingIsNotDuplicate() {
+        val errors = validator.validateUniqueName("Family", groupId = "g1", existingGroups = listOf(family))
+        assertTrue(errors.isEmpty())
     }
 
     // ----------------------------------------------------------------- Budget
 
     @Test
-    fun budgetNullOderNegativIstFehler() {
+    fun zeroOrNegativeBudgetIsError() {
         assertTrue(GiftGroupValidationError.InvalidBudget in validator.validateBudget(0))
         assertTrue(GiftGroupValidationError.InvalidBudget in validator.validateBudget(-100))
         assertTrue(validator.validateBudget(1).isEmpty())
     }
 
-    // ----------------------------------------------------------------- Wichteltag
+    // ----------------------------------------------------------------- Draw day
 
     @Test
-    fun neuanlageVerlangtDatumNachHeute() {
-        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute, previousDay = null, today = heute))
-        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute.minusDays(1), null, heute))
-        assertTrue(validator.validateDrawDay(heute.plusDays(1), null, heute).isEmpty())
+    fun newGroupRequiresDateAfterToday() {
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(fixedToday, previousDay = null, today = fixedToday))
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(fixedToday.minusDays(1), null, fixedToday))
+        assertTrue(validator.validateDrawDay(fixedToday.plusDays(1), null, fixedToday).isEmpty())
     }
 
     @Test
-    fun bearbeitenMitUnveraendertemVergangenemDatumIstErlaubt() {
-        // P1-1: Eine Gruppe muss sich auch am oder nach ihrem Wichteltag noch bearbeiten lassen
-        val gespeichert = heute.minusDays(10)
-        assertTrue(validator.validateDrawDay(gespeichert, previousDay = gespeichert, today = heute).isEmpty())
-        assertTrue(validator.validateDrawDay(heute, previousDay = heute, today = heute).isEmpty())
+    fun editingWithUnchangedPastDateIsAllowed() {
+        // P1-1: A group must still be editable on or after its draw day
+        val saved = fixedToday.minusDays(10)
+        assertTrue(validator.validateDrawDay(saved, previousDay = saved, today = fixedToday).isEmpty())
+        assertTrue(validator.validateDrawDay(fixedToday, previousDay = fixedToday, today = fixedToday).isEmpty())
     }
 
     @Test
-    fun bearbeitenMitGeaendertemDatumVerlangtWiederDatumNachHeute() {
-        val fehler = validator.validateDrawDay(heute.minusDays(1), previousDay = heute.minusDays(10), today = heute)
-        assertTrue(GiftGroupValidationError.DateInPast in fehler)
+    fun editingWithChangedDateAgainRequiresDateAfterToday() {
+        val errors = validator.validateDrawDay(fixedToday.minusDays(1), previousDay = fixedToday.minusDays(10), today = fixedToday)
+        assertTrue(GiftGroupValidationError.DateInPast in errors)
     }
 
     @Test
-    fun budgetAb999999EuroIstZuHoch() {
-        val grenze = GiftGroupValidator.BUDGET_LIMIT_EUROS * 100
-        assertTrue(validator.validateBudget(grenze - 1).isEmpty())
-        assertTrue(GiftGroupValidationError.BudgetTooHigh in validator.validateBudget(grenze))
+    fun budgetFrom999999EurosIsTooHigh() {
+        val limit = GiftGroupValidator.BUDGET_LIMIT_EUROS * 100
+        assertTrue(validator.validateBudget(limit - 1).isEmpty())
+        assertTrue(GiftGroupValidationError.BudgetTooHigh in validator.validateBudget(limit))
         assertTrue(GiftGroupValidationError.BudgetTooHigh in validator.validateBudget(Long.MAX_VALUE))
     }
 
     @Test
-    fun wichteltagAb100JahrenInDerZukunftIstZuWeit() {
-        val grenze = heute.plusYears(GiftGroupValidator.MAX_YEARS_AHEAD)
-        assertTrue(validator.validateDrawDay(grenze.minusDays(1), previousDay = null, today = heute).isEmpty())
-        assertTrue(GiftGroupValidationError.DateTooFarInFuture in validator.validateDrawDay(grenze, previousDay = null, today = heute))
+    fun drawDay100YearsAheadIsTooFar() {
+        val limit = fixedToday.plusYears(GiftGroupValidator.MAX_YEARS_AHEAD)
+        assertTrue(validator.validateDrawDay(limit.minusDays(1), previousDay = null, today = fixedToday).isEmpty())
+        assertTrue(GiftGroupValidationError.DateTooFarInFuture in validator.validateDrawDay(limit, previousDay = null, today = fixedToday))
     }
 
     @Test
-    fun ueberschrittenerWichteltagDarfNurAufEinenTagNachHeuteVerschobenWerden() {
-        val vorbei = heute.minusDays(30)
-        // auf heute verschieben: abgelehnt (wie beim Anlegen)
-        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute, previousDay = vorbei, today = heute))
-        // auf morgen verschieben: erlaubt, damit beginnt die nächste Runde
-        assertTrue(validator.validateDrawDay(heute.plusDays(1), previousDay = vorbei, today = heute).isEmpty())
+    fun passedDrawDayCanOnlyBeMovedToAfterToday() {
+        val passed = fixedToday.minusDays(30)
+        // moving to today: rejected (same as when creating)
+        assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(fixedToday, previousDay = passed, today = fixedToday))
+        // moving to tomorrow: allowed, this starts the next round
+        assertTrue(validator.validateDrawDay(fixedToday.plusDays(1), previousDay = passed, today = fixedToday).isEmpty())
     }
 }

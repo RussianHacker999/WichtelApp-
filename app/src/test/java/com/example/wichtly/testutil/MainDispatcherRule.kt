@@ -9,13 +9,14 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /**
- * JUnit-TestRule zur Steuerung des Haupt-Dispatchers (Dispatchers.Main) in Coroutine-Tests.
+ * JUnit TestRule for controlling the main dispatcher (Dispatchers.Main) in coroutine tests.
  *
- * Warum diese Rule?
- * In Unit-Tests ist kein Android-MainLooper vorhanden. Diese Rule setzt vor jedem Test
- * [Dispatchers.Main] auf einen TestDispatcher ([UnconfinedTestDispatcher]) und setzt ihn
- * nach Testende mittels [Dispatchers.resetMain] zurück.
+ * Why this rule?
+ * Unit tests have no Android main looper. Before each test, this rule sets
+ * [Dispatchers.Main] to a test dispatcher ([UnconfinedTestDispatcher]) and resets it
+ * after the test using [Dispatchers.resetMain].
  */
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainDispatcherRule : TestWatcher() {
 

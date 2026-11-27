@@ -9,7 +9,7 @@ import kotlin.random.Random
 class SecretSantaDrawAlgorithmTest {
 
     // Hilfsfunktion: prüft alle Regeln einer gültigen Auslosung auf einmal
-    private fun pruefeGueltigeAuslosung(teilnehmer: List<String>, ergebnis: Map<String, String>) {
+    private fun checkValidDraw(teilnehmer: List<String>, ergebnis: Map<String, String>) {
         // jeder Teilnehmer ist genau einmal Schenker
         assertEquals(teilnehmer.toSet(), ergebnis.keys)
         // jeder Teilnehmer wird genau einmal beschenkt
@@ -21,7 +21,7 @@ class SecretSantaDrawAlgorithmTest {
     }
 
     @Test
-    fun niemandZiehtSichSelbst() {
+    fun nobodyDrawsThemselves() {
         // Arrange: Algorithmus und drei Teilnehmer vorbereiten
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem")
@@ -36,17 +36,17 @@ class SecretSantaDrawAlgorithmTest {
     }
 
     @Test
-    fun jederSchenktUndWirdGenauEinmalBeschenkt() {
+    fun eachGivesAndGetsOnce() {
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem", "dana")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
+        checkValidDraw(teilnehmer, ergebnis)
     }
 
     @Test
-    fun wenigerAlsDreiTeilnehmerLiefertLeeresErgebnis() {
+    fun lessThanThreeReturnsEmpty() {
         // Mindestzahl kommt aus DrawRules.MIN_PARTICIPANTS (= 3)
         val algorithm = SecretSantaDrawAlgorithm()
 
@@ -56,28 +56,28 @@ class SecretSantaDrawAlgorithmTest {
     }
 
     @Test
-    fun dreiTeilnehmerErgebenGueltigeAuslosung() {
+    fun `threeParticipantsAreValid()`() {
         val algorithm = SecretSantaDrawAlgorithm()
         val teilnehmer = listOf("anna", "ben", "cem")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
+        checkValidDraw(teilnehmer, ergebnis)
     }
 
     @Test
-    fun notfallPlanLiefertGueltigeAuslosung() {
+    fun fallbackReturnsValidDraw() {
         // maxAttempts = 0: der Algorithmus überspringt das Mischen und nimmt sofort den Ring
         val algorithm = SecretSantaDrawAlgorithm(maxAttempts = 0)
         val teilnehmer = listOf("anna", "ben", "cem", "dana", "emil")
 
         val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-        pruefeGueltigeAuslosung(teilnehmer, ergebnis)
+        checkValidDraw(teilnehmer, ergebnis)
     }
 
     @Test
-    fun funktioniertBeiVielenDurchlaeufenUndGruppengroessen() {
+    fun worksForManyRunsAndSizes() {
         val gruppengroessen = listOf(3, 4, 10)
 
         for (groesse in gruppengroessen) {
@@ -88,7 +88,7 @@ class SecretSantaDrawAlgorithmTest {
 
                 val ergebnis = algorithm.generateDerangement(teilnehmer)
 
-                pruefeGueltigeAuslosung(teilnehmer, ergebnis)
+                checkValidDraw(teilnehmer, ergebnis)
             }
         }
     }

@@ -8,11 +8,11 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Unit-Tests für GroupFormErrors.kt.
+ * Unit tests for GroupFormErrors.kt.
  *
- * Warum diese Tests wichtig sind:
- * Stellt sicher, dass Domain-Validierungsfehler korrekt in die vorgesehenen Fehlerfelder des UI-States
- * übersetzt werden und dass pro Feld stets genau eine Fehlermeldung angezeigt wird.
+ * Why these tests matter:
+ * Ensures that domain validation errors are correctly mapped to the intended error fields of the UI state
+ * and that exactly one error message is always shown per field.
  */
 class GroupFormErrorsTest {
 
@@ -31,14 +31,14 @@ class GroupFormErrorsTest {
 
     @Test
     fun applyDomainValidationErrors_multipleErrorsOnSameField_usesSingleMessage() {
-        // Zwei Namensfehler in der Liste
+        // Two name errors in the list
         val errors = listOf(
             GiftGroupValidationError.EmptyName,
             GiftGroupValidationError.NameTooLong
         )
         val updatedState = applyDomainValidationErrors(initialState, errors)
 
-        // Stellt sicher, dass nur die erste Fehlermeldung auf dem Feld übernommen wird (genau ein Text)
+        // Ensures that only the first error message is used for the field (exactly one text)
         assertEquals(R.string.error_group_name_empty, updatedState.nameError)
     }
 
@@ -59,7 +59,7 @@ class GroupFormErrorsTest {
 
     @Test
     fun formatErrors_mapToFormatMessages() {
-        // Formatfehler kommen jetzt ebenfalls aus dem Use Case; die Texte (mit TT.MM.JJJJ bzw. 25,50) stehen in strings.xml
+        // Format errors now also come from the use case; the texts (with DD.MM.YYYY and 25,50) are in strings.xml
         val updatedState = applyDomainValidationErrors(
             GroupFormUiState(),
             listOf(GiftGroupValidationError.InvalidBudgetFormat, GiftGroupValidationError.InvalidDateFormat),
@@ -103,7 +103,7 @@ class GroupFormErrorsTest {
     }
 
     @Test
-    fun obergrenzenFuerBudgetUndDatumLandenAmRichtigenFeld() {
+    fun budgetAndDateUpperLimitsLandOnCorrectField() {
         val updatedState = applyDomainValidationErrors(
             GroupFormUiState(),
             listOf(GiftGroupValidationError.BudgetTooHigh, GiftGroupValidationError.DateTooFarInFuture),

@@ -19,13 +19,13 @@ import java.time.LocalDate
 import java.time.ZoneId
 
 /**
- * Unit-Tests für [DrawHistoryViewModel].
+ * Unit tests for [DrawHistoryViewModel].
  *
- * Verifiziert das reaktive Laden der Wichtelgruppe und der Auslosungshistorie,
- * die korrekte absteigende Sortierung (neueste zuerst), das Mapping von Summary-Daten
- * (Datum und Uhrzeit in der Zeitzone des Geräts; der Test berechnet den Erwartungswert genauso und läuft
- * deshalb in jeder Zeitzone), das Verhalten bei leerer Historie,
- * unbekannter Gruppe sowie Ladefehlern und reaktiven Updates.
+ * Verifies reactive loading of the gift group and the draw history,
+ * correct descending sorting (newest first), mapping of summary data
+ * (date and time in the device's time zone; the test computes the expected value the same way and
+ * therefore runs in any time zone), the behavior with an empty history,
+ * an unknown group, as well as loading errors and reactive updates.
  */
 class DrawHistoryViewModelTest {
 
@@ -33,7 +33,7 @@ class DrawHistoryViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val groupId = "group-1"
-    private val groupName = "Familie Wichteln"
+    private val groupName = "Family Secret Santa"
 
     private fun createSampleGroup() = GiftGroup(
         id = groupId,
@@ -56,7 +56,7 @@ class DrawHistoryViewModelTest {
     )
 
     /**
-     * Test 1: Lädt Gruppennamen und Auslosungen erfolgreich.
+     * Test 1: Loads the group name and draws successfully.
      */
     @Test
     fun loadsGroupNameAndDraws() = runTest {
@@ -81,7 +81,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 2: Auslosungen behalten die Repository-Reihenfolge (neueste zuerst), und Felder werden korrekt gemappt.
+     * Test 2: Draws keep the repository order (newest first), and fields are mapped correctly.
      */
     @Test
     fun drawsKeepRepositoryOrderNewestFirst() = runTest {
@@ -110,7 +110,7 @@ class DrawHistoryViewModelTest {
 
         val state = viewModel.uiState.value
         assertEquals(2, state.draws.size)
-        // Neueste zuerst
+        // Newest first
         assertEquals("d-new", state.draws[0].id)
         assertEquals(newerDate, state.draws[0].drawnAt)
 
@@ -119,7 +119,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 3: Leere Historie ist ein gültiger Zustand ohne Fehler.
+     * Test 3: An empty history is a valid state without errors.
      */
     @Test
     fun emptyHistory_isValidStateWithoutError() = runTest {
@@ -142,7 +142,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 4: Unbekannte Gruppe setzt notFound auf true.
+     * Test 4: An unknown group sets notFound to true.
      */
     @Test
     fun unknownGroup_setsGroupNotFound() = runTest {
@@ -162,7 +162,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 5: Draw-Flow-Fehler setzt errorMessage.
+     * Test 5: A draw flow error sets errorMessage.
      */
     @Test
     fun drawFlowError_setsErrorMessage() = runTest {
@@ -185,7 +185,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 6: Group-Flow-Fehler setzt dieselbe errorMessage.
+     * Test 6: A group flow error sets the same errorMessage.
      */
     @Test
     fun groupFlowError_setsErrorMessage() = runTest {
@@ -206,7 +206,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 7: Neuer Durchlauf erscheint reaktiv in draws nach addDraw.
+     * Test 7: A new draw appears reactively in draws after addDraw.
      */
     @Test
     fun newDrawAppears_reactively() = runTest {
@@ -230,7 +230,7 @@ class DrawHistoryViewModelTest {
     }
 
     /**
-     * Test 8: Es werden nur Durchläufe der angegebenen Gruppe angezeigt.
+     * Test 8: Only draws of the given group are shown.
      */
     @Test
     fun onlyDrawsOfThisGroupAreShown() = runTest {

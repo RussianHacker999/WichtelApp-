@@ -14,20 +14,20 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [SaveParticipantUseCase], die einzige Stelle, an der Teilnehmer geprüft werden.
+ * Tests for [SaveParticipantUseCase], the only place where participants are validated.
  */
 class SaveParticipantUseCaseTest {
 
     private val groupId = "g1"
     private val groupRepository = FakeGiftGroupRepository().apply {
-        setGroups(listOf(GiftGroup(id = groupId, name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
+        setGroups(listOf(GiftGroup(id = groupId, name = "Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
     }
 
     private fun errorsOf(result: ParticipantResult): List<ParticipantValidationError> =
         (result as ParticipantResult.ValidationError).errors
 
     @Test
-    fun neuerTeilnehmerWirdNormalisiertGespeichert() = runTest {
+    fun newParticipantIsSavedNormalized() = runTest {
         val participantRepository = FakeParticipantRepository()
         val useCase = SaveParticipantUseCase(participantRepository, groupRepository)
 
@@ -38,20 +38,20 @@ class SaveParticipantUseCaseTest {
     }
 
     @Test
-    fun leererUndZuLangerNameWerdenAbgelehnt() = runTest {
+    fun emptyAndTooLongNamesAreRejected() = runTest {
         val participantRepository = FakeParticipantRepository()
         val useCase = SaveParticipantUseCase(participantRepository, groupRepository)
 
-        val leer = useCase(null, groupId, "   ", null)
-        val zuLang = useCase(null, groupId, "b".repeat(ParticipantValidator.MAX_NAME_LENGTH + 1), null)
+        val empty = useCase(null, groupId, "   ", null)
+        val tooLong = useCase(null, groupId, "b".repeat(ParticipantValidator.MAX_NAME_LENGTH + 1), null)
 
-        assertTrue(ParticipantValidationError.EmptyName in errorsOf(leer))
-        assertTrue(ParticipantValidationError.NameTooLong in errorsOf(zuLang))
+        assertTrue(ParticipantValidationError.EmptyName in errorsOf(empty))
+        assertTrue(ParticipantValidationError.NameTooLong in errorsOf(tooLong))
         assertEquals(0, participantRepository.insertCalls)
     }
 
     @Test
-    fun doppelterNameInDerGruppeWirdAbgelehnt() = runTest {
+    fun duplicateNameInGroupIsRejected() = runTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = "p1", groupId = groupId, name = "anna")))
         }
@@ -63,7 +63,7 @@ class SaveParticipantUseCaseTest {
     }
 
     @Test
-    fun bearbeitenBehaeltIdUndGruppe() = runTest {
+    fun editingKeepsIdAndGroup() = runTest {
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(Participant(id = "p1", groupId = groupId, name = "Anna")))
         }
@@ -71,25 +71,25 @@ class SaveParticipantUseCaseTest {
 
         val result = useCase("p1", groupId, "Anna Maria", "photos/participants/a.jpg")
 
-        val gespeichert = (result as ParticipantResult.Success).participant
-        assertEquals("p1", gespeichert.id)
-        assertEquals(groupId, gespeichert.groupId)
-        assertEquals("photos/participants/a.jpg", gespeichert.photoPath)
+        val saved = (result as ParticipantResult.Success).participant
+        assertEquals("p1", saved.id)
+        assertEquals(groupId, saved.groupId)
+        assertEquals("photos/participants/a.jpg", saved.photoPath)
         assertEquals(1, participantRepository.updateCalls)
     }
 
     @Test
-    fun verschwundenerTeilnehmerMeldetParticipantNotFound() = runTest {
+    fun missingParticipantReturnsParticipantNotFound() = runTest {
         val participantRepository = FakeParticipantRepository()
         val useCase = SaveParticipantUseCase(participantRepository, groupRepository)
 
-        val result = useCase("p-weg", groupId, "Anna", null)
+        val result = useCase("p-gone", groupId, "Anna", null)
 
         assertEquals(listOf(ParticipantValidationError.ParticipantNotFound), errorsOf(result))
     }
 
     @Test
-    fun unbekannteGruppeMeldetGroupNotFound() = runTest {
+    fun unknownGroupReturnsGroupNotFound() = runTest {
         val participantRepository = FakeParticipantRepository()
         val useCase = SaveParticipantUseCase(participantRepository, FakeGiftGroupRepository())
 

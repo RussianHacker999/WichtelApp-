@@ -7,16 +7,16 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Unit-Tests für ParticipantErrors.kt.
+ * Unit tests for ParticipantErrors.kt.
  *
- * Warum diese Tests wichtig sind:
- * Verifiziert die korrekte Übersetzung aller [ParticipantValidationError]-Typen in nutzerfreundliche
- * deutsche Fehlertexte sowie die strikte Trennung von Feldfehlern und allgemeinen Fehlern.
+ * Why these tests matter:
+ * Verifies the correct mapping of all [ParticipantValidationError] types to user-friendly
+ * error texts, as well as the strict separation of field errors and general errors.
  */
 class ParticipantErrorsTest {
 
     /**
-     * Testet, dass bei einer leeren Fehlerliste weder Feld- noch allgemeine Fehler zurückgegeben werden.
+     * Tests that an empty error list returns neither field errors nor general errors.
      */
     @Test
     fun mapParticipantValidationErrors_emptyList_returnsNullErrors() {
@@ -28,7 +28,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von EmptyName in den entsprechenden nameError.
+     * Tests mapping EmptyName to the corresponding nameError.
      */
     @Test
     fun mapParticipantValidationErrors_emptyName_returnsCorrectNameError() {
@@ -40,7 +40,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von NameTooLong in den entsprechenden nameError.
+     * Tests mapping NameTooLong to the corresponding nameError.
      */
     @Test
     fun mapParticipantValidationErrors_nameTooLong_returnsCorrectNameError() {
@@ -52,7 +52,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von DuplicateName in den entsprechenden nameError.
+     * Tests mapping DuplicateName to the corresponding nameError.
      */
     @Test
     fun mapParticipantValidationErrors_duplicateNameInGroup_returnsCorrectNameError() {
@@ -64,7 +64,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von ParticipantNotFound in den allgemeinen Fehler (generalError).
+     * Tests mapping ParticipantNotFound to the general error (generalError).
      */
     @Test
     fun mapParticipantValidationErrors_participantNotFound_returnsCorrectGeneralError() {
@@ -76,7 +76,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von GroupNotFound in den allgemeinen Fehler (generalError).
+     * Tests mapping GroupNotFound to the general error (generalError).
      */
     @Test
     fun mapParticipantValidationErrors_groupNotFound_returnsCorrectGeneralError() {
@@ -88,7 +88,7 @@ class ParticipantErrorsTest {
     }
 
     /**
-     * Testet, dass bei mehreren Namensfehlern in der Liste nur der erste Fehler als nameError übernommen wird (genau ein Text).
+     * Tests that with multiple name errors in the list, only the first one is used as nameError (exactly one text).
      */
     @Test
     fun mapParticipantValidationErrors_multipleNameErrors_returnsSingleFirstNameError() {

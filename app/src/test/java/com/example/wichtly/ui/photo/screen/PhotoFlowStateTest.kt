@@ -6,13 +6,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Unit-Tests für [PhotoFlowState]: die Schritte des Foto-Ablaufs und die Hinweise, die er hinterlässt.
- * (Früher lag dieser Zustand im ViewModel und wurde dort getestet.)
+ * Unit tests for [PhotoFlowState]: the steps of the photo flow and the hints it leaves behind.
+ * (This state used to live in the ViewModel and was tested there.)
  */
 class PhotoFlowStateTest {
 
     @Test
-    fun oeffnenZeigtQuellauswahlUndSchliessenBeendet() {
+    fun openShowsSourceSelectionAndCloseEndsFlow() {
         val flow = PhotoFlowState()
         assertEquals(PhotoFlowStep.CLOSED, flow.step)
 
@@ -24,7 +24,7 @@ class PhotoFlowStateTest {
     }
 
     @Test
-    fun kameraOhneBerechtigungFuehrtZuerstZurAufklaerung() {
+    fun cameraWithoutPermissionShowsExplanationFirst() {
         val flow = PhotoFlowState().apply { open() }
 
         flow.requestCamera(permissionGranted = false)
@@ -35,7 +35,7 @@ class PhotoFlowStateTest {
     }
 
     @Test
-    fun kameraMitBerechtigungOeffnetDirekt() {
+    fun cameraWithPermissionOpensDirectly() {
         val flow = PhotoFlowState().apply { open() }
 
         flow.requestCamera(permissionGranted = true)
@@ -44,7 +44,7 @@ class PhotoFlowStateTest {
     }
 
     @Test
-    fun abgelehnteKameraSchliesstUndZeigtHinweis() {
+    fun deniedCameraClosesAndShowsHint() {
         val flow = PhotoFlowState().apply { open() }
 
         flow.onCameraDenied()
@@ -54,7 +54,7 @@ class PhotoFlowStateTest {
     }
 
     @Test
-    fun aufnahmefehlerSchliesstUndZeigtFehler() {
+    fun captureFailureClosesAndShowsError() {
         val flow = PhotoFlowState().apply { open(); requestCamera(permissionGranted = true) }
 
         flow.onCaptureFailed()
@@ -64,7 +64,7 @@ class PhotoFlowStateTest {
     }
 
     @Test
-    fun erneutesOeffnenEntferntAlteHinweise() {
+    fun reopeningClearsOldHints() {
         val flow = PhotoFlowState(cameraDenied = true, captureFailed = true)
 
         flow.open()

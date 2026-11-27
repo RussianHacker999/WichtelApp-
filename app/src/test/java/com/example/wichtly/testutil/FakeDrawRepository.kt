@@ -12,18 +12,18 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [DrawRepository] zu Testzwecken.
+ * An in-memory fake for [DrawRepository] for testing purposes.
  *
- * Reine Persistenz wie das echte Repository (gelost wird im PerformDrawUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für
- * fehlerhafte Lese-Flows sowie Zähler für Speichervorgänge
- * und Hilfsmethoden zum direkten Befüllen/Entfernen von Testdaten.
+ * Pure persistence like the real repository (the draw itself happens in PerformDrawUseCase).
+ * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for
+ * failing read flows, as well as counters for save operations
+ * and helper methods for directly adding/removing test data.
  */
 class FakeDrawRepository : DrawRepository {
 
     private val drawsFlow = MutableStateFlow<List<DrawDetail>>(emptyList())
 
-    // Test-Schalter und Zähler
+    // Test switches and counters
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
@@ -35,8 +35,8 @@ class FakeDrawRepository : DrawRepository {
     private var wishlists: FakeWishlistRepository? = null
 
     /**
-     * Verbindet das Fake mit den anderen Fakes, aus denen [getDrawSource] liest (wie die echte
-     * Transaktion über die drei Tabellen). Gibt sich selbst zurück, damit der Aufruf inline passt.
+     * Connects this fake to the other fakes that [getDrawSource] reads from (like the real
+     * transaction across the three tables). Returns itself so the call fits inline.
      */
     fun withSources(
         groups: FakeGiftGroupRepository,
@@ -49,21 +49,21 @@ class FakeDrawRepository : DrawRepository {
     }
 
     /**
-     * Setzt die Liste der Auslosungsdurchläufe im Speicher direkt.
+     * Sets the list of draws in memory directly.
      */
     fun setDraws(draws: List<DrawDetail>) {
         drawsFlow.value = draws
     }
 
     /**
-     * Fügt einen Auslosungsdurchlauf direkt zum Speicher hinzu.
+     * Adds a draw to memory directly.
      */
     fun addDraw(draw: DrawDetail) {
         drawsFlow.value += draw
     }
 
     /**
-     * Entfernt einen Auslosungsdurchlauf direkt aus dem Speicher.
+     * Removes a draw from memory directly.
      */
     fun removeDraw(id: String) {
         drawsFlow.value = drawsFlow.value.filter { it.id != id }
@@ -71,7 +71,7 @@ class FakeDrawRepository : DrawRepository {
 
     override fun observeDrawSummariesByGroupId(groupId: String): Flow<List<DrawSummary>> {
         if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden der Auslosungshistorie") }
+            return flow { throw RuntimeException("Flow error while loading the draw history") }
         }
         return drawsFlow.map { list ->
             list.filter { it.groupId == groupId }
@@ -88,7 +88,7 @@ class FakeDrawRepository : DrawRepository {
 
     override fun observeDrawDetailById(drawId: String): Flow<DrawDetail?> {
         if (failFlows) {
-            return flow { throw RuntimeException("Flow-Fehler beim Laden der Auslosungsdetails") }
+            return flow { throw RuntimeException("Flow error while loading the draw details") }
         }
         return drawsFlow.map { list -> list.find { it.id == drawId } }
     }
@@ -110,7 +110,7 @@ class FakeDrawRepository : DrawRepository {
     override suspend fun insertDraw(draw: DrawDetail) {
         insertDrawCalls++
         if (shouldThrow) {
-            throw IllegalStateException("Simulierter Fehler beim Speichern der Auslosung")
+            throw IllegalStateException("Simulated error while saving the draw")
         }
         drawsFlow.value += draw
     }

@@ -4,23 +4,23 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Tests für die Längenbegrenzung der Textfelder ([limitToLength]).
+ * Tests for the length limit of the text fields ([limitToLength]).
  */
 class FormFieldsTest {
 
     @Test
-    fun kurzerTextBleibtUnveraendert() {
+    fun shortTextStaysUnchanged() {
         assertEquals("Anna", limitToLength("Anna", 50))
     }
 
     @Test
-    fun langerTextWirdAufMaximumGekuerzt() {
+    fun longTextIsTruncatedToMaximum() {
         assertEquals("a".repeat(50), limitToLength("a".repeat(80), 50))
     }
 
     @Test
-    fun emojiAnDerGrenzeWirdNichtZerschnitten() {
-        // 49 Buchstaben + Emoji (2 UTF-16-Einheiten) = 51 Einheiten; das halbe Emoji darf nicht übrig bleiben
+    fun emojiAtLimitIsNotCutInHalf() {
+        // 49 letters + emoji (2 UTF-16 units) = 51 units; half an emoji must not be left over
         val text = "a".repeat(49) + "\uD83C\uDF84"
         assertEquals("a".repeat(49), limitToLength(text, 50))
     }

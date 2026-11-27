@@ -18,29 +18,29 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für das Speichern im [GroupFormViewModel], vor allem für Befund Z-01:
- * Alle Fehler müssen schon beim ersten Speichern erscheinen, auch der leere Pflicht-Name
- * neben Formatfehlern, und ein alter allgemeiner Fehler darf nicht stehen bleiben.
+ * Tests for saving in [GroupFormViewModel], especially for finding Z-01:
+ * All errors must appear on the first save, including the empty required name
+ * alongside format errors, and an old general error must not remain.
  */
 class GroupFormViewModelTest {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val heute = LocalDate.of(2026, 11, 25)
+    private val fixedToday = LocalDate.of(2026, 11, 25)
 
-    private fun neuesFormular(repository: FakeGiftGroupRepository = FakeGiftGroupRepository()) =
+    private fun newForm(repository: FakeGiftGroupRepository = FakeGiftGroupRepository()) =
         GroupFormViewModel(
             groupId = null,
             repository = repository,
             photoRepository = FakePhotoRepository(),
-            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { heute }),
+            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { fixedToday }),
         )
 
     @Test
-    fun leeresFormularZeigtBeimErstenSpeichernAlleDreiFehler() = runTest {
+    fun emptyFormShowsAllThreeErrorsOnFirstSave() = runTest {
         val repository = FakeGiftGroupRepository()
-        val viewModel = neuesFormular(repository)
+        val viewModel = newForm(repository)
 
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
@@ -55,9 +55,9 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun fachfehlerErscheinenNebenFormatfehlernImSelbenDurchlauf() = runTest {
-        val viewModel = neuesFormular()
-        viewModel.onNameChange("Familie")
+    fun domainErrorsAppearAlongsideFormatErrorsInSamePass() = runTest {
+        val viewModel = newForm()
+        viewModel.onNameChange("Family")
         viewModel.onBudgetChange("0")
         viewModel.onDrawDayChange("1.1.2027")
 
@@ -71,19 +71,19 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun alterAllgemeinerFehlerVerschwindetBeimNaechstenSpeichern() = runTest {
+    fun oldGeneralErrorDisappearsOnNextSave() = runTest {
         val repository = FakeGiftGroupRepository().apply { shouldThrow = true }
-        val viewModel = neuesFormular(repository)
-        viewModel.onNameChange("Familie")
+        val viewModel = newForm(repository)
+        viewModel.onNameChange("Family")
         viewModel.onBudgetChange("25")
         viewModel.onDrawDayChange("24.12.2026")
 
-        // 1. Versuch scheitert technisch
+        // 1st attempt fails technically
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
         assertEquals(R.string.error_group_save, viewModel.uiState.value.generalError)
 
-        // 2. Versuch hat nur einen Formatfehler: der alte allgemeine Fehler muss weg sein
+        // 2nd attempt only has a format error: the old general error must be gone
         repository.shouldThrow = false
         viewModel.onBudgetChange("abc")
         viewModel.onSaveClick()
@@ -95,10 +95,10 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun gueltigeEingabenWerdenGespeichert() = runTest {
+    fun validInputIsSaved() = runTest {
         val repository = FakeGiftGroupRepository()
-        val viewModel = neuesFormular(repository)
-        viewModel.onNameChange("Familie")
+        val viewModel = newForm(repository)
+        viewModel.onNameChange("Family")
         viewModel.onBudgetChange("25,50")
         viewModel.onDrawDayChange("24.12.2026")
 
@@ -110,21 +110,21 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun gruppeMitUeberschrittenemWichteltagZeigtHinweisUndLaesstSichUmbenennen() = runTest {
+    fun groupWithPassedDrawDayShowsHintAndCanBeRenamed() = runTest {
         val repository = FakeGiftGroupRepository().apply {
-            setGroups(listOf(GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = heute.minusDays(1))))
+            setGroups(listOf(GiftGroup(id = "g1", name = "Family", budgetCents = 2000, drawDay = fixedToday.minusDays(1))))
         }
         val viewModel = GroupFormViewModel(
             groupId = "g1",
             repository = repository,
             photoRepository = FakePhotoRepository(),
-            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { heute }),
-            today = { heute },
+            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { fixedToday }),
+            today = { fixedToday },
         )
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.drawDayPassed)
 
-        viewModel.onNameChange("Familie Meyer")
+        viewModel.onNameChange("Family Meyer")
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
 
@@ -133,42 +133,42 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun gruppeVorDemWichteltagZeigtKeinenHinweis() = runTest {
+    fun groupBeforeDrawDayShowsNoHint() = runTest {
         val repository = FakeGiftGroupRepository().apply {
-            setGroups(listOf(GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = heute)))
+            setGroups(listOf(GiftGroup(id = "g1", name = "Family", budgetCents = 2000, drawDay = fixedToday)))
         }
         val viewModel = GroupFormViewModel(
             groupId = "g1",
             repository = repository,
             photoRepository = FakePhotoRepository(),
-            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { heute }),
-            today = { heute },
+            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { fixedToday }),
+            today = { fixedToday },
         )
         testScheduler.advanceUntilIdle()
 
-        // Am Wichteltag selbst ist die Runde noch offen (Losen erlaubt), also kein Hinweis
+        // On the draw day itself the round is still open (drawing allowed), so no hint
         assertFalse(viewModel.uiState.value.drawDayPassed)
     }
 
 
     @Test
-    fun verlassenWaehrendDesSpeichernsLoeschtDasFotoNicht() = runTest {
+    fun leavingWhileSavingDoesNotDeletePhoto() = runTest {
         val repository = FakeGiftGroupRepository()
         val photos = FakePhotoRepository()
         val viewModel = GroupFormViewModel(
             groupId = null,
             repository = repository,
             photoRepository = photos,
-            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { heute }),
+            saveGiftGroup = SaveGiftGroupUseCase(repository, today = { fixedToday }),
         )
         viewModel.onPhotoCaptured(java.io.File.createTempFile("photo_", ".jpg"))
         testScheduler.advanceUntilIdle()
-        viewModel.onNameChange("Familie")
+        viewModel.onNameChange("Family")
         viewModel.onBudgetChange("20")
         viewModel.onDrawDayChange("24.12.2026")
 
         viewModel.onSaveClick()
-        // Speichern läuft noch (nicht weitergelaufen), Nutzer verlässt den Screen
+        // Saving is still running (scheduler not advanced), the user leaves the screen
         viewModel.onDiscard()
         testScheduler.advanceUntilIdle()
 
@@ -177,25 +177,25 @@ class GroupFormViewModelTest {
     }
 
     @Test
-    fun eingabenUeberstehenProzesstod() = runTest {
+    fun inputsSurviveProcessDeath() = runTest {
         val repository = FakeGiftGroupRepository()
         val handle = SavedStateHandle()
-        val vorher = GroupFormViewModel(null, repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), savedStateHandle = handle)
-        vorher.onNameChange("Familie")
-        vorher.onBudgetChange("25")
+        val before = GroupFormViewModel(null, repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { fixedToday }), savedStateHandle = handle)
+        before.onNameChange("Family")
+        before.onBudgetChange("25")
 
-        val nachher = GroupFormViewModel(null, repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), savedStateHandle = handle)
+        val after = GroupFormViewModel(null, repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { fixedToday }), savedStateHandle = handle)
 
-        assertEquals("Familie", nachher.uiState.value.name)
-        assertEquals("25", nachher.uiState.value.budget)
+        assertEquals("Family", after.uiState.value.name)
+        assertEquals("25", after.uiState.value.budget)
     }
 
     @Test
-    fun ladefehlerImBearbeitenModusZeigtFehlerzustandUndSichertKeineLeerenEingaben() = runTest {
+    fun loadErrorInEditModeShowsErrorStateAndSavesNoEmptyInputs() = runTest {
         val repository = FakeGiftGroupRepository().apply { failFlows = true }
         val handle = SavedStateHandle()
 
-        val viewModel = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), today = { heute }, savedStateHandle = handle)
+        val viewModel = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { fixedToday }), today = { fixedToday }, savedStateHandle = handle)
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
@@ -203,23 +203,23 @@ class GroupFormViewModelTest {
         assertFalse(state.isLoading)
         assertFalse(state.notFound)
         assertEquals(R.string.error_group_load, state.generalError)
-        // Leere Felder dürfen nach einem Prozesstod nicht die Werte aus der Datenbank überschreiben
+        // Empty fields must not overwrite the database values after process death
         assertNull(handle.get<Boolean>(FormInputs.KEY_PRESENT))
     }
 
     @Test
-    fun imBearbeitenModusGewinnenGesicherteEingabenUeberDieDatenbank() = runTest {
-        val gruppe = GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))
-        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }
+    fun inEditModeSavedInputsWinOverDatabase() = runTest {
+        val group = GiftGroup(id = "g1", name = "Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))
+        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(group)) }
         val handle = SavedStateHandle()
-        val vorher = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), today = { heute }, savedStateHandle = handle)
+        val before = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { fixedToday }), today = { fixedToday }, savedStateHandle = handle)
         testScheduler.advanceUntilIdle()
-        vorher.onNameChange("Familie Neu")
+        before.onNameChange("Family New")
 
-        val nachher = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { heute }), today = { heute }, savedStateHandle = handle)
+        val after = GroupFormViewModel("g1", repository, FakePhotoRepository(), SaveGiftGroupUseCase(repository, today = { fixedToday }), today = { fixedToday }, savedStateHandle = handle)
         testScheduler.advanceUntilIdle()
 
-        assertEquals("Familie Neu", nachher.uiState.value.name)
-        assertEquals("20,00", nachher.uiState.value.budget)
+        assertEquals("Family New", after.uiState.value.name)
+        assertEquals("20,00", after.uiState.value.budget)
     }
 }

@@ -8,17 +8,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [WishlistRepository] zu Testzwecken.
+ * An in-memory fake for [WishlistRepository] for testing purposes.
  *
- * Reine Persistenz wie das echte Repository (geprüft wird im SaveWishlistItemUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lesezugriffe (Flows und get…-Methoden) sowie Zähler für Schreibzugriffe
- * und Hilfsmethoden zum direkten Befüllen von Wunschlisten-Einträgen.
+ * Pure persistence like the real repository (validation happens in SaveWishlistItemUseCase).
+ * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
+ * and helper methods for directly adding wishlist items.
  */
 class FakeWishlistRepository : WishlistRepository {
 
     private val itemsFlow = MutableStateFlow<List<WishlistItem>>(emptyList())
 
-    // Test-Schalter und Zähler
+    // Test switches and counters
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
@@ -30,8 +30,7 @@ class FakeWishlistRepository : WishlistRepository {
         private set
 
     /**
-     * Setzt die Liste der Wunschlisten-Einträge im Speicher direkt.
-     */
+     * Sets the list of wishlist items in memory directly.     */
     fun setItems(items: List<WishlistItem>) {
         itemsFlow.value = items
     }

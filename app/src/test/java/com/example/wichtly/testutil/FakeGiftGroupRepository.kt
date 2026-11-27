@@ -10,10 +10,11 @@ import kotlinx.coroutines.flow.map
 
 /**
  * Ein In-Memory-Fake für [GiftGroupRepository] zu Testzwecken.
+ * An in-memory fake for [GiftGroupRepository] for testing purposes.
  *
- * Reine Persistenz wie das echte Repository (geprüft wird im SaveGiftGroupUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lesezugriffe (Flows und get…-Methoden) sowie Zähler für Schreibzugriffe
- * und Hilfsmethoden zum direkten Befüllen/Entfernen von Testdaten.
+ * Pure persistence like the real repository (validation happens in SaveGiftGroupUseCase).
+ * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
+ * and helper methods for directly adding/removing test data.
  */
 class FakeGiftGroupRepository : GiftGroupRepository {
 
@@ -31,15 +32,15 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         private set
 
     /**
-     * Setzt die Liste der Wichtelgruppen im Speicher direkt.
-     */
+     * Sets the list of gift groups in memory directly.     */
+
     fun setGroups(groups: List<GiftGroup>) {
         groupsFlow.value = groups
     }
 
     /**
-     * Entfernt eine Wichtelgruppe direkt aus dem Speicher (simuliert das Verschwinden im Hintergrund).
-     */
+     * Removes a gift group from memory directly (simulates it disappearing in the background).     */
+
     fun removeGroup(id: String) {
         groupsFlow.value = groupsFlow.value.filter { it.id != id }
     }

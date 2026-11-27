@@ -13,64 +13,64 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [SaveGiftGroupUseCase], die einzige Stelle, an der Wichtelgruppen geprüft werden.
+ * Tests for [SaveGiftGroupUseCase], the only place where gift groups are validated.
  */
 class SaveGiftGroupUseCaseTest {
 
-    private val heute = LocalDate.of(2026, 11, 25)
+    private val fixedToday = LocalDate.of(2026, 11, 25)
 
     private fun input(
-        name: String = "Familie",
+        name: String = "Family",
         budget: String = "25,50",
         drawDay: String = "24.12.2026",
     ) = GiftGroupInput(name = name, budget = budget, drawDay = drawDay, drawType = DrawType.NORMAL, photoPath = null)
 
     private fun useCase(repository: FakeGiftGroupRepository) =
-        SaveGiftGroupUseCase(repository, today = { heute })
+        SaveGiftGroupUseCase(repository, today = { fixedToday })
 
     private fun errorsOf(result: GiftGroupResult): List<GiftGroupValidationError> =
         (result as GiftGroupResult.ValidationError).errors
 
     @Test
-    fun gueltigeEingabenLegenGruppeMitGeparstenWertenAn() = runTest {
+    fun validInputCreatesGroupWithParsedValues() = runTest {
         val repository = FakeGiftGroupRepository()
 
-        val result = useCase(repository)(groupId = null, input = input(name = "  Familie  "))
+        val result = useCase(repository)(groupId = null, input = input(name = "  Family  "))
 
-        val gruppe = (result as GiftGroupResult.Success).giftGroup
-        assertEquals("Familie", gruppe.name)
-        assertEquals(2550L, gruppe.budgetCents)
-        assertEquals(LocalDate.of(2026, 12, 24), gruppe.drawDay)
+        val group = (result as GiftGroupResult.Success).giftGroup
+        assertEquals("Family", group.name)
+        assertEquals(2550L, group.budgetCents)
+        assertEquals(LocalDate.of(2026, 12, 24), group.drawDay)
         assertEquals(1, repository.insertCalls)
     }
 
     @Test
-    fun leeresFormularMeldetAlleDreiFehlerImErstenDurchlauf() = runTest {
-        // Z-01: Der leere Pflicht-Name wird zusammen mit den Formatfehlern gemeldet
+    fun emptyFormReportsAllThreeErrorsAtOnce() = runTest {
+        // Z-01: The empty required name is reported together with the format errors
         val repository = FakeGiftGroupRepository()
 
         val result = useCase(repository)(null, input(name = "", budget = "", drawDay = ""))
 
-        val fehler = errorsOf(result)
-        assertTrue(GiftGroupValidationError.EmptyName in fehler)
-        assertTrue(GiftGroupValidationError.InvalidBudgetFormat in fehler)
-        assertTrue(GiftGroupValidationError.InvalidDateFormat in fehler)
+        val errors = errorsOf(result)
+        assertTrue(GiftGroupValidationError.EmptyName in errors)
+        assertTrue(GiftGroupValidationError.InvalidBudgetFormat in errors)
+        assertTrue(GiftGroupValidationError.InvalidDateFormat in errors)
         assertEquals(0, repository.insertCalls)
     }
 
     @Test
-    fun fachfehlerWerdenNebenFormatfehlernGemeldet() = runTest {
+    fun domainErrorsAreReportedAlongsideFormatErrors() = runTest {
         val result = useCase(FakeGiftGroupRepository())(null, input(budget = "0", drawDay = "1.1.2027"))
 
-        val fehler = errorsOf(result)
-        assertTrue(GiftGroupValidationError.InvalidBudget in fehler)
-        assertTrue(GiftGroupValidationError.InvalidDateFormat in fehler)
+        val errors = errorsOf(result)
+        assertTrue(GiftGroupValidationError.InvalidBudget in errors)
+        assertTrue(GiftGroupValidationError.InvalidDateFormat in errors)
     }
 
     @Test
-    fun doppelterNameWirdAbgelehnt() = runTest {
-        val vorhanden = GiftGroup(id = "g1", name = "familie", budgetCents = 1000, drawDay = LocalDate.of(2026, 12, 1))
-        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(vorhanden)) }
+    fun duplicateNameIsRejected() = runTest {
+        val existing = GiftGroup(id = "g1", name = "family", budgetCents = 1000, drawDay = LocalDate.of(2026, 12, 1))
+        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(existing)) }
 
         val result = useCase(repository)(null, input())
 
@@ -79,23 +79,23 @@ class SaveGiftGroupUseCaseTest {
     }
 
     @Test
-    fun bearbeitenAbDemWichteltagMitUnveraendertemDatumGelingt() = runTest {
-        // P1-1: Wichteltag liegt in der Vergangenheit, nur der Name wird geändert
-        val gespeichert = GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 11, 20))
-        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(gespeichert)) }
+    fun editingAfterDrawDayWithUnchangedDateSucceeds() = runTest {
+        // P1-1: The draw day is in the past, only the name is changed
+        val saved = GiftGroup(id = "g1", name = "Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 11, 20))
+        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(saved)) }
 
-        val result = useCase(repository)("g1", input(name = "Familie Meyer", budget = "20", drawDay = "20.11.2026"))
+        val result = useCase(repository)("g1", input(name = "Family Meyer", budget = "20", drawDay = "20.11.2026"))
 
-        val gruppe = (result as GiftGroupResult.Success).giftGroup
-        assertEquals("g1", gruppe.id)
-        assertEquals("Familie Meyer", gruppe.name)
+        val group = (result as GiftGroupResult.Success).giftGroup
+        assertEquals("g1", group.id)
+        assertEquals("Family Meyer", group.name)
         assertEquals(1, repository.updateCalls)
     }
 
     @Test
-    fun bearbeitenMitGeaendertemVergangenemDatumWirdAbgelehnt() = runTest {
-        val gespeichert = GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 11, 20))
-        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(gespeichert)) }
+    fun editingWithChangedPastDateIsRejected() = runTest {
+        val saved = GiftGroup(id = "g1", name = "Family", budgetCents = 2000, drawDay = LocalDate.of(2026, 11, 20))
+        val repository = FakeGiftGroupRepository().apply { setGroups(listOf(saved)) }
 
         val result = useCase(repository)("g1", input(drawDay = "21.11.2026"))
 
@@ -104,26 +104,26 @@ class SaveGiftGroupUseCaseTest {
     }
 
     @Test
-    fun bearbeitenEinerUnbekanntenGruppeMeldetGroupNotFound() = runTest {
+    fun editingUnknownGroupReturnsGroupNotFound() = runTest {
         val repository = FakeGiftGroupRepository()
 
-        val result = useCase(repository)("gibt-es-nicht", input())
+        val result = useCase(repository)("does-not-exist", input())
 
         assertEquals(listOf(GiftGroupValidationError.GroupNotFound), errorsOf(result))
         assertEquals(0, repository.updateCalls)
     }
 
     @Test
-    fun riesigesBudgetIstZuHochUndKeinFormatfehler() = runTest {
+    fun hugeBudgetIsTooHighNotFormatError() = runTest {
         val result = useCase(FakeGiftGroupRepository())(null, input(budget = "99999999999999999999"))
 
-        val fehler = errorsOf(result)
-        assertTrue(GiftGroupValidationError.BudgetTooHigh in fehler)
-        assertFalse(GiftGroupValidationError.InvalidBudgetFormat in fehler)
+        val errors = errorsOf(result)
+        assertTrue(GiftGroupValidationError.BudgetTooHigh in errors)
+        assertFalse(GiftGroupValidationError.InvalidBudgetFormat in errors)
     }
 
     @Test
-    fun wichteltagImJahr2206IstZuWeitInDerZukunft() = runTest {
+    fun drawDayInYear2206IsTooFarInFuture() = runTest {
         val result = useCase(FakeGiftGroupRepository())(null, input(drawDay = "24.12.2206"))
 
         assertTrue(GiftGroupValidationError.DateTooFarInFuture in errorsOf(result))

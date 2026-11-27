@@ -10,31 +10,31 @@ class ParticipantValidatorTest {
     private val anna = Participant(id = "p1", groupId = "g1", name = "Anna")
 
     @Test
-    fun gueltigerTeilnehmerHatKeineFehler() {
+    fun validParticipantHasNoErrors() {
         assertTrue(validator.validate(anna, emptyList()).isEmpty())
     }
 
     @Test
-    fun leererNameIstFehler() {
-        val fehler = validator.validate(anna.copy(name = ""), emptyList())
-        assertTrue(ParticipantValidationError.EmptyName in fehler)
+    fun emptyNameIsError() {
+        val errors = validator.validate(anna.copy(name = ""), emptyList())
+        assertTrue(ParticipantValidationError.EmptyName in errors)
     }
 
     @Test
-    fun nameUeber50ZeichenIstFehler() {
-        val fehler = validator.validate(anna.copy(name = "b".repeat(51)), emptyList())
-        assertTrue(ParticipantValidationError.NameTooLong in fehler)
+    fun nameOver50CharactersIsError() {
+        val errors = validator.validate(anna.copy(name = "b".repeat(51)), emptyList())
+        assertTrue(ParticipantValidationError.NameTooLong in errors)
     }
 
     @Test
-    fun doppelterNameInGruppeIstFehler() {
-        val vorhanden = listOf(Participant(id = "p2", groupId = "g1", name = " anna "))
-        val fehler = validator.validate(anna, vorhanden)
-        assertTrue(ParticipantValidationError.DuplicateName in fehler)
+    fun duplicateNameInGroupIsError() {
+        val existing = listOf(Participant(id = "p2", groupId = "g1", name = " anna "))
+        val errors = validator.validate(anna, existing)
+        assertTrue(ParticipantValidationError.DuplicateName in errors)
     }
 
     @Test
-    fun eigenerNameBeimBearbeitenIstKeinDuplikat() {
+    fun ownNameWhenEditingIsNotDuplicate() {
         assertTrue(validator.validate(anna, listOf(anna)).isEmpty())
     }
 }

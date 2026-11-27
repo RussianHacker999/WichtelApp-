@@ -4,8 +4,8 @@ import com.example.wichtly.logging.LogLevel
 import com.example.wichtly.logging.LogSink
 
 /**
- * Test-Senke für [com.example.wichtly.logging.AppLog]: merkt sich alle Ausgaben ab [minLevel].
- * Nach dem Test mit AppLog.reset() wieder entfernen, weil AppLog global ist.
+ * Test sink for [com.example.wichtly.logging.AppLog]: records all output from [minLevel] upwards.
+ * Remove it again after the test with AppLog.reset(), because AppLog is global.
  */
 class RecordingLogSink(override val minLevel: LogLevel = LogLevel.DEBUG) : LogSink {
 

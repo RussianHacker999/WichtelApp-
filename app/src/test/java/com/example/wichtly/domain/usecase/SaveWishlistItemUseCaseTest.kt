@@ -11,7 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests für [SaveWishlistItemUseCase], die einzige Stelle, an der Wünsche geprüft werden.
+ * Tests for [SaveWishlistItemUseCase], the only place where wishes are validated.
  */
 class SaveWishlistItemUseCaseTest {
 
@@ -21,42 +21,42 @@ class SaveWishlistItemUseCaseTest {
         (result as WishlistItemResult.ValidationError).errors
 
     @Test
-    fun neuerWunschWirdHintenAngehaengt() = runTest {
+    fun newWishIsAppendedAtTheEnd() = runTest {
         val repository = FakeWishlistRepository().apply {
-            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 4)))
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Book", sortOrder = 4)))
         }
         val useCase = SaveWishlistItemUseCase(repository)
 
-        val result = useCase(itemId = null, participantId = participantId, text = "  Schal ")
+        val result = useCase(itemId = null, participantId = participantId, text = "  Scarf ")
 
         val item = (result as WishlistItemResult.Success).item
-        assertEquals("Schal", item.text)
+        assertEquals("Scarf", item.text)
         assertEquals(5, item.sortOrder)
         assertEquals(1, repository.insertCalls)
     }
 
     @Test
-    fun erlaubteLaengeUndEinZeichenZuViel() = runTest {
+    fun maxLengthIsAllowedOneCharacterMoreIsNot() = runTest {
         val repository = FakeWishlistRepository()
         val useCase = SaveWishlistItemUseCase(repository)
         val max = WishlistValidator.MAX_TEXT_LENGTH
 
-        val genau = useCase(null, participantId, "x".repeat(max))
-        val zuLang = useCase(null, participantId, "x".repeat(max + 1))
+        val exact = useCase(null, participantId, "x".repeat(max))
+        val tooLong = useCase(null, participantId, "x".repeat(max + 1))
 
-        assertTrue(genau is WishlistItemResult.Success)
-        assertTrue(WishlistValidationError.TextTooLong in errorsOf(zuLang))
+        assertTrue(exact is WishlistItemResult.Success)
+        assertTrue(WishlistValidationError.TextTooLong in errorsOf(tooLong))
         assertEquals(1, repository.insertCalls)
     }
 
     @Test
-    fun bearbeitenBehaeltIdUndSortOrder() = runTest {
+    fun editingKeepsIdAndSortOrder() = runTest {
         val repository = FakeWishlistRepository().apply {
-            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 2)))
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Book", sortOrder = 2)))
         }
         val useCase = SaveWishlistItemUseCase(repository)
 
-        val result = useCase("w1", participantId, "Hörbuch")
+        val result = useCase("w1", participantId, "Audiobook")
 
         val item = (result as WishlistItemResult.Success).item
         assertEquals("w1", item.id)
@@ -65,24 +65,24 @@ class SaveWishlistItemUseCaseTest {
     }
 
     @Test
-    fun verschwundenerWunschMeldetWishNotFound() = runTest {
+    fun missingWishReturnsWishNotFound() = runTest {
         val repository = FakeWishlistRepository()
         val useCase = SaveWishlistItemUseCase(repository)
 
-        val result = useCase("w-weg", participantId, "Buch")
+        val result = useCase("w-gone", participantId, "Book")
 
         assertEquals(listOf(WishlistValidationError.WishNotFound), errorsOf(result))
         assertEquals(0, repository.updateCalls)
     }
 
     @Test
-    fun doppelterWunschWirdAbgelehnt() = runTest {
+    fun duplicateWishIsRejected() = runTest {
         val repository = FakeWishlistRepository().apply {
-            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Buch", sortOrder = 0)))
+            setItems(listOf(WishlistItem(id = "w1", participantId = participantId, text = "Book", sortOrder = 0)))
         }
         val useCase = SaveWishlistItemUseCase(repository)
 
-        val result = useCase(null, participantId, "  buch ")
+        val result = useCase(null, participantId, "  book ")
 
         assertEquals(listOf(WishlistValidationError.DuplicateText), errorsOf(result))
         assertEquals(0, repository.insertCalls)

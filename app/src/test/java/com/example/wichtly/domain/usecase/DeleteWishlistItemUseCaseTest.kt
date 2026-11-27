@@ -9,30 +9,30 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Tests für [DeleteWishlistItemUseCase]: einen Wunsch löschen, ohne die übrigen anzufassen.
+ * Tests for [DeleteWishlistItemUseCase]: deleting one wish without touching the others.
  */
 class DeleteWishlistItemUseCaseTest {
 
-    private val socken = WishlistItem(id = "w1", participantId = "p1", text = "Wollsocken", sortOrder = 0)
-    private val buch = WishlistItem(id = "w2", participantId = "p1", text = "Krimi", sortOrder = 1)
+    private val socks = WishlistItem(id = "w1", participantId = "p1", text = "Wool socks", sortOrder = 0)
+    private val book = WishlistItem(id = "w2", participantId = "p1", text = "Crime novel", sortOrder = 1)
 
     @Test
-    fun loeschtNurDenGewaehltenWunsch() = runTest {
-        val repository = FakeWishlistRepository().apply { setItems(listOf(socken, buch)) }
+    fun deletesOnlyTheSelectedWish() = runTest {
+        val repository = FakeWishlistRepository().apply { setItems(listOf(socks, book)) }
 
         val result = DeleteWishlistItemUseCase(repository)("w1")
 
         assertEquals(DeleteResult.Deleted, result)
-        assertEquals(listOf(buch), repository.observeWishlistItems("p1").first())
+        assertEquals(listOf(book), repository.observeWishlistItems("p1").first())
     }
 
     @Test
-    fun nichtVorhandenerWunschMeldetNotFound() = runTest {
-        val repository = FakeWishlistRepository().apply { setItems(listOf(buch)) }
+    fun missingWishReturnsNotFound() = runTest {
+        val repository = FakeWishlistRepository().apply { setItems(listOf(book)) }
 
         val result = DeleteWishlistItemUseCase(repository)("w1")
 
         assertEquals(DeleteResult.NotFound, result)
-        assertEquals(listOf(buch), repository.observeWishlistItems("p1").first())
+        assertEquals(listOf(book), repository.observeWishlistItems("p1").first())
     }
 }

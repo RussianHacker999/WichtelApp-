@@ -7,38 +7,38 @@ import org.junit.Test
 class WishlistValidatorTest {
 
     private val validator = WishlistValidator()
-    private val wunsch = WishlistItem(id = "w1", participantId = "p1", text = "Buch")
+    private val wish = WishlistItem(id = "w1", participantId = "p1", text = "Book")
 
     @Test
-    fun gueltigerWunschHatKeineFehler() {
-        assertTrue(validator.validate(wunsch, emptyList()).isEmpty())
+    fun validWishHasNoErrors() {
+        assertTrue(validator.validate(wish, emptyList()).isEmpty())
     }
 
     @Test
-    fun leererTextIstFehler() {
-        val fehler = validator.validate(wunsch.copy(text = "   "), emptyList())
-        assertTrue(WishlistValidationError.EmptyText in fehler)
+    fun emptyTextIsError() {
+        val errors = validator.validate(wish.copy(text = "   "), emptyList())
+        assertTrue(WishlistValidationError.EmptyText in errors)
     }
 
     @Test
-    fun genau200ZeichenSindErlaubt() {
-        assertTrue(validator.validate(wunsch.copy(text = "x".repeat(200)), emptyList()).isEmpty())
+    fun exactly200CharactersAreAllowed() {
+        assertTrue(validator.validate(wish.copy(text = "x".repeat(200)), emptyList()).isEmpty())
     }
 
     @Test
-    fun textUeber200ZeichenIstFehler() {
-        val fehler = validator.validate(wunsch.copy(text = "x".repeat(201)), emptyList())
-        assertTrue(WishlistValidationError.TextTooLong in fehler)
+    fun textOver200CharactersIsError() {
+        val errors = validator.validate(wish.copy(text = "x".repeat(201)), emptyList())
+        assertTrue(WishlistValidationError.TextTooLong in errors)
     }
 
     @Test
-    fun gleicherWunschIstDuplikatAuchMitAndererSchreibweise() {
-        val vorhanden = listOf(WishlistItem(id = "w2", participantId = "p1", text = " BUCH "))
-        assertTrue(WishlistValidationError.DuplicateText in validator.validate(wunsch, vorhanden))
+    fun sameWishIsDuplicateEvenWithDifferentSpelling() {
+        val existing = listOf(WishlistItem(id = "w2", participantId = "p1", text = " BOOK "))
+        assertTrue(WishlistValidationError.DuplicateText in validator.validate(wish, existing))
     }
 
     @Test
-    fun eigenerWunschBeimBearbeitenIstKeinDuplikat() {
-        assertTrue(validator.validate(wunsch, listOf(wunsch)).isEmpty())
+    fun ownWishWhenEditingIsNotDuplicate() {
+        assertTrue(validator.validate(wish, listOf(wish)).isEmpty())
     }
 }

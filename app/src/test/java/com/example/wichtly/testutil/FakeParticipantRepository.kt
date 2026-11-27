@@ -8,11 +8,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [ParticipantRepository] zu Testzwecken.
+ * An in-memory fake for [ParticipantRepository] for testing purposes.
  *
- * Reine Persistenz wie das echte Repository (geprüft wird im SaveParticipantUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lesezugriffe (Flows und get…-Methoden) sowie Zähler für Schreibzugriffe
- * und Hilfsmethoden zum direkten Befüllen/Entfernen von Testdaten.
+ * Pure persistence like the real repository (validation happens in SaveParticipantUseCase).
+ * Supports test switches such as [shouldThrow] for simulated exceptions, [failFlows] for failing read access (flows and get… methods), as well as counters for write access
+ * and helper methods for directly adding/removing test data.
  */
 class FakeParticipantRepository : ParticipantRepository {
 
@@ -30,15 +30,14 @@ class FakeParticipantRepository : ParticipantRepository {
         private set
 
     /**
-     * Setzt die Liste der Teilnehmer im Speicher direkt.
-     */
+     * Sets the list of wishlist items in memory directly.     */
+
     fun setParticipants(participants: List<Participant>) {
         participantsFlow.value = participants
     }
 
     /**
-     * Entfernt einen Teilnehmer direkt aus dem Speicher (simuliert das Verschwinden im Hintergrund).
-     */
+     * Removes a participant from memory directly (simulates it disappearing in the background).     */
     fun removeParticipant(id: String) {
         participantsFlow.value = participantsFlow.value.filter { it.id != id }
     }

@@ -6,11 +6,11 @@ import java.io.File
 import java.time.Instant
 
 /**
- * Ein In-Memory-Fake für [PhotoRepository] zu Testzwecken ohne echte Dateisystem-Operationen.
+ * An in-memory fake for [PhotoRepository] for testing purposes, without real file system operations.
  *
- * Unterstützt Test-Schalter wie [shouldThrowOnSave] und [shouldThrowOnDelete] für simulierte Exceptions,
- * verwaltet eine Menge gültiger [existingPaths] sowie öffentliche Historien-Listen ([savedPaths], [deletedPaths])
- * und Zähler für Speicher- und Löschzugriffe.
+ * Supports test switches such as [shouldThrowOnSave] and [shouldThrowOnDelete] for simulated exceptions,
+ * manages a set of valid [existingPaths] as well as public history lists ([savedPaths], [deletedPaths])
+ * and counters for save and delete operations.
  */
 class FakePhotoRepository : PhotoRepository {
 
@@ -33,8 +33,7 @@ class FakePhotoRepository : PhotoRepository {
         private set
 
     /**
-     * Fügt bestehende relative Pfade direkt zum Speicher hinzu.
-     */
+     * Adds existing relative paths to memory directly.     */
     fun setExistingPaths(paths: Set<String>) {
         mutableExistingPaths.clear()
         mutableExistingPaths.addAll(paths)
@@ -69,7 +68,7 @@ class FakePhotoRepository : PhotoRepository {
         }
     }
 
-    /** Pfade, die [listPhotoPaths] als "alt genug" meldet; Standard: alle vorhandenen. */
+    /** Paths that [listPhotoPaths] reports as "old enough"; default: all existing ones. */
     var oldPaths: Set<String>? = null
 
     override suspend fun listPhotoPaths(olderThan: Instant): List<String> =

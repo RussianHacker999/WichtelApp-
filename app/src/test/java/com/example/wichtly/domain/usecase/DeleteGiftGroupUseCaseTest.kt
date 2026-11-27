@@ -14,26 +14,26 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [DeleteGiftGroupUseCase]: Gruppe löschen und Fotodateien aufräumen.
+ * Tests for [DeleteGiftGroupUseCase]: deleting a group and cleaning up its photo files.
  */
 class DeleteGiftGroupUseCaseTest {
 
-    private val gruppe = GiftGroup(
+    private val group = GiftGroup(
         id = "g1",
-        name = "Familie",
+        name = "Family",
         budgetCents = 2000,
         drawDay = LocalDate.of(2026, 12, 24),
-        photoPath = "photos/groups/familie.jpg",
+        photoPath = "photos/groups/family.jpg",
     )
-    private val teilnehmer = listOf(
+    private val participants = listOf(
         Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = "photos/participants/anna.jpg"),
         Participant(id = "p2", groupId = "g1", name = "Ben"),
     )
 
     @Test
-    fun loeschtGruppeUndAlleFotosDerGruppeUndTeilnehmer() = runTest {
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }
-        val participantRepository = FakeParticipantRepository().apply { setParticipants(teilnehmer) }
+    fun deletesGroupAndAllPhotosOfGroupAndParticipants() = runTest {
+        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(group)) }
+        val participantRepository = FakeParticipantRepository().apply { setParticipants(participants) }
         val photoRepository = FakePhotoRepository()
         val useCase = DeleteGiftGroupUseCase(groupRepository, participantRepository, photoRepository)
 
@@ -43,14 +43,14 @@ class DeleteGiftGroupUseCaseTest {
         assertEquals(1, groupRepository.deleteCalls)
         assertNull(groupRepository.observeGiftGroupById("g1").first())
         assertEquals(
-            setOf("photos/groups/familie.jpg", "photos/participants/anna.jpg"),
+            setOf("photos/groups/family.jpg", "photos/participants/anna.jpg"),
             photoRepository.deletedPaths.toSet(),
         )
     }
 
     @Test
-    fun fehlerBeimFotoLoeschenVerhindertDasLoeschenDerGruppeNicht() = runTest {
-        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(gruppe)) }
+    fun photoDeletionFailureDoesNotPreventGroupDeletion() = runTest {
+        val groupRepository = FakeGiftGroupRepository().apply { setGroups(listOf(group)) }
         val photoRepository = FakePhotoRepository().apply { shouldThrowOnDelete = true }
         val useCase = DeleteGiftGroupUseCase(groupRepository, FakeParticipantRepository(), photoRepository)
 
@@ -61,12 +61,12 @@ class DeleteGiftGroupUseCaseTest {
     }
 
     @Test
-    fun unbekannteGruppeMeldetNotFoundUndLoeschtNichts() = runTest {
+    fun unknownGroupReturnsNotFoundAndDeletesNothing() = runTest {
         val groupRepository = FakeGiftGroupRepository()
         val photoRepository = FakePhotoRepository()
         val useCase = DeleteGiftGroupUseCase(groupRepository, FakeParticipantRepository(), photoRepository)
 
-        val result = useCase("gibt-es-nicht")
+        val result = useCase("does-not-exist")
 
         assertEquals(DeleteResult.NotFound, result)
         assertEquals(0, groupRepository.deleteCalls)

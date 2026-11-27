@@ -7,16 +7,16 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Unit-Tests für WishlistErrors.kt.
+ * Unit tests for WishlistErrors.kt.
  *
- * Warum diese Tests wichtig sind:
- * Verifiziert die korrekte Übersetzung aller [WishlistValidationError]-Typen in nutzerfreundliche
- * deutsche Fehlertexte sowie die Beachtung der Prioritätsregel (der erste Fehler gewinnt).
+ * Why these tests matter:
+ * Verifies the correct mapping of all [WishlistValidationError] types to user-friendly
+ * error texts, as well as the priority rule (the first error wins).
  */
 class WishlistErrorsTest {
 
     /**
-     * Testet, dass bei einer leeren Fehlerliste null zurückgegeben wird.
+     * Tests that an empty error list returns null.
      */
     @Test
     fun mapWishlistValidationErrors_emptyList_returnsNull() {
@@ -27,7 +27,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von EmptyText in den entsprechenden Fehlertext.
+     * Tests mapping EmptyText to the corresponding error text.
      */
     @Test
     fun mapWishlistValidationErrors_emptyText_returnsCorrectError() {
@@ -38,7 +38,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von TextTooLong in den entsprechenden Fehlertext.
+     * Tests mapping TextTooLong to the corresponding error text.
      */
     @Test
     fun mapWishlistValidationErrors_textTooLong_returnsCorrectError() {
@@ -49,7 +49,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von WishNotFound in den entsprechenden Fehlertext.
+     * Tests mapping WishNotFound to the corresponding error text.
      */
     @Test
     fun mapWishlistValidationErrors_itemNotFound_returnsCorrectError() {
@@ -60,7 +60,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet, dass bei mehreren Fehlern in der Liste stets der erste Fehler gewinnt.
+     * Tests that with multiple errors in the list, the first error always wins.
      */
     @Test
     fun mapWishlistValidationErrors_multipleErrors_returnsFirstError() {
@@ -80,7 +80,7 @@ class WishlistErrorsTest {
     }
 
     @Test
-    fun doppelterWunschErgibtDuplikatText() {
+    fun duplicateWishReturnsDuplicateText() {
         assertEquals(R.string.error_wish_duplicate, mapWishlistValidationErrors(listOf(WishlistValidationError.DuplicateText)))
     }
 }

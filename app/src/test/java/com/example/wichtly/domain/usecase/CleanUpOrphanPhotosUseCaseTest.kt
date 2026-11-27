@@ -11,40 +11,41 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [CleanUpOrphanPhotosUseCase]: nur Fotos ohne Verweis aus Gruppe oder Teilnehmer verschwinden.
+ * Tests for [CleanUpOrphanPhotosUseCase]: only photos not referenced by any group or participant are removed.
  */
 class CleanUpOrphanPhotosUseCaseTest {
 
-    private val gruppenFoto = "photos/groups/groups_1.jpg"
-    private val teilnehmerFoto = "photos/participants/participants_1.jpg"
-    private val verwaist = "photos/participants/participants_2.jpg"
+    private val groupPhoto = "photos/groups/groups_1.jpg"
+    private val participantPhoto = "photos/participants/participants_1.jpg"
+    private val orphanPhoto = "photos/participants/participants_2.jpg"
+
 
     private fun useCase(photos: FakePhotoRepository) = CleanUpOrphanPhotosUseCase(
         giftGroupRepository = FakeGiftGroupRepository().apply {
-            setGroups(listOf(GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24), photoPath = gruppenFoto)))
+            setGroups(listOf(GiftGroup(id = "g1", name = "family", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24), photoPath = groupPhoto)))
         },
         participantRepository = FakeParticipantRepository().apply {
-            setParticipants(listOf(Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = teilnehmerFoto)))
+            setParticipants(listOf(Participant(id = "p1", groupId = "g1", name = "Anna", photoPath = participantPhoto)))
         },
         photoRepository = photos,
     )
 
     @Test
-    fun nurVerwaisteFotosWerdenGeloescht() = runTest {
-        val photos = FakePhotoRepository().apply { setExistingPaths(setOf(gruppenFoto, teilnehmerFoto, verwaist)) }
+    fun onlyOrphanPhotosAreDeleted() = runTest {
+        val photos = FakePhotoRepository().apply { setExistingPaths(setOf(groupPhoto, participantPhoto, orphanPhoto)) }
 
-        val geloescht = useCase(photos)()
+        val deletedCount = useCase(photos)()
 
-        assertEquals(1, geloescht)
-        assertEquals(listOf(verwaist), photos.deletedPaths)
+        assertEquals(1, deletedCount)
+        assertEquals(listOf(orphanPhoto), photos.deletedPaths)
     }
 
     @Test
-    fun junge_Fotos_bleiben_auch_ohne_Verweis() = runTest {
-        // Ein gerade aufgenommenes Foto eines offenen Formulars ist noch nicht "alt genug"
+    fun recentPhotosAreKeptEvenWithoutReference() = runTest {
+        // A photo just taken in an open form is not "old enough" yet
         val photos = FakePhotoRepository().apply {
-            setExistingPaths(setOf(gruppenFoto, verwaist))
-            oldPaths = setOf(gruppenFoto)
+            setExistingPaths(setOf(groupPhoto, orphanPhoto))
+            oldPaths = setOf(groupPhoto)
         }
 
         assertEquals(0, useCase(photos)())
