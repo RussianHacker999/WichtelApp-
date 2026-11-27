@@ -817,4 +817,9 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Geaendert**:         loesche .gitignore in app und passe das bleibende .gitignore an
 **Commits:**           dac99ca
 
+### 2026-11-23 (Melissa, Meyer), GitHup Copilot Education
+**Prompt 1**: Ist es richtig, das beim ButtonContent ein Icon und ein Text angezeigt werden kann? Bitte kommentire den controls Ordner weiter in einfachen Englisch aus.
+**Geaendert**:       Komantare
+**Commits:**         d66adc4 
+
 
