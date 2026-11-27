@@ -6,8 +6,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Unit-Tests für [PhotoFlowState]: die Schritte des Foto-Ablaufs und die Hinweise, die er hinterlässt.
- * (Früher lag dieser Zustand im ViewModel und wurde dort getestet.)
+ * Unit tests for [PhotoFlowState]: the steps of the photo flow and the hints it leaves behind.
  */
 class PhotoFlowStateTest {
 

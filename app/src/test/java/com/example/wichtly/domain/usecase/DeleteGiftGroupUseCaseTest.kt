@@ -14,7 +14,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [DeleteGiftGroupUseCase]: Gruppe löschen und Fotodateien aufräumen.
+ * Tests for [DeleteGiftGroupUseCase]: deleting a group and cleaning up photo files.
  */
 class DeleteGiftGroupUseCaseTest {
 

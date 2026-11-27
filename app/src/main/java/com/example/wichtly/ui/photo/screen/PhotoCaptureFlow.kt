@@ -15,15 +15,14 @@ import java.io.File
 private const val TAG = "PhotoCaptureFlow"
 
 /**
- * Die Dialoge des Foto-Ablaufs: Quelle wählen → Kamerazugriff erklären → Systemberechtigung → Kameravorschau.
- * Welcher Schritt offen ist, steht in [flow]; dieses Composable zeigt ihn nur an und schaltet weiter.
+ * The dialogs of the photo flow: choose source → explain camera access → system permission → camera preview.
  *
- * Nur innerhalb von [PhotoField] genutzt. Speichert selbst KEIN Foto und ruft KEIN Repository auf.
+ * Which step is open is stored in [flow]; this composable only shows it and moves on.
+ * Used only inside [PhotoField]. It saves no photo itself and calls no repository.
  *
- * @param flow Zustand des Ablaufs, siehe [rememberPhotoFlowState].
- * @param hasPhoto Gibt an, ob aktuell ein Foto hinterlegt ist (für "Foto entfernen").
- * @param onPhotoCaptured Neues Foto aufgenommen (temporäre Datei der Kamera).
- * @param onRemovePhoto Foto entfernen.
+ * @param flow state of the flow, see [rememberPhotoFlowState].
+ * @param hasPhoto whether a photo is currently set (for "Remove photo").
+ * @param onPhotoCaptured a new photo was captured (temporary file of the camera).
  */
 @Composable
 internal fun PhotoCaptureFlow(
@@ -34,7 +33,7 @@ internal fun PhotoCaptureFlow(
 ) {
     val context = LocalContext.current
 
-    // System-Berechtigungs-Launcher für CAMERA
+    // System permission launcher for CAMERA
     val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
             AppLog.i(TAG, "Camera permission granted")
@@ -82,7 +81,7 @@ internal fun PhotoCaptureFlow(
                 },
                 onCancel = flow::close,
                 onCaptureError = {
-                    // Ursache hat CameraCaptureScreen bereits als ERROR geloggt
+                    // CameraCaptureScreen has already logged the cause as ERROR
                     AppLog.w(TAG, "Camera flow closed after an error")
                     flow.onCaptureFailed()
                 },

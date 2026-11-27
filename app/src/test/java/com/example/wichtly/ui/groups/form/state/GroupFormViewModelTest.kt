@@ -18,9 +18,9 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für das Speichern im [GroupFormViewModel], vor allem für Befund Z-01:
- * Alle Fehler müssen schon beim ersten Speichern erscheinen, auch der leere Pflicht-Name
- * neben Formatfehlern, und ein alter allgemeiner Fehler darf nicht stehen bleiben.
+ * Tests for saving in [GroupFormViewModel], mainly for finding Z-01:
+ * all errors must appear on the first save, including the empty required name next to
+ * format errors, and an old general error must not remain.
  */
 class GroupFormViewModelTest {
 
@@ -78,12 +78,12 @@ class GroupFormViewModelTest {
         viewModel.onBudgetChange("25")
         viewModel.onDrawDayChange("24.12.2026")
 
-        // 1. Versuch scheitert technisch
+        // 1st attempt fails for a technical reason
         viewModel.onSaveClick()
         testScheduler.advanceUntilIdle()
         assertEquals(R.string.error_group_save, viewModel.uiState.value.generalError)
 
-        // 2. Versuch hat nur einen Formatfehler: der alte allgemeine Fehler muss weg sein
+        // 2nd attempt has only a format error: the old general error must be gone
         repository.shouldThrow = false
         viewModel.onBudgetChange("abc")
         viewModel.onSaveClick()
@@ -146,7 +146,7 @@ class GroupFormViewModelTest {
         )
         testScheduler.advanceUntilIdle()
 
-        // Am Wichteltag selbst ist die Runde noch offen (Losen erlaubt), also kein Hinweis
+        // On the draw day itself the round is still open (drawing allowed), so no hint
         assertFalse(viewModel.uiState.value.drawDayPassed)
     }
 
@@ -168,7 +168,7 @@ class GroupFormViewModelTest {
         viewModel.onDrawDayChange("24.12.2026")
 
         viewModel.onSaveClick()
-        // Speichern läuft noch (nicht weitergelaufen), Nutzer verlässt den Screen
+        // Saving is still running (not advanced), the user leaves the screen
         viewModel.onDiscard()
         testScheduler.advanceUntilIdle()
 
@@ -203,7 +203,7 @@ class GroupFormViewModelTest {
         assertFalse(state.isLoading)
         assertFalse(state.notFound)
         assertEquals(R.string.error_group_load, state.generalError)
-        // Leere Felder dürfen nach einem Prozesstod nicht die Werte aus der Datenbank überschreiben
+        // After a process death, empty fields must not overwrite the values from the database
         assertNull(handle.get<Boolean>(FormInputs.KEY_PRESENT))
     }
 

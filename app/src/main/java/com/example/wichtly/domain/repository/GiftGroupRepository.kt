@@ -4,32 +4,37 @@ import com.example.wichtly.domain.model.group.GiftGroup
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Reine Persistenz für Wichtelgruppen. Fachliche Prüfungen passieren vorher im
- * SaveGiftGroupUseCase; geschrieben werden nur bereits geprüfte Gruppen.
+ * Pure persistence for gift groups. Business validation happens beforehand in
+ * SaveGiftGroupUseCase; only validated groups are written.
  *
- * Lesen: `observe…` liefert einen Flow für Screens, die Änderungen live anzeigen;
- * `get…` liest den aktuellen Stand genau einmal (Use Cases, einmaliges Laden eines Formulars).
+ * Reading: `observe…` returns a Flow for screens that show changes live;
+ * `get…` reads the current state exactly once (use cases, loading a form once).
  */
 interface GiftGroupRepository {
+    /** Observes all groups, sorted by draw day and then by name. */
     fun observeGiftGroups(): Flow<List<GiftGroup>>
+
+    /** Observes one group; the Flow emits null if the group does not exist (any more). */
     fun observeGiftGroupById(id: String): Flow<GiftGroup?>
 
-    /** Alle Gruppen, sortiert wie [observeGiftGroups]. */
+    /** All groups, sorted like [observeGiftGroups]. */
     suspend fun getGiftGroups(): List<GiftGroup>
 
-    /** @return null, wenn es keine Gruppe mit dieser ID gibt. */
+    /** @return null if there is no group with this ID. */
     suspend fun getGiftGroupById(id: String): GiftGroup?
 
-    /** Fotopfade aller Gruppen; für das Aufräumen verwaister Fotos. */
+    /** Photo paths of all groups; used to clean up orphaned photos. */
     suspend fun getAllPhotoPaths(): List<String>
+
+    /** Inserts a new, already validated group. */
     suspend fun insertGiftGroup(group: GiftGroup)
 
-    /** @return false, wenn es keine Gruppe mit dieser ID (mehr) gibt. */
+    /** @return false if there is no group with this ID (any more). */
     suspend fun updateGiftGroup(group: GiftGroup): Boolean
 
     /**
-     * Löscht die Gruppe. Teilnehmer, Wunschlisten und Auslosungen der Gruppe werden per CASCADE
-     * mitgelöscht; Fotodateien räumt der DeleteGiftGroupUseCase auf.
+     * Deletes the group. Participants, wishlists and draws of the group are deleted via CASCADE;
+     * photo files are cleaned up by DeleteGiftGroupUseCase.
      */
     suspend fun deleteGiftGroup(id: String)
 }

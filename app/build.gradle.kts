@@ -40,8 +40,8 @@ android {
     }
 }
 
-// Room schreibt das Datenbankschema jeder Version als JSON nach app/schemas/ (eingecheckt).
-// Grundlage für spätere Migrationen statt destruktiver Neuanlage, siehe AppDatabase.
+// Room writes the database schema of every version as JSON to app/schemas/ (checked in).
+// This is the basis for later migrations instead of a destructive recreation, see AppDatabase.
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }

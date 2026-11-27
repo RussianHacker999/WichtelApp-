@@ -6,19 +6,20 @@ import com.example.wichtly.R
 import java.io.IOException
 
 /**
- * Fehlertext für einen gescheiterten Schreibvorgang. Ist der Gerätespeicher voll, sagt die App das
- * konkret; der allgemeine Text ("Fehler beim Speichern") hilft dem Nutzer dann nicht weiter.
+ * Error text for a failed write. If the device storage is full, the app says so specifically;
+ * the generic text ("Error while saving") does not help the user in that case.
  *
- * @param e Die gefangene Exception.
- * @param fallback Allgemeiner Fehlertext der Aktion.
+ * @param e the caught exception.
+ * @param fallback generic error text of the action.
  */
 @StringRes
 fun saveErrorMessage(e: Throwable, @StringRes fallback: Int): Int =
     if (e.isStorageFull()) R.string.error_storage_full else fallback
 
 /**
- * Datenbank voll (SQLite) oder Datei nicht schreibbar, weil kein Platz mehr ist (ENOSPC).
- * Prüft auch die Ursachenkette, weil Room und Dateioperationen Fehler gern einpacken.
+ * True if the database is full (SQLite) or a file cannot be written because there is no space left (ENOSPC).
+ *
+ * Also checks the cause chain, because Room and file operations tend to wrap errors.
  */
 internal fun Throwable.isStorageFull(): Boolean =
     generateSequence(this) { it.cause }.any { cause ->

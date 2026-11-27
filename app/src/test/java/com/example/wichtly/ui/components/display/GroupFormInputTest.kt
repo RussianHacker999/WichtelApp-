@@ -8,71 +8,59 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Unit-Tests für die Umwandlung der Formulartexte: Parsen (domain/validation/GiftGroupInputParsing.kt)
- * und Formatieren für die Anzeige (ui/components/display/GroupFormInput.kt).
+ * Unit tests for converting the form texts: parsing (domain/validation/GiftGroupInputParsing.kt)
+ * and formatting for display (ui/components/display/GroupFormInput.kt).
  *
- * Warum diese Tests wichtig sind:
- * Stellt sicher, dass Texteingaben für Budget und Datum korrekt geparst und formatiert werden
- * und dass Fehleingaben (z. B. ungültige Datumsangaben oder Formate) zuverlässig abgefangen werden,
- * ohne dass Exceptions die App zum Absturz bringen.
+ * Makes sure that budget and date input is parsed and formatted correctly and that invalid input
+ * (e.g. invalid dates or formats) is rejected reliably without exceptions crashing the app.
  */
 class GroupFormInputTest {
 
-    // =========================================================================
-    // TESTS FÜR parseBudgetToCents
-    // =========================================================================
-
     /**
-     * Testet die Umwandlung gültiger Budget-Eingaben in Euro (mit Komma, Punkt oder Ganzzahlen)
-     * in den korrekten Cent-Betrag (Long).
+     * Valid budget input in euros (with comma, dot or as an integer) becomes the correct amount in cents.
      */
     @Test
     fun parseBudgetToCents_validInputs_returnsCorrectCents() {
-        // Ganzzahlige Euro-Angabe
+        // Whole euros
         assertEquals(2500L, parseBudgetToCents("25"))
 
-        // Eine Nachkommastelle mit Komma
+        // One decimal place with a comma
         assertEquals(2550L, parseBudgetToCents("25,5"))
 
-        // Zwei Nachkommastellen mit Punkt
+        // Two decimal places with a dot
         assertEquals(2550L, parseBudgetToCents("25.50"))
 
-        // Betrag unter 1 Euro
+        // Amount below 1 euro
         assertEquals(99L, parseBudgetToCents("0,99"))
 
-        // Eingabe mit führenden/nachfolgenden Leerzeichen
+        // Input with leading and trailing spaces
         assertEquals(2500L, parseBudgetToCents("  25  "))
     }
 
     /**
-     * Testet, dass ungültige, leere, negative oder falsch formatierte Budget-Eingaben
-     * zuverlässig null zurückliefern.
+     * Invalid, empty, negative or wrongly formatted budget input reliably returns null.
      */
     @Test
     fun parseBudgetToCents_invalidInputs_returnsNull() {
-        // Leere Eingabe
+        // Empty input
         assertNull(parseBudgetToCents(""))
         assertNull(parseBudgetToCents("   "))
 
-        // Nicht-numerische Texteingabe
+        // Non-numeric input
         assertNull(parseBudgetToCents("abc"))
 
-        // Negativer Betrag
+        // Negative amount
         assertNull(parseBudgetToCents("-5"))
 
-        // Mehr als zwei Nachkommastellen (z. B. "1,234")
+        // More than two decimal places (e.g. "1,234")
         assertNull(parseBudgetToCents("1,234"))
 
-        // Mehrere Dezimaltrenner (z. B. "12,5,3")
+        // Several decimal separators (e.g. "12,5,3")
         assertNull(parseBudgetToCents("12,5,3"))
     }
 
-    // =========================================================================
-    // TESTS FÜR parseDate
-    // =========================================================================
-
     /**
-     * Testet das korrekte Parsen eines gültigen Datums im Format TT.MM.JJJJ (DRAW_DAY_INPUT_PATTERN).
+     * A valid date in the format DD.MM.YYYY (DRAW_DAY_INPUT_PATTERN) is parsed correctly.
      */
     @Test
     fun parseDate_validDate_returnsLocalDate() {
@@ -82,28 +70,24 @@ class GroupFormInputTest {
     }
 
     /**
-     * Testet, dass ungültige Datumsangaben (z. B. ungültige Kalendertage wie 31.02. oder falsche Formate)
-     * dank ResolverStyle.STRICT zuverlässig null zurückliefern.
+     * Invalid dates (e.g. impossible calendar days such as 31.02. or wrong formats) reliably return null
+     * thanks to ResolverStyle.STRICT.
      */
     @Test
     fun parseDate_invalidDates_returnsNull() {
-        // Ungültiger Kalendertag (31. Februar existiert nicht)
+        // Invalid calendar day (31 February does not exist)
         assertNull(parseDate("31.02.2026"))
 
-        // Falsches Datumsformat (ISO-Format JJJJ-MM-TT statt TT.MM.JJJJ)
+        // Wrong date format (ISO format YYYY-MM-DD instead of DD.MM.YYYY)
         assertNull(parseDate("2026-12-24"))
 
-        // Leere oder ungültige Strings
+        // Empty or invalid strings
         assertNull(parseDate(""))
         assertNull(parseDate("abc"))
     }
 
-    // =========================================================================
-    // TESTS FÜR HIN- UND RÜCKUMWANDLUNG (ROUND-TRIP)
-    // =========================================================================
-
     /**
-     * Testet die Hin- und Rückumwandlung von Cent-Werten über formatCentsForInput und parseBudgetToCents.
+     * Round trip of cent values through formatCentsForInput and parseBudgetToCents.
      */
     @Test
     fun budget_roundTrip_preservesValue() {
@@ -115,7 +99,7 @@ class GroupFormInputTest {
     }
 
     /**
-     * Testet die Hin- und Rückumwandlung von LocalDate-Objekten über formatDateForInput und parseDate.
+     * Round trip of LocalDate values through formatDateForInput and parseDate.
      */
     @Test
     fun date_roundTrip_preservesValue() {
@@ -128,14 +112,14 @@ class GroupFormInputTest {
 
     @Test
     fun parseBudgetToCents_zeroIsValidFormat() {
-        // Format ist gültig; "über 0" prüft der GiftGroupValidator, nicht der Parser
+        // The format is valid; "above 0" is checked by GiftGroupValidator, not by the parser
         assertEquals(0L, parseBudgetToCents("0"))
         assertEquals(0L, parseBudgetToCents("0,00"))
     }
 
     @Test
     fun parseBudgetToCents_overflowAndOddFormats_returnNullWithoutCrash() {
-        // Korrekt geschrieben, aber zu groß für Long: wird begrenzt, die Domain meldet "zu hoch"
+        // Written correctly but too large for Long: clamped, the domain reports "too high"
         assertEquals(Long.MAX_VALUE, parseBudgetToCents("99999999999999999999"))
         assertNull(parseBudgetToCents("1e3"))
         assertNull(parseBudgetToCents("25 €"))

@@ -8,29 +8,28 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
-/** Schritt des Foto-Ablaufs. */
+/** Step of the photo flow. */
 internal enum class PhotoFlowStep {
-    /** Ablauf geschlossen. */
+    /** Flow closed. */
     CLOSED,
 
-    /** Auswahl "Foto aufnehmen" / "Foto entfernen". */
+    /** Choice between "Take photo" and "Remove photo". */
     SOURCE_SELECTION,
 
-    /** Aufklärung, warum die App die Kamera braucht. */
+    /** Explanation why the app needs the camera. */
     PERMISSION_DIALOG,
 
-    /** Kameravorschau mit Auslöser. */
+    /** Camera preview with the shutter. */
     CAMERA,
 }
 
 /**
- * UI-Zustand des Foto-Ablaufs (Quelle → Berechtigung → Kamera) samt der Hinweise, die er hinterlässt.
+ * UI state of the photo flow (source → permission → camera) together with the hints it leaves behind.
  *
- * Warum in der UI und nicht im ViewModel?
- * Ob ein Dialog offen ist oder die Kamera abgelehnt wurde, ist reiner Bildschirmzustand ohne fachliche Bedeutung.
- * Das ViewModel erfährt nur das Ergebnis (neues Foto / Foto entfernt).
- * Über [rememberPhotoFlowState] übersteht der Zustand Drehung und Prozesstod.
- * Nur innerhalb von [PhotoField] genutzt; Bildschirme sehen diese Klasse nicht.
+ * Kept in the UI and not in the ViewModel, because whether a dialog is open or the camera was denied is
+ * pure screen state without business meaning. The ViewModel only learns the result (new photo / photo removed).
+ * With [rememberPhotoFlowState] the state survives rotation and process death.
+ * Used only inside [PhotoField]; screens do not see this class.
  */
 @Stable
 internal class PhotoFlowState internal constructor(
@@ -38,42 +37,42 @@ internal class PhotoFlowState internal constructor(
     cameraDenied: Boolean = false,
     captureFailed: Boolean = false,
 ) {
-    /** Aktueller Schritt; [PhotoFlowStep.CLOSED] = nichts offen. */
+    /** Current step; [PhotoFlowStep.CLOSED] = nothing open. */
     var step by mutableStateOf(step)
         private set
 
-    /** Kamerazugriff wurde abgelehnt (zeigt den Hinweis unter dem Fotofeld). */
+    /** Camera access was denied (shows the hint below the photo field). */
     var cameraDenied by mutableStateOf(cameraDenied)
         private set
 
-    /** Kamera startete nicht oder die Aufnahme scheiterte (zeigt einen Fehler unter dem Fotofeld). */
+    /** The camera did not start or the capture failed (shows an error below the photo field). */
     var captureFailed by mutableStateOf(captureFailed)
         private set
 
-    /** Öffnet den Ablauf; alte Hinweise verschwinden. */
+    /** Opens the flow; old hints disappear. */
     fun open() {
         step = PhotoFlowStep.SOURCE_SELECTION
         cameraDenied = false
         captureFailed = false
     }
 
-    /** Wechselt zur Kamera (Berechtigung vorhanden) oder zuerst zum Aufklärungsdialog. */
+    /** Switches to the camera (permission granted) or first to the explanation dialog. */
     fun requestCamera(permissionGranted: Boolean) {
         step = if (permissionGranted) PhotoFlowStep.CAMERA else PhotoFlowStep.PERMISSION_DIALOG
     }
 
-    /** Berechtigung im Systemdialog erteilt. */
+    /** Permission granted in the system dialog. */
     fun onPermissionGranted() {
         step = PhotoFlowStep.CAMERA
     }
 
-    /** Kamerazugriff abgelehnt: schließen und Hinweis zeigen. */
+    /** Camera access denied: close and show the hint. */
     fun onCameraDenied() {
         cameraDenied = true
         close()
     }
 
-    /** Kamera startet nicht oder die Aufnahme scheitert: schließen und Fehler zeigen. */
+    /** The camera does not start or the capture fails: close and show an error. */
     fun onCaptureFailed() {
         captureFailed = true
         close()
@@ -97,6 +96,6 @@ internal class PhotoFlowState internal constructor(
     }
 }
 
-/** Erzeugt einen [PhotoFlowState], der Drehung und Prozesstod übersteht. */
+/** Creates a [PhotoFlowState] that survives rotation and process death. */
 @Composable
 internal fun rememberPhotoFlowState(): PhotoFlowState = rememberSaveable(saver = PhotoFlowState.Saver) { PhotoFlowState() }

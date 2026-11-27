@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Room-Implementierung von [WishlistRepository]. Reine Persistenz: Prüfungen passieren
- * vorher im SaveWishlistItemUseCase.
+ * Room implementation of [WishlistRepository]. Persistence only: validation happens
+ * beforehand in SaveWishlistItemUseCase.
  */
 class WishlistRepositoryImpl(
     private val wishlistItemDao: WishlistItemDao,
@@ -28,11 +28,11 @@ class WishlistRepositoryImpl(
         wishlistItemDao.insertWishlistItem(item.toEntity())
     }
 
-    // @Update liefert die Anzahl geänderter Zeilen; 0 heißt, der Wunsch existiert nicht (mehr)
+    // @Update returns the number of updated rows; 0 means the wish does not exist (any more)
     override suspend fun updateWishlistItem(item: WishlistItem): Boolean =
         wishlistItemDao.updateWishlistItem(item.toEntity()) > 0
 
-    // Die DELETE-Abfrage liefert die Anzahl gelöschter Zeilen; 0 heißt, der Wunsch existiert nicht (mehr)
+    // The DELETE query returns the number of deleted rows; 0 means the wish does not exist (any more)
     override suspend fun deleteWishlistItem(id: String): Boolean =
         wishlistItemDao.deleteWishlistItemById(id) > 0
 }

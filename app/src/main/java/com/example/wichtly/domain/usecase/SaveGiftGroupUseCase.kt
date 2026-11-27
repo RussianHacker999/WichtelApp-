@@ -14,11 +14,16 @@ import java.time.LocalDate
 private const val TAG = "SaveGiftGroupUseCase"
 
 /**
- * Rohe Formulareingaben einer Wichtelgruppe, so wie der Nutzer sie getippt hat.
- * Budget und Wichteltag bleiben Text, damit Format- und Fachfehler an einer Stelle geprüft werden.
+ * Raw form input of a gift group, exactly as the user typed it.
  *
- * Konvention für alle Use Cases: Ab drei fachlichen Eingabefeldern gibt es ein eigenes `…Input`-Objekt
- * (hier fünf Felder); darunter Einzelparameter (SaveParticipantUseCase, SaveWishlistItemUseCase).
+ * Budget and draw day stay text, so format errors and business errors are checked in one place.
+ *
+ * Convention for all use cases: from three business input fields on there is a separate `…Input`
+ * object (five fields here); below that, single parameters (SaveParticipantUseCase, SaveWishlistItemUseCase).
+ *
+ * @property budget budget in euros as typed, e.g. "25" or "25,50".
+ * @property drawDay draw day as typed, in the format [com.example.wichtly.domain.validation.DRAW_DAY_INPUT_PATTERN].
+ * @property photoPath relative path of the photo, or null.
  */
 data class GiftGroupInput(
     val name: String,
@@ -29,13 +34,13 @@ data class GiftGroupInput(
 )
 
 /**
- * Legt eine Wichtelgruppe an oder ändert sie. Einzige Stelle, an der Gruppen geprüft werden.
+ * Creates or updates a gift group. The only place where groups are validated.
  *
- * Ablauf: Bestand laden → beim Bearbeiten Existenz prüfen → Eingaben parsen und alle Regeln in
- * einem Durchlauf prüfen → nur bei fehlerfreiem Ergebnis schreiben. So meldet das Formular schon
- * beim ersten Speichern sämtliche Fehler (auch den leeren Pflicht-Namen neben Formatfehlern).
+ * Flow: load existing groups → when editing, check that the group exists → parse the input and
+ * check all rules in one pass → write only if there are no errors. That way the form reports
+ * all errors on the first save (including the empty required name next to format errors).
  *
- * @param today Liefert das aktuelle Datum; in Tests durch ein festes Datum ersetzbar.
+ * @param today supplies the current date; replaced by a fixed date in tests.
  */
 class SaveGiftGroupUseCase(
     private val repository: GiftGroupRepository,
@@ -43,7 +48,7 @@ class SaveGiftGroupUseCase(
     private val today: () -> LocalDate = { LocalDate.now() },
 ) {
     /**
-     * @param groupId null legt eine neue Gruppe an, sonst wird die Gruppe mit dieser ID geändert.
+     * @param groupId null creates a new group; otherwise the group with this ID is updated.
      */
     suspend operator fun invoke(groupId: String?, input: GiftGroupInput): GiftGroupResult {
         AppLog.d(TAG) { if (groupId == null) "Saving new group" else "Saving group $groupId" }
@@ -76,7 +81,7 @@ class SaveGiftGroupUseCase(
         }
 
         return if (stored == null) {
-            // Neuanlage: Das Domain-Modell erzeugt die UUID über den Standard-Parameter
+            // New group: the domain model creates the UUID via its default parameter
             val group = GiftGroup(
                 name = name,
                 budgetCents = budgetCents,
@@ -88,7 +93,7 @@ class SaveGiftGroupUseCase(
             AppLog.i(TAG, "Group ${group.id} created")
             GiftGroupResult.Success(group)
         } else {
-            // Bearbeiten: id bleibt über copy() erhalten
+            // Editing: the id is kept via copy()
             val group = stored.copy(
                 name = name,
                 budgetCents = budgetCents,
@@ -96,7 +101,7 @@ class SaveGiftGroupUseCase(
                 drawType = input.drawType,
                 photoPath = input.photoPath,
             )
-            // Zwischen Laden und Schreiben gelöscht: nichts geändert, also kein Erfolg melden
+            // Deleted between loading and writing: nothing was changed, so do not report success
             if (!repository.updateGiftGroup(group)) return notFound(group.id)
             AppLog.i(TAG, "Group ${group.id} updated")
             GiftGroupResult.Success(group)

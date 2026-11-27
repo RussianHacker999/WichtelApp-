@@ -34,7 +34,7 @@ import kotlinx.coroutines.launch
 private const val TAG = "WishlistViewModel"
 
 /**
- * Lokaler interner Zustand für Dialoge, Eingabefelder und Fehler der Wunschliste.
+ * Internal local state for the dialogs, input fields and errors of the wishlist.
  */
 private data class WishlistLocalState(
     val isSaving: Boolean = false,
@@ -47,19 +47,18 @@ private data class WishlistLocalState(
 )
 
 /**
- * ViewModel für die Wunschliste eines Teilnehmers.
+ * ViewModel of a participant's wishlist.
  *
- * Architektur-Hinweise (MVVM & Clean Architecture):
- * - Der State wird reaktiv über [combine] aus dem Teilnehmer-Flow, dem Wunschlisten-Flow und dem lokalen UI-Zustand erzeugt.
- * - [SharingStarted.WhileSubscribed(5_000)] hält den Flow bei Konfigurationsänderungen (z. B. Rotation) 5 Sekunden aktiv.
- * - Reagiert automatisch, wenn Teilnehmer oder Wünsche im Hintergrund gelöscht werden, und schließt/bereinigt betroffene Dialoge.
+ * The state is built reactively with [combine] from the participant Flow, the wishlist Flow and the local
+ * UI state. [SharingStarted.WhileSubscribed] (5 seconds) keeps the Flow active across configuration changes
+ * such as a rotation. If the participant or wishes are deleted in the background, affected dialogs are
+ * closed automatically.
  *
- * @param participantId Die ID des Teilnehmers.
- * @param participantRepository Repository für Teilnehmer.
- * @param wishlistRepository Repository für Wunschlisten-Einträge (nur Lesen).
- * @param saveWishlistItem Prüft und speichert Wünsche (einzige Stelle der Wunsch-Validierung).
- * @param deleteWishlistItem Löscht einen Wunsch.
- * @param savedStateHandle Hält den offenen Editor samt Text, auch wenn Android den Prozess im Hintergrund beendet.
+ * @param participantId ID of the participant.
+ * @param wishlistRepository read access to wishlist entries only.
+ * @param saveWishlistItem validates and saves wishes (the only place of wish validation).
+ * @param deleteWishlistItem deletes a wish.
+ * @param savedStateHandle keeps the open editor with its text, even if Android kills the process in the background.
  */
 class WishlistViewModel(
     private val participantId: String,
@@ -70,7 +69,7 @@ class WishlistViewModel(
     private val savedStateHandle: SavedStateHandle = SavedStateHandle(),
 ) : ViewModel() {
 
-    // Ein offener Editor wird aus dem SavedStateHandle wiederhergestellt (Prozesstod im Hintergrund)
+    // An open editor is restored from the SavedStateHandle (process death in the background)
     private val _localState = MutableStateFlow(
         WishlistLocalState(
             showEditor = savedStateHandle[KEY_EDITOR_OPEN] ?: false,
@@ -80,7 +79,7 @@ class WishlistViewModel(
     )
 
     init {
-        // Jede Änderung am Editor sofort sichern; das SavedStateHandle schreibt sie beim Pausieren weg
+        // Save every change of the editor right away; the SavedStateHandle persists it when paused
         _localState
             .onEach { state ->
                 savedStateHandle[KEY_EDITOR_OPEN] = state.showEditor
@@ -106,13 +105,13 @@ class WishlistViewModel(
             else -> null
         }
 
-        // Prüfen, ob der aktuell bearbeitete bzw. zum Löschen vorgemerkte Wunsch noch in der Liste vorhanden ist
+        // Check whether the wish being edited or marked for deletion is still in the list
         val isEditingItemPresent = localState.editingItemId == null ||
                 items.any { it.id == localState.editingItemId }
         val isDeleteItemPresent = localState.pendingDeleteItemId == null ||
                 items.any { it.id == localState.pendingDeleteItemId }
 
-        // Wenn der Teilnehmer gelöscht wurde oder das Item nicht mehr existiert, schließen/bereinigen wir betroffene Dialoge
+        // If the participant was deleted or the item no longer exists, close the affected dialogs
         val validShowEditor = localState.showEditor && !isParticipantNotFound && isEditingItemPresent
         val validEditingItemId = if (isParticipantNotFound || !isEditingItemPresent) null else localState.editingItemId
         val validPendingDeleteId = if (isParticipantNotFound || !isDeleteItemPresent) null else localState.pendingDeleteItemId
@@ -137,12 +136,8 @@ class WishlistViewModel(
         initialValue = WishlistUiState(isLoading = true)
     )
 
-    // =========================================================================
-    // DIALOG- UND EINGABE-CALLBACKS
-    // =========================================================================
-
     /**
-     * Öffnet den Wunsch-Editor im Hinzufügen-Modus.
+     * Opens the wish editor in add mode.
      */
     fun onAddClick() {
         _localState.update {
@@ -156,7 +151,7 @@ class WishlistViewModel(
     }
 
     /**
-     * Öffnet den Wunsch-Editor im Bearbeiten-Modus, falls der Wunsch in der aktuellen Liste existiert.
+     * Opens the wish editor in edit mode if the wish exists in the current list.
      */
     fun onEditClick(itemId: String) {
         val currentItems = uiState.value.items
@@ -174,7 +169,7 @@ class WishlistViewModel(
     }
 
     /**
-     * Aktualisiert den Text im Eingabefeld und löscht evtl. vorhandene Validierungsfehler.
+     * Updates the text in the input field and clears an existing validation error.
      */
     fun onEditorTextChange(text: String) {
         _localState.update {
@@ -186,7 +181,7 @@ class WishlistViewModel(
     }
 
     /**
-     * Schließt den Wunsch-Editor (nur wenn kein Speichervorgang läuft) und setzt die Eingaben zurück.
+     * Closes the wish editor (only if no save is running) and resets the input.
      */
     fun onDismissEditor() {
         if (_localState.value.isSaving) return
@@ -201,7 +196,7 @@ class WishlistViewModel(
     }
 
     /**
-     * Merkt sich die ID des zu löschenden Wunsches und öffnet den Lösch-Dialog.
+     * Remembers the ID of the wish to delete and opens the delete dialog.
      */
     fun onDeleteClick(itemId: String) {
         _localState.update {
@@ -213,7 +208,7 @@ class WishlistViewModel(
     }
 
     /**
-     * Schließt den Lösch-Dialog (nur wenn kein Speichervorgang läuft).
+     * Closes the delete dialog (only if no save is running).
      */
     fun onDismissDelete() {
         if (_localState.value.isSaving) return
@@ -225,21 +220,17 @@ class WishlistViewModel(
         }
     }
 
-    // =========================================================================
-    // WUNSCH SPEICHERN
-    // =========================================================================
-
     /**
-     * Löst das Speichern des Wunsches aus.
+     * Saves the wish.
      *
-     * Ablauf:
-     * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Text unverändert an den [SaveWishlistItemUseCase] übergeben. Er prüft den Text und die
-     *    Existenz des Wunsches, vergibt beim Anlegen die nächste sortOrder und speichert.
-     * 3. Fehler des Use Cases in einen Text für den Editor übersetzen.
+     * Steps:
+     * 1. Synchronous guard against double submits.
+     * 2. Pass the text unchanged to [SaveWishlistItemUseCase]. It checks the text and the existence
+     *    of the wish, assigns the next sortOrder when creating, and saves.
+     * 3. Translate the use case's errors into a text for the editor.
      */
     fun onSaveClick() {
-        // Synchroner Doppel-Submit-Schutz
+        // Synchronous guard against double submits
         if (_localState.value.isSaving) return
 
         val localState = _localState.value
@@ -296,21 +287,17 @@ class WishlistViewModel(
         }
     }
 
-    // =========================================================================
-    // WUNSCH LÖSCHEN
-    // =========================================================================
-
     /**
-     * Bestätigt das Löschen des ausgewählten Wunsches.
+     * Confirms deleting the selected wish.
      *
-     * Ablauf:
-     * 1. Synchroner Doppel-Submit-Schutz.
-     * 2. Löschen über den [DeleteWishlistItemUseCase]. War der Wunsch schon gelöscht, ist das Ziel
-     *    ebenfalls erreicht und der Dialog schließt sich.
-     * 3. Bei Fehlern bleibt der Dialog geöffnet und zeigt deleteError.
+     * Steps:
+     * 1. Synchronous guard against double submits.
+     * 2. Delete via [DeleteWishlistItemUseCase]. If the wish was already deleted, the goal is reached
+     *    as well and the dialog closes.
+     * 3. On errors the dialog stays open and shows deleteError.
      */
     fun onConfirmDelete() {
-        // Synchroner Doppel-Submit-Schutz
+        // Synchronous guard against double submits
         if (_localState.value.isSaving) return
 
         val pendingId = _localState.value.pendingDeleteItemId ?: return
@@ -353,7 +340,7 @@ class WishlistViewModel(
         internal const val KEY_EDITOR_TEXT = "wish_editor_text"
 
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         * Creates the ViewModel with its dependencies from the [AppContainer].
          */
         fun factory(container: AppContainer, participantId: String): ViewModelProvider.Factory = viewModelFactory {
             initializer {

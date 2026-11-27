@@ -15,14 +15,14 @@ import org.junit.Test
 import java.io.File
 
 /**
- * Unit-Tests für [PhotoDraft]: welche Fotos beim Ersetzen, Verwerfen und Speichern gelöscht werden
- * und welche liegen bleiben. Die ViewModel-Tests prüfen dieselben Regeln zusätzlich im Zusammenspiel.
+ * Unit tests for [PhotoDraft]: which photos are deleted when replacing, discarding and saving,
+ * and which ones stay. The ViewModel tests check the same rules again in combination.
  */
 class PhotoDraftTest {
 
     private val committed = "photos/groups/committed.jpg"
 
-    // Der Test-Scope selbst (nicht backgroundScope), damit advanceUntilIdle() die Löschvorgänge von discard ausführt
+    // The test scope itself (not backgroundScope), so advanceUntilIdle() runs the deletes of discard
     private fun TestScope.draft(photoRepo: FakePhotoRepository, handle: SavedStateHandle = SavedStateHandle()) =
         PhotoDraft(photoRepo, PhotoOwnerType.GROUPS, this, handle, "committed", "PhotoDraftTest")
 

@@ -7,8 +7,9 @@ import com.example.wichtly.data.local.entity.ParticipantEntity
 import com.example.wichtly.data.local.entity.WishlistItemEntity
 
 /**
- * Lesemodell für die Auslosung: Gruppe mit allen Teilnehmern und deren Wünschen.
- * Room lädt die Relationen in derselben Transaktion wie die Gruppe (@Transaction an der DAO-Methode).
+ * Read model for the draw: a group with all participants and their wishes.
+ *
+ * Room loads the relations in the same transaction as the group (@Transaction on the DAO method).
  */
 data class GiftGroupWithParticipants(
     @Embedded
@@ -22,7 +23,7 @@ data class GiftGroupWithParticipants(
 )
 
 /**
- * Teilnehmer mit seinen Wunschlisten-Einträgen.
+ * A participant with their wishlist items.
  */
 data class ParticipantWithWishlistEntity(
     @Embedded

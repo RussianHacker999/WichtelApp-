@@ -13,7 +13,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [SaveGiftGroupUseCase], die einzige Stelle, an der Wichtelgruppen geprüft werden.
+ * Tests for [SaveGiftGroupUseCase], the only place where gift groups are validated.
  */
 class SaveGiftGroupUseCaseTest {
 
@@ -46,7 +46,7 @@ class SaveGiftGroupUseCaseTest {
 
     @Test
     fun leeresFormularMeldetAlleDreiFehlerImErstenDurchlauf() = runTest {
-        // Z-01: Der leere Pflicht-Name wird zusammen mit den Formatfehlern gemeldet
+        // Z-01: the empty required name is reported together with the format errors
         val repository = FakeGiftGroupRepository()
 
         val result = useCase(repository)(null, input(name = "", budget = "", drawDay = ""))
@@ -80,7 +80,7 @@ class SaveGiftGroupUseCaseTest {
 
     @Test
     fun bearbeitenAbDemWichteltagMitUnveraendertemDatumGelingt() = runTest {
-        // P1-1: Wichteltag liegt in der Vergangenheit, nur der Name wird geändert
+        // P1-1: the draw day lies in the past, only the name is changed
         val gespeichert = GiftGroup(id = "g1", name = "Familie", budgetCents = 2000, drawDay = LocalDate.of(2026, 11, 20))
         val repository = FakeGiftGroupRepository().apply { setGroups(listOf(gespeichert)) }
 

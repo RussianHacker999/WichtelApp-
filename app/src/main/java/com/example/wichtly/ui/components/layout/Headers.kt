@@ -35,11 +35,11 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Seitenkopf unter der Top-Leiste: optionale Eyebrow, großer Serifentitel mit hartem Schatten,
- * optionaler Untertitel und optionale [meta]-Zeile. Rechts werden goldene Sternchen verteilt.
+ * Page header below the top bar: optional eyebrow, large serif title with a hard shadow,
+ * optional subtitle and optional [meta] row. Gold sparkles are placed on the right.
  *
- * Ohne Eyebrow hält ein Platzhalter (14 dp) etwa denselben Raum frei, damit der Titel auf allen Screens
- * ungefähr auf derselben Höhe steht.
+ * Without an eyebrow a spacer (14 dp) keeps about the same space free, so the title sits at
+ * roughly the same height on every screen.
  */
 @Composable
 fun PageHeader(
@@ -59,7 +59,7 @@ fun PageHeader(
         if (eyebrow != null) {
             Text(
                 text = eyebrow.uppercase(),
-                // gemeinsamer Eyebrow-Stil (fett, 13sp), siehe EyebrowStyle in Type.kt
+                // shared eyebrow style (bold, 13sp), see EyebrowStyle in Type.kt
                 style = EyebrowStyle,
                 color = MaterialTheme.colorScheme.primary,
             )
@@ -70,7 +70,7 @@ fun PageHeader(
             text = title,
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onBackground,
-            // der rechte Streifen bleibt für die Sternchen frei (siehe headerSparkles)
+            // the strip on the right stays free for the sparkles (see headerSparkles)
             modifier = Modifier.padding(end = SparkleStripWidth),
         )
         if (subtitle != null) {
@@ -84,10 +84,10 @@ fun PageHeader(
     }
 }
 
-/** Ein Eintrag einer [MetaRow]: ein Icon, gefolgt von einem kurzen Text. */
+/** One entry of a [MetaRow]: an icon followed by a short text. */
 data class MetaItem(val icon: ImageVector, val text: String)
 
-/** Kleine Zeile aus Icon-Text-Paaren (z. B. Datum und Wichtelart). Bricht um, statt über den Rand zu laufen. */
+/** Small row of icon-text pairs (e.g. date and draw type). Wraps instead of running over the edge. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
@@ -116,12 +116,13 @@ fun MetaRow(items: List<MetaItem>, modifier: Modifier = Modifier) {
 }
 
 /**
- * Abschnittstitel mit der Anzahl der Einträge als goldenes Badge direkt daneben.
- * Der obere Innenabstand (12 dp) ergibt zusammen mit dem Listenabstand der LazyColumn
- * ([com.example.wichtly.ui.theme.Spacing.cardGap], 12 dp) die 24 dp Abstand zwischen Abschnitten.
+ * Section title with the number of entries as a gold badge right next to it.
  *
- * @param action Optionale Aktion am rechten Rand (z. B. [SectionActionButton] „Hinzufügen“),
- *   damit das Hinzufügen direkt neben der Liste sitzt, die es verändert.
+ * The top padding (12 dp) together with the item spacing of the LazyColumn
+ * ([com.example.wichtly.ui.theme.Spacing.cardGap], 12 dp) gives the 24 dp gap between sections.
+ *
+ * @param action optional action on the right edge (e.g. [SectionActionButton] "Add"),
+ *   so adding sits right next to the list it changes.
  */
 @Composable
 fun SectionHeader(

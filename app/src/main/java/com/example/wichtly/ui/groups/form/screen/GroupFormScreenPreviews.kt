@@ -7,15 +7,7 @@ import com.example.wichtly.domain.model.group.DrawType
 import com.example.wichtly.ui.photo.screen.PhotoFieldUiState
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
-
-/**
- * Preview 1: Erstellen-Modus mit leeren Feldern.
- */
-
+/** Empty actions for all previews of the group form. */
 private val previewActions = GroupFormActions(
     onNameChange = { _ -> },
     onBudgetChange = { _ -> },
@@ -27,6 +19,9 @@ private val previewActions = GroupFormActions(
     onRemovePhoto = { },
 )
 
+/**
+ * Preview: create mode with empty fields.
+ */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
 private fun GroupFormScreenCreatePreview() {
@@ -39,7 +34,7 @@ private fun GroupFormScreenCreatePreview() {
 }
 
 /**
- * Preview 2: Bearbeiten-Modus mit gefüllten Formularfeldern.
+ * Preview: edit mode with filled form fields.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -56,7 +51,7 @@ private fun GroupFormScreenEditPreview() {
 }
 
 /**
- * Preview 3: Formular mit aktiven Feldfehlern und allgemeinem Fehlertext.
+ * Preview: form with field errors and a general error text.
  */
 @Preview(showBackground = true, heightDp = 1000)
 @Composable
@@ -77,7 +72,7 @@ private fun GroupFormScreenErrorsPreview() {
 }
 
 /**
- * Preview 4: Formular während des laufenden Speichervorgangs (isSaving = true).
+ * Preview: form while saving (isSaving = true).
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -94,7 +89,7 @@ private fun GroupFormScreenSavingPreview() {
 }
 
 /**
- * Preview 5: Ladezustand im Bearbeiten-Modus.
+ * Preview: loading state in edit mode.
  */
 @Preview(showBackground = true)
 @Composable
@@ -108,7 +103,7 @@ private fun GroupFormScreenLoadingPreview() {
 }
 
 /**
- * Preview 6: Gruppe nicht gefunden (notFound = true).
+ * Preview: group not found (notFound = true).
  */
 @Preview(showBackground = true)
 @Composable
@@ -122,7 +117,7 @@ private fun GroupFormScreenNotFoundPreview() {
 }
 
 /**
- * Preview 7: Ladefehler im Bearbeiten-Modus (loadFailed = true).
+ * Preview: loading error in edit mode (loadFailed = true).
  */
 @Preview(showBackground = true)
 @Composable

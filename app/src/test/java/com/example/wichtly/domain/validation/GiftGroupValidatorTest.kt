@@ -10,7 +10,7 @@ class GiftGroupValidatorTest {
 
     private val validator = GiftGroupValidator()
 
-    // festes "Heute", damit der Test an jedem Tag gleich funktioniert
+    // Fixed "today", so the test behaves the same on every day
     private val heute = LocalDate.of(2026, 11, 23)
 
     private val familie = GiftGroup(
@@ -44,7 +44,7 @@ class GiftGroupValidatorTest {
         assertEquals("Familie", validator.normalizeName("  Familie \t"))
     }
 
-    // ----------------------------------------------------------------- Duplikat
+    // ----------------------------------------------------------------- Duplicate
 
     @Test
     fun doppelterNameIstFehlerAuchMitAndererGrossschreibung() {
@@ -68,7 +68,7 @@ class GiftGroupValidatorTest {
         assertTrue(validator.validateBudget(1).isEmpty())
     }
 
-    // ----------------------------------------------------------------- Wichteltag
+    // ----------------------------------------------------------------- Draw day
 
     @Test
     fun neuanlageVerlangtDatumNachHeute() {
@@ -79,7 +79,7 @@ class GiftGroupValidatorTest {
 
     @Test
     fun bearbeitenMitUnveraendertemVergangenemDatumIstErlaubt() {
-        // P1-1: Eine Gruppe muss sich auch am oder nach ihrem Wichteltag noch bearbeiten lassen
+        // P1-1: a group must still be editable on or after its draw day
         val gespeichert = heute.minusDays(10)
         assertTrue(validator.validateDrawDay(gespeichert, previousDay = gespeichert, today = heute).isEmpty())
         assertTrue(validator.validateDrawDay(heute, previousDay = heute, today = heute).isEmpty())
@@ -109,9 +109,9 @@ class GiftGroupValidatorTest {
     @Test
     fun ueberschrittenerWichteltagDarfNurAufEinenTagNachHeuteVerschobenWerden() {
         val vorbei = heute.minusDays(30)
-        // auf heute verschieben: abgelehnt (wie beim Anlegen)
+        // Moving it to today: rejected (as when creating)
         assertTrue(GiftGroupValidationError.DateInPast in validator.validateDrawDay(heute, previousDay = vorbei, today = heute))
-        // auf morgen verschieben: erlaubt, damit beginnt die nächste Runde
+        // Moving it to tomorrow: allowed; this starts the next round
         assertTrue(validator.validateDrawDay(heute.plusDays(1), previousDay = vorbei, today = heute).isEmpty())
     }
 }

@@ -26,23 +26,23 @@ import com.example.wichtly.ui.wishlist.state.ParticipantWishlistRoute
 private const val TAG = "AppNavHost"
 
 /**
- * Navigation der App.
+ * Navigation graph of the app.
  *
- * Schutz vor doppelten Klicks: Alle Navigationen, die ein Nutzer per Tippen auslöst, sind in
- * [dropUnlessResumed] bzw. [dropUnlessResumedWithArg] gekapselt. Während der Übergangsanimation
- * ist der alte Screen noch sichtbar und antippbar, sein Back-Stack-Eintrag aber nicht mehr RESUMED.
- * Ein zweiter Tipp auf "Zurück" würde sonst einen weiteren Eintrag entfernen (bis hin zur leeren
- * Startdestination), ein zweiter Tipp auf eine Karte das Ziel doppelt auf den Stack legen.
+ * Protection against double taps: every navigation a user triggers by tapping is wrapped in
+ * [dropUnlessResumed] or [dropUnlessResumedWithArg]. During the transition animation the old screen
+ * is still visible and tappable, but its back stack entry is no longer RESUMED. Otherwise a second
+ * tap on "Back" would remove another entry (down to an empty start destination), and a second tap
+ * on a card would put the destination on the stack twice.
  *
- * Nicht gekapselt sind Navigationen, die aus einem Ereignis folgen (onSaved, onGroupDeleted,
- * onDrawStarted): Sie werden genau einmal vom ViewModel bzw. einem LaunchedEffect ausgelöst.
+ * Navigations that follow from an event (onSaved, onGroupDeleted, onDrawStarted) are not wrapped:
+ * they are triggered exactly once by the ViewModel or a LaunchedEffect.
  */
 @Composable
 fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
 ) {
-    // Jeden Zielwechsel protokollieren (nur das Routen-Muster, keine Argumente)
+    // Log every destination change (only the route pattern, no arguments)
     DisposableEffect(navController) {
         val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
             AppLog.d(TAG) { "Destination: ${destination.route}" }
@@ -56,7 +56,7 @@ fun AppNavHost(
         startDestination = Routes.START,
         modifier = modifier,
     ) {
-        // 0) Startseite (großer Schriftzug, führt zur Gruppenliste oder zum Formular)
+        // 0) Start screen (big wordmark, leads to the group list or the form)
         composable(Routes.START) {
             StartRoute(
                 onOpenGroups = dropUnlessResumed { navController.navigate(Routes.GROUPS) { launchSingleTop = true } },
@@ -64,7 +64,7 @@ fun AppNavHost(
             )
         }
 
-        // 1) Gruppenliste
+        // 1) Group list
         composable(Routes.GROUPS) {
             GroupsRoute(
                 onAddGroup = dropUnlessResumed { navController.navigate(Routes.GROUP_CREATE) },
@@ -74,13 +74,13 @@ fun AppNavHost(
             )
         }
 
-        // 2) Formular: neue Gruppe
+        // 2) Form: new group
         composable(Routes.GROUP_CREATE) {
             GroupFormRoute(
                 groupId = null,
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onSaved = { groupId ->
-                    // Nach dem Anlegen direkt zur neuen Gruppe; das Formular verschwindet vom Back-Stack
+                    // After creating, go straight to the new group; the form is removed from the back stack
                     navController.navigate(Routes.groupDetail(groupId)) {
                         popUpTo(Routes.GROUP_CREATE) { inclusive = true }
                     }
@@ -88,7 +88,7 @@ fun AppNavHost(
             )
         }
 
-        // 3) Formular: Gruppe bearbeiten
+        // 3) Form: edit group
         composable(
             route = Routes.GROUP_EDIT,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
@@ -101,7 +101,7 @@ fun AppNavHost(
             )
         }
 
-        // 4) Gruppendetail
+        // 4) Group detail
         composable(
             route = Routes.GROUP_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
@@ -112,14 +112,14 @@ fun AppNavHost(
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onEditGroup = dropUnlessResumedWithArg { id -> navController.navigate(Routes.groupEdit(id)) },
                 onOpenWishlist = dropUnlessResumedWithArg { participantId -> navController.navigate(Routes.wishlist(participantId)) },
-                onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) }, // Auslosungs-Vorbereitung navigieren
-                onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) }, // zur Historie der Gruppe navigieren
-                // Gruppe gelöscht: zurück dorthin, woher man kam (Gruppenliste oder Startseite)
+                onPrepareDraw = dropUnlessResumedWithArg { id -> navController.navigate(Routes.preparation(id)) },
+                onOpenHistory = dropUnlessResumedWithArg { id -> navController.navigate(Routes.drawHistory(id)) },
+                // Group deleted: go back to where the user came from (group list or start screen)
                 onGroupDeleted = { navController.popBackStack() },
             )
         }
 
-        // 5) Wunschliste
+        // 5) Wishlist
         composable(
             route = Routes.WISHLIST,
             arguments = listOf(navArgument(Routes.ARG_PARTICIPANT_ID) {
@@ -134,7 +134,7 @@ fun AppNavHost(
             )
         }
 
-        // 6) DrawDetail
+        // 6) Draw detail
         composable(
             route = Routes.DRAW_DETAIL,
             arguments = listOf(navArgument(Routes.ARG_DRAW_ID) { type = NavType.StringType }),
@@ -147,7 +147,7 @@ fun AppNavHost(
                 )
         }
 
-        // 7) DrawHistory
+        // 7) Draw history
         composable(
             route = Routes.DRAW_HISTORY,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
@@ -160,7 +160,7 @@ fun AppNavHost(
             )
         }
 
-        // 8) Vorbereitung zum Losen
+        // 8) Draw preparation
         composable(
             route = Routes.PREPARATION,
             arguments = listOf(navArgument(Routes.ARG_GROUP_ID) { type = NavType.StringType }),
@@ -170,9 +170,9 @@ fun AppNavHost(
                 groupId = groupId,
                 onBack = dropUnlessResumed { navController.popBackStack() },
                 onDrawStarted = { drawId ->
-                    // Nach dem Losen darf "Zurück" nicht mehr in die Vorbereitung führen, sondern ins Gruppendetail.
-                    // Vorbereitung vom Stack nehmen; liegt das Gruppendetail schon darunter, wird es wiederverwendet
-                    // (launchSingleTop), sonst (Start über die Gruppenliste) neu darunter gelegt.
+                    // After the draw, "Back" must lead to the group detail, not to the preparation.
+                    // Remove the preparation from the stack; if the group detail is already below it, it is
+                    // reused (launchSingleTop), otherwise (started from the group list) it is placed below anew.
                     navController.navigate(Routes.groupDetail(groupId)) {
                         popUpTo(Routes.PREPARATION) { inclusive = true }
                         launchSingleTop = true
@@ -185,8 +185,9 @@ fun AppNavHost(
 }
 
 /**
- * Wie [dropUnlessResumed], aber für Callbacks mit einem Argument (z. B. eine Gruppen-ID).
- * Der Klick wird ignoriert, solange der aktuelle Back-Stack-Eintrag nicht RESUMED ist.
+ * Like [dropUnlessResumed], but for callbacks with one argument (e.g. a group ID).
+ *
+ * The click is ignored while the current back stack entry is not RESUMED.
  */
 @Composable
 private fun <T> dropUnlessResumedWithArg(block: (T) -> Unit): (T) -> Unit {

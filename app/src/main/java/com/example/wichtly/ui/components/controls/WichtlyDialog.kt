@@ -31,14 +31,14 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Das einheitliche Dialoglayout der App: rundes Icon, Serifentitel, optionaler Text und Inhalt,
- * darunter rechts „Abbrechen“ (Text-Button) und „Bestätigen“ (Pillen-Button).
+ * The uniform dialog layout of the app: round icon, serif title, optional text and content,
+ * and below on the right "Cancel" (text button) and "Confirm" (pill button).
  *
- * @param destructive Zeigt Icon und Bestätigen-Button in Rot (Löschdialoge).
- * @param confirmLabel null lässt nur den Abbrechen-Button übrig (z. B. wenn der Inhalt selbst die Aktionen enthält).
- * @param dismissLabel null blendet den Abbrechen-Button aus, solange [confirmLabel] gesetzt ist; ohne
- *   [confirmLabel] erscheint immer ein Abbrechen-Button (notfalls mit dem Standardtext).
- * @param errorMessage Optionaler Fehlertext unter dem Inhalt (z. B. wenn das Löschen scheiterte); in jedem Dialog gleich dargestellt.
+ * @param destructive shows the icon and the confirm button in red (delete dialogs).
+ * @param confirmLabel null leaves only the cancel button (e.g. when the content contains the actions itself).
+ * @param dismissLabel null hides the cancel button as long as [confirmLabel] is set; without
+ *   [confirmLabel] a cancel button is always shown (with the default text if necessary).
+ * @param errorMessage optional error text below the content (e.g. when deleting failed); shown the same way in every dialog.
  */
 @Composable
 fun WichtlyDialog(

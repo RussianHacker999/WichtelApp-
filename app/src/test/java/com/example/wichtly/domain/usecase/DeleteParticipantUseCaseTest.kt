@@ -11,7 +11,7 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Tests für [DeleteParticipantUseCase]: Teilnehmer löschen und sein Foto aufräumen.
+ * Tests for [DeleteParticipantUseCase]: deleting a participant and cleaning up their photo.
  */
 class DeleteParticipantUseCaseTest {
 
@@ -31,7 +31,7 @@ class DeleteParticipantUseCaseTest {
 
     @Test
     fun fotoPfadKommtAusDerDatenbankNichtAusDemBildschirm() = runTest {
-        // Der Teilnehmer hat inzwischen ein anderes Foto gespeichert; gelöscht wird das aktuell gespeicherte
+        // The participant has saved a different photo in the meantime; the currently saved one is deleted
         val participantRepository = FakeParticipantRepository().apply {
             setParticipants(listOf(anna.copy(photoPath = "photos/participants/neu.jpg")))
         }

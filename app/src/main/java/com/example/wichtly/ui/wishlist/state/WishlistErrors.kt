@@ -5,14 +5,11 @@ import com.example.wichtly.R
 import com.example.wichtly.domain.validation.WishlistValidationError
 
 /**
- * Übersetzt eine Liste von [WishlistValidationError] aus dem SaveWishlistItemUseCase in einen deutschen Fehlertext.
+ * Translates a list of [WishlistValidationError] from SaveWishlistItemUseCase into an error text.
  *
- * Regel bei Mehrfachfehlern:
- * Bei mehreren Fehlern in der Liste gewinnt der erste Fehler (`firstOrNull()`).
- * Bei einer leeren Fehlerliste wird `null` zurückgegeben.
+ * If there are several errors, the first one wins (`firstOrNull()`).
  *
- * @param errors Die Liste der aufgetretenen Domain-Validierungsfehler.
- * @return String-Ressource des Fehlertexts oder `null`, falls keine Fehler vorliegen.
+ * @return string resource of the error text, or null if there are no errors.
  */
 @StringRes
 fun mapWishlistValidationErrors(
@@ -24,6 +21,6 @@ private fun WishlistValidationError.messageRes(): Int = when (this) {
     WishlistValidationError.EmptyText -> R.string.error_wish_empty
     WishlistValidationError.TextTooLong -> R.string.error_wish_too_long
     WishlistValidationError.DuplicateText -> R.string.error_wish_duplicate
-    // Nur beim Bearbeiten möglich: der Wunsch wurde inzwischen gelöscht
+    // Only possible when editing: the wish was deleted in the meantime
     WishlistValidationError.WishNotFound -> R.string.error_wish_missing
 }

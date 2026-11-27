@@ -1,11 +1,11 @@
 package com.example.wichtly.navigation
 
 /**
- * Alle Navigationsziele der App.
+ * All navigation destinations of the app.
  *
- * Die Konstanten sind die Routen-Vorlagen für den NavHost (mit Platzhaltern wie {groupId}),
- * die Funktionen bauen daraus die konkrete Adresse für navigate(). RoutesTest prüft, dass
- * Vorlage und Funktion zusammenpassen.
+ * The constants are the route templates for the NavHost (with placeholders such as {groupId});
+ * the functions build the concrete address for navigate() from them. RoutesTest checks that
+ * template and function match.
  */
 object Routes {
     const val ARG_GROUP_ID = "groupId"

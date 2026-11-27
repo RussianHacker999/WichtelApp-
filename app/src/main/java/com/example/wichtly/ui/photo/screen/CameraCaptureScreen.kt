@@ -52,27 +52,24 @@ import androidx.camera.core.Preview as CameraPreview
 
 private const val TAG = "CameraCaptureScreen"
 
-// Zielauflösung der Aufnahme: reicht für Vorschaubilder und Avatare, spart Speicher gegenüber voller Sensorauflösung
+// Target resolution of the capture: enough for thumbnails and avatars, and saves memory compared to the full sensor resolution
 private val CaptureTargetSize = Size(1280, 960)
 
 /**
- * Vollbild-Kameravorschau mit CameraX zur Aufnahme eines Gruppen- oder Teilnehmerfotos.
+ * Full-screen camera preview with CameraX for capturing a group or participant photo.
  *
- * Warum diese Komponente?
- * Kapselt das Einbinden von CameraX (`PreviewView`, `ProcessCameraProvider`, `ImageCapture`) an den Android Lifecycle
- * und führt die Aufnahme in eine temporäre JPEG-Datei im `cacheDir` durch.
+ * Binds CameraX (`PreviewView`, `ProcessCameraProvider`, `ImageCapture`) to the Android lifecycle and
+ * writes the capture to a temporary JPEG file in `cacheDir`.
  *
- * VORAUSSETZUNG:
- * Die Kamera-Berechtigung (`android.permission.CAMERA`) ist bereits erteilt.
+ * Precondition: the camera permission (`android.permission.CAMERA`) has already been granted.
  *
- * Robustheit: Ohne Rückkamera (z. B. manche Emulatoren) wird die Frontkamera genutzt; der Auslöser
- * ignoriert weitere Tipps, solange eine Aufnahme läuft; wird der Screen vor dem Binden geschlossen,
- * bindet der verspätete Listener die Kamera nicht mehr.
+ * Robustness: without a back camera (e.g. some emulators) the front camera is used; the shutter
+ * ignores further taps while a capture is running; if the screen is closed before binding,
+ * the late listener no longer binds the camera.
  *
- * @param onPhotoCaptured Callback nach erfolgreicher Fotoaufnahme mit der erzeugten [File].
- * @param onCancel Callback beim Abbrechen der Vorschau (z. B. Schließen-Button oben links oder System-Back).
- * @param onCaptureError Callback, wenn die Kamera nicht startet oder die Aufnahme scheitert (die Ursache ist bereits geloggt).
- * @param modifier Optionaler Layout-Modifier.
+ * @param onPhotoCaptured called after a successful capture with the created [File].
+ * @param onCancel called when the preview is cancelled (close button at the top left or system back).
+ * @param onCaptureError called if the camera does not start or the capture fails (the cause is already logged).
  */
 @Composable
 internal fun CameraCaptureScreen(
@@ -86,12 +83,11 @@ internal fun CameraCaptureScreen(
 
     var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
     var isCapturing by remember { mutableStateOf(false) }
-    // Wird in onDispose gesetzt; der Listener des Providers kann danach noch laufen
+    // Set in onDispose; the provider's listener may still run afterwards
     val isDisposed = remember { AtomicBoolean(false) }
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val shutterDescription = stringResource(R.string.photo_take)
 
-    // System-Zurück abfangen
     BackHandler {
         onCancel()
     }
@@ -101,14 +97,14 @@ internal fun CameraCaptureScreen(
             .fillMaxSize()
             .background(Color.Black),
     ) {
-        // CameraX PreviewView über AndroidView
+        // CameraX PreviewView inside an AndroidView
         AndroidView(
             factory = { ctx ->
                 val previewView = PreviewView(ctx)
                 val executor = ContextCompat.getMainExecutor(ctx)
 
                 cameraProviderFuture.addListener({
-                    // Screen schon geschlossen: nicht mehr binden, sonst bleibt die Kamera belegt
+                    // Screen already closed: do not bind any more, otherwise the camera stays occupied
                     if (isDisposed.get()) return@addListener
                     try {
                         val cameraProvider = cameraProviderFuture.get()
@@ -123,7 +119,7 @@ internal fun CameraCaptureScreen(
                         val capture = ImageCapture.Builder().setResolutionSelector(resolutionSelector).build()
                         imageCapture = capture
 
-                        // Emulatoren und manche Geräte haben keine Rückkamera
+                        // Emulators and some devices have no back camera
                         val cameraSelector = if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
                             CameraSelector.DEFAULT_BACK_CAMERA
                         } else {
@@ -150,7 +146,7 @@ internal fun CameraCaptureScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        // Schließen-Button (X, bricht die Aufnahme ab) und Titel oben links (mit statusBarsPadding)
+        // Close button (X, cancels the capture) and title at the top left (with statusBarsPadding)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -169,10 +165,10 @@ internal fun CameraCaptureScreen(
             )
         }
 
-        // Runder Auslöser-Button unten zentriert (mit navigationBarsPadding)
+        // Round shutter button at the bottom centre (with navigationBarsPadding)
         FloatingActionButton(
             onClick = {
-                // Doppeltipp: nur eine Aufnahme, sonst bleiben verwaiste Dateien zurück
+                // Double tap: only one capture, otherwise orphaned files are left behind
                 if (isCapturing) return@FloatingActionButton
                 val capture = imageCapture ?: return@FloatingActionButton
                 val photoFile = try {
@@ -205,7 +201,7 @@ internal fun CameraCaptureScreen(
                     }
                 )
             },
-            // Auslöser: weißer Kreis mit goldenem Ring
+            // Shutter: white circle with a gold ring
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
@@ -213,7 +209,7 @@ internal fun CameraCaptureScreen(
                 .size(80.dp)
                 .border(4.dp, MaterialTheme.colorScheme.primary, CircleShape)
                 .padding(Spacing.s)
-                // Der Auslöser hat kein Icon; TalkBack liest diese Beschreibung vor
+                // The shutter has no icon; TalkBack reads this description
                 .semantics { contentDescription = shutterDescription },
             shape = CircleShape,
             containerColor = Color.White,
@@ -221,7 +217,7 @@ internal fun CameraCaptureScreen(
         ) {}
     }
 
-    // Beim Verlassen des Screens die Kamera freigeben (unbindAll)
+    // Release the camera when the screen is left (unbindAll)
     DisposableEffect(lifecycleOwner) {
         onDispose {
             isDisposed.set(true)

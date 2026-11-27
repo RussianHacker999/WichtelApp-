@@ -11,7 +11,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für das Lesemodell der Auslosung: Room liefert Relationen unsortiert, der Mapper sortiert.
+ * Tests for the draw read model: Room returns relations unsorted, the mapper sorts them.
  */
 class DrawMapperTest {
 

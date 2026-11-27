@@ -9,11 +9,7 @@ import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// -----------------------------------------------------------------------------
-
-/** Leere Aktionen für alle Previews der Gruppen-Detailansicht. */
+/** Empty actions for all previews of the group detail screen. */
 internal val previewGroupDetailActions = GroupDetailActions(
     onBack = { },
     onEditGroupClick = { },
@@ -45,7 +41,7 @@ private fun PreviewScreen(state: GroupDetailUiState) {
 }
 
 /**
- * Preview 1: Inhalt mit 3 Teilnehmern (inkl. Initialen und 3-Punkte-Menü).
+ * Preview: content with 3 participants (including initials and ⋮ menu).
  */
 @Preview(showBackground = true, heightDp = 1000)
 @Composable
@@ -54,7 +50,7 @@ private fun GroupDetailScreenContentWithParticipantsPreview() {
 }
 
 /**
- * Preview 2: Inhalt mit leerer Teilnehmerliste.
+ * Preview: content with an empty participant list.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -63,7 +59,7 @@ private fun GroupDetailScreenContentEmptyParticipantsPreview() {
 }
 
 /**
- * Preview 3: Ladezustand.
+ * Preview: loading state.
  */
 @Preview(showBackground = true)
 @Composable
@@ -72,7 +68,7 @@ private fun GroupDetailScreenLoadingPreview() {
 }
 
 /**
- * Preview 4: Gruppe nicht gefunden.
+ * Preview: group not found.
  */
 @Preview(showBackground = true)
 @Composable
@@ -81,7 +77,7 @@ private fun GroupDetailScreenNotFoundPreview() {
 }
 
 /**
- * Preview 5: Ladefehler auf Screen-Ebene.
+ * Preview: loading error at screen level.
  */
 @Preview(showBackground = true)
 @Composable
@@ -90,7 +86,7 @@ private fun GroupDetailScreenErrorPreview() {
 }
 
 /**
- * Preview 6: Screen mit geöffnetem Teilnehmer-Editor-Dialog.
+ * Preview: screen with the participant editor dialog open.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -104,7 +100,7 @@ private fun GroupDetailScreenWithParticipantEditorPreview() {
 }
 
 /**
- * Preview 7: Screen mit geöffnetem Teilnehmer-Löschdialog.
+ * Preview: screen with the participant delete dialog open.
  */
 @Preview(showBackground = true, heightDp = 900)
 @Composable
@@ -118,7 +114,7 @@ private fun GroupDetailScreenWithParticipantDeleteDialogPreview() {
 }
 
 /**
- * Preview 8: Inhalt mit 12 Teilnehmern.
+ * Preview: content with 12 participants.
  */
 @Preview(showBackground = true, heightDp = 1600)
 @Composable

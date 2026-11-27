@@ -30,22 +30,15 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 /**
- * Zustandsloser Composable-Screen für die Ergebnisansicht eines gespeicherten Auslosungs-Durchlaufs.
+ * Stateless screen showing the result of a saved draw.
  *
- * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
- * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
- * - Sämtliche Zustände werden über [DrawDetailUiState] übergeben.
- * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - GEHEIMHALTUNG: Der Name der beschenkten Person darf in der Liste an keiner Stelle auftauchen,
- *   weder im sichtbaren Text noch in Accessibility-/Semantics-Eigenschaften!
- * - Jede Karte zeigt NUR den Namen der schenkenden Person, den Platzhalter "schenkt ???" und "Spicken".
- * - Der Geschenkanhänger liegt als Overlay über dem Screen-Inhalt außerhalb der Zustandsverzweigung.
+ * Secrecy: the name of the receiver must not appear anywhere in the list, neither in the visible
+ * text nor in accessibility/semantics properties. Every card shows only the giver's name, the
+ * placeholder "gives to ???" and "Peek". The gift tag lies as an overlay above the screen content,
+ * outside the state branches.
  *
- * @param state Der aktuelle UI-Zustand des Auslosungs-Details.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onGiverClick Callback zum Auswählen einer schenkenden Person (erhält giverId), öffnet den Geschenkanhänger.
- * @param onDismissResult Callback zum Schließen des Geschenkanhängers mit dem Ergebnis.
- * @param modifier Äußerer Modifier für den Screen.
+ * @param onGiverClick selects a giver (receives the giverId) and opens the gift tag.
+ * @param onDismissResult closes the gift tag with the result.
  */
 @Composable
 fun DrawDetailScreen(
@@ -56,7 +49,7 @@ fun DrawDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     val draw = state.draw
-    // Datum und Uhrzeit der Ziehung, z. B. "01.12.2026, 18:42 Uhr"; Muster wie in der Historie
+    // Date and time of the draw, e.g. "01.12.2026, 18:42"; same pattern as in the history
     val dateTimePattern = stringResource(R.string.common_datetime_pattern)
     val dateTimeFormatter = remember(dateTimePattern) { DateTimeFormatter.ofPattern(dateTimePattern) }
     WichtlyScaffold(
@@ -70,11 +63,9 @@ fun DrawDetailScreen(
         },
     ) { innerPadding ->
         when {
-            // 1. ZUSTAND: Laden
-            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
+            // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.draw_detail_loading))
-            // 2. ZUSTAND: Fehler aufgetreten
-            // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
+            // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -83,8 +74,7 @@ fun DrawDetailScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
-            // 3. ZUSTAND: Auslosung nicht gefunden
-            // UI-Darstellung, wenn die Auslosung nicht gefunden wurde (gemeinsamer MessageState).
+            // 3. Draw not found
             state.notFound || draw == null -> MessageState(
                 title = stringResource(R.string.draw_detail_not_found_title),
                 text = stringResource(R.string.draw_detail_not_found_text),
@@ -93,16 +83,14 @@ fun DrawDetailScreen(
                 actionLabel = stringResource(R.string.common_back),
                 onAction = onBack,
             )
-            // 4. ZUSTAND: Inhalt (Bereit)
-            // Hauptinhalt des gespeicherten Auslosungs-Durchlaufs.
-            // Zeigt eine [LazyColumn] mit Seitenkopf, Abschnittszeile und den Zuordnungskarten.
+            // 4. Content: one LazyColumn with page header, section row and the assignment cards
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = screenContentPadding(innerPadding),
                 verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
             ) {
                 item {
-                    // (1) Seitenkopf mit Eyebrow (Datum) und Titel
+                    // (1) Page header with eyebrow (date) and title
                     PageHeader(
                         eyebrow = stringResource(R.string.draw_detail_eyebrow, draw.drawnAt.format(dateTimeFormatter)),
                         title = stringResource(R.string.draw_detail_header),
@@ -114,9 +102,9 @@ fun DrawDetailScreen(
                         ),
                     )
                 }
-                // (2) Abschnittszeile mit Anzahl (Zahl im goldenen Badge)
+                // (2) Section row with the count (number in the gold badge)
                 item { SectionHeader(title = stringResource(R.string.draw_detail_section), count = draw.assignments.size) }
-                // (3) Karten pro Zuordnung (NUR Schenker-Name & "schenkt ???", NIEMALS Beschenkten-Name!)
+                // (3) One card per assignment (only the giver's name and "gives to ???", never the receiver's name)
                 itemsIndexed(draw.assignments, key = { _, a -> a.id }) { index, assignment ->
                     ListItemCard(
                         title = assignment.giverName,
@@ -132,9 +120,8 @@ fun DrawDetailScreen(
         }
     }
 
-    // Dialog-Overlays außerhalb der Zustandsverzweigung
-
-    // Ergebnis als Geschenkanhänger: startet geschlossen ("Nur für deine Augen"), nach Antippen "…, du beschenkst"
+    // Dialog overlay outside the state branches.
+    // The result as a gift tag: starts closed ("For your eyes only"), after a tap "…, you give a present to"
     val pendingRevealedAssignment = state.revealedGiverId?.let { id -> draw?.assignments?.find { it.giverId == id } }
     if (pendingRevealedAssignment != null) {
         DrawResultDialog(
@@ -144,13 +131,8 @@ fun DrawDetailScreen(
     }
 }
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
-
 /**
- * Erzeugt Beispieldaten für die Previews.
+ * Creates sample data for the previews.
  */
 private fun createSampleDraw(): DrawDetailUiModel {
     val names = listOf("Mara", "Jonas", "Leonie", "Sam", "Maria", "Emil")
@@ -182,7 +164,7 @@ private fun PreviewScreen(state: DrawDetailUiState) {
 }
 
 /**
- * Preview 1: Auslosungs-Detailansicht mit 6 Zuordnungen.
+ * Preview: draw detail with 6 assignments.
  */
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -191,7 +173,7 @@ private fun DrawDetailScreenWithAssignmentsPreview() {
 }
 
 /**
- * Preview 2: Auslosungs-Detailansicht mit geschlossenem Geschenkanhänger ("Nur für deine Augen").
+ * Preview: draw detail with the closed gift tag ("For your eyes only").
  */
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -200,7 +182,7 @@ private fun DrawDetailScreenWithResultDialogPreview() {
 }
 
 /**
- * Preview 3: Ladezustand der Auslosungsdetails.
+ * Preview: loading state.
  */
 @Preview(showBackground = true)
 @Composable
@@ -209,7 +191,7 @@ private fun DrawDetailScreenLoadingPreview() {
 }
 
 /**
- * Preview 4: Fehlerzustand beim Laden der Auslosungsdetails.
+ * Preview: loading error.
  */
 @Preview(showBackground = true)
 @Composable
@@ -218,7 +200,7 @@ private fun DrawDetailScreenErrorPreview() {
 }
 
 /**
- * Preview 5: Auslosung nicht gefunden.
+ * Preview: draw not found.
  */
 @Preview(showBackground = true)
 @Composable

@@ -5,6 +5,14 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Room table `participants`: one participant of a gift group.
+ *
+ * The index on [groupId] speeds up "all participants of a group" and the CASCADE delete.
+ *
+ * @property groupId foreign key to [GiftGroupEntity.id]; deleted together with the group.
+ * @property photoPath path relative to the app's files directory; null if the participant has no photo.
+ */
 @Entity(
     tableName = "participants",
     foreignKeys = [

@@ -38,34 +38,18 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser Composable-Screen für die Wunschliste eines Teilnehmers.
+ * Stateless screen of a participant's wishlist.
  *
- * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
- * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
- * - Sämtliche Zustände werden über [WishlistUiState] übergeben.
- * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - Der Parameter [modifier] wird streng NUR am äußersten Element
- *   ([com.example.wichtly.ui.components.layout.WichtlyScaffold]) angewendet.
- * - Aufbau wie alle Screens:
- *   - Top-Leiste mit Zurück-Pfeil (Icon mit contentDescription "Zurück").
- *   - Genau eine [LazyColumn] im Bereit-Zustand für gemeinsames Scrollen aller Elemente.
- *   - Seitenkopf ("Was wünschst du dir?", "Her mit den Wünschen!") und darunter die Teilnehmer-Karte
- *     mit Avatar (Initialen).
- *   - Nummernfelder (1, 2, ...) neben jedem Wunsch; Bearbeiten und Löschen im ⋮-Menü der Karte.
- *   - Leerer Zustand zeigt einen Hinweis (MessageState) innerhalb der Liste.
- *   - "Wunsch hinzufügen" steht fest in der Aktionsleiste unten.
+ * One [LazyColumn] scrolls the page header, the participant card, the numbered wishes (edit and
+ * delete in the ⋮ menu of each card) and the empty state. "Add wish" sits fixed in the bottom action bar.
  *
- * @param state Der aktuelle UI-Zustand des Bildschirms.
- * @param onBack Callback für die Zurück-Navigation.
- * @param onAddClick Callback zum Hinzufügen eines neuen Wunsches.
- * @param onEditClick Callback zum Bearbeiten eines bestehenden Wunsches (erhält itemId).
- * @param onDeleteClick Callback zum Löschen eines Wunsches (erhält itemId).
- * @param onEditorTextChange Callback bei Textänderungen im Editor-Dialog.
- * @param onSaveClick Callback zum Speichern im Editor-Dialog.
- * @param onDismissEditor Callback zum Abbrechen/Schließen des Editor-Dialogs.
- * @param onConfirmDelete Callback zum Bestätigen der Löschung im Löschdialog.
- * @param onDismissDelete Callback zum Abbrechen/Schließen des Löschdialogs.
- * @param modifier Äußerer Modifier für den Screen.
+ * @param onEditClick edits an existing wish (receives the itemId).
+ * @param onDeleteClick deletes a wish (receives the itemId).
+ * @param onEditorTextChange the text in the editor dialog changed.
+ * @param onSaveClick saves in the editor dialog.
+ * @param onDismissEditor cancels or closes the editor dialog.
+ * @param onConfirmDelete confirms the delete in the delete dialog.
+ * @param onDismissDelete cancels or closes the delete dialog.
  */
 @Composable
 fun ParticipantWishlistScreen(
@@ -83,13 +67,13 @@ fun ParticipantWishlistScreen(
 ) {
     val participantName = state.participantName
     val ready = !state.isLoading && state.errorMessage == null && !state.notFound && participantName != null
-    // Der übergebene modifier wird ausschließlich hier am Top-Level WichtlyScaffold angewendet.
+    // The modifier is applied only here, to the top-level WichtlyScaffold.
     WichtlyScaffold(
         modifier = modifier,
         topBar = { WichtlyTopBar(title = stringResource(R.string.wishlist_title), onBack = onBack) },
         bottomBar = {
             if (ready) {
-                // (6) Button "Wunsch hinzufügen" über volle Breite in der Aktionsleiste unten
+                // "Add wish" button across the full width of the bottom action bar
                 BottomActionBar {
                     PrimaryButton(
                         text = stringResource(R.string.wishlist_add),
@@ -103,11 +87,9 @@ fun ParticipantWishlistScreen(
         },
     ) { innerPadding ->
         when {
-            // 1. ZUSTAND: Laden
-            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
+            // 1. Loading
             state.isLoading -> LoadingState(text = stringResource(R.string.wishlist_loading))
-            // 2. ZUSTAND: Fehler aufgetreten
-            // UI-Darstellung für den Fehlerfall (gemeinsamer MessageState).
+            // 2. Loading error
             state.errorMessage != null -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.errorMessage),
@@ -116,8 +98,7 @@ fun ParticipantWishlistScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = onBack,
             )
-            // 3. ZUSTAND: Teilnehmer nicht gefunden
-            // UI-Darstellung, wenn der Teilnehmer nicht gefunden wurde (gemeinsamer MessageState).
+            // 3. Participant not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.wishlist_participant_missing_title),
                 text = stringResource(R.string.wishlist_participant_missing_text),
@@ -127,7 +108,7 @@ fun ParticipantWishlistScreen(
                 onAction = onBack,
             )
             participantName == null -> Unit
-            // 4. ZUSTAND: Bereit (Erfolgreich geladen, unabhängig davon ob Wünsche existieren)
+            // 4. Ready (loaded successfully, whether or not there are wishes)
             else -> WishlistContent(
                 participantName = participantName,
                 items = state.items,
@@ -139,7 +120,7 @@ fun ParticipantWishlistScreen(
         }
     }
 
-    // Dialoge als Overlay über dem Inhalt
+    // Dialogs as an overlay above the content
     if (state.showEditor) {
         WishEditorDialog(
             isEditMode = state.editingItemId != null,
@@ -165,8 +146,9 @@ fun ParticipantWishlistScreen(
 }
 
 /**
- * Hauptinhalt der Wunschliste im "Bereit"-Zustand.
- * Verwendet genau eine zentrale [LazyColumn], sodass alle Abschnitte gemeinsam scrollen.
+ * Main content of the wishlist in the ready state.
+ *
+ * Uses one [LazyColumn], so all sections scroll together.
  */
 @Composable
 private fun WishlistContent(
@@ -183,7 +165,7 @@ private fun WishlistContent(
         verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
     ) {
         item {
-            // (1) Seitenkopf mit Einleitungstext
+            // (1) Page header with intro text
             PageHeader(
                 eyebrow = stringResource(R.string.wishlist_eyebrow),
                 title = stringResource(R.string.wishlist_header),
@@ -191,17 +173,15 @@ private fun WishlistContent(
             )
         }
         item {
-            // (2) Teilnehmer-Karte mit Avatar (Initialen)
-            // Die Initialen berechnet initialsOf() in ui/components.
+            // (2) Participant card with avatar (initials)
             ListItemCard(
                 title = participantName,
                 leading = { InitialsAvatar(name = participantName, size = 56.dp) },
             )
         }
-        // (3) Abschnittszeile
-        // Die Anzahl der Wünsche steht als Zahl im goldenen Badge neben dem Titel.
+        // (3) Section row; the number of wishes is in the gold badge next to the title
         item { SectionHeader(title = stringResource(R.string.wishlist_section), count = items.size) }
-        // (4) & (5) Wunscheinträge ODER Leere-Liste-Hinweis
+        // (4) & (5) Wish entries, or the empty-list hint
         if (items.isEmpty()) {
             item {
                 MessageState(
@@ -215,13 +195,12 @@ private fun WishlistContent(
         } else {
             itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
                 ListItemCard(
-                    // Wunschtext (bricht bei langen Texten nach bis zu 4 Zeilen sauber um)
+                    // Wish text (wraps cleanly over up to 4 lines for long texts)
                     title = item.text,
                     titleMaxLines = 4,
-                    // Nummernfeld
                     leading = { NumberAvatar(number = index + 1) },
                     trailing = {
-                        // Aktionen im ⋮-Menü: Wunsch bearbeiten & Wunsch löschen
+                        // Actions in the ⋮ menu: edit wish and delete wish
                         ItemMenu(
                             enabled = !isSaving,
                             contentDescription = stringResource(R.string.wishlist_item_actions, index + 1),
@@ -237,11 +216,6 @@ private fun WishlistContent(
     }
 }
 
-
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// Alle Previews sind privat und nutzen WichtlyTheme. Fake-Daten verbleiben hier.
-// -----------------------------------------------------------------------------
 
 private val sampleItems = listOf(
     WishlistItem(id = "1", participantId = "p1", text = "Ein gutes Notizbuch", sortOrder = 0),
@@ -292,7 +266,7 @@ private fun ParticipantWishlistScreenWithItemsPreview() {
 }
 
 /**
- * Preview mit einem sehr langen Wunschtext (demonstriert sauberes Zeilenumbruch-Verhalten).
+ * Preview: a very long wish text (shows the line wrapping).
  */
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -313,7 +287,7 @@ private fun ParticipantWishlistScreenLongTextPreview() {
 }
 
 /**
- * Preview für den Screen mit geöffnetem Editor-Dialog im Hinzufügen-Modus.
+ * Preview: screen with the editor dialog open in add mode.
  */
 @Preview(showBackground = true, heightDp = 860)
 @Composable
@@ -328,7 +302,7 @@ private fun ParticipantWishlistScreenWithDeleteDialogPreview() {
 }
 
 /**
- * Preview mit genau 1 Wunsch (der Zähler im Abschnittskopf zeigt 1).
+ * Preview: exactly 1 wish (the counter in the section header shows 1).
  */
 @Preview(showBackground = true, heightDp = 800)
 @Composable
@@ -337,7 +311,7 @@ private fun ParticipantWishlistScreenSingleItemPreview() {
 }
 
 /**
- * Preview mit 12 Wünschen (demonstriert gemeinsames Scrollen aller Elemente).
+ * Preview: 12 wishes (shows that all elements scroll together).
  */
 @Preview(showBackground = true, heightDp = 1400)
 @Composable

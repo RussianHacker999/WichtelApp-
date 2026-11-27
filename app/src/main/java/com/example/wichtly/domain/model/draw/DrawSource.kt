@@ -5,13 +5,12 @@ import com.example.wichtly.domain.model.participant.Participant
 import com.example.wichtly.domain.model.participant.WishlistItem
 
 /**
- * The source of data for a draw: group, participants and Wishlist
+ * Input data for a draw: the group, its participants and their wishlists.
  *
- * Loaded in a single database transaction so that all parts reflect the same state
- * (no participant deleted between two queries) and without a query for each recipient.
+ * Loaded in a single database transaction, so all parts reflect the same state (no participant
+ * deleted between two queries) and without one query per receiver.
  *
- * @property group the group for the draw
- * @property participants all participants in the group with their wish lists (sorted by the name from the participants)
+ * @property participants all participants of the group with their wishlists, sorted by name.
  */
 data class DrawSource(
     val group: GiftGroup,
@@ -19,7 +18,7 @@ data class DrawSource(
 )
 
 /**
- * A participant with their wish list (sorted according to sortOrder).
+ * A participant with their wishlist, sorted by sortOrder.
  */
 data class ParticipantWithWishlist(
     val participant: Participant,

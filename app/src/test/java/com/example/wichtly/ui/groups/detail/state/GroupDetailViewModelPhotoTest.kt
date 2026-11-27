@@ -25,8 +25,9 @@ import java.io.File
 import java.time.LocalDate
 
 /**
- * Hülle um [FakeParticipantRepository], die Speichern (insert/update) anhält, bis [gate] geöffnet wird.
- * Damit lässt sich ein noch laufender Speichervorgang (isSaving = true) im Test festhalten.
+ * Wrapper around [FakeParticipantRepository] that holds saves (insert/update) until [gate] is opened.
+ *
+ * This keeps a running save (isSaving = true) in place during the test.
  */
 class GatedParticipantRepository(
     private val delegate: FakeParticipantRepository,
@@ -44,12 +45,11 @@ class GatedParticipantRepository(
 }
 
 /**
- * Unit-Tests für die Foto-Logik von Teilnehmern in [GroupDetailViewModel].
+ * Unit tests for the participant photo logic in [GroupDetailViewModel].
  *
- * Verifiziert das Aufnehmen, Ersetzen, Entfernen und Verwerfen von Teilnehmerfotos,
- * die fehlerfreie Bereinigung temporärer oder veralteter Bilddateien im [FakePhotoRepository],
- * das Verhalten beim Speichern und Löschen von Teilnehmern, abgelehnte Kamera, den Foto-Ablauf im Editor
- * sowie die Wiederherstellung nach Prozesstod.
+ * Covers capturing, replacing, removing and discarding participant photos, the cleanup of temporary
+ * or outdated image files in the [FakePhotoRepository], saving and deleting participants, a denied
+ * camera, the photo flow in the editor and the restore after process death.
  */
 class GroupDetailViewModelPhotoTest {
 
@@ -67,7 +67,7 @@ class GroupDetailViewModelPhotoTest {
     )
 
     /**
-     * Test 1: onPhotoCaptured speichert das Foto und setzt den Pfad im State.
+     * Test 1: onPhotoCaptured saves the photo and sets the path in the state.
      */
     @Test
     fun capture_savesPhotoAndSetsPath() = runTest {
@@ -92,7 +92,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 2: Zweites Aufnehmen eines Fotos löscht das vorherige nicht committete (pending) Foto.
+     * Test 2: capturing a second photo deletes the previous uncommitted (pending) photo.
      */
     @Test
     fun captureTwice_deletesPreviousPendingPhoto() = runTest {
@@ -120,7 +120,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 3: Ersetzen eines in der DB gespeicherten Fotos behält das alte Foto vor dem Speichern bei.
+     * Test 3: replacing a photo saved in the database keeps the old photo until saving.
      */
     @Test
     fun replaceCommittedPhoto_keepsOldUntilSave() = runTest {
@@ -144,12 +144,12 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onPhotoCaptured(File("new.jpg"))
         testScheduler.advanceUntilIdle()
 
-        // Altes committetes Foto darf noch nicht gelöscht sein
+        // The old committed photo must not be deleted yet
         assertTrue(!photoRepo.deletedPaths.contains(oldPath))
     }
 
     /**
-     * Test 4: Nach erfolgreichem Speichern wird das alte committete Foto gelöscht.
+     * Test 4: after a successful save the old committed photo is deleted.
      */
     @Test
     fun replaceCommittedPhoto_deletesOldAfterSuccessfulSave() = runTest {
@@ -181,7 +181,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 5: Entfernen eines committeten Fotos löscht die Datei erst nach erfolgreichem Speichern.
+     * Test 5: removing a committed photo deletes the file only after a successful save.
      */
     @Test
     fun removeCommittedPhoto_deletesOnlyAfterSave() = runTest {
@@ -215,7 +215,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 6: Entfernen eines neu aufgenommenen, ungespeicherten Fotos löscht es sofort.
+     * Test 6: removing a newly captured, unsaved photo deletes it right away.
      */
     @Test
     fun removePendingPhoto_deletesImmediately() = runTest {
@@ -243,7 +243,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 7: Schließen des Editors (dismiss) löscht ein ungespeichertes Foto, lässt committetes intakt.
+     * Test 7: dismissing the editor deletes an unsaved photo and leaves the committed one intact.
      */
     @Test
     fun dismissEditor_deletesPendingPhoto() = runTest {
@@ -276,7 +276,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 8: Schließen ohne Änderungen löscht nichts.
+     * Test 8: closing without changes deletes nothing.
      */
     @Test
     fun dismissEditorWithoutChanges_deletesNothing() = runTest {
@@ -304,7 +304,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 9: Schlägt das Speichern des Teilnehmers fehl, wird kein Foto gelöscht.
+     * Test 9: if saving the participant fails, no photo is deleted.
      */
     @Test
     fun saveFailure_deletesNothing() = runTest {
@@ -336,7 +336,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 10: Löschen eines Teilnehmers löscht auch dessen Foto.
+     * Test 10: deleting a participant also deletes their photo.
      */
     @Test
     fun deleteParticipant_deletesItsPhoto() = runTest {
@@ -364,7 +364,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 11: Löschen eines Teilnehmers ohne Foto löscht keine Datei.
+     * Test 11: deleting a participant without a photo deletes no file.
      */
     @Test
     fun deleteParticipantWithoutPhoto_deletesNoFile() = runTest {
@@ -389,7 +389,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 12: Schlägt savePhoto fehl, wird photo.error gesetzt und Pfad unverändert.
+     * Test 12: if savePhoto fails, photo.error is set and the path stays unchanged.
      */
     @Test
     fun savePhotoFailure_setsPhotoError() = runTest {
@@ -416,7 +416,7 @@ class GroupDetailViewModelPhotoTest {
     }
 
     /**
-     * Test 13: Schlägt deletePhoto beim Verwerfen fehl, führt dies zu keinem Absturz.
+     * Test 13: if deletePhoto fails while discarding, nothing crashes.
      */
     @Test
     fun deletePhotoFailure_doesNotCrash() = runTest {
@@ -437,7 +437,7 @@ class GroupDetailViewModelPhotoTest {
         viewModel.onPhotoCaptured(File("temp.jpg"))
         testScheduler.advanceUntilIdle()
 
-        // Sollte trotz Exception bei deletePhoto nicht abstürzen
+        // Must not crash despite the exception in deletePhoto
         viewModel.onDismissParticipantEditor()
         testScheduler.advanceUntilIdle()
 
@@ -448,8 +448,8 @@ class GroupDetailViewModelPhotoTest {
 
 
     /**
-     * Test 17: participantPhotoFiles enthält nur Teilnehmer, deren Fotodatei vorhanden ist (p1), nicht p2,
-     * dessen Pfad in der Datenbank steht, dessen Datei aber fehlt.
+     * Test 17: participantPhotoFiles contains only participants whose photo file exists (p1), not p2,
+     * whose path is in the database but whose file is missing.
      */
     @Test
     fun photoFileResolved() = runTest {
@@ -467,7 +467,7 @@ class GroupDetailViewModelPhotoTest {
             )
         }
         val photoRepo = FakePhotoRepository().apply {
-            // path2 steht in der Datenbank, die Datei fehlt aber auf dem Gerät
+            // path2 is in the database, but the file is missing on the device
             setExistingPaths(setOf(path1))
         }
 
@@ -477,9 +477,9 @@ class GroupDetailViewModelPhotoTest {
         testScheduler.advanceUntilIdle()
 
         val state = viewModel.uiState.value
-        // p1 hat eine existierende temporäre Datei -> in participantPhotoFiles
+        // p1 has an existing temporary file -> in participantPhotoFiles
         assertNotNull(state.participantPhotoFiles["p1"])
-        // p2 hat path2, aber Datei existiert auf der Platte nicht -> nicht in participantPhotoFiles
+        // p2 has path2, but the file does not exist on disk -> not in participantPhotoFiles
         assertTrue(!state.participantPhotoFiles.containsKey("p2"))
     }
 
@@ -500,7 +500,7 @@ class GroupDetailViewModelPhotoTest {
         vorher.onParticipantNameChange("Anna B.")
         testScheduler.advanceUntilIdle()
 
-        // Prozesstod: neues ViewModel mit demselben Handle, dann ohne Speichern schließen
+        // Process death: new ViewModel with the same handle, then close without saving
         val nachher = GroupDetailViewModel(groupId, groupRepo, participantRepo, photoRepo, SaveParticipantUseCase(participantRepo, groupRepo), DeleteGiftGroupUseCase(groupRepo, participantRepo, photoRepo), DeleteParticipantUseCase(participantRepo, photoRepo), savedStateHandle = handle)
         backgroundScope.launch { nachher.uiState.collect {} }
         testScheduler.advanceUntilIdle()

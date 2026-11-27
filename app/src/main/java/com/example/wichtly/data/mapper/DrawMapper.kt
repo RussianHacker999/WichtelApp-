@@ -14,6 +14,7 @@ import com.example.wichtly.domain.model.draw.DrawWishlistItemSnapshot
 import com.example.wichtly.domain.model.draw.ParticipantWithWishlist
 
 
+/** Converts the Room read model of a draw into the domain model [DrawDetail]. */
 fun DrawWithDetails.toDomainModel(): DrawDetail {
     return DrawDetail(
         id = draw.id,
@@ -24,6 +25,7 @@ fun DrawWithDetails.toDomainModel(): DrawDetail {
     )
 }
 
+/** Converts one assignment with its wishlist snapshots into the domain model. */
 fun DrawAssignmentWithWishlist.toDomainModel(): DrawAssignment {
     return DrawAssignment(
         id = assignment.id,
@@ -31,12 +33,13 @@ fun DrawAssignmentWithWishlist.toDomainModel(): DrawAssignment {
         giverId = assignment.giverId,
         receiverName = assignment.receiverName,
         receiverId = assignment.receiverId,
-        // Reihenfolge legt die Anzeige fest (DrawDetailViewModel sortiert Zuordnungen und Wünsche)
+        // The order is decided for display: DrawDetailViewModel sorts assignments and wishes
         receiverWishlistItems = wishlistItems.map { it.toDomainModel() },
     )
 }
 
 
+/** Converts one wishlist snapshot into the domain model. */
 fun DrawWishlistItemSnapshotEntity.toDomainModel(): DrawWishlistItemSnapshot {
     return DrawWishlistItemSnapshot(
         id = id,
@@ -46,16 +49,22 @@ fun DrawWishlistItemSnapshotEntity.toDomainModel(): DrawWishlistItemSnapshot {
 }
 
 
-/** Kurzfassung einer Auslosung für die Historienliste: nur ID, Gruppe und Zeitpunkt. */
+/** Short form of a draw for the history list: only ID, group and time. */
 fun DrawEntity.toSummary(): DrawSummary = DrawSummary(
     id = id,
     groupId = groupId,
     drawnAt = drawnAt,
 )
 
+/** Converts a list of draws into [DrawSummary] items, keeping the order. */
 fun List<DrawEntity>.toSummaries(): List<DrawSummary> = map { it.toSummary() }
 
 
+/**
+ * Splits a [DrawDetail] into the rows of the three tables, so the DAO can insert them in one transaction.
+ *
+ * @return the draw row, its assignment rows and the wishlist snapshot rows of all assignments.
+ */
 fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List<DrawWishlistItemSnapshotEntity>> {
     val drawEntity = DrawEntity(
         id = id,
@@ -87,9 +96,9 @@ fun DrawDetail.toEntities(): Triple<DrawEntity, List<DrawAssignmentEntity>, List
 }
 
 /**
- * Lesemodell der Auslosung in das Domain-Modell. Sortiert wie die übrigen Abfragen:
- * Teilnehmer nach Name (ohne Groß-/Kleinschreibung), Wünsche nach sortOrder. Anders als COLLATE NOCASE
- * in den DAO-Abfragen berücksichtigt lowercase() auch Umlaute; die Reihenfolge kann sich dort minimal unterscheiden.
+ * Converts the draw read model into the domain model. Sorts like the other queries:
+ * participants by name (case-insensitive), wishes by sortOrder. Unlike COLLATE NOCASE in the
+ * DAO queries, lowercase() also handles umlauts, so the order can differ slightly there.
  */
 fun GiftGroupWithParticipants.toDomainModel(): DrawSource = DrawSource(
     group = group.toDomainModel(),

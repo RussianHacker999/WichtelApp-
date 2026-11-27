@@ -9,7 +9,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * Tests für [DeleteWishlistItemUseCase]: einen Wunsch löschen, ohne die übrigen anzufassen.
+ * Tests for [DeleteWishlistItemUseCase]: deleting one wish without touching the others.
  */
 class DeleteWishlistItemUseCaseTest {
 

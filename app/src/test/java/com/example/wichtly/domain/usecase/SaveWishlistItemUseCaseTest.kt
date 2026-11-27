@@ -11,7 +11,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * Tests für [SaveWishlistItemUseCase], die einzige Stelle, an der Wünsche geprüft werden.
+ * Tests for [SaveWishlistItemUseCase], the only place where wishes are validated.
  */
 class SaveWishlistItemUseCaseTest {
 

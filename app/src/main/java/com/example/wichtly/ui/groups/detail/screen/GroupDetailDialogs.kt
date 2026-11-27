@@ -9,9 +9,10 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.time.LocalDate
 
 /**
- * Dialoge der Gruppen-Detailansicht als Overlay über dem Inhalt:
- * Teilnehmer-Editor, Teilnehmer-Löschdialog und Gruppen-Löschdialog.
- * Welcher Dialog offen ist, steht vollständig in [GroupDetailUiState].
+ * Dialogs of the group detail screen as an overlay above the content:
+ * participant editor, participant delete dialog and group delete dialog.
+ *
+ * Which dialog is open is defined completely by [GroupDetailUiState].
  */
 @Composable
 internal fun GroupDetailDialogs(

@@ -1,14 +1,13 @@
 package com.example.wichtly.domain.model.group
 
 /**
- * Type of draw.
- * Display texts do not belong in the domain layer; they are located in `strings.xml` and
- * are mapped in the UI via `[com.example.wichtly.ui.components.display.labelRes]`.
+ * Type of a draw.
  *
- * Attention: Room stores the constant name as text (Converters.fromDrawType).
- * Do not rename or delete constants
- *        -> It would make it impossible to read previously saved groups and draws.
- * Adding new constants is perfectly fine.
+ * Display texts do not belong in the domain layer; they live in `strings.xml` and are mapped in the
+ * UI via [com.example.wichtly.ui.components.display.labelRes].
+ *
+ * Room stores the constant name as text (Converters.fromDrawType). Do not rename or delete constants,
+ * otherwise groups and draws saved earlier can no longer be read. Adding new constants is fine.
  */
 enum class DrawType {
     NORMAL,

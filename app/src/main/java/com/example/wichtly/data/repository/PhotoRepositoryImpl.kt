@@ -6,6 +6,7 @@ import com.example.wichtly.domain.repository.PhotoRepository
 import java.io.File
 import java.time.Instant
 
+/** Implementation of [PhotoRepository] that stores photos as files via [LocalPhotoStorageManager]. */
 class PhotoRepositoryImpl(
     private val storageManager: LocalPhotoStorageManager,
 ) : PhotoRepository {

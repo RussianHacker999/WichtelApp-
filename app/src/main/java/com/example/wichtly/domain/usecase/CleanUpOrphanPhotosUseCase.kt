@@ -11,15 +11,15 @@ import java.time.Instant
 private const val TAG = "CleanUpOrphanPhotosUseCase"
 
 /**
- * Löscht Fotodateien, auf die keine Gruppe und kein Teilnehmer mehr verweist.
+ * Deletes photo files that no group and no participant references any more.
  *
- * Solche Dateien entstehen, wenn die App während des Speicherns beendet wird (Foto schon kopiert,
- * Datensatz noch nicht geschrieben) oder ein Löschen scheitert. Läuft einmal beim App-Start.
+ * Such files appear when the app is killed while saving (photo already copied, record not yet
+ * written) or when a delete fails. Runs once at app start.
  *
- * Fotos jünger als [minAge] bleiben unberührt: Sie können zu einem gerade offenen, noch nicht
- * gespeicherten Formular gehören.
+ * Photos younger than [minAge] are left alone: they may belong to a form that is open
+ * but not saved yet.
  *
- * @param now Liefert den aktuellen Zeitpunkt; in Tests ersetzbar.
+ * @param now supplies the current time; replaceable in tests.
  */
 class CleanUpOrphanPhotosUseCase(
     private val giftGroupRepository: GiftGroupRepository,
@@ -28,7 +28,7 @@ class CleanUpOrphanPhotosUseCase(
     private val minAge: Duration = Duration.ofDays(1),
     private val now: () -> Instant = { Instant.now() },
 ) {
-    /** @return Anzahl der gelöschten Dateien. */
+    /** @return number of deleted files. */
     suspend operator fun invoke(): Int {
         val candidates = photoRepository.listPhotoPaths(olderThan = now().minus(minAge))
         if (candidates.isEmpty()) return 0

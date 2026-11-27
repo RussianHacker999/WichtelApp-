@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Room-Implementierung von [ParticipantRepository]. Reine Persistenz: Prüfungen passieren
- * vorher im SaveParticipantUseCase.
+ * Room implementation of [ParticipantRepository]. Persistence only: validation happens
+ * beforehand in SaveParticipantUseCase.
  */
 class ParticipantRepositoryImpl(
     private val participantDao: ParticipantDao,
@@ -37,7 +37,7 @@ class ParticipantRepositoryImpl(
         participantDao.insertParticipant(participant.toEntity())
     }
 
-    // @Update liefert die Anzahl geänderter Zeilen; 0 heißt, der Teilnehmer existiert nicht (mehr)
+    // @Update returns the number of updated rows; 0 means the participant does not exist (any more)
     override suspend fun updateParticipant(participant: Participant): Boolean =
         participantDao.updateParticipant(participant.toEntity()) > 0
 

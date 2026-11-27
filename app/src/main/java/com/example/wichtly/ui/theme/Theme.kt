@@ -8,9 +8,10 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Das einzige Farbschema von Wichtly („Evergreen Night“).
- * Dynamic Color ist bewusst aus: Die festliche Palette soll auf jedem Gerät gleich aussehen, und die App
- * verwendet dieses Schema sowohl im hellen als auch im dunklen Systemmodus.
+ * The only colour scheme of Wichtly ("Evergreen Night").
+ *
+ * Dynamic colour is deliberately off: the festive palette should look the same on every device,
+ * and the app uses this scheme in both light and dark system mode.
  */
 private val EvergreenColorScheme = darkColorScheme(
     primary = Gold,
@@ -49,21 +50,15 @@ private val EvergreenColorScheme = darkColorScheme(
     outline = Pine500,
     outlineVariant = Pine600,
     scrim = Color.Black,
-
-    /* Vorlage aus Android Studio, wird nicht mehr verwendet: so hätte man einzelne Standardfarben
-       überschrieben. Im Evergreen-Schema oben ist bereits jede Farbe gesetzt.
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
 )
 
+/**
+ * Theme of the whole app: the Evergreen colour scheme, the app typography and shapes, and the
+ * extra colours of [WichtlyTheme.extendedColors].
+ *
+ * Dynamic colour (Android 12+) is deliberately off, so the festive colours look the same on every device.
+ */
 @Composable
-// Dynamic color (Android 12+) ist bewusst aus: die Festtagsfarben sollen auf jedem Gerät gleich aussehen.
 fun WichtlyTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(LocalExtendedColors provides EvergreenExtendedColors) {
         MaterialTheme(
@@ -75,8 +70,9 @@ fun WichtlyTheme(content: @Composable () -> Unit) {
     }
 }
 
-/** Zugriff auf Wichtly-eigene Theme-Werte, für die Material 3 keinen Platz vorsieht. */
+/** Access to Wichtly's own theme values that Material 3 has no slot for. */
 object WichtlyTheme {
+    /** The extra colour roles (e.g. success) of the current theme. */
     val extendedColors: ExtendedColors
         @Composable @ReadOnlyComposable
         get() = LocalExtendedColors.current

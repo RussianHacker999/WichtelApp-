@@ -4,17 +4,13 @@ import java.time.LocalDate
 import java.util.UUID
 
 /**
- * A group for a Secret Santa event.
- * Info:
- * The participants are not saved in this data class.
- * The participants save the groupId from their group.
+ * A gift group for one Secret Santa event.
  *
- * @param id  unique id from the GiftGroup object
- * @param name  the name of the group
- * @param budgetCents  the budget in cents for one present
- * @param drawDay  the day of the draw
- * @param drawType  the type of the draw (normal or junk)
- * @param photoPath  the path to the photo of the group (null is valid)
+ * The participants are not part of this class; each participant references its group via `groupId`.
+ *
+ * @property budgetCents budget per present in cents, so amounts stay exact.
+ * @property drawDay day of the exchange; draws are allowed up to and including this day.
+ * @property photoPath path relative to the app's files directory; null if the group has no photo.
  */
 data class GiftGroup(
     val id: String = UUID.randomUUID().toString(),

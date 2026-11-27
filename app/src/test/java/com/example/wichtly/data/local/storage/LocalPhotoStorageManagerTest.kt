@@ -14,8 +14,9 @@ import java.io.File
 import java.time.Instant
 
 /**
- * Tests für [LocalPhotoStorageManager] auf einem temporären Ordner statt filesDir.
- * Schwerpunkt: Pfade aus der Datenbank dürfen den Fotoordner nicht verlassen (G-23).
+ * Tests for [LocalPhotoStorageManager] on a temporary folder instead of filesDir.
+ *
+ * Focus: paths from the database must not leave the photo folder (G-23).
  */
 class LocalPhotoStorageManagerTest {
 
@@ -53,7 +54,7 @@ class LocalPhotoStorageManagerTest {
 
     @Test
     fun nichtAufloesbarerPfadLiefertNullStattZuWerfen() = runTest {
-        // Ein NUL-Zeichen lässt File.getCanonicalFile() mit IOException scheitern ("Invalid file path")
+        // A NUL character makes File.getCanonicalFile() fail with an IOException ("Invalid file path")
         val ungueltigerPfad = "photos/groups/groups_\u0000.jpg"
 
         assertNull(manager().getFileForRelativePath(ungueltigerPfad))

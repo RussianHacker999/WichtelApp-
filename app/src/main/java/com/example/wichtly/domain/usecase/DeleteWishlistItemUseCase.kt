@@ -7,19 +7,19 @@ import com.example.wichtly.logging.AppLog
 private const val TAG = "DeleteWishlistItemUseCase"
 
 /**
- * Löscht einen einzelnen Wunsch.
+ * Deletes a single wish.
  *
- * Gespeicherte Auslosungen bleiben unberührt: Sie halten die Wünsche als eigenen Snapshot
- * (draw_wishlist_snapshots) ohne Fremdschlüssel auf wishlist_items.
+ * Saved draws stay unchanged: they keep the wishes as their own snapshot
+ * (draw_wishlist_snapshots) without a foreign key to wishlist_items.
  *
- * Eigener Use Case, obwohl nur eine Zeile gelöscht wird: So laufen alle Schreibvorgänge der App
- * über Use Cases, und die ViewModels nutzen Repositories nur noch zum Lesen.
+ * A separate use case although only one row is deleted: this way every write of the app goes
+ * through a use case, and the ViewModels use repositories for reading only.
  */
 class DeleteWishlistItemUseCase(
     private val repository: WishlistRepository,
 ) {
     /**
-     * @return [DeleteResult.Deleted] oder [DeleteResult.NotFound], wenn es den Wunsch nicht (mehr) gibt.
+     * @return [DeleteResult.Deleted], or [DeleteResult.NotFound] if the wish does not exist (any more).
      */
     suspend operator fun invoke(itemId: String): DeleteResult {
         AppLog.d(TAG) { "Deleting wish $itemId" }

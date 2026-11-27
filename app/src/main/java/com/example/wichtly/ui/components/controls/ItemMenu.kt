@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.wichtly.R
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-/** Ein Eintrag eines [ItemMenu]. Destruktive Einträge (Löschen) erscheinen in Rot. */
+/** One entry of an [ItemMenu]. Destructive entries (delete) are shown in red. */
 data class MenuAction(
     val label: String,
     val icon: ImageVector,
@@ -33,8 +33,8 @@ data class MenuAction(
 )
 
 /**
- * Der ⋮-Button mit seinem Aufklappmenü. Aktionen auf Kartenebene (Bearbeiten, Löschen, Öffnen) liegen hier,
- * damit Karten keine Reihen kleiner Icons zeigen.
+ * The ⋮ button with its drop-down menu. Card-level actions (edit, delete, open) live here,
+ * so cards do not show rows of small icons.
  */
 @Composable
 fun ItemMenu(

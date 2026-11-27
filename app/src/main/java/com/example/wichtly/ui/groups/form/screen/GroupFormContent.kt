@@ -32,8 +32,9 @@ import com.example.wichtly.ui.theme.WichtlyTheme
 import java.io.File
 
 /**
- * UI-Darstellung des scrollbaren Formulars.
- * Die Aktionsleiste darunter weicht über imePadding() automatisch der Software-Tastatur aus.
+ * Scrollable content of the form.
+ *
+ * The action bar below it moves out of the way of the software keyboard via imePadding().
  */
 @Composable
 internal fun GroupFormContent(
@@ -53,7 +54,7 @@ internal fun GroupFormContent(
         verticalArrangement = Arrangement.spacedBy(Spacing.m),
     ) {
         item {
-            // Seitenkopf mit Eyebrow und Titel (PageHeader)
+            // Page header with eyebrow and title
             PageHeader(
                 eyebrow = stringResource(if (state.isEditMode) R.string.group_form_eyebrow_edit else R.string.group_form_eyebrow_create),
                 title = stringResource(if (state.isEditMode) R.string.group_form_header_edit else R.string.group_form_header_create),
@@ -69,7 +70,7 @@ internal fun GroupFormContent(
         }
         item {
             WichtlyTextField(
-                // 1. Gruppennamen-Eingabe
+                // 1. Group name
                 label = stringResource(R.string.group_form_name_label),
                 value = state.name,
                 onValueChange = onNameChange,
@@ -81,7 +82,7 @@ internal fun GroupFormContent(
         }
         item {
             WichtlyTextField(
-                // 2. Budget-Eingabe in Euro (Dezimaltastatur)
+                // 2. Budget in euros (decimal keyboard)
                 label = stringResource(R.string.group_form_budget_label),
                 value = state.budget,
                 onValueChange = onBudgetChange,
@@ -94,7 +95,7 @@ internal fun GroupFormContent(
         }
         item {
             WichtlyTextField(
-                // 3. Wichteltag-Eingabe mit Format-Hinweis TT.MM.JJJJ
+                // 3. Draw day with the format hint DD.MM.YYYY
                 label = stringResource(R.string.group_form_date_label),
                 value = state.drawDay,
                 onValueChange = onDrawDayChange,
@@ -109,7 +110,7 @@ internal fun GroupFormContent(
         }
         item {
             Column(verticalArrangement = Arrangement.spacedBy(Spacing.s)) {
-                // 4. Auswahl der Wichtel-Art (Auswahlkarten mit RadioButton)
+                // 4. Draw type (selection cards with radio button)
                 FieldLabel(text = stringResource(R.string.group_form_type_label))
                 DrawType.entries.forEach { type ->
                     ChoiceCard(
@@ -122,7 +123,7 @@ internal fun GroupFormContent(
                 }
             }
         }
-        // 5. Allgemeiner Fehlertext
+        // 5. General error text
         state.generalError?.let { error ->
             item { ErrorText(stringResource(error)) }
         }

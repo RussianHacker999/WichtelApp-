@@ -7,16 +7,15 @@ import org.junit.Assert.assertNull
 import org.junit.Test
 
 /**
- * Unit-Tests für WishlistErrors.kt.
+ * Unit tests for WishlistErrors.kt.
  *
- * Warum diese Tests wichtig sind:
- * Verifiziert die korrekte Übersetzung aller [WishlistValidationError]-Typen in nutzerfreundliche
- * deutsche Fehlertexte sowie die Beachtung der Prioritätsregel (der erste Fehler gewinnt).
+ * Covers the translation of every [WishlistValidationError] type into a user-facing error text
+ * and the priority rule (the first error wins).
  */
 class WishlistErrorsTest {
 
     /**
-     * Testet, dass bei einer leeren Fehlerliste null zurückgegeben wird.
+     * An empty error list returns null.
      */
     @Test
     fun mapWishlistValidationErrors_emptyList_returnsNull() {
@@ -27,7 +26,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von EmptyText in den entsprechenden Fehlertext.
+     * EmptyText is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_emptyText_returnsCorrectError() {
@@ -38,7 +37,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von TextTooLong in den entsprechenden Fehlertext.
+     * TextTooLong is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_textTooLong_returnsCorrectError() {
@@ -49,7 +48,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet die Übersetzung von WishNotFound in den entsprechenden Fehlertext.
+     * WishNotFound is translated into the matching error text.
      */
     @Test
     fun mapWishlistValidationErrors_itemNotFound_returnsCorrectError() {
@@ -60,7 +59,7 @@ class WishlistErrorsTest {
     }
 
     /**
-     * Testet, dass bei mehreren Fehlern in der Liste stets der erste Fehler gewinnt.
+     * With several errors in the list, the first one always wins.
      */
     @Test
     fun mapWishlistValidationErrors_multipleErrors_returnsFirstError() {

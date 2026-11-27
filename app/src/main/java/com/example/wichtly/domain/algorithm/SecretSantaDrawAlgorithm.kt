@@ -7,27 +7,32 @@ import kotlin.random.Random
 private const val TAG = "SecretSantaDrawAlgorithm"
 
 /**
- * Reine Domain-Komponente für den Los-Algorithmus (Derangement).
- * Erzeugt gültige Zuordnungen: Niemand zieht sich selbst, jeder Teilnehmer beschenkt genau eine Person
- * und wird von genau einer Person beschenkt.
+ * Pure domain component for the draw algorithm (derangement).
+ *
+ * Produces valid assignments: nobody draws themselves, every participant gives a present to exactly
+ * one person and receives a present from exactly one person.
+ *
+ * @param random source of randomness; tests pass a seeded instance.
+ * @param maxAttempts number of random shuffles before the ring fallback is used.
  */
 class SecretSantaDrawAlgorithm(
     private val random: Random = Random.Default,
     private val maxAttempts: Int = 100,
 ) {
     /**
-     * Erzeugt ein zufälliges Derangement (giverId -> receiverId) für die übergebenen Teilnehmer-IDs.
-     * Verfahren: Rejection Sampling mit bis zu [maxAttempts] Versuchen; jedes gültige Derangement ist gleich
-     * wahrscheinlich. Gelingt das nicht, folgt ein Ring über eine zufällig gemischte Reihenfolge
-     * (gültig, aber nicht gleichverteilt).
-     * Liefert eine leere Map, wenn [participantIds] weniger als [DrawRules.MIN_PARTICIPANTS] Einträge hat.
+     * Creates a random derangement (giverId -> receiverId) for the given participant IDs.
+     *
+     * Method: rejection sampling with up to [maxAttempts] attempts, so every valid derangement is equally
+     * likely. If that fails, a ring over a randomly shuffled order follows (valid, but not uniformly distributed).
+     *
+     * @return an empty map if [participantIds] has fewer than [DrawRules.MIN_PARTICIPANTS] entries.
      */
     fun generateDerangement(participantIds: List<String>): Map<String, String> {
         if (!DrawRules.canDraw(participantIds.size)) return emptyMap()
 
-        // Die Sequenz ist lazy: Es wird erst gemischt, wenn firstOrNull den nächsten Versuch anfordert,
-        // und nach dem ersten gültigen Versuch wird nicht weiter gemischt. Bei maxAttempts <= 0 ist der
-        // Bereich leer, und es geht direkt zum Ring.
+        // The sequence is lazy: a shuffle only happens when firstOrNull requests the next attempt,
+        // and nothing is shuffled after the first valid attempt. With maxAttempts <= 0 the range
+        // is empty and the ring fallback is used directly.
         val receivers = (0 until maxAttempts).asSequence()
             .map { participantIds.shuffled(random) }
             .firstOrNull { shuffled -> isDerangement(participantIds, shuffled) }
@@ -36,15 +41,16 @@ class SecretSantaDrawAlgorithm(
             ?: ringFallback(participantIds)
     }
 
-    /** true, wenn an keiner Position Geber und Empfänger gleich sind, also niemand sich selbst zieht. */
+    /** True if no position has the same giver and receiver, i.e. nobody draws themselves. */
     private fun isDerangement(givers: List<String>, receivers: List<String>): Boolean =
         givers.zip(receivers).none { (giver, receiver) -> giver == receiver }
 
     /**
-     * Notfall-Plan: Ring über eine gemischte Reihenfolge, immer gültig. Jeder beschenkt seinen Nachfolger,
-     * der Letzte den Ersten (deshalb wird das erste Element hinten angehängt).
-     * Praktisch nie erreicht (rund 37 % aller Mischungen sind gültig, 100 Fehlversuche in Folge haben eine
-     * Wahrscheinlichkeit von etwa 10^-20); falls doch, ist das Ergebnis gültig, aber nicht gleichverteilt.
+     * Fallback: a ring over a shuffled order, which is always valid. Everyone gives to their successor
+     * and the last one gives to the first (that is why the first element is appended at the end).
+     *
+     * Practically never reached: about 37 % of all shuffles are valid, so 100 failed attempts in a row
+     * have a probability of about 10^-20. If it does happen, the result is valid but not uniformly distributed.
      */
     private fun ringFallback(participantIds: List<String>): Map<String, String> {
         AppLog.w(TAG, "No random derangement after $maxAttempts attempts, using ring fallback for ${participantIds.size} participants")

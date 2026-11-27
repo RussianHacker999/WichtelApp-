@@ -10,13 +10,11 @@ import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.draws.preparation.screen.PreparationScreen
 
 /**
- * Zustandsbehaftete Route der Vorbereitung: holt Abhängigkeiten und ViewModel und verbindet sie mit dem
- * zustandslosen [PreparationScreen].
+ * Stateful route of the preparation: gets the dependencies and the ViewModel and connects them with
+ * the stateless [PreparationScreen].
  *
- * @param groupId ID der Gruppe, die ausgelost werden soll.
- * @param onBack Zurück-Navigation.
- * @param onDrawStarted Navigation zum Ergebnis, sobald die Auslosung gespeichert ist.
- * @param modifier Äußerer Modifier.
+ * @param groupId ID of the group to draw.
+ * @param onDrawStarted navigates to the result as soon as the draw is saved.
  */
 @Composable
 fun PreparationRoute(
@@ -29,10 +27,9 @@ fun PreparationRoute(
         key = groupId,
         factory = PreparationViewModel.factory(appContainer(), groupId),
     )
-    // "by" liest direkt den aktuellen Wert des StateFlows
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    // Nach erfolgreicher Auslosung genau einmal zum Ergebnis navigieren und das Ereignis quittieren
+    // After a successful draw, navigate to the result exactly once and acknowledge the event
     LaunchedEffect(state.completedDrawId) {
         state.completedDrawId?.let { drawId ->
             onDrawStarted(drawId)

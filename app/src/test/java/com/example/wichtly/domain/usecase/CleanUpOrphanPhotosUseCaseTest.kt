@@ -11,7 +11,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [CleanUpOrphanPhotosUseCase]: nur Fotos ohne Verweis aus Gruppe oder Teilnehmer verschwinden.
+ * Tests for [CleanUpOrphanPhotosUseCase]: only photos without a reference from a group or participant are removed.
  */
 class CleanUpOrphanPhotosUseCaseTest {
 
@@ -41,7 +41,7 @@ class CleanUpOrphanPhotosUseCaseTest {
 
     @Test
     fun junge_Fotos_bleiben_auch_ohne_Verweis() = runTest {
-        // Ein gerade aufgenommenes Foto eines offenen Formulars ist noch nicht "alt genug"
+        // A photo just taken in an open form is not "old enough" yet
         val photos = FakePhotoRepository().apply {
             setExistingPaths(setOf(gruppenFoto, verwaist))
             oldPaths = setOf(gruppenFoto)

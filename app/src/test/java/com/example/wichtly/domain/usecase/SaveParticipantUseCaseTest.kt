@@ -14,7 +14,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [SaveParticipantUseCase], die einzige Stelle, an der Teilnehmer geprüft werden.
+ * Tests for [SaveParticipantUseCase], the only place where participants are validated.
  */
 class SaveParticipantUseCaseTest {
 

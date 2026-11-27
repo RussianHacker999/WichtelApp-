@@ -5,21 +5,20 @@ import java.math.RoundingMode
 import com.example.wichtly.domain.validation.DrawDayInputFormatter
 import java.time.LocalDate
 
-/**
- * Formatierung gespeicherter Werte für die Anzeige im Formular (Bearbeiten-Modus).
+/*
+ * Formatting of stored values for display in the form (edit mode).
  *
- * Die Gegenrichtung (Texteingabe in Cent bzw. LocalDate umwandeln) gehört zur Prüfung der Eingaben
- * und liegt deshalb in der Domain (domain/validation/GiftGroupInputParsing.kt).
+ * The opposite direction (converting text input into cents or a LocalDate) is part of input
+ * validation and therefore lives in the domain (domain/validation/GiftGroupInputParsing.kt).
  */
 
 /**
- * Formatiert einen Cent-Wert (Long) zurück in eine String-Repräsentation in Euro für den Edit-Modus.
+ * Formats a value in cents back into a euro string for edit mode.
  *
- * Warum Komma als Dezimaltrenner?
- * Im deutschen Sprachraum ist das Komma der Standard-Dezimaltrenner.
+ * Uses a comma as the decimal separator, because that is the standard in German.
  *
- * @param cents Der Betrag in Cent (z. B. 2550L).
- * @return Die formatierte Euro-Zeichenkette (z. B. "25,50").
+ * @param cents the amount in cents (e.g. 2550L).
+ * @return the formatted euro string (e.g. "25,50").
  */
 fun formatCentsForInput(cents: Long): String {
     val euros = BigDecimal(cents).divide(BigDecimal(100), 2, RoundingMode.UNNECESSARY)
@@ -27,11 +26,10 @@ fun formatCentsForInput(cents: Long): String {
 }
 
 /**
- * Formatiert ein LocalDate zurück in das Eingabeformat des Wichteltags
- * ([com.example.wichtly.domain.validation.DRAW_DAY_INPUT_PATTERN]), damit [parseDate][com.example.wichtly.domain.validation.parseDate]
- * es unverändert wieder einlesen kann.
+ * Formats a LocalDate back into the input format of the draw day
+ * ([com.example.wichtly.domain.validation.DRAW_DAY_INPUT_PATTERN]), so that
+ * [parseDate][com.example.wichtly.domain.validation.parseDate] can read it back unchanged.
  *
- * @param date Das umzuwandelnde LocalDate.
- * @return Die Zeichenkette, z. B. "24.12.2026".
+ * @return the string, e.g. "24.12.2026".
  */
 fun formatDateForInput(date: LocalDate): String = date.format(DrawDayInputFormatter)

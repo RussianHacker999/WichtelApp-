@@ -26,24 +26,24 @@ import java.time.LocalDate
 private const val TAG = "GroupsViewModel"
 
 /**
- * Lokaler Zustand der Gruppenliste, der nicht aus der Datenbank kommt.
+ * Local state of the group list that does not come from the database.
  */
 private data class GroupsLocalState(
     val selectedGroupId: String? = null,
 )
 
 /**
- * ViewModel der Gruppenliste; die Startseite nutzt es als Datenquelle für ihre Infozeile.
+ * ViewModel of the group list; the start screen uses it as the data source for its info line.
  *
- * Aufbau wie in den übrigen ViewModels, die die Datenbank beobachten (das Gruppenformular lädt dagegen einmalig):
- * - Der Room-Flow der Gruppen liefert jede Änderung der Datenbank sofort (neue Gruppe, gelöschte Gruppe).
- * - [combine] verbindet ihn mit dem lokalen Zustand (ausgewählte Karte). Ladefehler kommen über asResult aus dem Flow.
- * - [stateIn] mit [SharingStarted.WhileSubscribed] (5 Sekunden) beobachtet die Datenbank nur, solange
- *   ein Screen den Zustand anzeigt, und übersteht eine Drehung ohne neue Abfrage.
+ * Built like the other ViewModels that observe the database (the group form loads once instead):
+ * - The Room Flow of the groups delivers every change of the database right away (new group, deleted group).
+ * - [combine] joins it with the local state (selected card). Loading errors come from the Flow via asResult.
+ * - [stateIn] with [SharingStarted.WhileSubscribed] (5 seconds) observes the database only while
+ *   a screen shows the state, and survives a rotation without a new query.
  *
- * @param repository Liefert die Gruppen.
- * @param photoRepository Löst die relativen Fotopfade in Dateien auf.
- * @param today Liefert das heutige Datum (Wichteltag der Auswahl vorbei?); in Tests ersetzbar.
+ * @param repository supplies the groups.
+ * @param photoRepository resolves the relative photo paths into files.
+ * @param today supplies today's date (has the draw day of the selection passed?); replaceable in tests.
  */
 class GroupsViewModel(
     private val repository: GiftGroupRepository,
@@ -56,7 +56,7 @@ class GroupsViewModel(
     val uiState: StateFlow<GroupsUiState> = combine(
         repository.observeGiftGroups()
             .asResult(TAG, "Failed to load the groups")
-            // Fotodateien nur prüfen, wenn sich die Gruppen ändern, nicht beim Antippen einer Karte
+            // Check photo files only when the groups change, not when a card is tapped
             .map { result -> result to resolvePhotoFiles(result.getOrDefault(emptyList())) },
         _localState,
     ) { (groupsResult, photoFiles), localState ->
@@ -66,9 +66,9 @@ class GroupsViewModel(
             isLoading = false,
             groups = groups,
             photoFiles = photoFiles,
-            // Eine inzwischen gelöschte Gruppe ist nicht mehr ausgewählt
+            // A group that was deleted in the meantime is no longer selected
             selectedGroupId = selectedGroup?.id,
-            // "Losen" nur, solange der Wichteltag der Auswahl nicht vorbei ist
+            // "Draw" only while the draw day of the selection has not passed
             selectedDrawDayPassed = selectedGroup != null && !DrawRules.isDrawDayOpen(selectedGroup.drawDay, today()),
             errorMessage = if (groupsResult.isFailure) R.string.error_groups_load else null,
         )
@@ -78,20 +78,20 @@ class GroupsViewModel(
         initialValue = GroupsUiState(isLoading = true),
     )
 
-    /** Nur Gruppen, deren Fotodatei existiert, bekommen ein Bild; alle anderen zeigen Initialen. */
+    /** Only groups whose photo file exists get an image; all others show initials. */
     private suspend fun resolvePhotoFiles(groups: List<GiftGroup>): Map<String, File> =
         groups.mapNotNull { group ->
             photoRepository.getFileForRelativePath(group.photoPath)?.let { file -> group.id to file }
         }.toMap()
 
-    /** Merkt sich die angetippte Gruppenkarte für den späteren "Losen"-Klick. */
+    /** Remembers the tapped group card for the later "Draw" click. */
     fun onGroupClick(groupId: String) {
         _localState.update { it.copy(selectedGroupId = groupId) }
     }
 
     companion object {
         /**
-         * Erzeugt das ViewModel mit den Abhängigkeiten aus dem [AppContainer].
+         * Creates the ViewModel with its dependencies from the [AppContainer].
          */
         fun factory(container: AppContainer): ViewModelProvider.Factory = viewModelFactory {
             initializer {

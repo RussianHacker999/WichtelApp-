@@ -9,17 +9,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Ein In-Memory-Fake für [GiftGroupRepository] zu Testzwecken.
+ * In-memory fake of [GiftGroupRepository] for tests.
  *
- * Reine Persistenz wie das echte Repository (geprüft wird im SaveGiftGroupUseCase).
- * Unterstützt Test-Schalter wie [shouldThrow] für simulierte Exceptions, [failFlows] für fehlerhafte Lesezugriffe (Flows und get…-Methoden) sowie Zähler für Schreibzugriffe
- * und Hilfsmethoden zum direkten Befüllen/Entfernen von Testdaten.
+ * Pure persistence like the real repository (validation happens in SaveGiftGroupUseCase).
+ * Supports test switches such as [shouldThrow] for simulated exceptions and [failFlows] for failing reads
+ * (Flows and get… methods), counters for writes, and helpers to add or remove test data directly.
  */
 class FakeGiftGroupRepository : GiftGroupRepository {
 
     private val groupsFlow = MutableStateFlow<List<GiftGroup>>(emptyList())
 
-    // Test-Schalter und Zähler
+    // Test switches and counters
     var shouldThrow: Boolean = false
     var failFlows: Boolean = false
 
@@ -31,20 +31,20 @@ class FakeGiftGroupRepository : GiftGroupRepository {
         private set
 
     /**
-     * Setzt die Liste der Wichtelgruppen im Speicher direkt.
+     * Sets the list of gift groups in memory directly.
      */
     fun setGroups(groups: List<GiftGroup>) {
         groupsFlow.value = groups
     }
 
     /**
-     * Entfernt eine Wichtelgruppe direkt aus dem Speicher (simuliert das Verschwinden im Hintergrund).
+     * Removes a gift group from memory directly (simulates it disappearing in the background).
      */
     fun removeGroup(id: String) {
         groupsFlow.value = groupsFlow.value.filter { it.id != id }
     }
 
-    // failFlows wird erst beim Sammeln geprüft: so lässt sich ein erneutes Abonnieren nach einem Fehler testen
+    // failFlows is checked only when collecting, so resubscribing after an error can be tested
     override fun observeGiftGroups(): Flow<List<GiftGroup>> = flow {
         if (failFlows) throw RuntimeException("Flow-Fehler beim Laden der Wichtelgruppen")
         emitAll(groupsFlow)

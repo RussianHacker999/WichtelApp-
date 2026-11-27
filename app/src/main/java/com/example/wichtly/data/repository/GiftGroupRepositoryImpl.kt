@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Room-Implementierung von [GiftGroupRepository]. Reine Persistenz: Prüfungen passieren
- * vorher im SaveGiftGroupUseCase.
+ * Room implementation of [GiftGroupRepository]. Persistence only: validation happens
+ * beforehand in SaveGiftGroupUseCase.
  */
 class GiftGroupRepositoryImpl(
     private val giftGroupDao: GiftGroupDao,
@@ -37,7 +37,7 @@ class GiftGroupRepositoryImpl(
         giftGroupDao.insertGiftGroup(group.toEntity())
     }
 
-    // @Update liefert die Anzahl geänderter Zeilen; 0 heißt, die Gruppe existiert nicht (mehr)
+    // @Update returns the number of updated rows; 0 means the group does not exist (any more)
     override suspend fun updateGiftGroup(group: GiftGroup): Boolean =
         giftGroupDao.updateGiftGroup(group.toEntity()) > 0
 

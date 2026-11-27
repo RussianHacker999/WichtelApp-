@@ -21,12 +21,11 @@ import java.time.Instant
 import java.time.LocalDate
 
 /**
- * Unit-Tests für [DrawDetailViewModel].
+ * Unit tests for [DrawDetailViewModel].
  *
- * Verifiziert das reaktive Laden von Auslosungsdetails, das Sortieren von Schenkern
- * (ohne Groß-/Kleinschreibung) und Wünschen (nach sortOrder), das Fehler- und Nicht-Gefunden-Verhalten,
- * das Öffnen, Wechseln und Schließen des Geschenkanhängers (inklusive ON_STOP) sowie reaktive Updates
- * und das Nachladen des Gruppennamens.
+ * Covers reactive loading of draw details, sorting of givers (case-insensitive) and wishes
+ * (by sortOrder), the error and not-found behaviour, opening, switching and closing the gift tag
+ * (including ON_STOP), reactive updates and loading the group name.
  */
 class DrawDetailViewModelTest {
 
@@ -36,7 +35,7 @@ class DrawDetailViewModelTest {
     private val drawId = "draw-1"
     private val groupId = "group-1"
 
-    // Gruppe, zu der die Beispiel-Auslosungen gehören; liefert den angezeigten Gruppennamen
+    // Group the sample draws belong to; supplies the displayed group name
     private val groupRepository = FakeGiftGroupRepository().apply {
         setGroups(listOf(GiftGroup(id = groupId, name = "Büro 2026", budgetCents = 2000, drawDay = LocalDate.of(2026, 12, 24))))
     }
@@ -69,7 +68,7 @@ class DrawDetailViewModelTest {
     )
 
     /**
-     * Test 1: Lädt den Durchlauf erfolgreich und mappt die Zuordnungen.
+     * Test 1: loads the draw successfully and maps the assignments.
      */
     @Test
     fun loadsDrawAndMapsAssignments() = runTest {
@@ -93,7 +92,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 2: Zuordnungen werden nach giverName (ignoriere Groß-/Kleinschreibung) und dann nach giverId sortiert.
+     * Test 2: assignments are sorted by giverName (case-insensitive), then by giverId.
      */
     @Test
     fun assignmentsSortedByGiverNameIgnoringCase() = runTest {
@@ -136,7 +135,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 3: Wünsche werden nach sortOrder sortiert und als reiner Text extrahiert.
+     * Test 3: wishes are sorted by sortOrder and reduced to their text.
      */
     @Test
     fun wishesSortedBySortOrderAsPlainText() = runTest {
@@ -170,7 +169,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 4: Unbekannte Draw-ID setzt notFound auf true.
+     * Test 4: an unknown draw ID sets notFound to true.
      */
     @Test
     fun unknownDrawId_setsNotFound() = runTest {
@@ -189,7 +188,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 5: Flow-Fehler setzt errorMessage und notFound bleibt false.
+     * Test 5: a Flow error sets errorMessage and notFound stays false.
      */
     @Test
     fun flowError_setsErrorMessage() = runTest {
@@ -210,7 +209,7 @@ class DrawDetailViewModelTest {
 
 
     /**
-     * Test 6: Giver-Klick öffnet direkt den Geschenkanhänger (revealedGiverId), ohne Zwischendialog.
+     * Test 6: a giver click opens the gift tag directly (revealedGiverId), without an intermediate dialog.
      */
     @Test
     fun giverClick_opensGiftTagDirectly() = runTest {
@@ -231,7 +230,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 7: Klick auf unbekannte Giver-ID wird ignoriert.
+     * Test 7: a click on an unknown giver ID is ignored.
      */
     @Test
     fun giverClickWithUnknownId_isIgnored() = runTest {
@@ -252,7 +251,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 8: dismissResult schließt den Geschenkanhänger.
+     * Test 8: dismissResult closes the gift tag.
      */
     @Test
     fun dismissResult_clearsRevealed() = runTest {
@@ -275,7 +274,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 9: Giver-Klick während ein Anhänger offen ist, wechselt zum neuen Schenker.
+     * Test 9: a giver click while a tag is open switches to the new giver.
      */
     @Test
     fun giverClickWhileRevealed_switchesGiver() = runTest {
@@ -298,7 +297,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 10: appStopped schließt den Geschenkanhänger.
+     * Test 10: appStopped closes the gift tag.
      */
     @Test
     fun appStopped_closesGiftTag() = runTest {
@@ -321,7 +320,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Test 11: Entfernen des Durchlaufs bei offenem Anhänger schließt ihn und setzt notFound.
+     * Test 11: removing the draw while a tag is open closes it and sets notFound.
      */
     @Test
     fun drawRemovedWhileGiftTagOpen_closesGiftTag() = runTest {
@@ -347,7 +346,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * P2-1: Das Detail zeigt den echten Gruppennamen statt eines Platzhalters.
+     * P2-1: the detail shows the real group name instead of a placeholder.
      */
     @Test
     fun showsNameOfDrawnGroup() = runTest {
@@ -361,7 +360,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Ein umbenannter Gruppenname wird übernommen, weil er live nachgeladen wird.
+     * A renamed group is picked up, because the name is loaded live.
      */
     @Test
     fun renamedGroupUpdatesGroupName() = runTest {
@@ -377,7 +376,7 @@ class DrawDetailViewModelTest {
     }
 
     /**
-     * Scheitert nur das Laden des Gruppennamens, bleibt die Auslosung sichtbar (Platzhalter statt Fehlerbildschirm).
+     * If only loading the group name fails, the draw stays visible (placeholder instead of an error screen).
      */
     @Test
     fun groupNameErrorKeepsDrawVisible() = runTest {

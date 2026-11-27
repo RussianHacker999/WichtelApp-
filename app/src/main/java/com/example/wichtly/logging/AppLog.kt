@@ -1,43 +1,43 @@
 package com.example.wichtly.logging
 
 /**
- * Log-Stufen der App, aufsteigend nach Wichtigkeit.
+ * Log levels of the app, in ascending order of importance.
  *
- * - [DEBUG]: Ablauf für Entwickler (Navigation, gestartete Aktionen, abgelehnte Eingaben).
- *   Nur in Debug-Builds sichtbar.
- * - [INFO]: Erfolgreiche, fachlich relevante Zustandsänderungen (Gruppe angelegt, Auslosung
- *   gespeichert, Datenbank angelegt).
- * - [WARN]: Etwas ist schiefgelaufen, die App fängt es aber ab und läuft normal weiter
- *   (Foto nicht löschbar, Datensatz inzwischen verschwunden, Kamera-Berechtigung verweigert).
- * - [ERROR]: Unerwartete Ausnahme, die eine Nutzeraktion oder das Laden eines Screens scheitern
- *   lässt; der Nutzer sieht eine Fehlermeldung.
+ * - [DEBUG]: flow information for developers (navigation, started actions, rejected input).
+ *   Visible in debug builds only.
+ * - [INFO]: successful state changes that matter to the business (group created, draw saved,
+ *   database created).
+ * - [WARN]: something went wrong, but the app handles it and continues normally
+ *   (photo could not be deleted, record disappeared in the meantime, camera permission denied).
+ * - [ERROR]: unexpected exception that makes a user action or the loading of a screen fail;
+ *   the user sees an error message.
  */
 enum class LogLevel { DEBUG, INFO, WARN, ERROR }
 
 /**
- * Ziel der Log-Ausgaben. In der App schreibt [AndroidLogSink] nach Logcat; in Unit-Tests ist
- * standardmäßig nichts installiert, Tests können eine eigene Senke einsetzen.
+ * Destination of the log output. In the app, [AndroidLogSink] writes to Logcat; in unit tests
+ * nothing is installed by default, and tests can install their own sink.
  */
 interface LogSink {
-    /** Niedrigste Stufe, die ausgegeben wird. */
+    /** Lowest level that is written. */
     val minLevel: LogLevel
 
+    /** Writes one entry; called by [AppLog] only for levels at or above [minLevel]. */
     fun log(level: LogLevel, tag: String, message: String, throwable: Throwable?)
 }
 
 /**
- * Zentrale Logging-Fassade der App.
+ * Central logging facade of the app.
  *
- * Warum nicht direkt android.util.Log?
- * - Die Domain-Schicht bleibt frei von Android-Abhängigkeiten und kann trotzdem loggen.
- * - Alle Ausgaben laufen über eine Stelle: einheitliches Tag-Präfix, Release-Builds unterdrücken
- *   DEBUG, Tests können Ausgaben prüfen.
+ * Used instead of android.util.Log directly, so the domain layer stays free of Android dependencies
+ * and can still log, and all output goes through one place: one tag prefix, DEBUG suppressed in
+ * release builds, and tests can check the output.
  *
- * Datenschutz-Regel: Niemals Namen, Wunschtexte, Zuordnungen einer Auslosung oder Bildinhalte
- * loggen. Erlaubt sind technische IDs, Anzahlen, Fehlertypen und relative Dateipfade.
+ * Privacy rule: never log names, wish texts, the assignments of a draw or image content.
+ * Technical IDs, counts, error types and relative file paths are allowed.
  *
- * Sprache: Log-Texte sind englisch (wie Stacktraces und Bibliotheksmeldungen in Logcat);
- * Texte für Nutzer stehen in strings.xml.
+ * Log messages are in English (like stack traces and library messages in Logcat);
+ * texts for users live in strings.xml.
  */
 object AppLog {
 
@@ -49,34 +49,38 @@ object AppLog {
     @Volatile
     private var sink: LogSink = NoOpSink
 
-    /** Wird einmal beim App-Start gesetzt (WichtlyApplication); in Tests mit einer Test-Senke. */
+    /** Set once at app start (WichtlyApplication); in tests with a test sink. */
     fun install(sink: LogSink) {
         this.sink = sink
     }
 
-    /** Setzt auf "keine Ausgabe" zurück (für Tests). */
+    /** Resets to "no output" (for tests). */
     fun reset() {
         sink = NoOpSink
     }
 
+    /** True if messages of [level] are currently written. */
     fun isEnabled(level: LogLevel): Boolean = level >= sink.minLevel
 
     /**
-     * Debug-Ausgabe. Die Nachricht wird als Lambda übergeben und nur gebaut, wenn DEBUG aktiv ist,
-     * damit Release-Builds keine Strings für unterdrückte Ausgaben erzeugen.
+     * Debug output. The message is passed as a lambda and built only if DEBUG is enabled,
+     * so release builds create no strings for suppressed output.
      */
     fun d(tag: String, message: () -> String) {
         if (isEnabled(LogLevel.DEBUG)) sink.log(LogLevel.DEBUG, tag, message(), null)
     }
 
+    /** Info output for successful, relevant state changes. */
     fun i(tag: String, message: String) {
         if (isEnabled(LogLevel.INFO)) sink.log(LogLevel.INFO, tag, message, null)
     }
 
+    /** Warning for a handled problem; [throwable] is optional. */
     fun w(tag: String, message: String, throwable: Throwable? = null) {
         if (isEnabled(LogLevel.WARN)) sink.log(LogLevel.WARN, tag, message, throwable)
     }
 
+    /** Error for an unexpected exception that made a user action or a screen fail. */
     fun e(tag: String, message: String, throwable: Throwable? = null) {
         if (isEnabled(LogLevel.ERROR)) sink.log(LogLevel.ERROR, tag, message, throwable)
     }

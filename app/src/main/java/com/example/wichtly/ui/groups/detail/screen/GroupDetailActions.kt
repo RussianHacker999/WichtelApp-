@@ -3,55 +3,55 @@ package com.example.wichtly.ui.groups.detail.screen
 import java.io.File
 
 /**
- * Nutzeraktionen der Gruppendetails: Navigation, Teilnehmerliste, Teilnehmer-Editor, Löschen.
+ * User actions of the group detail screen: navigation, participant list, participant editor, delete.
  *
- * Bündelt die Callbacks, damit der Screen nicht über zehn einzelne Parameter hat. Die Aktionen des
- * Teilnehmer-Editors stecken gesammelt in [participantEditor]. Die Route füllt alles mit ViewModel-Methoden
- * und Navigation; ohne Standardwerte, damit keine Aktion vergessen wird.
+ * Bundles the callbacks so the screen does not take more than ten single parameters. The actions of
+ * the participant editor are grouped in [participantEditor]. The route fills everything with ViewModel
+ * methods and navigation, without default values, so no action is forgotten.
  */
 data class GroupDetailActions(
-    /** Callback für die Zurück-Navigation. */
+    /** Navigates back. */
     val onBack: () -> Unit,
-    /** Callback zum Bearbeiten der Stammdaten der Gruppe. */
+    /** Opens the form to edit the group's details. */
     val onEditGroupClick: () -> Unit,
-    /** Callback zum Öffnen der Wunschliste eines Teilnehmers. */
+    /** Opens the wishlist of a participant. */
     val onWishlistClick: (participantId: String) -> Unit,
-    /** Callback zum Hinzufügen eines neuen Teilnehmers. */
+    /** Opens the participant editor to add a new participant. */
     val onAddParticipantClick: () -> Unit,
-    /** Callback zum Bearbeiten eines Teilnehmers (erhält participantId). */
+    /** Opens the participant editor for an existing participant. */
     val onEditParticipantClick: (participantId: String) -> Unit,
-    /** Callback zum Löschen eines Teilnehmers (erhält participantId). */
+    /** Asks for confirmation before deleting a participant. */
     val onDeleteParticipantClick: (participantId: String) -> Unit,
-    /** Aktionen im offenen Teilnehmer-Editor (Name, Speichern, Schließen, Foto). */
+    /** Actions inside the open participant editor (name, save, close, photo). */
     val participantEditor: ParticipantEditorActions,
-    /** Callback zum Bestätigen der Teilnehmer-Löschung. */
+    /** Confirms deleting the participant. */
     val onConfirmParticipantDelete: () -> Unit,
-    /** Callback zum Schließen/Abbrechen des Teilnehmer-Löschdialogs. */
+    /** Closes or cancels the participant delete dialog. */
     val onDismissParticipantDelete: () -> Unit,
-    /** Auslosungs-Vorbereitung für diese Gruppe öffnen. */
+    /** Opens the draw preparation for this group. */
     val onPrepareDrawClick: () -> Unit,
-    /** Historie dieser Gruppe öffnen. */
+    /** Opens the draw history of this group. */
     val onHistoryClick: () -> Unit,
-    /** Öffnet den Dialog zum Löschen der Gruppe. */
+    /** Opens the dialog to delete the group. */
     val onDeleteGroupClick: () -> Unit,
-    /** Bestätigt das Löschen der Gruppe. */
+    /** Confirms deleting the group. */
     val onConfirmGroupDelete: () -> Unit,
-    /** Schließt den Gruppen-Löschdialog. */
+    /** Closes the group delete dialog. */
     val onDismissGroupDelete: () -> Unit,
 )
 
 /**
- * Nutzeraktionen im Teilnehmer-Editor (Dialog zum Hinzufügen oder Bearbeiten).
+ * User actions in the participant editor (dialog for adding or editing).
  */
 data class ParticipantEditorActions(
-    /** Text im Namensfeld geändert. */
+    /** The text in the name field changed. */
     val onNameChange: (String) -> Unit,
-    /** Teilnehmer speichern. */
+    /** Saves the participant. */
     val onSave: () -> Unit,
-    /** Editor schließen oder abbrechen. */
+    /** Closes or cancels the editor. */
     val onDismiss: () -> Unit,
-    /** Neues Teilnehmerfoto aufgenommen (temporäre Datei der Kamera). */
+    /** A new participant photo was captured (temporary file of the camera). */
     val onPhotoCaptured: (File) -> Unit,
-    /** Teilnehmerfoto entfernen. */
+    /** Removes the participant photo. */
     val onRemovePhoto: () -> Unit,
 )

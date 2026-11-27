@@ -19,7 +19,7 @@ import java.time.LocalDate
 
 class GroupsViewModelTest {
 
-    // ersetzt den Android-Main-Thread, damit viewModelScope im Test funktioniert
+    // Replaces the Android main thread, so viewModelScope works in the test
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -55,7 +55,7 @@ class GroupsViewModelTest {
         testScheduler.advanceUntilIdle()
         assertTrue(viewModel.uiState.value.groups.isEmpty())
 
-        // simuliert: neue Gruppe wurde gespeichert
+        // Simulates that a new group was saved
         groupRepository.setGroups(listOf(familie))
         testScheduler.advanceUntilIdle()
 
@@ -123,11 +123,11 @@ class GroupsViewModelTest {
         testScheduler.advanceUntilIdle()
         assertEquals(R.string.error_groups_load, viewModel.uiState.value.errorMessage)
 
-        // Screen verlassen, Datenbank wieder lesbar, Screen erneut öffnen
+        // Leave the screen, make the database readable again, open the screen again
         ersterBesuch.cancel()
         testScheduler.advanceTimeBy(6_000)
         repository.failFlows = false
-        // Eager starten: advanceUntilIdle führt reine Hintergrund-Aufgaben nicht aus
+        // Start eagerly: advanceUntilIdle does not run pure background tasks
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) { viewModel.uiState.collect {} }
 
         assertNull(viewModel.uiState.value.errorMessage)

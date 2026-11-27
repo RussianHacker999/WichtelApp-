@@ -4,6 +4,13 @@ import com.example.wichtly.domain.model.group.DrawType
 import java.time.Instant
 import java.time.LocalDate
 
+/**
+ * Room type converters for the column types SQLite does not know.
+ *
+ * - [LocalDate] is stored as ISO text ("2026-12-24"), so it sorts correctly as a string.
+ * - [Instant] is stored as epoch milliseconds.
+ * - [DrawType] is stored as its enum name; renaming an enum constant therefore needs a migration.
+ */
 class Converters {
     @TypeConverter
     fun fromString(value: String?): LocalDate? {

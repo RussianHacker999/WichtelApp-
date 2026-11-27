@@ -3,13 +3,9 @@ package com.example.wichtly.domain.model.draw
 import java.time.Instant
 
 /**
- * A summary of a saved draw for the history list.
- * The list displays only the date and time.
- * Assignments, preferences, and the DrawType exchange are only loaded in the detailed view ([DrawDetail]).
+ * Short form of a saved draw for the history list, which shows only date and time.
  *
- * @param id unique id from the DrawSummary object
- * @param groupId id from the group of the draw
- * @param drawnAt the time when the draw was made
+ * Assignments, wishes and the draw type are loaded only in the detail view ([DrawDetail]).
  */
 data class DrawSummary(
     val id: String,

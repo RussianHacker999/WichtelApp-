@@ -18,7 +18,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für [PerformDrawUseCase]: Prüfungen vor dem Losen und Aufbau des Snapshots.
+ * Tests for [PerformDrawUseCase]: checks before the draw and building the snapshot.
  */
 class PerformDrawUseCaseTest {
 
@@ -57,11 +57,11 @@ class PerformDrawUseCaseTest {
         assertEquals(1, drawRepository.insertDrawCalls)
         assertEquals(DrawType.JUNK, draw.drawType)
         assertEquals(3, draw.assignments.size)
-        // Gültiges Derangement: jeder schenkt genau einmal, niemand sich selbst
+        // Valid derangement: everyone gives exactly once, nobody to themselves
         assertEquals(participants.map { it.id }.toSet(), draw.assignments.map { it.giverId }.toSet())
         assertEquals(participants.map { it.id }.toSet(), draw.assignments.map { it.receiverId }.toSet())
         draw.assignments.forEach { assertNotEquals(it.giverId, it.receiverId) }
-        // Namen und Wünsche des Empfängers p1 als Snapshot, in sortOrder-Reihenfolge
+        // Name and wishes of receiver p1 as a snapshot, in sortOrder order
         val anP1 = draw.assignments.single { it.receiverId == "p1" }
         assertEquals("Person 1", anP1.receiverName)
         assertEquals(listOf("Buch", "Schal"), anP1.receiverWishlistItems.map { it.text })

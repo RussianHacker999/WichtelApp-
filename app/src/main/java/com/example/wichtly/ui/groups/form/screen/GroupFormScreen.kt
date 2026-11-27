@@ -18,24 +18,16 @@ import com.example.wichtly.ui.components.layout.WichtlyScaffold
 import com.example.wichtly.ui.components.layout.WichtlyTopBar
 
 /**
- * Zustandsloser Composable-Screen für das Gruppen-Formular (Erstellen und Bearbeiten einer Wichtelgruppe).
+ * Stateless screen of the group form (creating and editing a gift group).
  *
- * Architektur- & Design-Hinweise (AP3.3 & AGENTS.md):
- * - Der Screen besitzt KEIN ViewModel- oder Repository-Wissen.
- * - Sämtliche Zustände werden über [GroupFormUiState] übergeben.
- * - Interaktionen erfolgen ausschließlich über Lambda-Callbacks.
- * - Aufbau wie alle Screens über [com.example.wichtly.ui.components.layout.WichtlyScaffold]:
- *   - Top-Leiste mit Zurück-Pfeil, darunter der Seitenkopf mit Eyebrow und Titel.
- *   - Fotofeld mit demselben Foto-Ablauf wie beim Teilnehmerfoto.
- *   - Formularfelder mit Label darüber und Hinweistexten (supportingText).
- *   - Auswahlkarten (RadioButton) für die Wichtelart mit kurzer Erklärung.
- *   - Abbrechen- und Speichern-Buttons nebeneinander in der Aktionsleiste unten.
+ * Built like every screen on [com.example.wichtly.ui.components.layout.WichtlyScaffold]: top bar with
+ * a back arrow, page header, photo field (same photo flow as for the participant photo), form fields
+ * with a label above and helper texts, selection cards for the draw type, and cancel and save buttons
+ * side by side in the bottom action bar.
  *
- * @param state Der aktuelle UI-Zustand des Formulars.
- * @param actions Alle Nutzeraktionen des Screens, siehe [GroupFormActions].
- * @param modifier Äußerer Modifier für den Screen.
+ * Content: [GroupFormContent]; previews: GroupFormScreenPreviews.kt.
  *
- * Inhalt: [GroupFormContent]; Previews: GroupFormScreenPreviews.kt.
+ * @param actions all user actions of the screen, see [GroupFormActions].
  */
 @Composable
 fun GroupFormScreen(
@@ -44,7 +36,7 @@ fun GroupFormScreen(
     modifier: Modifier = Modifier,
 ) {
     val showForm = !state.isLoading && !state.notFound && !state.loadFailed
-    // Der übergebene modifier wird ausschließlich am Top-Level WichtlyScaffold angewendet.
+    // The modifier is applied only to the top-level WichtlyScaffold.
     WichtlyScaffold(
         modifier = modifier,
         topBar = {
@@ -55,7 +47,7 @@ fun GroupFormScreen(
         },
         bottomBar = {
             if (showForm) {
-                // 6. Formular-Aktionen (Abbrechen & Speichern nebeneinander), nur sichtbar, wenn das Formular angezeigt wird
+                // Form actions (cancel and save side by side), only while the form is shown
                 BottomActionBar(modifier = Modifier.imePadding()) {
                     SecondaryButton(
                         text = stringResource(R.string.common_cancel),
@@ -80,11 +72,9 @@ fun GroupFormScreen(
         },
     ) { innerPadding ->
         when {
-            // 1. ZUSTAND: Laden (im Bearbeiten-Modus)
-            // UI-Darstellung für den Ladezustand (gemeinsamer LoadingState).
+            // 1. Loading (edit mode)
             state.isLoading -> Box(Modifier.fillMaxSize()) { LoadingState(text = stringResource(R.string.group_form_loading)) }
-            // 2. ZUSTAND: Gruppe nicht gefunden
-            // UI-Darstellung, wenn die Wichtelgruppe nicht gefunden wurde (gemeinsamer MessageState).
+            // 2. Group not found
             state.notFound -> MessageState(
                 title = stringResource(R.string.common_group_missing_title),
                 text = stringResource(R.string.common_group_missing_text),
@@ -93,8 +83,7 @@ fun GroupFormScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
-            // 3. ZUSTAND: Ladefehler im Bearbeiten-Modus
-            // Ersetzt das Formular, damit keine leeren Felder einer bestehenden Gruppe erscheinen (gemeinsamer MessageState).
+            // 3. Loading error in edit mode: replaces the form, so no empty fields of an existing group appear
             state.loadFailed -> MessageState(
                 title = stringResource(R.string.common_error_loading_title),
                 text = stringResource(state.generalError ?: R.string.error_group_load),
@@ -103,7 +92,7 @@ fun GroupFormScreen(
                 actionLabel = stringResource(R.string.common_back_to_overview),
                 onAction = actions.onBack,
             )
-            // 4. ZUSTAND: Formular anzeigen
+            // 4. Form
             else -> GroupFormContent(
                 state = state,
                 innerPaddingTop = innerPadding,

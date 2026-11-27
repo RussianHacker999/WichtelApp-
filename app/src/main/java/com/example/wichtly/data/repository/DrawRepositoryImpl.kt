@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 /**
- * Room-Implementierung von [DrawRepository]. Reine Persistenz: Ob gelost werden darf und wie die
- * Zuordnung aussieht, entscheidet der PerformDrawUseCase.
+ * Room implementation of [DrawRepository]. Persistence only: whether a draw is allowed and what
+ * the assignment looks like is decided by PerformDrawUseCase.
  */
 class DrawRepositoryImpl(
     private val drawDao: DrawDao,
@@ -32,7 +32,7 @@ class DrawRepositoryImpl(
         drawDao.getDrawSource(groupId)?.toDomainModel()
 
     override suspend fun insertDraw(draw: DrawDetail) {
-        // Auslosung, Zuordnungen und Wunsch-Snapshots in einer Transaktion (DrawDao.insertCompleteDraw)
+        // Draw, assignments and wishlist snapshots in one transaction (DrawDao.insertCompleteDraw)
         val (drawEntity, assignmentEntities, wishlistEntities) = draw.toEntities()
         drawDao.insertCompleteDraw(
             draw = drawEntity,

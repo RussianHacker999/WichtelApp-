@@ -12,14 +12,11 @@ import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zur Bestätigung des Löschens eines Wunschzettel-Eintrags.
+ * Stateless dialog that confirms deleting a wishlist entry.
  *
- * @param itemText Der Text des zu löschenden Wunsches zur Anzeige in der Bestätigungsmeldung.
- * @param errorMessage Optionale Fehlermeldung, die direkt im Löschdialog angezeigt wird, falls das Löschen fehlschlägt.
- * @param isBusy Deaktiviert die Buttons während des laufenden Löschvorgangs.
- * @param onConfirm Callback beim Bestätigen der Löschung.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
- * @param modifier Optionaler Layout-Modifier.
+ * @param itemText text of the wish, shown in the confirmation message.
+ * @param errorMessage optional error message shown in the dialog if deleting fails.
+ * @param isBusy disables the buttons while the delete is running.
  */
 @Composable
 fun WishDeleteDialog(
@@ -33,14 +30,13 @@ fun WishDeleteDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
-        // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
         title = stringResource(R.string.wishlist_delete),
-        // Warum expliziter Wunschtext in der Meldung: Beugt versehentlichem Löschen falscher Einträge vor.
+        // The wish text in the message prevents deleting the wrong entry by mistake
         text = stringResource(R.string.wishlist_delete_text, itemText),
         confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
-        // Warum disabled bei isBusy: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
+        // Disabled while busy: prevents double taps and parallel delete calls.
         confirmEnabled = !isBusy,
         confirmLoading = isBusy,
         dismissEnabled = !isBusy,
@@ -50,7 +46,7 @@ fun WishDeleteDialog(
 }
 
 /**
- * Preview 1: Standard-Löschdialog mit einem Beispiel-Wunschtext.
+ * Preview: default delete dialog with a sample wish text.
  */
 @Preview
 @Composable
@@ -61,8 +57,7 @@ private fun WishDeleteDialogPreview() {
 }
 
 /**
- * Preview 2: Löschdialog während des aktiven Löschvorgangs (isBusy = true).
- * Warum: Überprüft das Deaktivieren der Interaktions-Buttons bei laufendem Ladevorgang.
+ * Preview: delete dialog while deleting (isBusy = true).
  */
 @Preview
 @Composable
@@ -73,8 +68,7 @@ private fun WishDeleteDialogSavingPreview() {
 }
 
 /**
- * Preview 3: Löschdialog mit sichtbarer Fehlermeldung.
- * Warum: Überprüft die visuelle Hervorhebung von Fehlertexten im Löschdialog.
+ * Preview: delete dialog with a visible error message.
  */
 @Preview
 @Composable

@@ -22,7 +22,7 @@ import java.time.LocalDate
 
 
 /**
- * Prüft die Repository-Daten und die Mindestanzahl für das Losen.
+ * Checks the repository data and the minimum number of participants for drawing.
  */
 class PreparationViewModelTest {
 
@@ -31,7 +31,7 @@ class PreparationViewModelTest {
 
     private val groupId = "group-1"
 
-    // festes "heute" vor dem Wichteltag 24.12.2026, damit die Tests an jedem Tag gleich laufen
+    // Fixed "today" before the draw day 24.12.2026, so the tests behave the same on every day
     private var heute: LocalDate = LocalDate.of(2026, 11, 25)
 
     @Test
@@ -108,7 +108,7 @@ class PreparationViewModelTest {
 
         assertFalse(viewModel.uiState.value.canStartDraw)
     }
-    // Hilfsfunktion: baut ein ViewModel mit einer Gruppe und der gewünschten Anzahl Teilnehmer
+    // Helper: builds a ViewModel with one group and the requested number of participants
     private fun erstelleViewModel(
         anzahlTeilnehmer: Int,
         drawRepository: FakeDrawRepository = FakeDrawRepository(),
@@ -179,7 +179,7 @@ class PreparationViewModelTest {
 
     @Test
     fun ablehnungDurchUseCaseZeigtFehlermeldung() = runTest {
-        // Der Button ist bei zwei Teilnehmern deaktiviert; wird trotzdem gelost, lehnt der Use Case ab
+        // The button is disabled with two participants; if a draw happens anyway, the use case rejects it
         val drawRepository = FakeDrawRepository()
         val viewModel = erstelleViewModel(anzahlTeilnehmer = 2, drawRepository = drawRepository)
         backgroundScope.launch { viewModel.uiState.collect {} }
@@ -205,7 +205,7 @@ class PreparationViewModelTest {
         viewModel.onStartDrawClick()
         testScheduler.advanceUntilIdle()
 
-        // Technischer Fehler beim Losen: Inhalt bleibt, Fehler steht über dem Button
+        // Technical error while drawing: the content stays, the error is shown above the button
         assertNull(viewModel.uiState.value.errorMessage)
         assertEquals(R.string.error_draw_failed, viewModel.uiState.value.drawError)
         assertFalse(viewModel.uiState.value.isDrawing)

@@ -13,7 +13,8 @@ import java.util.UUID
 private const val TAG = "LocalPhotoStorageManager"
 
 /**
- * Verwaltet Fotodateien im privaten internen Speicher unter `filesDir/photos/groups/` und `filesDir/photos/participants/`.
+ * Manages photo files in the app's private internal storage under `filesDir/photos/groups/`
+ * and `filesDir/photos/participants/`.
  */
 class LocalPhotoStorageManager(
     private val filesDir: File,
@@ -23,8 +24,9 @@ class LocalPhotoStorageManager(
     private val photosRoot: File get() = File(filesDir, "photos")
 
     /**
-     * Löst einen relativen Pfad aus der Datenbank auf, aber nur innerhalb von `filesDir/photos`.
-     * Ein manipulierter Pfad wie "../databases/wichtly.db" ergibt null, damit nie außerhalb gelesen oder gelöscht wird.
+     * Resolves a relative path from the database, but only inside `filesDir/photos`.
+     *
+     * A manipulated path such as "../databases/wichtly.db" yields null, so nothing outside is ever read or deleted.
      */
     private fun resolveInsidePhotos(relativePath: String?): File? {
         if (relativePath.isNullOrBlank()) return null
@@ -47,12 +49,13 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Löst einen relativen Pfad (z. B. "photos/groups/groups_123.jpg") in eine absolute Datei auf.
-     * Liefert null, wenn der Pfad null oder leer ist, außerhalb des Fotoordners liegt, auf keine vorhandene Datei zeigt
-     * oder sich nicht auflösen lässt.
+     * Resolves a relative path (e.g. "photos/groups/groups_123.jpg") to an absolute file.
      *
-     * Wirft nie: Die ViewModels lösen Fotos innerhalb ihres UI-State-Flows auf, eine Exception würde dort die App
-     * beenden. Ein unlesbares Foto ist fachlich "kein Foto", die UI zeigt dann Initialen bzw. den Platzhalter.
+     * Never throws: the ViewModels resolve photos inside their UI state flow, where an exception would
+     * crash the app. An unreadable photo is treated as "no photo"; the UI then shows initials or the placeholder.
+     *
+     * @return null if the path is null or empty, lies outside the photo folder, points to no existing file,
+     * or cannot be resolved.
      */
     suspend fun getFileForRelativePath(relativePath: String?): File? = withContext(Dispatchers.IO) {
         try {
@@ -68,7 +71,7 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Relative Pfade aller Fotodateien, deren letzte Änderung vor [olderThan] liegt.
+     * Relative paths of all photo files that were last modified before [olderThan].
      */
     suspend fun listPhotoPaths(olderThan: Instant): List<String> = withContext(Dispatchers.IO) {
         PhotoOwnerType.entries.flatMap { ownerType ->
@@ -80,10 +83,12 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Verschiebt eine temporäre Fotodatei in den privaten internen Speicher ("photos/<value>/<value>_<uuid>.jpg")
-     * und liefert den relativen Pfad (z. B. "photos/groups/groups_abc123.jpg").
-     * Verschieben (renameTo) vermeidet eine zweite Kopie des Bildes; scheitert es, wird stattdessen kopiert
-     * (die Quelldatei löscht dann der Aufrufer).
+     * Moves a temporary photo file into private internal storage ("photos/<type>/<type>_<uuid>.jpg").
+     *
+     * Moving (renameTo) avoids a second copy of the image. If moving fails, the file is copied
+     * instead, and the caller deletes the source file.
+     *
+     * @return the relative path, e.g. "photos/groups/groups_abc123.jpg".
      */
     suspend fun savePhotoFile(sourceFile: File, ownerType: PhotoOwnerType): String = withContext(Dispatchers.IO) {
         if (!sourceFile.exists()) {
@@ -101,7 +106,7 @@ class LocalPhotoStorageManager(
     }
 
     /**
-     * Löscht eine Fotodatei aus dem internen Speicher, falls sie existiert und im Fotoordner liegt.
+     * Deletes a photo file from internal storage if it exists and lies inside the photo folder.
      */
     suspend fun deletePhotoFile(relativePath: String?) {
         withContext(Dispatchers.IO) {

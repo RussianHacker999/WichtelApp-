@@ -19,7 +19,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Tests für das Löschen der ganzen Gruppe in [GroupDetailViewModel].
+ * Tests for deleting the whole group in [GroupDetailViewModel].
  */
 class GroupDetailViewModelGroupDeleteTest {
 
@@ -63,11 +63,11 @@ class GroupDetailViewModelGroupDeleteTest {
         val state = viewModel.uiState.value
         assertTrue(state.isGroupDeleted)
         assertFalse(state.showGroupDeleteDialog)
-        // Kein "Gruppe nicht gefunden"-Zustand, solange die Route zurücknavigiert
+        // No "group not found" state while the route navigates back
         assertFalse(state.notFound)
         assertEquals(1, groupRepo.deleteCalls)
 
-        // Nach der Quittung ist das Ereignis weg, ein "nicht gefunden" erscheint trotzdem nicht
+        // After the acknowledgement the event is gone, and "not found" still does not appear
         viewModel.onGroupDeletedHandled()
         testScheduler.advanceUntilIdle()
         assertFalse(viewModel.uiState.value.isGroupDeleted)

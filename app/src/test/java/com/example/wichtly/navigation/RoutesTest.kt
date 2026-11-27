@@ -37,8 +37,8 @@ class RoutesTest {
 
     @Test
     fun hilfsfunktionUndVorlagePassenZusammen() {
-        // Die Vorlage mit Platzhalter muss zur Hilfsfunktion passen,
-        // sonst findet der NavHost das Ziel nicht (App würde abstürzen)
+        // The template with placeholder must match the helper function,
+        // otherwise the NavHost does not find the destination (the app would crash)
         val vorlage = Routes.DRAW_HISTORY.replace("{${Routes.ARG_GROUP_ID}}", "abc")
         assertEquals(vorlage, Routes.drawHistory("abc"))
     }

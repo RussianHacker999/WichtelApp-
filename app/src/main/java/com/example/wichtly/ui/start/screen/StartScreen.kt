@@ -54,21 +54,21 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 import kotlin.random.Random
 
-// Formgebundene Maße des Startbilds: Luft über dem Schriftzug und Einzug des Fußbereichs
+// Fixed dimensions of the start image: space above the wordmark and indent of the footer
 private val HeroTopSpace = 140.dp
 private val HeroSidePadding = 28.dp
 
 /**
- * Startseite (Mockup-Option A "Nachthimmel"): großer Wichtly-Schriftzug mittig auf einem
- * leuchtenden Nachthimmel mit Schnee, darunter eine Infozeile und eine Hauptaktion.
+ * Start screen (mockup option A "night sky"): the large Wichtly wordmark centred on a glowing
+ * night sky with snow, below it an info line and a main action.
  *
- * Den großen Schriftzug gibt es NUR hier; die Gruppenliste behält ihre kleine Marken-Leiste (BrandTopBar).
+ * The large wordmark exists only here; the group list keeps its small brand bar (BrandTopBar).
  *
- * Zustandslos: [summary] kommt aus der Route, Aktionen laufen über Callbacks.
+ * Stateless: [summary] comes from the route, actions go through callbacks.
  *
- * @param summary Infozeile; null, solange die Gruppen noch geladen werden (dann bleibt der Fuß leer).
- * @param onOpenGroups Öffnet die Gruppenliste.
- * @param onCreateGroup Öffnet das Formular für eine neue Gruppe.
+ * @param summary info line; null while the groups are still loading (the footer then stays empty).
+ * @param onOpenGroups opens the group list.
+ * @param onCreateGroup opens the form for a new group.
  */
 @Composable
 fun StartScreen(
@@ -81,7 +81,7 @@ fun StartScreen(
         modifier = modifier
             .fillMaxSize()
             .drawBehind {
-                // Leuchten von oben in der Mitte, nach unten dunkler werdend
+                // Glow from the top centre, getting darker towards the bottom
                 drawRect(
                     Brush.radialGradient(
                         colors = listOf(Pine700, Pine900, Pine950),
@@ -100,7 +100,7 @@ fun StartScreen(
                 .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // 1. Mitte: Kicker, Schriftzug, Claim
+            // 1. Centre: kicker, wordmark, claim
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -123,7 +123,7 @@ fun StartScreen(
                     modifier = Modifier.widthIn(max = 260.dp),
                 )
             }
-            // 2. Fuß: Infozeile + Aktionen (leer, solange geladen wird)
+            // 2. Footer: info line + actions (empty while loading)
             if (summary != null) {
                 StartFooter(summary = summary, onOpenGroups = onOpenGroups, onCreateGroup = onCreateGroup)
             } else {
@@ -133,19 +133,19 @@ fun StartScreen(
     }
 }
 
-/** Abdunklung zum unteren Rand, damit die Buttons ruhig stehen. */
+/** Darkening towards the bottom edge, so the buttons sit on a calm background. */
 private val NightSkyBrush = Brush.verticalGradient(
     0f to Color.Transparent,
     1f to Pine950.copy(alpha = 0.6f),
 )
 
 /**
- * Der große Schriftzug. Er soll nicht abgeschnitten werden:
- * - autoSize verkleinert die Schrift schrittweise (72sp → 36sp), bis "Wichtly" in eine Zeile passt,
- *   auch bei schmalen Geräten oder großer Systemschrift.
- * - Die Sternchen sitzen in einem eigenen, reservierten Rand rechts/oben (padding), nicht über dem Text,
- *   damit sie weder abgeschnitten werden noch den Text verdrängen.
- * - lineHeight > fontSize, damit Ober- und Unterlängen (W, y) vollständig Platz haben.
+ * The large wordmark. It must not be cut off:
+ * - autoSize shrinks the font step by step (72sp → 36sp) until "Wichtly" fits in one line,
+ *   also on narrow devices or with a large system font.
+ * - The sparkles sit in their own reserved margin at the top right (padding), not over the text,
+ *   so they are neither cut off nor push the text aside.
+ * - lineHeight > fontSize, so ascenders and descenders (W, y) have enough room.
  */
 @Composable
 private fun Wordmark() {
@@ -162,7 +162,7 @@ private fun Wordmark() {
                 softWrap = false,
                 autoSize = TextAutoSize.StepBased(minFontSize = 36.sp, maxFontSize = 72.sp, stepSize = 2.sp),
             )
-            // Sternchen im reservierten 28dp-Rand rechts oben (außerhalb der Textfläche)
+            // Sparkle in the reserved 28dp margin at the top right (outside the text area)
             Sparkle(
                 size = 24.dp,
                 rotationDegrees = 12f,
@@ -209,11 +209,11 @@ private fun StartFooter(summary: StartSummary, onOpenGroups: () -> Unit, onCreat
     }
 }
 
-/** Dezente Infozeile über den Buttons, z. B. "Nächste Bescherung · in 30 Tagen". */
+/** Subtle info line above the buttons, e.g. "Next exchange · in 30 days". */
 @Composable
 private fun InfoPill(summary: StartSummary) {
     val gold = MaterialTheme.colorScheme.primary
-    // Texte vorab auflösen: buildAnnotatedString ist kein Composable-Kontext.
+    // Resolve texts first: buildAnnotatedString is not a composable context.
     val separator = stringResource(R.string.start_info_separator)
     val (prefix, highlight) = when (summary) {
         StartSummary.NoGroups ->
@@ -246,13 +246,13 @@ private fun InfoPill(summary: StartSummary) {
     }
 }
 
-/** "heute", "morgen" oder "in N Tagen" (Texte und Plural in strings.xml). */
+/** "today", "tomorrow" or "in N days" (texts and plural in strings.xml). */
 @Composable
 private fun daysUntilText(days: Long): String =
     daysUntilSpecialRes(days)?.let { stringResource(it) }
         ?: pluralStringResource(R.plurals.start_days_in, days.toInt(), days)
 
-/** Ruhender Schnee: 70 feste, per Seed verteilte Punkte in den oberen 80 % der Fläche (keine Animation). */
+/** Still snow: 70 fixed points spread by a seed over the upper 80 % of the area (no animation). */
 @Composable
 private fun SnowLayer(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
@@ -267,11 +267,7 @@ private fun SnowLayer(modifier: Modifier = Modifier) {
     }
 }
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// -----------------------------------------------------------------------------
-
-/** Preview 1: Startseite mit anstehender Bescherung. */
+/** Preview: start screen with an upcoming exchange. */
 @Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun StartScreenWithGroupsPreview() {
@@ -280,7 +276,7 @@ private fun StartScreenWithGroupsPreview() {
     }
 }
 
-/** Preview 2: Startseite ohne Gruppe. */
+/** Preview: start screen without a group. */
 @Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun StartScreenEmptyPreview() {
@@ -289,7 +285,7 @@ private fun StartScreenEmptyPreview() {
     }
 }
 
-/** Preview 3: Schmales Gerät mit großer Systemschrift: der Schriftzug darf nicht abgeschnitten werden. */
+/** Preview: narrow device with a large system font; the wordmark must not be cut off. */
 @Preview(showBackground = true, widthDp = 300, heightDp = 620, fontScale = 1.5f)
 @Composable
 private fun StartScreenNarrowLargeFontPreview() {
@@ -298,7 +294,7 @@ private fun StartScreenNarrowLargeFontPreview() {
     }
 }
 
-/** Preview 4: Ladezustand (Fuß noch leer). */
+/** Preview: loading state (footer still empty). */
 @Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun StartScreenLoadingPreview() {

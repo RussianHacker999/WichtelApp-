@@ -9,14 +9,13 @@ import com.example.wichtly.ui.common.appContainer
 import com.example.wichtly.ui.groups.list.screen.GroupsScreen
 
 /**
- * Zustandsbehaftete Route der Gruppenliste: holt die Abhängigkeiten aus dem AppContainer, erzeugt das
- * [GroupsViewModel] und verbindet dessen Zustand mit dem zustandslosen [GroupsScreen].
+ * Stateful route of the group list: gets the dependencies from the AppContainer, creates the
+ * [GroupsViewModel] and connects its state with the stateless [GroupsScreen].
  *
- * @param onAddGroup Navigation zum Formular "Neue Gruppe".
- * @param onOpenGroup Navigation zu den Details einer Gruppe.
- * @param onEditGroup Navigation zum Formular "Gruppe bearbeiten".
- * @param onPrepareDraw Navigation zur Vorbereitung der Auslosung der ausgewählten Gruppe.
- * @param modifier Äußerer Modifier.
+ * @param onAddGroup navigates to the "New group" form.
+ * @param onOpenGroup navigates to the details of a group.
+ * @param onEditGroup navigates to the "Edit group" form.
+ * @param onPrepareDraw navigates to the draw preparation of the selected group.
  */
 @Composable
 fun GroupsRoute(

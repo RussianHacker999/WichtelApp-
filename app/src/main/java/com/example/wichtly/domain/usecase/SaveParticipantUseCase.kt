@@ -11,10 +11,10 @@ import com.example.wichtly.logging.AppLog
 private const val TAG = "SaveParticipantUseCase"
 
 /**
- * Legt einen Teilnehmer an oder ändert ihn. Einzige Stelle, an der Teilnehmer geprüft werden.
+ * Creates or updates a participant. The only place where participants are validated.
  *
- * Ablauf: Gruppe muss existieren → beim Bearbeiten muss der Teilnehmer existieren →
- * Name normalisieren und alle Regeln prüfen → nur bei fehlerfreiem Ergebnis schreiben.
+ * Flow: the group must exist → when editing, the participant must exist →
+ * normalise the name and check all rules → write only if there are no errors.
  */
 class SaveParticipantUseCase(
     private val participantRepository: ParticipantRepository,
@@ -22,10 +22,10 @@ class SaveParticipantUseCase(
     private val validator: ParticipantValidator = ParticipantValidator(),
 ) {
     /**
-     * @param participantId null legt einen neuen Teilnehmer an, sonst wird dieser Teilnehmer geändert.
-     * @param groupId Gruppe, zu der der Teilnehmer gehört.
-     * @param name Name wie eingegeben; wird hier normalisiert.
-     * @param photoPath Relativer Pfad des Fotos oder null.
+     * @param participantId null creates a new participant; otherwise this participant is updated.
+     * @param groupId group the participant belongs to.
+     * @param name name as typed; normalised here.
+     * @param photoPath relative path of the photo, or null.
      */
     suspend operator fun invoke(
         participantId: String?,

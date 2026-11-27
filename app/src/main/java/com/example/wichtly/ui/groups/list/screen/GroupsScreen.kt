@@ -67,19 +67,15 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * Zustandsloser Screen der Gruppenliste; die Bausteine (Top-Leiste, Karten, Buttons) kommen aus ui/components.
+ * Stateless screen of the group list; the building blocks (top bar, cards, buttons) come from ui/components.
  *
- * Die Callbacks sind "Event-Handler": Funktionen, die von außen hereingereicht werden. Die Route verdrahtet
- * sie mit dem ViewModel bzw. der Navigation (Formular neu, Gruppendetails, Formular bearbeiten, Vorbereitung).
- * Die Annotation @Composable kennzeichnet eine Funktion, die UI beschreibt (früher: XML-Layouts).
+ * The route connects the callbacks with the ViewModel and the navigation.
  *
- * @param state Aktueller Zustand der Gruppenliste.
- * @param onAddGroupClick "Neue Gruppe" angetippt.
- * @param onGroupClick Gruppenkarte angetippt (wählt sie für "Losen" aus).
- * @param onDetailsClick "Gruppendetails" im Kartenmenü.
- * @param onEditGroupClick "Gruppe bearbeiten" im Kartenmenü.
- * @param onPrepareDrawClick "Losen" für die ausgewählte Gruppe.
- * @param modifier Äußerer Modifier.
+ * @param onAddGroupClick "New group" was tapped.
+ * @param onGroupClick a group card was tapped (selects it for "Draw").
+ * @param onDetailsClick "Group details" in the card menu.
+ * @param onEditGroupClick "Edit group" in the card menu.
+ * @param onPrepareDrawClick "Draw" for the selected group.
  */
 @Composable
 fun GroupsScreen(
@@ -92,12 +88,11 @@ fun GroupsScreen(
     modifier: Modifier = Modifier,
 ) {
     WichtlyScaffold(
-        // WichtlyScaffold ist das gemeinsame Gerüst aller Screens außer der Startseite (Top-Leiste, Inhalt, Aktionsleiste unten)
         modifier = modifier,
         topBar = { BrandTopBar() },
         bottomBar = {
-            // "Losen" ist die EINE Hauptaktion; "Neue Gruppe" sitzt am Abschnitt "Gruppen".
-            // Ohne Gruppen (oder beim Laden/Fehler) gibt es nichts zu losen, also keine Aktionsleiste.
+            // "Draw" is the one main action; "New group" sits at the "Groups" section.
+            // Without groups (or while loading / on error) there is nothing to draw, so no action bar.
             if (!state.isLoading && state.errorMessage == null && state.groups.isNotEmpty()) {
                 val hasSelection = state.selectedGroupId != null
                 val hint = when {
@@ -108,7 +103,7 @@ fun GroupsScreen(
                 BottomActionBar(hint = hint) {
                     PrimaryButton(
                         text = stringResource(R.string.common_draw),
-                        // Ohne ausgewählte Karte gibt es kein gültiges Ziel für die Vorbereitung.
+                        // Without a selected card there is no valid target for the preparation.
                         enabled = hasSelection && !state.selectedDrawDayPassed,
                         onClick = { state.selectedGroupId?.let(onPrepareDrawClick) },
                         icon = Icons.Filled.Redeem,
@@ -120,19 +115,15 @@ fun GroupsScreen(
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            // contentPadding: Abstand zum Bildschirmrand und zu Top- und Aktionsleiste
-            // der Losen-Button steht nicht in der Liste, sondern fest in der Aktionsleiste unten
+            // The draw button is not part of the list but fixed in the bottom action bar
             contentPadding = screenContentPadding(innerPadding),
             verticalArrangement = Arrangement.spacedBy(Spacing.cardGap),
         ) {
             item {
-                // jedes Element muss in ein item (bei einer LazyColumn)
-                // ein Element: item vs. mehrere Elemente aus einer Liste: items
                 PageHeader(title = stringResource(R.string.groups_title), subtitle = stringResource(R.string.groups_subtitle))
             }
             if (state.isLoading) {
                 item {
-                    // Zeigt einen Ladekreis (von Material 3)
                     LoadingState(
                         text = stringResource(R.string.common_loading_unpacking),
                         modifier = Modifier.fillMaxWidth().height(240.dp),
@@ -170,12 +161,11 @@ fun GroupsScreen(
                     )
                 }
                 items(state.groups, key = { it.id }) { group ->
-                    // für jede Gruppe in state.groups wird eine HeroGroupCard erstellt
                     HeroGroupCard(
                         group = group,
-                        // holt die Fotodatei der Gruppe aus dem UiState (null, wenn kein Foto hinterlegt ist oder die Datei fehlt)
+                        // null if the group has no photo or the file is missing
                         photoFile = state.photoFiles[group.id],
-                        // die ausgewählte Karte bekommt einen goldenen Rahmen und ein Häkchen
+                        // The selected card gets a gold border and a check mark
                         selected = state.selectedGroupId == group.id,
                         onClick = { onGroupClick(group.id) },
                         onDetailsClick = { onDetailsClick(group.id) },
@@ -187,13 +177,9 @@ fun GroupsScreen(
     }
 }
 
-// Das Gruppenfoto wird nicht mehr in der Liste aufgenommen. Auswahl (Foto aufnehmen / entfernen),
-// Kamera-Abfrage und der Hinweis bei abgelehntem Kamerazugriff laufen jetzt im Gruppenformular
-// (GroupFormScreen) über PhotoField, genau wie beim Teilnehmerfoto.
-
 /**
- * Gruppenkarte mit farbigem Bildbereich (Gruppenfoto oder Verlauf mit Sternchen),
- * darunter Name, Budget und Wichtelart sowie das ⋮-Menü.
+ * Group card with a coloured image area (group photo, or a gradient with sparkles),
+ * below it name, budget and draw type, and the ⋮ menu.
  */
 @Composable
 private fun HeroGroupCard(
@@ -213,8 +199,8 @@ private fun HeroGroupCard(
             .fillMaxWidth()
             .then(if (selected) Modifier.border(BorderStroke(2.5.dp, MaterialTheme.colorScheme.primary), shape) else Modifier),
         shape = shape,
-        // Hintergrundfarbe der Karte aus dem Farbschema (surfaceContainer) statt als feste Farbe im Code.
-        // Die App hat nur das eine dunkle Evergreen-Schema; so sehen alle Karten gleich aus und Farben ändert man an einer Stelle.
+        // The card colour comes from the colour scheme (surfaceContainer) instead of a fixed colour,
+        // so all cards look the same and colours are changed in one place.
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
     ) {
         Box(
@@ -222,20 +208,14 @@ private fun HeroGroupCard(
                 .fillMaxWidth()
                 .height(92.dp),
         ) {
-            // wenn die Fotodatei dieser Gruppe existiert,
-            // dann zeige das Bild an
             if (photoFile != null) {
-                // PhotoThumbnail ist ein verkleinertes Bild des Originalbildes
-                // es füllt den oberen Bildbereich der Karte komplett aus
+                // Fills the whole image area; the rounded corners come from the card
                 PhotoThumbnail(
-                    // Pfad zum Foto
                     file = photoFile,
-                    // Größe des Fotos: ganzer Bildbereich
                     modifier = Modifier.fillMaxSize(),
-                    // Form des Fotos: eckig, die runden Ecken entstehen durch die Karte
                     shape = RectangleShape,
                 )
-            // Ohne Fotodatei (kein Foto hinterlegt oder Datei fehlt) werden ein Farbverlauf mit Sternchen und die Initialen angezeigt
+            // Without a photo file (no photo set or file missing): a gradient with sparkles and the initials
             } else {
                 Box(
                     modifier = Modifier
@@ -286,19 +266,15 @@ private fun HeroGroupCard(
             )
         }
         Row(
-            // untere Zeile der Karte: Name, Budget und Wichtelart, rechts das ⋮-Menü
             modifier = Modifier.padding(start = Spacing.l, end = Spacing.tight, top = Spacing.inline, bottom = Spacing.inline),
             verticalAlignment = Alignment.CenterVertically,
-            // Text und Menü vertikal mittig
         ) {
             ListItemText(
                 title = group.name,
                 subtitle = stringResource(R.string.groups_card_subtitle, formatCentsForInput(group.budgetCents), stringResource(group.drawType.labelRes())),
-                // weight(1f) sorgt dafür, dass der Text den gesamten Platz einnimmt, der zur Verfügung steht
-                // den Abstand zum Kartenrand gibt das padding der Row
+                // Takes all the remaining width; the Row's padding provides the gap to the card edge
                 modifier = Modifier.weight(1f),
             )
-            // ⋮-Menü rechts mit "Gruppendetails" und "Gruppe bearbeiten"
             ItemMenu(
                 actions = listOf(
                     MenuAction(stringResource(R.string.common_group_details), Icons.Filled.Groups, onDetailsClick),
@@ -309,8 +285,7 @@ private fun HeroGroupCard(
     }
 }
 
-// Previews: zeigen den Screen als Vorschau in Android Studio, ohne Emulator und ohne die App zu starten.
-// Öffnen: im Editor oben rechts zwischen Code | Split | Design umschalten und Split oder Design wählen.
+/** Preview: group list with several groups. */
 @Preview(showBackground = true, heightDp = 760)
 @Composable
 private fun GroupsScreenPreview() {

@@ -24,17 +24,11 @@ import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zur Auswahl von Foto-Aktionen (Kamera aufnehmen / Foto entfernen).
+ * Stateless dialog for choosing a photo action (take a photo / remove the photo).
  *
- * Warum zustandslos?
- * Die Anzeige und Steuerung erfolgt rein über Parameter und Lambda-Callbacks. Es gibt keine Galerieauswahl;
- * ausschließlich die Kameraaufzeichnung wird angeboten.
+ * There is no gallery selection; only capturing with the camera is offered.
  *
- * @param hasPhoto Zeigt die "Foto entfernen"-Aktion an, wenn `hasPhoto == true`.
- * @param onTakePhoto Callback zum Auslösen der Kameraaufnahme.
- * @param onRemovePhoto Callback zum Entfernen des vorhandenen Fotos.
- * @param onDismiss Callback beim Schließen oder Abbrechen des Dialogs.
- * @param modifier Optionaler Layout-Modifier.
+ * @param hasPhoto shows the "Remove photo" action if true.
  */
 @Composable
 internal fun PhotoSourceDialog(
@@ -57,14 +51,14 @@ internal fun PhotoSourceDialog(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
             )
-            // Option: Foto aufnehmen
+            // Option: take a photo
             PhotoOption(icon = Icons.Filled.PhotoCamera, label = stringResource(R.string.photo_take), onClick = onTakePhoto)
-            // Option: Foto entfernen (nur sichtbar wenn hasPhoto == true)
+            // Option: remove the photo (only if there is one)
             if (hasPhoto) {
                 PhotoOption(icon = Icons.Filled.Delete, label = stringResource(R.string.photo_remove), onClick = onRemovePhoto, destructive = true)
             }
         },
-        // Die Optionen sind selbst die Aktionen; unten bleibt nur "Abbrechen".
+        // The options are the actions themselves; only "Cancel" stays at the bottom.
         confirmLabel = null,
         onConfirm = {},
     )
@@ -94,12 +88,8 @@ private fun PhotoOption(icon: ImageVector, label: String, onClick: () -> Unit, d
     }
 }
 
-// -----------------------------------------------------------------------------
-// PREVIEWS
-// -----------------------------------------------------------------------------
-
 /**
- * Preview 1: Gruppenfoto-Auswahldialog ohne vorhandenes Foto.
+ * Preview: group photo dialog without an existing photo.
  */
 @Preview
 @Composable
@@ -115,7 +105,7 @@ private fun PhotoSourceDialogGroupEmptyPreview() {
 }
 
 /**
- * Preview 2: Teilnehmerfoto-Auswahldialog mit vorhandenem Foto.
+ * Preview: participant photo dialog with an existing photo.
  */
 @Preview
 @Composable

@@ -7,12 +7,12 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 /**
- * Was die Startseite in ihrer Infozeile anzeigt.
+ * What the start screen shows in its info line.
  *
- * - [NoGroups]: Es gibt noch keine Gruppe → Einladung, die erste anzulegen.
- * - [NextEvent]: Die nächste anstehende Bescherung (heute oder später).
- * - [OnlyPast]: Es gibt Gruppen, aber alle Termine liegen in der Vergangenheit.
- * - [Unavailable]: Die Gruppen konnten nicht geladen werden (die Gruppenliste zeigt dann den Fehler).
+ * - [NoGroups]: there is no group yet → invitation to create the first one.
+ * - [NextEvent]: the next upcoming exchange (today or later).
+ * - [OnlyPast]: there are groups, but all dates lie in the past.
+ * - [Unavailable]: the groups could not be loaded (the group list then shows the error).
  */
 sealed interface StartSummary {
     data object NoGroups : StartSummary
@@ -22,11 +22,11 @@ sealed interface StartSummary {
 }
 
 /**
- * Ermittelt die Infozeile der Startseite aus den Gruppen.
- * Reine Funktion ohne Android-Abhängigkeiten, damit sie sich im Unit-Test prüfen lässt.
+ * Derives the info line of the start screen from the groups.
  *
- * @param groups Alle Wichtelgruppen.
- * @param today Das heutige Datum (von außen übergeben, damit der Test es festlegen kann).
+ * A pure function without Android dependencies, so it can be checked in a unit test.
+ *
+ * @param today today's date (passed in from outside, so the test can fix it).
  */
 fun startSummaryOf(groups: List<GiftGroup>, today: LocalDate): StartSummary {
     if (groups.isEmpty()) return StartSummary.NoGroups
@@ -38,8 +38,9 @@ fun startSummaryOf(groups: List<GiftGroup>, today: LocalDate): StartSummary {
 }
 
 /**
- * String-Ressource für "heute" bzw. "morgen".
- * null bedeutet: "in N Tagen", das die UI als Plural (R.plurals.start_days_in) anzeigt.
+ * String resource for "today" or "tomorrow".
+ *
+ * null means "in N days", which the UI shows as a plural (R.plurals.start_days_in).
  */
 @StringRes
 fun daysUntilSpecialRes(days: Long): Int? = when (days) {

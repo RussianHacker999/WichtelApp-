@@ -4,26 +4,33 @@ import com.example.wichtly.domain.model.participant.Participant
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Reine Persistenz für Teilnehmer. Fachliche Prüfungen passieren vorher im
- * SaveParticipantUseCase; geschrieben werden nur bereits geprüfte Teilnehmer.
+ * Pure persistence for participants. Business validation happens beforehand in
+ * SaveParticipantUseCase; only validated participants are written.
  *
- * Lesen: `observe…` liefert einen Flow für Screens, `get…` liest den aktuellen Stand genau einmal.
+ * Reading: `observe…` returns a Flow for screens, `get…` reads the current state exactly once.
  */
 interface ParticipantRepository {
+    /** Observes the participants of a group, sorted by name. */
     fun observeParticipantsByGroupId(groupId: String): Flow<List<Participant>>
+
+    /** Observes one participant; the Flow emits null if the participant does not exist (any more). */
     fun observeParticipantById(id: String): Flow<Participant?>
 
-    /** Teilnehmer der Gruppe, sortiert wie [observeParticipantsByGroupId]. */
+    /** Participants of the group, sorted like [observeParticipantsByGroupId]. */
     suspend fun getParticipantsByGroupId(groupId: String): List<Participant>
 
-    /** @return null, wenn es keinen Teilnehmer mit dieser ID gibt. */
+    /** @return null if there is no participant with this ID. */
     suspend fun getParticipantById(id: String): Participant?
 
-    /** Fotopfade aller Teilnehmer aller Gruppen; für das Aufräumen verwaister Fotos. */
+    /** Photo paths of all participants of all groups; used to clean up orphaned photos. */
     suspend fun getAllPhotoPaths(): List<String>
+
+    /** Inserts a new, already validated participant. */
     suspend fun insertParticipant(participant: Participant)
 
-    /** @return false, wenn es keinen Teilnehmer mit dieser ID (mehr) gibt. */
+    /** @return false if there is no participant with this ID (any more). */
     suspend fun updateParticipant(participant: Participant): Boolean
+
+    /** Deletes the participant; their wishlist is deleted via CASCADE. Past draws stay unchanged. */
     suspend fun deleteParticipant(id: String)
 }

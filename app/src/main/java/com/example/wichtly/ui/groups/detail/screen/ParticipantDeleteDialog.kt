@@ -11,19 +11,13 @@ import com.example.wichtly.ui.components.controls.WichtlyDialog
 import com.example.wichtly.ui.theme.WichtlyTheme
 
 /**
- * Zustandsloser (stateless) Dialog zur Bestätigung des Löschens eines Wichtelgruppen-Teilnehmers.
+ * Stateless dialog that confirms deleting a participant of a gift group.
  *
- * Warum zustandslos?
- * Gemäß Unidirectional Data Flow (UDF) steuert die übergeordnete Screen/ViewModel-Ebene die Anzeige
- * und Logik. Der Dialog nimmt lediglich den Namen und eventuelle Fehler entgegen, was ihn frei von
- * Seiteneffekten und leicht testbar macht.
+ * The screen and ViewModel above it control when it is shown and what happens; the dialog only
+ * receives the name and a possible error.
  *
- * @param participantName Der Name des zu löschenden Teilnehmers.
- * @param errorMessage Optionale Fehlermeldung, die sichtbar im Dialog angezeigt wird, falls das Löschen fehlschlägt.
- * @param isBusy Deaktiviert die Buttons während des laufenden Löschvorgangs.
- * @param onConfirm Callback beim Bestätigen der Löschung.
- * @param onDismiss Callback beim Abbrechen oder Schließen des Dialogs.
- * @param modifier Optionaler Layout-Modifier.
+ * @param errorMessage optional error message shown in the dialog if deleting fails.
+ * @param isBusy disables the buttons while the delete is running.
  */
 @Composable
 fun ParticipantDeleteDialog(
@@ -37,14 +31,13 @@ fun ParticipantDeleteDialog(
     WichtlyDialog(
         onDismissRequest = onDismiss,
         icon = Icons.Filled.Delete,
-        // Warum eindeutiger Titel: Macht dem Nutzer sofort klar, dass eine destruktive Aktion bevorsteht.
         title = stringResource(R.string.participant_delete),
-        // Hinweis auf das Löschen des Teilnehmers samt seiner Wunschliste
+        // Says that the participant is deleted together with their wishlist
         text = stringResource(R.string.participant_delete_text, participantName),
         confirmLabel = stringResource(R.string.common_delete),
         onConfirm = onConfirm,
         destructive = true,
-        // Warum disabled bei isBusy: Verhindert Mehrfachklicks und parallele Lösch-Aufrufe.
+        // Disabled while busy: prevents double taps and parallel delete calls.
         confirmEnabled = !isBusy,
         confirmLoading = isBusy,
         dismissEnabled = !isBusy,
@@ -53,15 +46,8 @@ fun ParticipantDeleteDialog(
     )
 }
 
-/* ============================================================================
- * Previews (Vorschaudarstellungen in WichtlyTheme)
- * Warum: Ermöglicht die visuelle Überprüfung aller UI-Zustände im Android Studio
- * Preview-Fenster ohne App-Start. Verwendet ausschließlich lokale Fake-Daten.
- * ============================================================================ */
-
 /**
- * Preview 1: Standard-Löschdialog für einen Teilnehmer.
- * Warum: Überprüft das Erscheinungsbild des Dialogs mit Hinweis auf die Wunschliste.
+ * Preview: default delete dialog for a participant.
  */
 @Preview
 @Composable
@@ -72,8 +58,7 @@ private fun ParticipantDeleteDialogPreview() {
 }
 
 /**
- * Preview 2: Löschdialog mit sichtbarer Fehlermeldung.
- * Warum: Überprüft die korrekte Anzeige von Fehlertexten (z. B. bei Fehlschlagen der Löschung in der Datenbank).
+ * Preview: delete dialog with a visible error message.
  */
 @Preview
 @Composable

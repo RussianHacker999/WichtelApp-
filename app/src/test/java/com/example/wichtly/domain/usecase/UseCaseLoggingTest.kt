@@ -21,7 +21,7 @@ import org.junit.Test
 import java.time.LocalDate
 
 /**
- * Prüft die Log-Stufen der Use Cases und die Datenschutz-Regel (keine Namen in Logs).
+ * Checks the log levels of the use cases and the privacy rule (no names in logs).
  */
 class UseCaseLoggingTest {
 

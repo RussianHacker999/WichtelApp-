@@ -67,25 +67,21 @@ import com.example.wichtly.ui.theme.EyebrowStyle
 import com.example.wichtly.ui.theme.Spacing
 import com.example.wichtly.ui.theme.WichtlyTheme
 
-// Formgebundene Innenabstände des Geschenkanhängers: oben Platz für das Loch mit Band, unten für die Kante
+// Fixed padding of the gift tag: room for the hole with the ribbon at the top, for the edge at the bottom
 private val TagPaddingHorizontal = 20.dp
 private val TagPaddingTop = 52.dp
 private val TagPaddingBottom = 22.dp
 
 /**
- * Zustandsloser (stateless) Vollbild-Dialog, der die gezogene Zuordnung (Schenker -> Beschenkter) als
- * Geschenkanhänger zeigt: erst geschlossen ("Tippen zum Öffnen"), nach dem Antippen geöffnet
- * inklusive der Wünsche des Beschenkten.
+ * Stateless full-screen dialog that shows the drawn assignment (giver -> receiver) as a gift tag:
+ * closed at first ("Tap to open"), and after a tap open, including the receiver's wishes.
  *
- * Warum zustandslos?
- * Gemäß Unidirectional Data Flow (UDF) nimmt die Komponente die fertigen Zuordnungsdaten entgegen
- * und löst über „Schließen“, „Nicht ich“ oder Tippen außerhalb lediglich [onDismiss] aus. Nur ob der Anhänger schon geöffnet
- * ist, merkt sich die Komponente selbst (rememberSaveable).
+ * Takes the finished assignment data and only calls [onDismiss] for "Close", "Not me" or a tap
+ * outside. The only thing it remembers itself is whether the tag is already open (rememberSaveable).
  *
- * @param assignment Die anzuzeigende Ziehungs-Zuordnung mit Schenker, Beschenktem und Wunschliste.
- * @param onDismiss Callback beim Schließen des Geschenkanhängers.
- * @param modifier Optionaler Layout-Modifier.
- * @param startOpened true öffnet den Anhänger sofort (z. B. für Previews).
+ * @param assignment the assignment to show, with giver, receiver and wishlist.
+ * @param onDismiss closes the gift tag.
+ * @param startOpened true opens the tag right away (e.g. for previews).
  */
 @Composable
 fun DrawResultDialog(
@@ -121,7 +117,7 @@ private fun GiftTagReveal(
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Schnur des Anhängers
+            // String of the tag
             Canvas(modifier = Modifier.size(width = 120.dp, height = 64.dp).offset(y = 18.dp)) {
                 val path = Path().apply {
                     moveTo(size.width * 0.08f, -size.height * 0.6f)
@@ -138,7 +134,7 @@ private fun GiftTagReveal(
                         .background(tagColor)
                         .drawWithContent {
                             drawContent()
-                            // Loch für die Schnur
+                            // Hole for the string
                             drawCircle(color = scrim, radius = 8.dp.toPx(), center = Offset(size.width / 2f, 24.dp.toPx()))
                         }
                         .clickable(
@@ -172,15 +168,15 @@ private fun GiftTagReveal(
 }
 
 /**
- * Geschlossener Anhänger ("Nur für deine Augen").
+ * Closed tag ("For your eyes only").
  *
- * @param onDismiss Schließt den Anhänger, ohne das Ergebnis aufzudecken: für den Fall,
- *   dass gerade nicht die richtige Person vor dem Bildschirm sitzt.
+ * @param onDismiss closes the tag without revealing the result, for the case that the
+ *   wrong person is in front of the screen.
  */
 @Composable
 private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(Spacing.inline)) {
-        // Der geschlossene Anhänger ersetzt die frühere Sicherheitsabfrage ("Nur für deine Augen").
+        // The closed tag takes over the role of a separate confirmation ("For your eyes only").
         TagLabel(text = stringResource(R.string.draw_result_only_for_you), color = contentColor)
         Icon(imageVector = Icons.Filled.Redeem, contentDescription = null, tint = contentColor, modifier = Modifier.size(54.dp))
         Text(
@@ -195,8 +191,8 @@ private fun ClosedTag(giverName: String, contentColor: Color, onDismiss: () -> U
             color = contentColor.copy(alpha = 0.8f),
             textAlign = TextAlign.Center,
         )
-        // Falsche Person: schließen, ohne aufzudecken. Der Button fängt den Klick ab,
-        // daher öffnet sich der Anhänger dabei nicht.
+        // Wrong person: close without revealing. The button consumes the click,
+        // so the tag does not open at the same time.
         OutlinedButton(
             onClick = onDismiss,
             shape = CircleShape,
@@ -264,17 +260,17 @@ private fun OpenedTag(assignment: DrawAssignmentUiModel, contentColor: Color, on
 private fun TagLabel(text: String, color: Color) {
     Text(
         text = text.uppercase(),
-        // Eyebrow auf dem Anhänger: fett, damit sie deutlich lesbar ist
+        // Eyebrow on the tag: bold, so it is clearly readable
         style = EyebrowStyle,
         color = color.copy(alpha = 0.85f),
         textAlign = TextAlign.Center,
     )
 }
 
-/** Heller Schatten für die Serifenschrift auf dem goldenen Anhänger (der dunkle Titelschatten wäre hier zu schwer). */
+/** Light shadow for the serif font on the gold tag (the dark title shadow would be too heavy here). */
 private val TagTextShadow = Shadow(color = Color.White.copy(alpha = 0.3f), offset = Offset(0f, 4f), blurRadius = 0f)
 
-/** Anhänger-Form: oben abgeschrägte Ecken, unten abgerundet. */
+/** Tag shape: bevelled corners at the top, rounded at the bottom. */
 private object GiftTagShape : Shape {
     override fun createOutline(size: Size, layoutDirection: LayoutDirection, density: Density): Outline {
         val cut = with(density) { 44.dp.toPx() }
@@ -296,10 +292,6 @@ private object GiftTagShape : Shape {
     }
 }
 
-/* ============================================================================
- * Previews (Vorschaudarstellungen in WichtlyTheme)
- * ============================================================================ */
-
 private val previewAssignment = DrawAssignmentUiModel(
     id = "a1",
     giverId = "p1",
@@ -310,7 +302,7 @@ private val previewAssignment = DrawAssignmentUiModel(
 )
 
 /**
- * Preview 0: Geschlossener Geschenkanhänger ("Tippen zum Öffnen").
+ * Preview: closed gift tag ("Tap to open").
  */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
@@ -319,7 +311,7 @@ private fun GiftTagClosedPreview() {
 }
 
 /**
- * Preview 1: Geöffneter Geschenkanhänger mit drei Wünschen.
+ * Preview: open gift tag with three wishes.
  */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
@@ -328,7 +320,7 @@ private fun GiftTagOpenedPreview() {
 }
 
 /**
- * Preview 2: Geöffneter Geschenkanhänger ohne Wünsche (leere Wunschliste).
+ * Preview: open gift tag without wishes (empty wishlist).
  */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
@@ -337,7 +329,7 @@ private fun GiftTagNoWishesPreview() {
 }
 
 /**
- * Preview 3: Geöffneter Geschenkanhänger mit einem sehr langen Wunschtext.
+ * Preview: open gift tag with a very long wish text.
  */
 @Preview(showBackground = true, backgroundColor = 0xFF0E2A22, heightDp = 640)
 @Composable
