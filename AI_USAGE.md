@@ -1184,7 +1184,12 @@ self-made projects or Android).
 - Ownership: no edits to other people's files (e.g. AppNavHost) beyond placeholders, and tell them about it
 
 **Melissa**
-- *To be added.*
+- I learn to develop with Android Studio and Kotlin. 
+  I now understand the meaning of elements such as @Composable, Flow, @Suspend, Emit(), and so on.
+  I can control a virtual Device.
+- I understand the data flow behind our MVVM models
+- I learned about permissions (e.g. for camera access)
+- I learnd tha you can save Date permanent via Database. In Android Studio a greate solution is Room.
 
 **Team**
 
