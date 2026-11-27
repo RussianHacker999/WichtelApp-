@@ -1201,7 +1201,14 @@ self-made projects or Android).
 
 
 **Diana**
-- *To be added.*
+- Helped:
+  - small prompts with clear scope and fixed rules
+  - a review by Claude before each commit, which caught EXIF rotation and photo deletion timing
+  - fakes and ViewModel tests as a safety net
+- Got in the way: 
+  - the AI forgot team decisions, e.g. kept suggesting group photos
+  - plausible but wrong fixes, e.g. the test dispatcher fix
+  - missing context about other people's code, e.g. missing GroupsScreen callbacks
 
 **Melissa**
 - *To be added.*
