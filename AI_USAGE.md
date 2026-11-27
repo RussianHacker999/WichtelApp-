@@ -1,26 +1,13 @@
-# Logbook fur die KI-Nutzung
-In diesem Dokument sollen alle KI-Promps festgehalten werden, 
-welche wir für das Projekt "WichelApp" in Rahmen der Vorlesung "Mobile Applikationen" bei Jan Brodbaecker geschrieben haben.
-
-## Musterbeitrag
-## 1. Titel
-Datum: 2026-00-00  Autor: Vorname, Nachmame  Tool: Claude Code
-
-Prompt 1:   "Erstelle einen Raum Entity und ein DAO für das Lekture. 
-            Folge den Regeln in CLAUDE.md."
-Prompt 2:  "Das Repositotry ruft das Netzwerk bei jedem Lesen.
-            Mache die Datenbank zur einzigen Quelle für wahre Werte."
-Prompt 3:  "Füge einen Unit Test für das Mapping von Entity auf Lecture ein."
-
-Angenommen:  Entity, DAO und test wie vorgeschlagen
-Geaendert:   Repository, nach dem 2. Prompt
-Verworfen:   Der zweite Cache im Arbeitsspeicher. Nicht erforderlich.
-Cheched:     Aprplane mode, Neustart: die Liste wird angezeigt.
-Commits:     3f2a91c, 8be07d4
+# AI Usage Log Book
+This document records every prompt we sent to an AI assistant for the project Wichtly in the course
+"Mobile Applications" with Jan Brodbaecker, and what we did with the results.
 
 ## Log Entries
 
-#### Default tool: Gemini in Android Studio. Used if not stated otherwise.
+#### Default tools 
+### Viktoria 
+Gemini in Android Studio until 2026-11-17, Claude Code (Claude Opus 5.5) from 2026-11-19.
+Entries that used a different tool name it in the heading.
 
 ### 2026-11-02 (Viktoria)
 **Prompt 1** : "Add all required dependencies needed for the database 
@@ -518,7 +505,7 @@ Change directory structure so there are both photos/groups as well as photos/par
 **Accepted**: as is.
 **Commits**: f106370
 
-### 2026-11-18 (Viktoria); Claude Code (Claude Opus 5.5)
+### 2026-11-19 (Viktoria)
 **Prompt 1**:
 ** Please make following picture as our Android app icon [Image #4] and make it also appear on App launch. State exactly what you changed and where.**
 **Accepted**: as is.
@@ -670,7 +657,7 @@ uiState.cameraDeniedGroupId?.let {
 **Commits:**        94961c9
 
 
-### 2026-11-23 (Viktoria), Claude Code (Claude Opus 5.5)
+### 2026-11-23 (Viktoria)
 
 **Prompts for UI: picking mockups."**
 **Commits**: 8dcfa0a
@@ -688,7 +675,7 @@ uiState.cameraDeniedGroupId?.let {
 **Commits**: 6df30c2
 
 
-### 2026-11-24 (Viktoria), Claude Code (Claude Opus 5.5)
+### 2026-11-24 (Viktoria)
 
 **Prompts for further UI redesign; several rounds**
 **Commits**: f815f72, 7927c36
@@ -722,7 +709,7 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 
 
 
-### 2026-11-25 Viktoria, Claude Code (Claude Opus 5.5)
+### 2026-11-25 (Viktoria)
 
 **Prompt 1**: "Überführe alle hardcodierten Stringliterale in die strings xml"
 **Accepted**: as is.
@@ -811,6 +798,14 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Commits**: 48273d0
 
 
+### 2026-11-26 (Viktoria)
+**Prompt 1**:
+Der photo capture prozess im screen und uistate ist verwirrend, da er durch viele klassen führt. Bitte vereinfache und kapsele.
+**Prompt 2**  
+außerdem ist die location der photo components im ordner ui nicht uniform zu den anderen ui sachen. auch das muss man lösen.
+**Accepted**: Flow until capture delegated from VM to PhotoFlowState. Main screens only see PhotoField. New package ui/photo.
+**Commits**: dc16279
+
 ### 2026-11-26 (Melissa, Meyer), Copilot (kostenlos)
 **Prompt 1**: Wir scheiben eine Ardoid App in Kotiln mit Git. Uns ist aufgefallen, dass wir 2 .gitignore haben. Ein .gitignore liegt ganz oben bei der README und ein .gitignore liegt in der ersten Schicht des App-Ordners. Ich möchte die .gitignore zusammenfassen. Es ist doch sinvoller, das .gitignore ganz oben zu behalten, oder?
 **Prompt 2**: Habe ich das so richtig eingebunden?.\
@@ -822,6 +817,24 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Geaendert**:       Komantare
 **Commits:**         d66adc4 
 
+### 2026-11-27 (Viktoria)
+**Prompt 1**
+Die Dateien GroupFormViewModel, GroupFormScreen, GroupDetailScreen, GroupDetailViewModel sind zu riesig. 
+Bitte entzerre sie, ohne substanziell etwas am Code selbst zu ändern. Orientiere dich an der bestehenden Dateistrutkur.
+**Accepted**: File restructuring. 
+**Commits**: 195b9b6
+
+**Prompt 2**
+Comment our code in a professional manner, with KDocs; translate all comments into english. Also 
+search for dead code and remove; put remaining relevant files into gitignore.
+Also do update the README so that it is more professional;
+note that the remarks on architecture are too detailed for a README, also add my current xiaomi device (see androidstudio devices)
+to the README devices. Also do create a CLAUDE.md and update the AGENTS.md (for non-claude agents such as gemini in android studio and other) 
+so both of them are professional and conform to our current standards.
+**Prompt 3**
+Set up ktlint and run it through our code.
+**Accepted**: Improved comments, README, CLAUDE.md, AGENTS.md, ktlint.
+**Commits**: 7a45ff0, 5c13055, 5636f68
 
 
 
