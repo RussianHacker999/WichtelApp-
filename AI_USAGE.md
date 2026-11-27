@@ -1217,7 +1217,11 @@ self-made projects or Android).
   - missing context about other people's code, e.g. missing GroupsScreen callbacks
 
 **Melissa**
-- *To be added.*
+- Helped:
+  - It helped me understand by explaining individual parts of the code from ver KI.
+  - Integrated AI agents can create beautiful UI elements
+- Got in the way:
+  - merge conficts
 
 **Team**
 - Helped:
@@ -1250,7 +1254,8 @@ let agents criticise own decisions more thoroughly.
 - Use one (Gemini) chat per feature so the history stays easy to follow
 
 **Melissa**
-- *To be added.*
+- For the next project, I would plan the architecture in more detail earlier on.
+- I would also define the functionality and navigation paths for each screen before starting to code.
 
 **Team**
 - Instruct AI to keep files small(er)
