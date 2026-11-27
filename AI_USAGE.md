@@ -1146,7 +1146,11 @@ Set up ktlint and run it through our code.
 - Real device for debugging due to performance reasons.
 
 **Diana**
-- *To be added.*
+- Two tools: Gemini (Android Studio) for code changes, Claude.ai for planning, writing the prompts and reviewing before each commit 
+- Prompts got smaller and stricter over time: allowed files named, no new dependencies, project rules repeated
+- "No git commands" added to every prompt after Gemini tried to discard uncommitted work
+- Sent the real files to Claude before prompting additionally to describing them from memory, which would have caught wrong assumptions
+- Tests as the main check
 
 **Melissa**
 - *To be added.*
