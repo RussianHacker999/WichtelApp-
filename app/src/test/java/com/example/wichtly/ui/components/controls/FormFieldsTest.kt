@@ -18,6 +18,7 @@ class FormFieldsTest {
         assertEquals("a".repeat(50), limitToLength("a".repeat(80), 50))
     }
 
+    // 49 letters plus one emoji (two UTF-16 units) make 51 units. Do not leave half an emoji.
     @Test
     fun emojiAnDerGrenzeWirdNichtZerschnitten() {
         // 49 letters + emoji (2 UTF-16 units) = 51 units; half an emoji must not remain
