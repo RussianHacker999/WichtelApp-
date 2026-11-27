@@ -823,3 +823,106 @@ GROUPDETAIL: "neue auslosung" ist immer noch nicht sichtbar. inconsistency: dass
 **Commits:**         d66adc4 
 
 
+
+
+## Reflection
+
+<!-- Part 3 of the log book (exam slides: "one to two pages" in total, "the part that counts most").
+     The four topics are the guiding questions from the slides; inside each topic one block per member,
+     then "Team" for what applies to all of us. Back every point with an entry or a commit.
+     This is a long draft: shorten it to about two pages before the submission. -->
+
+### Why this setup, and how it changed
+
+**Merve**
+- *To be added.*
+
+**Viktoria**
+- Gemini in Android Studio directly in the IDE because it was free. Most work on data and domain was done here. 
+- Afterwards used Claude for global refactoring and design (including mockup creation).
+- Real device for debugging due to performance reasons.
+
+**Diana**
+- *To be added.*
+
+**Melissa**
+- *To be added.*
+
+**Team**
+- Some members wanted to begin with free assistants, that is why no common start setup was possible.
+- MVVM as a paradigmatic architecture suitable even for beginners (no one had prior experience with larger 
+self-made projects or Android). 
+
+
+### What you learned to control
+
+**Merve**
+- *To be added.*
+
+**Viktoria**
+- Switch between plan-only and implementation mode. 
+- Data model (DB, entities, fields) requires especially careful review.
+
+**Diana**
+- *To be added.*
+
+**Melissa**
+- *To be added.*
+
+**Team**
+
+### What helped, what got in the way
+
+**Merve**
+- *To be added.*
+
+**Viktoria**
+- Helped:
+  - Planning before implementing. Especially the base Architecture itself. 
+  - AI design mockups as Claude artifacts.
+  - Separating validation and writes into use cases simplified the repository layer and ViewModels.
+- Got in the way:
+  - Side effects of agent, such as the UI refactor altering comments of team members.
+  - Relying on decisions such as upsert, on "no separate use case" due to lack of experience.
+
+
+**Diana**
+- *To be added.*
+
+**Melissa**
+- *To be added.*
+
+**Team**
+- Helped:
+  - Maintaining clear folder structure. 
+  - Separation of concerns:
+      - Viktoria: data and domain layer
+      - Diana: distinct UI + corresponding ViewModel 
+      - Melissa: or distinct parts of UI + corresponding Viewmodel 
+      - Merve: navigation, tests
+- Got in the way:
+  - Not agreeing early enough on a design system plus base UI components due to lack of experience with design/UI issues. 
+  Kind of a technical debt.
+
+
+### What you would do differently
+
+**Merve**
+- *To be added.*
+
+**Viktoria**
+- Decide linting and CI as early as possible.
+- Maybe set up another agent as Code Reviewer next time; 
+let agents criticise own decisions more thoroughly.
+- Set up room schema, logging, string/color res from beginning on.
+ 
+
+**Diana**
+- *To be added.*
+
+**Melissa**
+- *To be added.*
+
+**Team**
+- Instruct AI to keep files small(er)
+- Constantly update AGENTS/CLAUDE.md file
